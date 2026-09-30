@@ -19,6 +19,7 @@
         --color-steel: #6a86a2;
         --color-gold: #caa36c;
         --color-cream: #f1e3d3;
+        --color-whitef: #fdfdfd;
         --color-cream-50: #faf6f0;
         --color-placeholder: #d9d9d9;
         --font-marcellus: "Marcellus", serif;
@@ -81,12 +82,12 @@
 
         <!-- Gota: amagada sota el pill; en obrir cau (1) i s'estira fins a ser el menú (2) -->
         <div
-          class="absolute top-0.5 left-1/2 -translate-x-1/2 transition-transform delay-150 duration-500 ease-[cubic-bezier(.34,1.4,.64,1)] group-data-open:translate-y-[52px] group-data-open:delay-0 motion-reduce:transition-none"
+          class="absolute inset-x-0 top-0.5 flex justify-center transition-transform delay-150 duration-500 ease-[cubic-bezier(.34,1.4,.64,1)] group-data-open:translate-y-[52px] group-data-open:delay-0 motion-reduce:transition-none"
         >
           <nav
             id="main-menu"
             aria-label="Principal"
-            class="flex h-8 w-8 items-center justify-center sm:gap-3 overflow-hidden rounded-xl bg-cream group-data-past-hero:bg-ink transition-[width,height,background-color] duration-400 ease-[cubic-bezier(.22,1,.36,1)] group-data-open:h-14 group-data-open:px-3 group-data-open:py-1 group-data-open:w-[min(24rem,calc(100vw-2rem))] sm:group-data-open:w-[min(24rem,calc(100vw-2rem))] group-data-open:delay-200 motion-reduce:transition-none"
+            class="flex h-8 w-8 shrink-0 items-center justify-center sm:gap-3 overflow-hidden rounded-xl bg-cream group-data-past-hero:bg-ink transition-[width,height,background-color] duration-400 ease-[cubic-bezier(.22,1,.36,1)] group-data-open:h-14 group-data-open:px-3 group-data-open:py-1 group-data-open:w-[min(24rem,calc(100vw-2rem))] sm:group-data-open:w-[min(24rem,calc(100vw-2rem))] group-data-open:delay-200 motion-reduce:transition-none"
           >
             <a
               href="#s4"
@@ -202,7 +203,7 @@
                 </svg>
                 <h3 class="font-marcellus text-xl leading-tight text-cream md:text-2xl">Tots els teus immobles en un únic espai</h3>
               </div>
-              <p class="mt-12 sm:mt-16 text-center text-base text-cream/75 md:text-lg">
+              <p class="mt-12 sm:mt-16 text-left text-base text-cream/75 md:text-lg">
                 Visualitza i organitza el teu patrimoni immobiliari sense haver de buscar informació en diferents llocs.
               </p>
             </article>
@@ -224,7 +225,7 @@
                 </svg>
                 <h3 class="font-marcellus text-xl leading-tight text-cream md:text-2xl">La documentació sempre accessible</h3>
               </div>
-              <p class="mt-12 sm:mt-18 text-center text-base text-cream/75 md:text-lg">
+              <p class="mt-12 sm:mt-18 text-left text-base text-cream/75 md:text-lg">
                 Escriptures, certificats, contractes i documents importants disponibles quan els necessitis.
               </p>
             </article>
@@ -245,7 +246,7 @@
                 </svg>
                 <h3 class="font-marcellus text-xl leading-tight text-cream md:text-2xl">Actualitza una dada i queda certificada</h3>
               </div>
-              <p class="mt-8 sm:mt-16 text-center text-base text-cream/75 md:text-lg">
+              <p class="mt-8 sm:mt-16 text-left text-base text-cream/75 md:text-lg">
                 Afegeix nous immobles, mantén les dades al dia i consulta l'estat del teu patrimoni en qüestió de segons.
               </p>
             </article>
@@ -254,19 +255,43 @@
       </section>
 
       <!-- === S5 · PASSOS === -->
-      <section id="s5" aria-labelledby="s5-title" class="relative z-10 -mt-8 rounded-t-[2rem] bg-linear-to-b from-ink to-steel px-4 py-16 md:py-24">
-        <div class="mx-auto grid max-w-6xl grid-cols-1 gap-12 md:grid-cols-2">
-          <div class="md:sticky md:top-28 md:self-start">
-            <h2 id="s5-title" class="font-marcellus text-5xl text-cream">Quatre passos.</h2>
-            <p class="mt-2 text-3xl text-cream/90">Una propietat protegida.</p>
-            <ol class="mt-10 max-w-xs space-y-3">
-              <li><a href="#pas-1" class="block rounded-full bg-cream/20 px-6 py-2.5 text-cream hover:bg-cream/30">Verifica la teva identitat</a></li>
-              <li><a href="#pas-2" class="block rounded-full bg-cream/20 px-6 py-2.5 text-cream hover:bg-cream/30">Registra el teu bé</a></li>
+      <section
+        id="s5"
+        aria-labelledby="s5-title"
+        class="relative z-10 -mt-8 rounded-t-[2rem] bg-linear-to-b from-ink to-steel px-4 py-16 md:min-h-dvh md:flex md:items-center md:py-0 md:overflow-hidden"
+      >
+        <div class="mx-auto grid w-full max-w-6xl grid-cols-1 gap-12 md:grid-cols-2 md:items-center">
+          <div class="md:sticky md:top-28 md:self-center">
+            <h2 id="s5-title" class="font-marcellus text-5xl text-cream">Quatre passos</h2>
+            <p class="mt-2 text-3xl text-cream/90">Una propietat protegida</p>
+            <ol class="mt-10 max-w-none md:max-w-xs space-y-3">
               <li>
-                <a href="#pas-3" class="block rounded-full bg-cream/20 px-6 py-2.5 text-cream hover:bg-cream/30">Protegim la prova de propietat</a>
+                <a
+                  href="#pas-1"
+                  class="block text-center rounded-full bg-cream/20 px-6 py-2.5 text-cream hover:bg-cream/30 aria-[current=step]:bg-cream/40 aria-[current=step]:font-medium"
+                  >Verifica la teva identitat</a
+                >
               </li>
               <li>
-                <a href="#pas-4" class="block rounded-full bg-cream/20 px-6 py-2.5 text-cream hover:bg-cream/30">Obté el teu certificat digital</a>
+                <a
+                  href="#pas-2"
+                  class="block text-center rounded-full bg-cream/20 px-6 py-2.5 text-cream hover:bg-cream/30 aria-[current=step]:bg-cream/40 aria-[current=step]:font-medium"
+                  >Registra el teu bé</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#pas-3"
+                  class="block text-center rounded-full bg-cream/20 px-6 py-2.5 text-cream hover:bg-cream/30 aria-[current=step]:bg-cream/40 aria-[current=step]:font-medium"
+                  >Protegim la prova de propietat</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#pas-4"
+                  class="block text-center rounded-full bg-cream/20 px-6 py-2.5 text-cream hover:bg-cream/30 aria-[current=step]:bg-cream/40 aria-[current=step]:font-medium"
+                  >Obté el teu certificat digital</a
+                >
               </li>
             </ol>
             <div class="mt-12">
@@ -277,31 +302,51 @@
               </div>
             </div>
           </div>
-          <div class="space-y-6">
-            <article id="pas-1" class="scroll-mt-28 rounded-2xl border border-gold/40 bg-cream/60 p-6 backdrop-blur-sm">
-              <span class="font-marcellus text-xl text-gold">01</span>
+          <div class="flex flex-col gap-6 md:grid md:place-items-center md:self-start">
+            <article
+              id="pas-1"
+              class="scroll-mt-28 rounded-2xl border border-gold/40 bg-cream p-6 backdrop-blur-sm md:col-start-1 md:row-start-1 md:w-full"
+            >
+              <span class="font-marcellus text-xl text-ink">01</span>
               <h3 class="mt-1 font-marcellus text-xl">Verifica la teva identitat</h3>
-              <div class="mt-4 ml-auto h-28 w-3/5 rounded-lg bg-placeholder"></div>
+              <div class="mt-4 h-28 w-full overflow-hidden rounded-lg bg-placeholder">
+                <img src="img/couple.webp" alt="" class="size-full object-cover" />
+              </div>
               <p class="mt-4 text-ink/85">
                 Crea el teu compte en menys d'un minut i acredita que ets el titular legítim dels actius que registraràs.
               </p>
             </article>
-            <article id="pas-2" class="scroll-mt-28 rounded-2xl border border-gold/40 bg-cream/60 p-6 backdrop-blur-sm">
-              <span class="font-marcellus text-xl text-gold">02</span>
+            <article
+              id="pas-2"
+              class="scroll-mt-28 rounded-2xl border border-gold/40 bg-cream p-6 backdrop-blur-sm md:col-start-1 md:row-start-1 md:w-full"
+            >
+              <span class="font-marcellus text-xl text-ink">02</span>
               <h3 class="mt-1 font-marcellus text-xl">Registra el teu bé</h3>
-              <div class="mt-4 ml-auto h-28 w-3/5 rounded-lg bg-placeholder"></div>
+              <div class="mt-4 ml-auto h-28 w-full overflow-hidden rounded-lg bg-placeholder">
+                <img src="img/chain.webp" alt="" class="size-full object-cover" />
+              </div>
               <p class="mt-4 text-ink/85">Afegeix la informació, fotografies i documentació del bé per crear un registre digital complet.</p>
             </article>
-            <article id="pas-3" class="scroll-mt-28 rounded-2xl border border-gold/40 bg-cream/60 p-6 backdrop-blur-sm">
-              <span class="font-marcellus text-xl text-gold">03</span>
+            <article
+              id="pas-3"
+              class="scroll-mt-28 rounded-2xl border border-gold/40 bg-cream p-6 backdrop-blur-sm md:col-start-1 md:row-start-1 md:w-full"
+            >
+              <span class="font-marcellus text-xl text-ink">03</span>
               <h3 class="mt-1 font-marcellus text-xl">Protegim la prova de propietat</h3>
-              <div class="mt-4 ml-auto h-28 w-3/5 rounded-lg bg-placeholder"></div>
+              <div class="mt-4 h-28 w-full overflow-hidden rounded-lg bg-placeholder">
+                <img src="img/letter.webp" alt="" class="size-full object-cover" />
+              </div>
               <p class="mt-4 text-ink/85">Generem una prova criptogràfica única del teu registre i la desem de manera que no es pugui alterar.</p>
             </article>
-            <article id="pas-4" class="scroll-mt-28 rounded-2xl border border-gold/40 bg-cream/60 p-6 backdrop-blur-sm">
-              <span class="font-marcellus text-xl text-gold">04</span>
+            <article
+              id="pas-4"
+              class="scroll-mt-28 rounded-2xl border border-gold/40 bg-cream p-6 backdrop-blur-sm md:col-start-1 md:row-start-1 md:w-full"
+            >
+              <span class="font-marcellus text-xl text-ink">04</span>
               <h3 class="mt-1 font-marcellus text-xl">Obté el teu certificat digital</h3>
-              <div class="mt-4 ml-auto h-28 w-3/5 rounded-lg bg-placeholder"></div>
+              <div class="mt-4 h-28 w-full overflow-hidden rounded-lg bg-placeholder">
+                <img src="img/docs.webp" alt="" class="size-full object-cover" />
+              </div>
               <p class="mt-4 text-ink/85">
                 Descarrega el certificat amb el seu codi QR i verifica la propietat davant asseguradores, compradors o autoritats.
               </p>
