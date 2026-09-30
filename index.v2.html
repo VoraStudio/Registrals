@@ -1,0 +1,633 @@
+<!doctype html>
+<html lang="ca">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registrals — Certificació digital</title>
+    <meta
+      name="description"
+      content="Registra i certifica digitalment els teus béns per acreditar-ne la propietat en cas de robatori, pèrdua, assegurança, venda o conflicte legal."
+    />
+    <meta name="theme-color" content="#1D2F4B" />
+    <meta property="og:title" content="Registrals — El registre dels teus béns, a un clic" />
+    <meta property="og:description" content="Protegeix el que és teu amb una prova digital verificable." />
+    <meta property="og:type" content="website" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+      @theme {
+        --color-ink: #1d2f4b;
+        --color-steel: #6a86a2;
+        --color-gold: #caa36c;
+        --color-cream: #f1e3d3;
+        --color-cream-50: #faf6f0;
+        --color-placeholder: #d9d9d9;
+        --font-marcellus: "Marcellus", serif;
+        --font-raleway: "Raleway", sans-serif;
+      }
+      @layer base {
+        :focus-visible {
+          outline: 2px solid var(--color-gold);
+          outline-offset: 3px;
+        }
+        summary::-webkit-details-marker {
+          display: none;
+        }
+      }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Raleway:wght@400;500;700&display=swap" rel="stylesheet" />
+  </head>
+  <body class="bg-ink font-raleway text-ink antialiased">
+    <!-- === NAV === -->
+    <svg class="absolute size-0" aria-hidden="true" focusable="false">
+      <defs>
+        <filter id="goo">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur" />
+          <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -8" result="goo" />
+          <feComposite in="SourceGraphic" in2="goo" operator="atop" />
+        </filter>
+      </defs>
+    </svg>
+
+    <header
+      id="site-header"
+      class="group fixed inset-x-0 top-5 sm:top-16 z-50 flex justify-center px-4 transition-transform duration-700 ease-out starting:-translate-y-[85px] motion-reduce:transition-none"
+    >
+      <div class="relative [filter:url(#goo)]">
+        <!-- Pill principal -->
+        <div class="relative z-10 flex items-center gap-12 rounded-xl bg-cream px-6 py-1 transition-colors duration-500 group-data-past-hero:bg-ink">
+          <a href="#s1" class="font-marcellus text-2xl tracking-wider text-ink transition-colors duration-500 group-data-past-hero:text-cream"
+            >REGISTRALS</a
+          >
+          <button
+            id="menu-toggle"
+            type="button"
+            aria-expanded="false"
+            aria-controls="main-menu"
+            aria-label="Obrir el menú"
+            class="relative -m-2 grid size-11 place-items-center rounded-full"
+          >
+            <span class="relative block size-5" aria-hidden="true">
+              <span
+                class="absolute inset-x-0 top-1 h-1 rounded-lg bg-ink group-data-past-hero:bg-cream transition-all duration-300 group-data-open:top-[9px] group-data-open:rotate-45"
+              ></span>
+              <span
+                class="absolute inset-x-0 bottom-1 h-1 rounded-lg bg-ink group-data-past-hero:bg-cream transition-all duration-300 group-data-open:bottom-[9px] group-data-open:-rotate-45"
+              ></span>
+            </span>
+          </button>
+        </div>
+
+        <!-- Gota: amagada sota el pill; en obrir cau (1) i s'estira fins a ser el menú (2) -->
+        <div
+          class="absolute top-0.5 left-1/2 -translate-x-1/2 transition-transform delay-150 duration-500 ease-[cubic-bezier(.34,1.4,.64,1)] group-data-open:translate-y-[52px] group-data-open:delay-0 motion-reduce:transition-none"
+        >
+          <nav
+            id="main-menu"
+            aria-label="Principal"
+            class="flex h-8 w-8 items-center justify-center sm:gap-3 overflow-hidden rounded-xl bg-cream group-data-past-hero:bg-ink transition-[width,height,background-color] duration-400 ease-[cubic-bezier(.22,1,.36,1)] group-data-open:h-14 group-data-open:px-3 group-data-open:py-1 group-data-open:w-[min(24rem,calc(100vw-2rem))] sm:group-data-open:w-[min(24rem,calc(100vw-2rem))] group-data-open:delay-200 motion-reduce:transition-none"
+          >
+            <a
+              href="#s4"
+              class="invisible shrink-0 rounded-xl px-3 py-2 text-base font-semibold text-ink group-data-past-hero:text-cream group-data-past-hero:hover:bg-cream/20 opacity-0 transition-[opacity,visibility,color] duration-200 hover:bg-ink/20 hover:rounded-md group-data-open:visible group-data-open:opacity-100 group-data-open:delay-[400ms] sm:text-sm"
+              >Solucions</a
+            >
+            <a
+              href="#s7"
+              class="invisible shrink-0 rounded-xl px-3 py-2 text-base font-semibold text-ink group-data-past-hero:text-cream group-data-past-hero:hover:bg-cream/20 opacity-0 transition-[opacity,visibility,color] duration-200 hover:bg-ink/20 group-data-open:visible group-data-open:opacity-100 group-data-open:delay-[450ms] sm:text-sm"
+              >Tarifes</a
+            >
+            <a
+              href="#s8"
+              class="invisible shrink-0 rounded-xl px-3 py-2 text-base font-semibold text-ink group-data-past-hero:text-cream group-data-past-hero:hover:bg-cream/20 opacity-0 transition-[opacity,visibility,color] duration-200 hover:bg-ink/20 group-data-open:visible group-data-open:opacity-100 group-data-open:delay-[500ms] sm:text-sm"
+              >FAQS</a
+            >
+            <a
+              href="#contacte"
+              class="invisible shrink-0 rounded-xl px-4 py-2 text-base bg-ink font-semibold text-cream group-data-past-hero:bg-cream group-data-past-hero:text-ink group-data-past-hero:hover:bg-cream/80 opacity-0 transition-[opacity,visibility,color,background-color] duration-200 hover:bg-ink/60 group-data-open:visible group-data-open:opacity-100 group-data-open:delay-[550ms] sm:text-sm"
+              >Contacte</a
+            >
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- === S1 · HERO === -->
+      <section id="s1" aria-labelledby="s1-title" class="relative min-h-dvh overflow-hidden">
+        <video class="absolute inset-0 size-full object-cover motion-reduce:hidden" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+          <source src="videos/home.mp4" type="video/mp4" />
+        </video>
+        <div class="absolute inset-0 bg-linear-to-t from-ink/65 via-ink/10 to-ink/5"></div>
+        <div class="relative z-10 flex min-h-dvh flex-col items-center justify-center sm:justify-end px-4 pt-36 sm:pt-28 pb-14 text-center">
+          <h1 id="s1-title" class="max-w-2xl font-marcellus text-[2.6rem] leading-tight sm:leading-none text-whitef md:text-7xl">
+            El registre dels teus béns, a un clic
+          </h1>
+          <p class="mt-12 sm:mt-6 max-w-4xl text-xl text-whitef/90 md:text-2xl sm:pb-16">
+            Registra i certifica digitalment els teus béns perquè puguis acreditar-ne la propietat en cas de robatori, pèrdua, assegurança, venda o
+            conflicte legal.
+          </p>
+          <div class="mt-24 sm:mt-8 flex flex-col items-center gap-2 py-3 sm:py-1 rounded-2xl bg-cream/85 p-2 sm:flex-row z-10">
+            <span class="px-4 py-2 font-medium text-xl text-ink">Amb tecnologia de blockchain</span>
+            <a href="#registre" class="rounded-2xl bg-ink px-12 py-3 sm:px-8 sm:py-2 font-medium text-cream hover:bg-ink/90">REGISTRA UN BÉ</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- === S2 · STATS === -->
+      <section id="s2" aria-labelledby="s2-title" class="relative z-10 -mt-4 rounded-t-[1rem] bg-cream px-4 py-16 md:py-24">
+        <div class="mx-auto max-w-7xl md:grid md:grid-cols-12">
+          <div class="md:col-span-8 md:col-start-4">
+            <h2 id="s2-title" class="text-xl sm:leading-none font-bold md:text-2xl">
+              Acredita de manera segura la propietat dels teus objectes i béns per poder demostrar que són teus en cas de robatori, pèrdua,
+              assegurança, venda o conflicte legal.
+            </h2>
+            <p class="mt-4 text-lg text-ink/80 font-medium">Protegeix el que és teu amb una prova digital verificable.</p>
+            <dl class="mt-10 max-w-2xl space-y-4">
+              <div class="flex items-center justify-between gap-4 rounded-full bg-cream-50 py-1 pr-1.5 pl-5">
+                <dt class="font-semibold">Usuaris registrats</dt>
+                <dd class="min-w-32 rounded-3xl bg-ink px-6 py-1 text-center text-cream font-semibold">9</dd>
+              </div>
+              <div class="flex items-center justify-between gap-4 rounded-full bg-cream-50 py-1 pr-1.5 pl-5">
+                <dt class="font-semibold">Articles certificats</dt>
+                <dd class="min-w-32 rounded-3xl bg-ink px-6 py-1.5 text-center text-cream font-semibold">25</dd>
+              </div>
+              <div class="flex items-center justify-between gap-4 rounded-full bg-cream-50 py-1.5 pr-1.5 pl-5">
+                <dt class="font-semibold">Valor total registrat</dt>
+                <dd class="min-w-32 rounded-3xl bg-ink px-6 py-1.5 text-center text-cream font-semibold">1.210€</dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <!-- === S3 · CONVERSACIÓ === -->
+      <section id="s3" aria-label="Exemple d'ús" class="bg-cream px-4 md:px-0 pb-16 md:pb-24">
+        <div class="flex justify-center">
+          <div
+            class="relative aspect-[945/477] w-[100%] sm:w-[80%] overflow-hidden rounded-2xl bg-placeholder"
+            data-video-expand
+            class="relative aspect-[945/477]"
+          >
+            <video class="absolute inset-0 size-full object-cover" autoplay muted loop playsinline preload="metadata" aria-describedby="s3-desc">
+              <source src="videos/conversa.mp4" type="video/mp4" />
+            </video>
+            <p id="s3-desc" class="sr-only">Conversa de missatgeria: «M'acaben de robar la bicicleta.» — «I has denunciat?»</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- === S4 · FEATURES === -->
+      <section id="s4" aria-labelledby="s4-title" class="bg-cream px-4 pt-8 pb-24 md:pb-32">
+        <div class="mx-auto flex max-w-[105rem] flex-col items-center gap-6 text-center">
+          <p class="max-w-2xl text-ink/80 font-semibold">
+            La majoria de propietaris tenen la informació repartida entre documents, correus i carpetes. La nostra plataforma ho centralitza tot en un
+            únic lloc.
+          </p>
+          <h2 id="s4-title" class="mt-4 text-3xl font-bold md:text-4xl">Gestionar propietats no hauria de ser complicat</h2>
+          <div class="mt-12 grid w-full grid-cols-1 gap-6 md:grid-cols-3">
+            <article class="flex min-h-74 sm:min-h-94 flex-col rounded-3xl border border-gold/40 bg-ink p-8 text-left">
+              <div class="flex items-center gap-4">
+                <svg
+                  class="size-20 shrink-0 text-gold"
+                  viewBox="0 0 48 48"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M6 22 24 7l18 15M11 18v23h26V18" />
+                </svg>
+                <h3 class="font-marcellus text-xl leading-tight text-cream md:text-2xl">Tots els teus immobles en un únic espai</h3>
+              </div>
+              <p class="mt-12 sm:mt-16 text-center text-base text-cream/75 md:text-lg">
+                Visualitza i organitza el teu patrimoni immobiliari sense haver de buscar informació en diferents llocs.
+              </p>
+            </article>
+            <article class="flex min-h-74 sm:min-h-94 flex-col rounded-3xl border border-gold/40 bg-ink p-8 text-left">
+              <div class="flex items-center gap-4">
+                <svg
+                  class="size-20 shrink-0 text-gold"
+                  viewBox="0 0 48 48"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M10 6h20l6 6v12M10 6v36h16M16 16h14M16 23h14M16 30h8" />
+                  <circle cx="35" cy="35" r="8" />
+                  <path d="m31.5 35 2.5 2.5 5-5" />
+                </svg>
+                <h3 class="font-marcellus text-xl leading-tight text-cream md:text-2xl">La documentació sempre accessible</h3>
+              </div>
+              <p class="mt-12 sm:mt-18 text-center text-base text-cream/75 md:text-lg">
+                Escriptures, certificats, contractes i documents importants disponibles quan els necessitis.
+              </p>
+            </article>
+            <article class="flex min-h-74 sm:min-h-94 flex-col rounded-3xl border border-gold/40 bg-ink p-8 text-left">
+              <div class="flex items-center gap-4">
+                <svg
+                  class="size-20 shrink-0 text-gold"
+                  viewBox="0 0 48 48"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M40 24a16 16 0 1 1-5-11.6M40 6v8h-8" />
+                  <path d="m17 24 5 5 9-10" />
+                </svg>
+                <h3 class="font-marcellus text-xl leading-tight text-cream md:text-2xl">Actualitza una dada i queda certificada</h3>
+              </div>
+              <p class="mt-8 sm:mt-16 text-center text-base text-cream/75 md:text-lg">
+                Afegeix nous immobles, mantén les dades al dia i consulta l'estat del teu patrimoni en qüestió de segons.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- === S5 · PASSOS === -->
+      <section id="s5" aria-labelledby="s5-title" class="relative z-10 -mt-8 rounded-t-[2rem] bg-linear-to-b from-ink to-steel px-4 py-16 md:py-24">
+        <div class="mx-auto grid max-w-6xl grid-cols-1 gap-12 md:grid-cols-2">
+          <div class="md:sticky md:top-28 md:self-start">
+            <h2 id="s5-title" class="font-marcellus text-5xl text-cream">Quatre passos.</h2>
+            <p class="mt-2 text-3xl text-cream/90">Una propietat protegida.</p>
+            <ol class="mt-10 max-w-xs space-y-3">
+              <li><a href="#pas-1" class="block rounded-full bg-cream/20 px-6 py-2.5 text-cream hover:bg-cream/30">Verifica la teva identitat</a></li>
+              <li><a href="#pas-2" class="block rounded-full bg-cream/20 px-6 py-2.5 text-cream hover:bg-cream/30">Registra el teu bé</a></li>
+              <li>
+                <a href="#pas-3" class="block rounded-full bg-cream/20 px-6 py-2.5 text-cream hover:bg-cream/30">Protegim la prova de propietat</a>
+              </li>
+              <li>
+                <a href="#pas-4" class="block rounded-full bg-cream/20 px-6 py-2.5 text-cream hover:bg-cream/30">Obté el teu certificat digital</a>
+              </li>
+            </ol>
+            <div class="mt-12">
+              <p class="text-xl text-cream">Evidència digital permanent</p>
+              <div class="mt-4 flex flex-col gap-2 rounded-3xl bg-cream-50 p-2 sm:inline-flex sm:flex-row sm:rounded-full">
+                <a href="#registre" class="rounded-full bg-ink px-6 py-2.5 text-center text-cream hover:bg-ink/90">REGISTRA UN BÉ</a>
+                <a href="#contacte" class="rounded-full bg-gold px-6 py-2.5 text-center text-ink hover:bg-gold/90">CONTACTA</a>
+              </div>
+            </div>
+          </div>
+          <div class="space-y-6">
+            <article id="pas-1" class="scroll-mt-28 rounded-2xl border border-gold/40 bg-cream/60 p-6 backdrop-blur-sm">
+              <span class="font-marcellus text-xl text-gold">01</span>
+              <h3 class="mt-1 font-marcellus text-xl">Verifica la teva identitat</h3>
+              <div class="mt-4 ml-auto h-28 w-3/5 rounded-lg bg-placeholder"></div>
+              <p class="mt-4 text-ink/85">
+                Crea el teu compte en menys d'un minut i acredita que ets el titular legítim dels actius que registraràs.
+              </p>
+            </article>
+            <article id="pas-2" class="scroll-mt-28 rounded-2xl border border-gold/40 bg-cream/60 p-6 backdrop-blur-sm">
+              <span class="font-marcellus text-xl text-gold">02</span>
+              <h3 class="mt-1 font-marcellus text-xl">Registra el teu bé</h3>
+              <div class="mt-4 ml-auto h-28 w-3/5 rounded-lg bg-placeholder"></div>
+              <p class="mt-4 text-ink/85">Afegeix la informació, fotografies i documentació del bé per crear un registre digital complet.</p>
+            </article>
+            <article id="pas-3" class="scroll-mt-28 rounded-2xl border border-gold/40 bg-cream/60 p-6 backdrop-blur-sm">
+              <span class="font-marcellus text-xl text-gold">03</span>
+              <h3 class="mt-1 font-marcellus text-xl">Protegim la prova de propietat</h3>
+              <div class="mt-4 ml-auto h-28 w-3/5 rounded-lg bg-placeholder"></div>
+              <p class="mt-4 text-ink/85">Generem una prova criptogràfica única del teu registre i la desem de manera que no es pugui alterar.</p>
+            </article>
+            <article id="pas-4" class="scroll-mt-28 rounded-2xl border border-gold/40 bg-cream/60 p-6 backdrop-blur-sm">
+              <span class="font-marcellus text-xl text-gold">04</span>
+              <h3 class="mt-1 font-marcellus text-xl">Obté el teu certificat digital</h3>
+              <div class="mt-4 ml-auto h-28 w-3/5 rounded-lg bg-placeholder"></div>
+              <p class="mt-4 text-ink/85">
+                Descarrega el certificat amb el seu codi QR i verifica la propietat davant asseguradores, compradors o autoritats.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- === S6 · CATEGORIES === -->
+      <section id="s6" aria-labelledby="s6-title" class="relative z-10 -mt-8 rounded-t-[2rem] bg-ink py-16 md:py-24">
+        <div class="mx-auto max-w-6xl px-4">
+          <h2 id="s6-title" class="font-marcellus text-4xl text-cream md:text-5xl">Qualsevol bé de valor, certificat</h2>
+        </div>
+        <ul
+          class="mt-12 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 [scrollbar-width:none] md:pl-[max(1rem,calc((100vw-72rem)/2+12rem))]"
+        >
+          <li class="relative h-64 w-48 shrink-0 snap-start overflow-hidden rounded-2xl bg-placeholder">
+            <div class="absolute inset-0 bg-linear-to-t from-ink/85 via-ink/10 to-transparent"></div>
+            <span class="absolute bottom-4 left-4 font-marcellus text-2xl text-cream">Joies</span>
+          </li>
+          <li class="relative h-64 w-48 shrink-0 snap-start overflow-hidden rounded-2xl bg-placeholder">
+            <div class="absolute inset-0 bg-linear-to-t from-ink/85 via-ink/10 to-transparent"></div>
+            <span class="absolute bottom-4 left-4 font-marcellus text-2xl text-cream">Electrònica</span>
+          </li>
+          <li class="relative h-64 w-48 shrink-0 snap-start overflow-hidden rounded-2xl bg-placeholder">
+            <div class="absolute inset-0 bg-linear-to-t from-ink/85 via-ink/10 to-transparent"></div>
+            <span class="absolute bottom-4 left-4 font-marcellus text-2xl text-cream">Art</span>
+          </li>
+          <li class="relative h-64 w-48 shrink-0 snap-start overflow-hidden rounded-2xl bg-placeholder">
+            <div class="absolute inset-0 bg-linear-to-t from-ink/85 via-ink/10 to-transparent"></div>
+            <span class="absolute bottom-4 left-4 font-marcellus text-2xl text-cream">Col·leccionisme</span>
+          </li>
+        </ul>
+      </section>
+
+      <!-- === S7 · TARIFES === -->
+      <section id="s7" aria-labelledby="s7-title" class="relative z-10 -mt-8 rounded-t-[2rem] bg-cream px-4 pt-16 pb-24 md:pt-24 md:pb-32">
+        <div class="mx-auto max-w-6xl">
+          <h2 id="s7-title" class="font-marcellus text-4xl md:text-5xl">Transparent des del primer dia</h2>
+          <p class="mt-4 max-w-md text-xl text-ink/80">La seguretat bàsica és un dret, no un producte de pagament.</p>
+          <div class="mt-12 grid grid-cols-1 items-start gap-6 md:grid-cols-3 md:px-8">
+            <article class="flex flex-col rounded-3xl border border-gold/40 bg-ink p-8 text-cream md:mt-28">
+              <h3 class="font-marcellus text-2xl">Free</h3>
+              <p class="mt-1 text-sm text-cream/80">Per descobrir la plataforma</p>
+              <p class="mt-4 text-3xl font-bold">0€</p>
+              <ul class="mt-6 space-y-2 text-sm text-cream/80">
+                <li>Fins a 20 béns registrats</li>
+                <li>Certificat digital bàsic</li>
+                <li>Verificació pública per QR</li>
+                <li>Suport per correu electrònic</li>
+              </ul>
+              <a href="#registre" class="mt-8 rounded-full bg-gold px-6 py-3 text-center text-sm font-medium text-ink hover:bg-gold/90"
+                >COMENÇA GRATIS</a
+              >
+            </article>
+            <article class="flex flex-col rounded-3xl bg-gold p-8 text-ink md:mt-12">
+              <h3 class="font-marcellus text-2xl">Plus</h3>
+              <p class="mt-1 text-sm text-ink/80">Per a col·leccionistes i usuaris actius</p>
+              <p class="mt-4 text-3xl font-bold">22€</p>
+              <p class="text-xs text-ink/75">per any: 1,83€/mes</p>
+              <ul class="mt-6 space-y-2 text-sm text-ink/85">
+                <li>Fins a 100 béns registrats</li>
+                <li>Certificats d'alta seguretat</li>
+                <li>Transferència de propietat</li>
+                <li>Informe assegurador inclòs</li>
+                <li>Suport prioritari 24h</li>
+              </ul>
+              <button type="button" disabled class="mt-8 cursor-not-allowed rounded-full bg-cream-50 px-6 py-3 text-sm font-medium text-ink">
+                PRÒXIMAMENT
+              </button>
+            </article>
+            <article class="flex flex-col rounded-3xl border border-gold/40 bg-ink p-8 text-cream">
+              <h3 class="font-marcellus text-2xl">Senior</h3>
+              <p class="mt-1 text-sm text-cream/80">Per a patrimoni d'alt valor</p>
+              <p class="mt-16 text-3xl font-bold">A consultar</p>
+              <p class="text-xs text-cream/70">preu segons el patrimoni</p>
+              <ul class="mt-6 space-y-2 text-sm text-cream/80">
+                <li>Béns de més de 5.000€</li>
+                <li>Ítems il·limitats</li>
+                <li>Verificació reforçada</li>
+                <li>Gestor personal assignat</li>
+                <li>Certificat d'alta seguretat</li>
+              </ul>
+              <button type="button" disabled class="mt-8 cursor-not-allowed rounded-full bg-gold px-6 py-3 text-sm font-medium text-ink">
+                PRÒXIMAMENT
+              </button>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- === S8 · FAQ === -->
+      <section id="s8" aria-labelledby="s8-title" class="relative z-10 -mt-8 rounded-t-[2rem] border-t border-cream/10 bg-ink px-4 py-16 md:py-24">
+        <div class="mx-auto max-w-4xl">
+          <div class="flex flex-col gap-4 md:flex-row md:gap-24">
+            <h2 id="s8-title" class="font-marcellus text-4xl text-cream">FAQ</h2>
+            <p class="max-w-lg text-xl text-cream/85">
+              Si no has trobat la resposta que buscaves, el nostre equip estarà encantat
+              <a href="#contacte" class="rounded-full bg-gold px-2 text-ink hover:bg-gold/90">d'ajudar-te.</a>
+            </p>
+          </div>
+          <div class="mt-12 space-y-4 md:ml-36">
+            <details name="faq" class="group rounded-2xl border border-cream/10 bg-steel/40 px-6 py-4">
+              <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-bold text-cream">
+                Quins tipus de béns puc registrar?
+                <span
+                  class="grid size-8 shrink-0 place-items-center rounded-full bg-cream text-ink transition group-open:rotate-180"
+                  aria-hidden="true"
+                >
+                  <svg
+                    class="size-4"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="m4 6 4 4 4-4" />
+                  </svg>
+                </span>
+              </summary>
+              <p class="mt-3 text-sm text-cream/85">Qualsevol bé de valor: joies, electrònica, art, col·leccionisme, vehicles i immobles.</p>
+            </details>
+            <details name="faq" class="group rounded-2xl border border-cream/10 bg-steel/40 px-6 py-4">
+              <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-bold text-cream">
+                Té validesa legal el certificat?
+                <span
+                  class="grid size-8 shrink-0 place-items-center rounded-full bg-cream text-ink transition group-open:rotate-180"
+                  aria-hidden="true"
+                >
+                  <svg
+                    class="size-4"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="m4 6 4 4 4-4" />
+                  </svg>
+                </span>
+              </summary>
+              <p class="mt-3 text-sm text-cream/85">[Resposta pendent de validar amb l'equip legal.]</p>
+            </details>
+            <details name="faq" class="group rounded-2xl border border-cream/10 bg-steel/40 px-6 py-4">
+              <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-bold text-cream">
+                Què passa amb les meves fotos i documents?
+                <span
+                  class="grid size-8 shrink-0 place-items-center rounded-full bg-cream text-ink transition group-open:rotate-180"
+                  aria-hidden="true"
+                >
+                  <svg
+                    class="size-4"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="m4 6 4 4 4-4" />
+                  </svg>
+                </span>
+              </summary>
+              <p class="mt-3 text-sm text-cream/85">[Resposta pendent: on es desen, qui hi té accés i com s'esborren.]</p>
+            </details>
+            <details name="faq" class="group rounded-2xl border border-cream/10 bg-steel/40 px-6 py-4">
+              <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-bold text-cream">
+                Què aporta la tecnologia blockchain?
+                <span
+                  class="grid size-8 shrink-0 place-items-center rounded-full bg-cream text-ink transition group-open:rotate-180"
+                  aria-hidden="true"
+                >
+                  <svg
+                    class="size-4"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="m4 6 4 4 4-4" />
+                  </svg>
+                </span>
+              </summary>
+              <p class="mt-3 text-sm text-cream/85">
+                Cada registre genera una prova criptogràfica única que permet verificar la propietat de forma instantània davant asseguradores,
+                compradors o autoritats.
+              </p>
+            </details>
+            <details name="faq" class="group rounded-2xl border border-cream/10 bg-steel/40 px-6 py-4">
+              <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-bold text-cream">
+                Puc transferir un bé a una altra persona?
+                <span
+                  class="grid size-8 shrink-0 place-items-center rounded-full bg-cream text-ink transition group-open:rotate-180"
+                  aria-hidden="true"
+                >
+                  <svg
+                    class="size-4"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="m4 6 4 4 4-4" />
+                  </svg>
+                </span>
+              </summary>
+              <p class="mt-3 text-sm text-cream/85">Sí, amb el pla Plus. La transferència de propietat queda registrada al certificat.</p>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <!-- === CONTACTE (brand.pdf) === -->
+      <section id="contacte" aria-labelledby="contacte-title" class="relative z-10 -mt-8 scroll-mt-24 rounded-t-[2rem] bg-cream px-4 py-16 md:py-24">
+        <div class="mx-auto grid max-w-6xl grid-cols-1 gap-10 md:grid-cols-2">
+          <div>
+            <h2 id="contacte-title" class="font-marcellus text-4xl">Confiança que es pot demostrar</h2>
+            <p class="mt-4 text-ink/85">
+              Cada registre genera una prova criptogràfica única que permet verificar la propietat de forma instantània davant asseguradores,
+              compradors o autoritats.
+            </p>
+          </div>
+          <form class="space-y-3 md:mt-32" action="#" method="post">
+            <label class="flex items-center justify-between gap-4 rounded-full bg-cream-50 py-1.5 pr-1.5 pl-5">
+              <span>Nom</span>
+              <input
+                type="text"
+                name="name"
+                autocomplete="name"
+                required
+                class="w-1/2 rounded-full bg-ink px-5 py-1.5 text-cream placeholder:text-cream/60 focus-visible:outline-gold"
+              />
+            </label>
+            <label class="flex items-center justify-between gap-4 rounded-full bg-cream-50 py-1.5 pr-1.5 pl-5">
+              <span>Email</span>
+              <input type="email" name="email" autocomplete="email" required class="w-1/2 rounded-full bg-ink px-5 py-1.5 text-cream" />
+            </label>
+            <label class="flex items-center justify-between gap-4 rounded-full bg-cream-50 py-1.5 pr-1.5 pl-5">
+              <span>Assumpte</span>
+              <input type="text" name="subject" required class="w-1/2 rounded-full bg-ink px-5 py-1.5 text-cream" />
+            </label>
+            <label class="flex flex-col gap-2 rounded-3xl bg-cream-50 p-1.5 pl-5">
+              <span class="pt-2">Missatge</span>
+              <textarea name="message" rows="4" required class="rounded-2xl bg-ink px-5 py-3 text-cream"></textarea>
+            </label>
+            <button type="submit" class="w-full rounded-full bg-ink px-6 py-3 font-medium text-cream hover:bg-ink/90">ENVIA</button>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <!-- === FOOTER === -->
+    <footer class="overflow-hidden bg-ink px-4 pt-12 pb-10">
+      <div class="mx-auto max-w-5xl">
+        <p class="text-center font-marcellus text-[clamp(3rem,16vw,10rem)] leading-none text-cream" aria-hidden="true">REGISTRALS</p>
+        <div class="relative z-10 -mt-[3vw] rounded-3xl border border-gold/50 bg-cream-50 p-8 md:-mt-10 md:p-12">
+          <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+            <div class="md:col-span-1">
+              <svg
+                class="size-20 text-ink"
+                viewBox="0 0 80 80"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                role="img"
+                aria-label="Registrals"
+              >
+                <rect x="3" y="3" width="74" height="74" />
+                <path d="M10 10h60v60H10z" />
+                <path d="M22 20h18M22 60h18M26 20v40M36 20v40" />
+                <path d="M36 20h10a10 10 0 0 1 0 20H36M44 40l14 20" />
+              </svg>
+              <p class="mt-6 font-bold">Mantén-te al dia de l'evolució de la propietat digital</p>
+              <a href="#contacte" class="mt-4 inline-block rounded-full bg-ink px-6 py-2.5 font-bold text-cream hover:bg-ink/90">Subscriure'm</a>
+            </div>
+            <div class="grid grid-cols-2 gap-8 md:col-span-2">
+              <nav aria-label="Peu de pàgina" class="text-sm">
+                <ul class="space-y-1">
+                  <li><a href="#s1" class="font-bold hover:underline">Home</a></li>
+                  <li><a href="#s4" class="text-ink/75 hover:underline">Solucions</a></li>
+                  <li><a href="#s7" class="text-ink/75 hover:underline">Tarifes</a></li>
+                  <li><a href="#s8" class="text-ink/75 hover:underline">FAQS</a></li>
+                  <li><a href="#contacte" class="text-ink/75 hover:underline">Contacte</a></li>
+                </ul>
+                <p class="mt-6 font-bold">Contacte</p>
+                <a href="mailto:info@registrals.com" class="text-ink/75 hover:underline">info@registrals.com</a>
+              </nav>
+              <ul class="flex items-start justify-end gap-3">
+                <li>
+                  <a href="#" aria-label="LinkedIn" class="block text-ink hover:text-steel">
+                    <svg class="size-9" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path
+                        d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28ZM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13ZM7.12 20.45H3.56V9h3.56v11.45ZM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0Z"
+                      />
+                    </svg>
+                  </a>
+                </li>
+                <li>
+                  <a href="#" aria-label="Instagram" class="grid size-9 place-items-center rounded-full bg-ink text-cream hover:bg-steel">
+                    <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      <rect x="3" y="3" width="18" height="18" rx="5" />
+                      <circle cx="12" cy="12" r="4" />
+                      <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" />
+                    </svg>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="mt-10 flex flex-col gap-2 border-t border-ink/10 pt-6 text-sm text-ink/70 md:flex-row md:justify-between">
+            <span>2026. Tots els drets reservats</span>
+            <a href="#" class="hover:underline">Docs legals</a>
+            <span>Made by VoraStudio</span>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
+    <script src="js/script.js" defer></script>
+  </body>
+</html>
