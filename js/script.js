@@ -94,3 +94,31 @@ mm.add("(min-width: 768px) and (prefers-reduced-motion: no-preference)", () => {
     });*/
   });
 });
+
+// CARRUSEL DE CATEGORIES
+const carousel = document.querySelector("[data-carousel]");
+const carouselList = carousel.querySelector("[data-carousel=list]");
+const prevButton = carousel.querySelector("[data-carousel=prev]");
+const nextButton = carousel.querySelector("[data-carousel=next]");
+
+const getCarouselStep = () => {
+  const firstCard = carouselList.firstElementChild;
+  const gap = parseFloat(getComputedStyle(carouselList).columnGap);
+  return firstCard.offsetWidth + gap;
+};
+
+const updateCarouselButtons = () => {
+  const maxScrollLeft = carouselList.scrollWidth - carouselList.clientWidth;
+  prevButton.disabled = carouselList.scrollLeft <= 0;
+  nextButton.disabled = carouselList.scrollLeft >= maxScrollLeft - 1;
+};
+
+const scrollCarousel = (direction) => {
+  carouselList.scrollBy({ left: direction * getCarouselStep(), behavior: "smooth" });
+};
+
+prevButton.addEventListener("click", () => scrollCarousel(-1));
+nextButton.addEventListener("click", () => scrollCarousel(1));
+carouselList.addEventListener("scroll", updateCarouselButtons);
+window.addEventListener("resize", updateCarouselButtons);
+updateCarouselButtons();
