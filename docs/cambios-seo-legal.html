@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registrals — Cambios SEO, legal y bugs</title>
+    <style>
+      :root {
+        --ink: #1d2f4b;
+        --gold: #caa36c;
+        --cream: #f1e3d3;
+        --cream-50: #faf6f0;
+        --steel: #6a86a2;
+        --ok: #2f7d4f;
+        --warn: #a8641a;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--cream); color: var(--ink); font: 16px/1.6 system-ui, sans-serif; }
+      header { background: var(--ink); color: var(--cream); padding: 2.5rem 1rem; }
+      .wrap { max-width: 56rem; margin: 0 auto; padding: 0 1rem; }
+      h1 { font-family: Georgia, serif; font-weight: 400; margin: 0; font-size: clamp(1.8rem, 5vw, 2.8rem); }
+      header p { margin: 0.5rem 0 0; opacity: 0.85; }
+      h2 { font-family: Georgia, serif; font-weight: 400; margin: 3rem 0 1rem; font-size: 1.8rem; border-bottom: 2px solid var(--gold); padding-bottom: 0.3rem; }
+      article { background: var(--cream-50); border: 1px solid rgba(202, 163, 108, 0.5); border-radius: 1rem; padding: 1.25rem 1.5rem; margin: 1rem 0; }
+      article h3 { margin: 0 0 0.5rem; font-size: 1.1rem; display: flex; gap: 0.6rem; align-items: baseline; flex-wrap: wrap; }
+      .tag { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; padding: 0.1rem 0.6rem; border-radius: 999px; color: #fff; background: var(--ok); }
+      .tag.warn { background: var(--warn); }
+      dl { margin: 0; }
+      dt { font-weight: 700; margin-top: 0.6rem; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--steel); }
+      dd { margin: 0.1rem 0 0; }
+      code { background: rgba(29, 47, 75, 0.08); padding: 0.05rem 0.35rem; border-radius: 0.3rem; font-size: 0.9em; }
+      .note { border-left: 4px solid var(--gold); padding: 0.5rem 1rem; background: var(--cream-50); margin: 1rem 0; }
+      ul { padding-left: 1.2rem; }
+      footer { padding: 2rem 1rem 3rem; text-align: center; opacity: 0.7; font-size: 0.9rem; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="wrap">
+        <h1>Cambios SEO, legal y bugs</h1>
+        <p>Qué se ha cambiado en Registrals, cómo y por qué. Pensado para que la migración a Symfony sea limpia.</p>
+      </div>
+    </header>
+
+    <main class="wrap">
+      <div class="note">
+        <strong>Criterio general:</strong> todo está hecho en estático, con rutas relativas, un fichero por responsabilidad y bloques autocontenidos.
+        Así cada pieza se convierte después en un partial de Twig o un asset sin reescribirla.
+      </div>
+
+      <h2>1. Bugs corregidos</h2>
+
+      <article>
+        <h3><span class="tag">ARREGLADO</span> Typo <code>borderborder-ink/20</code> en el email</h3>
+        <dl>
+          <dt>Qué</dt><dd>La clase estaba mal escrita en el input del correo, así que Tailwind no generaba ningún borde.</dd>
+          <dt>Cómo</dt><dd>Se separó en <code>border border-ink/20</code>, igual que los otros tres campos.</dd>
+          <dt>Por qué</dt><dd>Era el único campo del formulario sin borde: inconsistencia visible y fácil de olvidar.</dd>
+          <dt>Dónde</dt><dd><code>index.v2.html</code> (formulario de contacto)</dd>
+        </dl>
+      </article>
+
+      <article>
+        <h3><span class="tag">ARREGLADO</span> Atributo <code>class</code> duplicado en S3</h3>
+        <dl>
+          <dt>Qué</dt><dd>El <code>div</code> del vídeo tenía dos <code>class</code>. El navegador ignora el segundo.</dd>
+          <dt>Cómo</dt><dd>Se dejó uno solo con todas las clases. <code>data-video-expand</code> se mantiene porque GSAP lo usa.</dd>
+          <dt>Por qué</dt><dd>HTML inválido, y la clase ignorada podía confundir al editar después.</dd>
+        </dl>
+      </article>
+
+      <article>
+        <h3><span class="tag">ARREGLADO</span> AOS eliminado</h3>
+        <dl>
+          <dt>Qué</dt><dd>Se quitó <code>AOS.init()</code> (línea 1 de <code>script.js</code>) y el <code>&lt;script&gt;</code> de unpkg.</dd>
+          <dt>Por qué</dt><dd>
+            Las animaciones ya van por GSAP, así que AOS era código muerto. Peor: si el CDN fallaba, <code>AOS.init()</code> lanzaba un
+            <code>ReferenceError</code> y se rompía <strong>todo</strong> el JS (menú, carrusel, animaciones). Una dependencia externa sin uso era un punto
+            de fallo y una petición de red extra.
+          </dd>
+          <dt>Dónde</dt><dd><code>js/script.js</code>, <code>index.v2.html</code></dd>
+        </dl>
+      </article>
+
+      <article>
+        <h3><span class="tag">ARREGLADO</span> CTAs a <code>#registre</code> sin destino</h3>
+        <dl>
+          <dt>Qué</dt><dd>Cuatro botones («REGISTRA UN BÉ» y «COMENÇA GRATIS») apuntaban a un ancla que no existe.</dd>
+          <dt>Cómo</dt><dd>Ahora apuntan a <code>#contacte</code>, que sí existe.</dd>
+          <dt>Por qué</dt><dd>El botón principal de la web no hacía nada. Es una solución provisional: cuando exista la app, esos enlaces irán a su URL de registro.</dd>
+        </dl>
+      </article>
+
+      <article>
+        <h3><span class="tag">ARREGLADO</span> Enlaces sociales muertos (<code>href="#"</code>)</h3>
+        <dl>
+          <dt>Qué</dt><dd>Se quitaron los iconos de LinkedIn e Instagram del footer.</dd>
+          <dt>Por qué</dt><dd>No tengo las URLs reales y no me las puedo inventar. Un enlace que no lleva a ningún sitio es peor que no tenerlo.</dd>
+          <dt>Pendiente</dt><dd>Cuando tengas los perfiles, se reañaden en el footer (<code>&lt;ul&gt;</code> con <code>aria-label</code> y <code>rel="noopener"</code>).</dd>
+        </dl>
+      </article>
+
+      <h2>2. Contenido legal</h2>
+
+      <article>
+        <h3><span class="tag">NUEVO</span> <code>legal.html</code>: aviso legal, privacidad y cookies</h3>
+        <dl>
+          <dt>Qué</dt><dd>Página nueva con tres secciones con ancla: <code>#avis-legal</code>, <code>#privacitat</code>, <code>#cookies</code>. Texto en catalán, como el resto del sitio.</dd>
+          <dt>Por qué</dt><dd>
+            La LSSI exige identificar al titular del sitio, y el RGPD exige informar de cómo se tratan los datos del formulario. Además, el banner
+            de cookies necesita una política a la que enlazar.
+          </dd>
+          <dt>Por qué una página y no un modal</dt><dd>Tiene URL propia (enlazable desde el formulario, el banner y los correos), es indexable y en Symfony es una ruta + plantilla.</dd>
+          <dt>Importante</dt><dd>
+            <strong>Es un borrador estructural, no asesoramiento legal.</strong> Los datos de la empresa van como marcadores
+            <code>[Raó social]</code>, <code>[NIF]</code>, <code>[Adreça]</code>, <code>[Registre Mercantil]</code>, <code>[Jurisdicció]</code> y la lista de proveedores.
+            No los he inventado. Hay que rellenarlos y que alguien con criterio legal lo revise antes de publicar.
+          </dd>
+        </dl>
+      </article>
+
+      <article>
+        <h3><span class="tag">NUEVO</span> Enlaces legales en el footer</h3>
+        <dl>
+          <dt>Qué</dt><dd>«Docs legals» (que era <code>#</code>) pasa a ser una lista: Avís legal, Privacitat, Cookies y «Configurar cookies».</dd>
+          <dt>Por qué</dt><dd>La información legal debe estar accesible desde todas las páginas, y «Configurar cookies» permite cambiar la decisión cuando se quiera (el RGPD exige que retirar el consentimiento sea tan fácil como darlo).</dd>
+        </dl>
+      </article>
+
+      <article>
+        <h3><span class="tag">NUEVO</span> Casilla de consentimiento en el formulario</h3>
+        <dl>
+          <dt>Qué</dt><dd>Checkbox obligatorio «He llegit i accepto la política de privacitat» con enlace a <code>legal.html#privacitat</code> y mensaje de error.</dd>
+          <dt>Por qué</dt><dd>Recoger nombre y correo exige informar y obtener consentimiento (art. 6.1.a RGPD). Va con <code>required</code> y la variante <code>user-invalid</code> como el resto de campos: validación nativa, sin JS.</dd>
+        </dl>
+      </article>
+
+      <h2>3. Banner de cookies</h2>
+
+      <article>
+        <h3><span class="tag">NUEVO</span> <code>js/cookies.js</code> + bloque <code>#cookie-banner</code></h3>
+        <dl>
+          <dt>Cómo funciona</dt><dd>
+            Si no hay decisión guardada en <code>localStorage</code> (<code>registrals-cookie-consent</code>) se muestra el banner. «Accepta» y «Rebutja» guardan
+            <code>accepted</code> o <code>rejected</code> y lo ocultan. Cualquier elemento con <code>data-cookie="settings"</code> lo vuelve a abrir.
+            Se usó un solo listener delegado en <code>document</code> en lugar de tres.
+          </dd>
+          <dt>Decisiones</dt><dd>
+            <ul>
+              <li>Los dos botones tienen el mismo peso visual: la AEPD pide que rechazar sea tan fácil como aceptar.</li>
+              <li>Es una región no modal (<code>role="region"</code>, <code>aria-label</code>): no bloquea la web.</li>
+              <li>Usa el atributo <code>hidden</code> sin clases de <code>display</code> en el contenedor, para que Tailwind no lo pise.</li>
+              <li>El acceso a <code>localStorage</code> va en <code>try/catch</code>: en modo privado puede lanzar error.</li>
+            </ul>
+          </dd>
+          <dt>Honestidad técnica</dt><dd>
+            Ahora mismo la web no usa cookies analíticas ni publicitarias, así que aceptar y rechazar hacen lo mismo. El banner ya guarda la elección:
+            cuando añadas Analytics, solo tendrás que cargarlo si el valor es <code>accepted</code>.
+          </dd>
+          <dt>Symfony</dt><dd>El banner está delimitado con un comentario y se repite en <code>legal.html</code>: será un único <code>_cookie_banner.html.twig</code> incluido en el layout base.</dd>
+        </dl>
+      </article>
+
+      <h2>4. SEO</h2>
+
+      <article>
+        <h3><span class="tag">NUEVO</span> Metadatos del <code>&lt;head&gt;</code></h3>
+        <dl>
+          <dt>Qué se añadió</dt><dd>
+            <ul>
+              <li><code>canonical</code> y <code>og:url</code>: dicen a Google cuál es la URL oficial y evitan contenido duplicado.</li>
+              <li><code>og:image</code> (1200×630, con ancho, alto y alt), <code>og:site_name</code>, <code>og:locale="ca_ES"</code> y <code>twitter:card="summary_large_image"</code>: al compartir el enlace sale una tarjeta con imagen.</li>
+              <li><code>robots</code> con <code>max-image-preview:large</code>.</li>
+              <li>JSON-LD <code>Organization</code>: datos estructurados para que los buscadores entiendan qué es la empresa. Solo incluye datos que ya están en la web.</li>
+            </ul>
+          </dd>
+          <dt>URL usada</dt><dd>
+            <code>https://vorastudio.github.io/Registrals/</code>, porque es donde se despliega hoy (lo comprobé en el workflow). <code>registrals.com</code> responde con
+            otra web, así que no la usé. <strong>Cuando tengáis dominio propio hay que cambiarla</strong> en canonical, og:url, og:image, JSON-LD, <code>robots.txt</code> y <code>sitemap.xml</code>.
+            En Symfony saldrá de una variable de entorno.
+          </dd>
+        </dl>
+      </article>
+
+      <article>
+        <h3><span class="tag">NUEVO</span> Favicon, apple-touch-icon e imagen OG</h3>
+        <dl>
+          <dt>Qué</dt><dd>
+            <code>favicon.svg</code> (isotip dorado sobre fondo azul, para que se vea en pestañas claras y oscuras), <code>apple-touch-icon.png</code> (180×180) y
+            <code>img/og-image.png</code> (logo + lema con las tipografías de marca).
+          </dd>
+          <dt>Por qué</dt><dd>Sin favicon el navegador pide <code>/favicon.ico</code> y da 404. Sin og:image los enlaces compartidos salen vacíos. Los generé con Python (Pillow) a partir de vuestros assets.</dd>
+        </dl>
+      </article>
+
+      <article>
+        <h3><span class="tag">NUEVO</span> <code>robots.txt</code> y <code>sitemap.xml</code></h3>
+        <dl>
+          <dt>Por qué</dt><dd>Indican a los buscadores qué rastrear. <strong>Aviso:</strong> en una subruta de GitHub Pages (<code>/Registrals/</code>) los buscadores solo leen <code>robots.txt</code> en la raíz del dominio, así que hoy no surtirá efecto. Funcionará cuando haya dominio propio.</dd>
+        </dl>
+      </article>
+
+      <article>
+        <h3><span class="tag">NUEVO</span> Enlace «Salta al contingut» y <code>id="main"</code></h3>
+        <dl>
+          <dt>Por qué</dt><dd>Accesibilidad (WCAG 2.4.1): quien navega con teclado puede saltarse el menú. Es invisible hasta que recibe el foco.</dd>
+        </dl>
+      </article>
+
+      <h2>5. Rendimiento y privacidad</h2>
+
+      <article>
+        <h3><span class="tag">CAMBIO</span> Fuentes autoalojadas (<code>css/fonts.css</code>)</h3>
+        <dl>
+          <dt>Qué</dt><dd>Se eliminó Google Fonts. Los <code>@font-face</code> apuntan a los TTF de <code>fonts/</code>, que ya estaban en el repo sin usar, con <code>font-display: swap</code> y <code>preload</code> de Marcellus y Raleway Regular.</dd>
+          <dt>Por qué</dt><dd>
+            Google Fonts enviaba la IP de cada visitante a Google, y en la UE eso ha dado lugar a sanciones (sentencia del tribunal de Múnich, 2022).
+            Además quitas dos conexiones externas y facilitas la política de cookies. También hace que <code>document.fonts.ready</code> (que usa SplitText) resuelva antes.
+          </dd>
+          <dt>Límite</dt><dd>Intenté convertirlas a WOFF2 (más ligeras), pero el control de aplicaciones de Windows bloqueó el módulo de <code>fonttools</code>. Quedan en TTF; se pueden convertir luego con otra herramienta.</dd>
+        </dl>
+      </article>
+
+      <article>
+        <h3><span class="tag">CAMBIO</span> Fondo de respaldo en el hero y póster en S3</h3>
+        <dl>
+          <dt>Qué</dt><dd>El hero lleva un fondo <code>img/home-poster.webp</code> (13 KB, extraído del vídeo con ffmpeg) y el vídeo de S3 un <code>poster</code>.</dd>
+          <dt>Por qué</dt><dd>Los vídeos pesan 1,4 y 2,3 MB. Mientras cargaban se veía un fondo plano, y con <code>prefers-reduced-motion</code> el vídeo del hero está oculto, así que antes el hero quedaba vacío. Ahora siempre hay imagen.</dd>
+        </dl>
+      </article>
+
+      <article>
+        <h3><span class="tag">CAMBIO</span> Accesibilidad táctil y contraste</h3>
+        <dl>
+          <dt>Qué</dt><dd>Los enlaces del footer pasan de 16 px a ~28 px de alto en móvil (<code>py-1.5</code>, y <code>md:py-0</code> para no alterar el escritorio). Los placeholders pasan de <code>/60</code> a <code>/70</code> de opacidad.</dd>
+          <dt>Por qué</dt><dd>WCAG 2.2 pide objetivos táctiles de al menos 24 px, y los placeholders estaban al límite del contraste 4,5:1.</dd>
+        </dl>
+      </article>
+
+      <h2>6. Lo que NO he hecho (y por qué)</h2>
+
+      <article>
+        <h3><span class="tag warn">PENDIENTE</span> Compilar Tailwind en vez de usar el CDN</h3>
+        <dl><dd>
+          Añadiría un paso de build a tu flujo ahora, y en Symfony lo resolverá el bundle de Tailwind / AssetMapper. Hacerlo dos veces no compensa. Sigue siendo la mayor mejora de rendimiento pendiente: hoy el CSS se compila en el navegador.
+        </dd></dl>
+      </article>
+      <article>
+        <h3><span class="tag warn">PENDIENTE</span> Backend del formulario</h3>
+        <dl><dd>Lo dijiste tú: se hará luego. Hoy el <code>action</code> es <code>#</code>. Recuerda que la política de privacidad ya dice que se usan esos datos.</dd></dl>
+      </article>
+      <article>
+        <h3><span class="tag warn">PENDIENTE</span> Contenido que no puedo inventar</h3>
+        <dl><dd>
+          <ul>
+            <li>Respuestas de la FAQ: «Té validesa legal el certificat?» y «Què passa amb les meves fotos i documents?» siguen con texto provisional. Una respuesta legal inventada sería un riesgo.</li>
+            <li>Datos de la empresa en <code>legal.html</code> (marcadores entre corchetes).</li>
+            <li>URLs de redes sociales.</li>
+            <li>Imagen de la tarjeta «Electrònica» (S6): ninguna de las imágenes del repo encaja.</li>
+          </ul>
+        </dd></dl>
+      </article>
+      <article>
+        <h3><span class="tag warn">PENDIENTE</span> Destello del texto antes de las animaciones</h3>
+        <dl><dd>Arreglarlo bien requiere ocultar el contenido por CSS antes de que cargue el JS, lo que obliga a un script inline en el <code>&lt;head&gt;</code>. Va contra tu norma de no tener JS embebido y es un efecto leve; lo dejo a tu decisión.</dd></dl>
+      </article>
+
+      <h2>7. Ficheros</h2>
+      <article>
+        <dl>
+          <dt>Modificados</dt><dd><code>index.v2.html</code>, <code>js/script.js</code></dd>
+          <dt>Nuevos</dt><dd><code>legal.html</code>, <code>js/cookies.js</code>, <code>css/fonts.css</code>, <code>robots.txt</code>, <code>sitemap.xml</code>, <code>favicon.svg</code>, <code>apple-touch-icon.png</code>, <code>img/og-image.png</code>, <code>img/home-poster.webp</code>, <code>img/conversa-poster.webp</code>, <code>docs/cambios-seo-legal.html</code></dd>
+        </dl>
+      </article>
+    </main>
+
+    <footer>Registrals · VoraStudio</footer>
+  </body>
+</html>

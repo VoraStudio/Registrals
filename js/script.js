@@ -1,4 +1,3 @@
- AOS.init();
 // Obre/tanca el menú: només canvia l'estat; l'animació la fa Tailwind amb group-data-open:
 const header = document.getElementById("site-header");
 const toggle = document.getElementById("menu-toggle");
