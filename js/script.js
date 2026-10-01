@@ -122,3 +122,25 @@ nextButton.addEventListener("click", () => scrollCarousel(1));
 carouselList.addEventListener("scroll", updateCarouselButtons);
 window.addEventListener("resize", updateCarouselButtons);
 updateCarouselButtons();
+
+// ENTRADA DE CARDS DE TARIFES: cortina de baix cap a dalt amb stagger
+const pricingCards = gsap.utils.toArray("#s7 article");
+
+mm.add("(prefers-reduced-motion: no-preference)", () => {
+  gsap.fromTo(
+    pricingCards,
+    { clipPath: "inset(100% 0% 0% 0%)" },
+    {
+      clipPath: "inset(0% 0% 0% 0%)",
+      duration: 1,
+      ease: "power3.out",
+      stagger: 0.5,
+      clearProps: "clipPath",
+      scrollTrigger: {
+        trigger: pricingCards[0].parentElement,
+        start: "top 80%",
+        toggleActions: "play none none reset",
+      },
+    },
+  );
+});
