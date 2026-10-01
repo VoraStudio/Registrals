@@ -1,3 +1,4 @@
+ AOS.init();
 // Obre/tanca el menú: només canvia l'estat; l'animació la fa Tailwind amb group-data-open:
 const header = document.getElementById("site-header");
 const toggle = document.getElementById("menu-toggle");
@@ -38,7 +39,7 @@ const heroObserver = new IntersectionObserver(
 heroObserver.observe(hero);
 
 // AMPLLIACIÓ DE VIDEO SECTION: CONVERSA
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, SplitText);
 const videoBox = document.querySelector("[data-video-expand]");
 const mm = gsap.matchMedia();
 
@@ -143,4 +144,150 @@ mm.add("(prefers-reduced-motion: no-preference)", () => {
       },
     },
   );
+});
+
+// ENTRADA DE TÍTOLS: una timeline per títol (lletres + descripció per línies opcional), per poder-la governar sencera.
+// Convenció: la descripció d'una secció és l'element amb data-reveal="description".
+const revealTitle = (title, { description, cta, titleAt = 0, titleDuration = 0.6, titleStagger, extras, scrollTrigger } = {}) => {
+  let split;
+
+  // Esperem les fonts: si no, les línies es tallen amb la tipografia de reserva
+  document.fonts.ready.then(() => {
+    split = SplitText.create(description ? [title, description] : title, {
+      type: "chars, lines",
+      mask: "lines",
+      autoSplit: true,
+      onSplit: (self) => {
+        const titleChars = self.chars.filter((char) => title.contains(char));
+        const tl = gsap.timeline({ scrollTrigger });
+
+        // Etiqueta "title": els passos d'una secció hi poden arrencar alhora (extras)
+        tl.addLabel("title", titleAt);
+
+        tl.from(
+          titleChars,
+          {
+            duration: titleDuration,
+            opacity: 0,
+            yPercent: 100,
+            clipPath: "inset(0 0 100% 0)",
+            ease: "power2.out",
+            // Per defecte, durada total màxima d'1s encara que el títol sigui llarg; titleStagger la fixa a mà
+            stagger: { amount: titleStagger ?? Math.min(titleChars.length * 0.03, 1) },
+          },
+          "title",
+        );
+
+        if (description) {
+          const descriptionLines = self.lines.filter((line) => description.contains(line));
+          tl.from(descriptionLines, { opacity: 0, yPercent: 100, duration: 0.8, ease: "power2.out", stagger: 0.12 }, "-=0.4");
+        }
+
+        if (cta) {
+          tl.from(cta, { opacity: 0, y: 60, duration: 0.8, ease: "power2.out" }, "-=0.3");
+        }
+
+        // Passos propis de cada secció, afegits a la mateixa timeline
+        extras?.(tl);
+
+        return tl;
+      },
+    });
+  });
+
+  return () => split?.revert();
+};
+
+const heroTitle = document.getElementById("s1-title");
+const heroDescription = document.querySelector("#s1 [data-reveal=description]");
+const heroCta = document.querySelector("#s1 [data-reveal=cta]");
+const sectionTitles = gsap.utils.toArray("main section h2");
+const footerTitle = document.querySelector("footer [data-reveal=title]");
+
+// Passos propis per secció (clau = id de la secció): s'afegeixen a la timeline del seu títol.
+// titleAt: moment de la timeline on arrenca el títol (per defecte 0). build: afegeix els passos propis.
+// splitDescription: la descripció (data-reveal=description) entra dividida per línies, com al hero.
+const sectionReveals = {
+  s2: {
+    build: (tl) => {
+      tl.from("#s2 [data-reveal=description]", { opacity: 0, y: 40, duration: 0.8, ease: "power2.out" }, "-=0.4");
+      // "<": les píldores arranquen alhora que la descripció
+      tl.from("#s2 [data-reveal=pill]", { opacity: 0, y: 40, duration: 0.8, ease: "power2.out", stagger: 0.15 }, "<");
+    },
+  },
+  s4: {
+    // La descripció surt abans del títol (0 -> 0.6s); el títol arrenca quan ja és mig visible
+    titleAt: 0.4,
+    build: (tl) => {
+      tl.from("#s4 [data-reveal=description]", { opacity: 0, duration: 0.6, ease: "power2.out" }, 0);
+      // "title": les cards pugen des de baix alhora que el títol
+      tl.from("#s4 [data-reveal=card]", { opacity: 0, y: 160, duration: 1.3, ease: "power2.out", stagger: 0.4 }, "title");
+    },
+  },
+  contacte: {
+    // La descripció es divideix per línies i entra dins la mateixa timeline que el títol (com al hero)
+    splitDescription: true,
+    build: (tl) => {
+      // Camps del formulari i botó: fade up des de baix, en escala, a la mateixa timeline
+      tl.from("#contacte [data-reveal=field]", { opacity: 0, y: 40, duration: 0.8, ease: "power2.out", stagger: 0.15 }, "-=0.4");
+    },
+  },
+  s8: {
+    build: (tl) => {
+      // Descripció: fade up després del títol
+      tl.from("#s8 [data-reveal=description]", { opacity: 0, y: 40, duration: 0.8, ease: "power2.out" }, "-=0.4");
+      // Preguntes: fade up des de baix, stagger lent
+      tl.from("#s8 [data-reveal=card]", { opacity: 0, y: 40, duration: 0.9, ease: "power2.out", stagger: 0.3 }, "-=0.4");
+      // Icona de fons: només opacity (el transform el porta el CSS), alhora que el títol
+      tl.from("#s8 [data-reveal=icon]", { opacity: 0, duration: 4, ease: "power2.out" }, "title");
+    },
+  },
+  s7: {
+    build: (tl) => {
+      // Descripció: fade simple després del títol
+      tl.from("#s7 [data-reveal=description]", { opacity: 0, duration: 0.8, ease: "power2.out" }, "-=0.4");
+    },
+  },
+  s6: {
+    build: (tl) => {
+      // Aparició de les cards amb fade, en escala
+      tl.from("#s6 [data-reveal=card]", { opacity: 0, duration: 0.7, ease: "power2.out", stagger: 0.3 }, "-=0.4");
+    },
+  },
+  s5: {
+    build: (tl) => {
+      tl.from("#s5 [data-reveal=subtitle]", { opacity: 0, y: 30, duration: 0.7, ease: "power2.out" }, "-=0.4");
+      // Les píldores dels passos entren pel lateral (esquerra), en escala
+      tl.from("#s5 [data-reveal=pill]", { opacity: 0, x: -80, duration: 0.8, ease: "power2.out", stagger: 0.15 }, "-=0.3");
+      // Descripció d'avall i píldora final: fade des de baix, una darrere l'altra
+      tl.from("#s5 [data-reveal=description], #s5 [data-reveal=cta]", { opacity: 0, y: 40, duration: 0.8, ease: "power2.out", stagger: 0.2 }, "-=0.3");
+    },
+  },
+};
+
+mm.add("(prefers-reduced-motion: no-preference)", () => {
+  const cleanups = [
+    revealTitle(heroTitle, { description: heroDescription, cta: heroCta }),
+    ...sectionTitles.map((title) => {
+      const section = title.closest("section");
+      const { titleAt, build, splitDescription } = sectionReveals[section.id] ?? {};
+
+      return revealTitle(title, {
+        titleAt,
+        description: splitDescription ? section.querySelector("[data-reveal=description]") : undefined,
+        extras: build,
+        scrollTrigger: { trigger: title, start: "top 85%", toggleActions: "play none none reset" },
+      });
+    }),
+    // Títol gran del footer: mateix efecte, més lent (lletres 1s, repartides en 1.2s)
+    revealTitle(footerTitle, {
+      titleDuration: 1,
+      titleStagger: 1.2,
+      // Elements del panel del footer: fade up amb stagger, dins la mateixa timeline (arrenquen amb les lletres)
+      extras: (tl) => tl.from("footer [data-reveal=item]", { opacity: 0, y: 40, duration: 0.8, ease: "power2.out", stagger: 0.1 }, "title+=1"),
+      scrollTrigger: { trigger: footerTitle, start: "top 90%", toggleActions: "play none none reset" },
+    }),
+  ];
+
+  return () => cleanups.forEach((cleanup) => cleanup());
 });
