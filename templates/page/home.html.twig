@@ -1,0 +1,77 @@
+{% extends 'base.html.twig' %}
+
+{% set cookie_policy_href = path('app_legal') ~ '#cookies' %}
+
+{% block html_attributes %} class="overflow-y-scroll"{% endblock %}
+
+{% block title %}Registrals — Certificació digital{% endblock %}
+{% block meta_description %}Registra i certifica digitalment els teus béns per acreditar-ne la propietat en cas de robatori, pèrdua, assegurança, venda o conflicte legal.{% endblock %}
+{% block meta_robots %}index, follow, max-image-preview:large{% endblock %}
+{% block canonical_url %}https://www.registrals.com/{% endblock %}
+{% block og_title %}Registrals — El registre dels teus béns, a un clic{% endblock %}
+{% block og_description %}Protegeix el que és teu amb una prova digital verificable.{% endblock %}
+
+{% block structured_data %}
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Registrals",
+        "url": "https://www.registrals.com/",
+        "logo": "https://www.registrals.com/img/logos/Isotip/1.png",
+        "email": "info@registrals.com",
+        "description": "Registra i certifica digitalment els teus béns per acreditar-ne la propietat."
+      }
+    </script>
+{% endblock %}
+
+{% block head_extra %}
+    <style>
+      html.is-locked body {
+        overflow: hidden;
+        height: 100dvh;
+      }
+    </style>
+    <noscript
+      ><style>
+        #intro {
+          display: none;
+        }
+        #site-header {
+          translate: none !important;
+        }
+      </style></noscript
+    >
+{% endblock %}
+
+{% block body_class %}bg-ink font-raleway text-ink antialiased{% endblock %}
+
+{% block body %}
+    {{ include('page/home/_intro.html.twig') }}
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[70] focus:rounded-full focus:bg-cream focus:px-4 focus:py-2 focus:font-medium focus:text-ink"
+      >Salta al contingut</a
+    >
+    {{ include('page/home/_header.html.twig') }}
+
+    <main id="main">
+      {{ include('page/home/_s1_hero.html.twig') }}
+      {{ include('page/home/_s2_stats.html.twig') }}
+      {{ include('page/home/_s3_conversa.html.twig') }}
+      {{ include('page/home/_s4_features.html.twig') }}
+      {{ include('page/home/_s5_passos.html.twig') }}
+      {{ include('page/home/_s6_categories.html.twig') }}
+      {{ include('page/home/_s7_tarifes.html.twig') }}
+      {{ include('page/home/_s8_faq.html.twig') }}
+      {{ include('page/home/_contacte.html.twig') }}
+    </main>
+
+    {{ include('page/home/_footer.html.twig') }}
+{% endblock %}
+
+{% block javascripts %}
+    {# script.js is an ES module; GSAP comes from the importmap (assets/vendor) #}
+    {{ importmap('home') }}
+    {{ parent() }}
+{% endblock %}

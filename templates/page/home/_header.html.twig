@@ -1,0 +1,86 @@
+<!-- === NAV === -->
+<svg class="absolute size-0" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="goo">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur" />
+      <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -8" result="goo" />
+      <feComposite in="SourceGraphic" in2="goo" operator="atop" />
+    </filter>
+  </defs>
+</svg>
+
+<header
+  id="site-header"
+  class="group fixed inset-x-0 top-5 sm:top-16 z-50 flex justify-center px-4 transition-transform duration-[1800ms] ease-out translate-y-[calc(-100%-5rem)] data-ready:translate-y-0 motion-reduce:transition-none"
+>
+  <!-- Accedeix: només visible al hero (sm+), a la mateixa altura que el pill; a mòbil xocaria amb ell -->
+  <a
+    href="#"
+    class="absolute top-0 right-8 hidden rounded-xl border-2 border-cream bg-cream px-8 text-sm font-semibold text-ink transition-[opacity,visibility,background-color] duration-500 hover:bg-cream/85 group-data-past-hero:invisible group-data-past-hero:opacity-0 sm:inline-flex sm:h-11 sm:items-center"
+    >Accedeix</a
+  >
+  <div class="relative [filter:url(#goo)]">
+    <!-- Pill principal -->
+    <div
+      class="relative border-cream border-2 z-10 flex items-center gap-12 rounded-xl bg-cream px-6 py-1 transition-colors duration-500 group-data-past-hero:bg-ink"
+    >
+      <a href="#s1" class="font-marcellus text-2xl tracking-wider text-ink transition-colors duration-500 group-data-past-hero:text-cream"
+        >REGISTRALS</a
+      >
+      <button
+        id="menu-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="main-menu"
+        aria-label="Obrir el menú"
+        class="relative -m-2 grid size-11 place-items-center rounded-full"
+      >
+        <span class="relative block size-5" aria-hidden="true">
+          <span
+            class="absolute inset-x-0 top-1 h-1 rounded-lg bg-ink group-data-past-hero:bg-cream transition-all duration-300 group-data-open:top-[9px] group-data-open:rotate-45"
+          ></span>
+          <span
+            class="absolute inset-x-0 bottom-1 h-1 rounded-lg bg-ink group-data-past-hero:bg-cream transition-all duration-300 group-data-open:bottom-[9px] group-data-open:-rotate-45"
+          ></span>
+        </span>
+      </button>
+    </div>
+
+    <!-- Gota: amagada sota el pill; en obrir cau (1) i s'estira fins a ser el menú (2) -->
+    <div
+      class="absolute inset-x-0 top-0.5 flex justify-center transition-transform delay-150 duration-500 ease-[cubic-bezier(.34,1.4,.64,1)] group-data-open:translate-y-[52px] group-data-open:delay-0 motion-reduce:transition-none"
+    >
+      <nav
+        id="main-menu"
+        aria-label="Principal"
+        class="flex flex-wrap content-center sm:flex-nowrap border-cream border-2 h-8 w-8 shrink-0 items-center justify-center gap-y-1 sm:gap-3 overflow-hidden rounded-xl bg-cream group-data-past-hero:bg-ink transition-[width,height,background-color] duration-400 ease-[cubic-bezier(.22,1,.36,1)] group-data-open:h-24 group-data-open:px-3 group-data-open:py-1 group-data-open:w-[min(24rem,calc(100vw-2rem))] sm:group-data-open:h-14 sm:group-data-open:w-[min(32rem,calc(100vw-2rem))] group-data-open:delay-200 motion-reduce:transition-none"
+      >
+        <a
+          href="#s4"
+          class="invisible shrink-0 rounded-xl px-3 py-2 text-base font-semibold text-ink group-data-past-hero:text-cream group-data-past-hero:hover:bg-cream/20 opacity-0 transition-[opacity,visibility,color] duration-200 hover:bg-ink/20 hover:rounded-md group-data-open:visible group-data-open:opacity-100 group-data-open:delay-[400ms] sm:text-sm"
+          >Solucions</a
+        >
+        <a
+          href="#s7"
+          class="invisible shrink-0 rounded-xl px-3 py-2 text-base font-semibold text-ink group-data-past-hero:text-cream group-data-past-hero:hover:bg-cream/20 opacity-0 transition-[opacity,visibility,color] duration-200 hover:bg-ink/20 group-data-open:visible group-data-open:opacity-100 group-data-open:delay-[450ms] sm:text-sm"
+          >Tarifes</a
+        >
+        <a
+          href="#s8"
+          class="invisible shrink-0 rounded-xl px-3 py-2 text-base font-semibold text-ink group-data-past-hero:text-cream group-data-past-hero:hover:bg-cream/20 opacity-0 transition-[opacity,visibility,color] duration-200 hover:bg-ink/20 group-data-open:visible group-data-open:opacity-100 group-data-open:delay-[500ms] sm:text-sm"
+          >FAQS</a
+        >
+        <a
+          href="#contacte"
+          class="invisible shrink-0 rounded-xl px-4 py-2 text-base bg-ink font-semibold text-cream group-data-past-hero:bg-cream group-data-past-hero:text-ink group-data-past-hero:hover:bg-cream/80 opacity-0 transition-[opacity,visibility,color,background-color] duration-200 hover:bg-ink/60 group-data-open:visible group-data-open:opacity-100 group-data-open:delay-[550ms] sm:text-sm"
+          >Contacte</a
+        >
+        <a
+          href="#"
+          class="invisible shrink-0 rounded-xl border-2 border-ink px-4 py-1.5 text-base font-semibold text-ink group-data-past-hero:border-cream group-data-past-hero:text-cream group-data-past-hero:hover:bg-cream/20 opacity-0 transition-[opacity,visibility,color,background-color] duration-200 hover:bg-ink/20 group-data-open:visible group-data-open:opacity-100 group-data-open:delay-[600ms] sm:text-sm"
+          >Accedeix</a
+        >
+      </nav>
+    </div>
+  </div>
+</header>

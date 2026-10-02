@@ -1,0 +1,72 @@
+<!-- === S6 · CATEGORIES === -->
+<section id="s6" aria-labelledby="s6-title" class="relative z-10 -mt-8 rounded-t-[2rem] bg-ink py-16 md:py-24">
+  <div class="mx-auto max-w-6xl px-4">
+    <h2 id="s6-title" class="font-marcellus text-4xl text-cream md:text-5xl">Qualsevol bé de valor, certificat</h2>
+  </div>
+  <div data-carousel class="relative mt-12 mb-8">
+    <ul
+      data-carousel="list"
+      class="flex overflow-x-auto snap-x snap-mandatory gap-6 px-4 pb-4 [scrollbar-width:none] md:scroll-pl-[calc(100vw-65%)] md:pl-[calc(100vw-65%)] scroll-px-4"
+    >
+      <li data-reveal="card" class="relative h-80 w-50 md:h-110 md:w-80 shrink-0 snap-start overflow-hidden rounded-2xl bg-transparent">
+        <img src="{{ asset('img/chain.webp') }}" alt="" class="absolute inset-0 size-full object-cover" />
+        <div class="absolute inset-0 bg-linear-to-t from-ink/85 via-ink/10 to-transparent"></div>
+        <span class="absolute bottom-4 left-4 font-marcellus text-2xl text-cream">Joies</span>
+      </li>
+      <li data-reveal="card" class="relative h-80 w-50 md:h-110 md:w-80 shrink-0 snap-start overflow-hidden rounded-2xl bg-placeholder">
+        <div class="absolute inset-0 bg-linear-to-t from-ink/85 via-ink/10 to-transparent"></div>
+        <span class="absolute bottom-4 left-4 font-marcellus text-2xl text-cream">Electrònica</span>
+      </li>
+      <li data-reveal="card" class="relative h-80 w-50 md:h-110 md:w-80 shrink-0 snap-start overflow-hidden rounded-2xl bg-transparent">
+        <img src="{{ asset('img/studio.webp') }}" alt="" class="absolute inset-0 size-full object-cover" />
+        <div class="absolute inset-0 bg-linear-to-t from-ink/85 via-ink/10 to-transparent"></div>
+        <span class="absolute bottom-4 left-4 font-marcellus text-2xl text-cream">Art</span>
+      </li>
+      <li data-reveal="card" class="relative h-80 w-50 md:h-110 md:w-80 shrink-0 snap-start overflow-hidden rounded-2xl bg-transparent">
+        <img src="{{ asset('img/coins.webp') }}" alt="" class="absolute inset-0 size-full object-cover" />
+        <div class="absolute inset-0 bg-linear-to-t from-ink/85 via-ink/10 to-transparent"></div>
+        <span class="absolute bottom-4 left-4 font-marcellus text-2xl text-cream">Col·leccionisme</span>
+      </li>
+    </ul>
+    <div class="mt-2 flex justify-center gap-6 md:justify-start md:pl-[calc(100vw-65%)]">
+      <button
+        type="button"
+        aria-label="Anterior"
+        data-carousel="prev"
+        class="grid size-11 place-items-center rounded-full bg-whitef text-ink disabled:pointer-events-none disabled:opacity-40"
+      >
+        <svg
+          class="size-5"
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m10 4-4 4 4 4" />
+        </svg>
+      </button>
+      <button
+        type="button"
+        aria-label="Següent"
+        data-carousel="next"
+        class="grid size-11 place-items-center rounded-full bg-whitef text-ink disabled:pointer-events-none disabled:opacity-40"
+      >
+        <svg
+          class="size-5"
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m6 4 4 4-4 4" />
+        </svg>
+      </button>
+    </div>
+  </div>
+</section>

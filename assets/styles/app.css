@@ -1,0 +1,30 @@
+@import "tailwindcss" source(none);
+
+/* Files scanned for class names */
+@source "../../templates";
+@source "../js";
+
+@theme {
+  --color-ink: #1d2f4b;
+  --color-steel: #6a86a2;
+  --color-gold: #caa36c;
+  --color-cream: #f1e3d3;
+  --color-whitef: #fdfdfd;
+  --color-cream-50: #faf6f0;
+  --color-placeholder: #d9d9d9;
+  --font-marcellus: "Marcellus", serif;
+  --font-raleway: "Raleway", sans-serif;
+}
+
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 3px;
+  }
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+}

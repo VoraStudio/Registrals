@@ -1,0 +1,91 @@
+<!-- === FOOTER === -->
+<footer class="overflow-hidden bg-ink px-4 pt-12 pb-10">
+  <div class="mx-auto max-w-7xl">
+    <p data-reveal="title" class="text-center font-marcellus text-[clamp(3rem,16vw,10rem)] leading-none text-cream" aria-hidden="true">
+      REGISTRALS
+    </p>
+    <div class="relative z-10 -mt-[3vw] rounded-3xl border border-gold/50 bg-cream p-8 md:-mt-10 md:p-12">
+      <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+        <div class="md:col-span-1">
+          <img data-reveal="item" src="{{ asset('img/logos/Isotip/1-transparent.svg') }}" width="80" height="80" alt="Registrals" class="size-20" />
+          <p data-reveal="item" class="mt-6 font-bold">Mantén-te al dia de l'evolució de la propietat digital</p>
+          <a data-reveal="item" href="#contacte" class="mt-4 inline-block rounded-full bg-ink px-6 py-2.5 font-bold text-cream hover:bg-ink/90"
+            >Subscriure'm</a
+          >
+        </div>
+        <div class="md:col-span-2">
+          <nav aria-label="Peu de pàgina" class="flex flex-wrap items-start gap-8 text-sm md:flex-nowrap md:gap-16">
+            <ul data-reveal="item" class="md:space-y-1">
+              <li><a href="#s1" class="block py-1.5 font-bold hover:underline md:py-0">Home</a></li>
+              <li><a href="#s4" class="block py-1.5 text-ink/75 hover:underline md:py-0">Solucions</a></li>
+              <li><a href="#s7" class="block py-1.5 text-ink/75 hover:underline md:py-0">Tarifes</a></li>
+              <li><a href="#s8" class="block py-1.5 text-ink/75 hover:underline md:py-0">FAQS</a></li>
+              <li><a href="#contacte" class="block py-1.5 text-ink/75 hover:underline md:py-0">Contacte</a></li>
+            </ul>
+            <ul data-reveal="item" class="md:space-y-1">
+              <li><p class="font-bold">Contacte</p></li>
+              <li><a href="mailto:info@registrals.com" class="block py-1.5 text-ink/75 hover:underline md:py-0">info@registrals.com</a></li>
+            </ul>
+            <ul data-reveal="item" class="flex gap-3 md:ml-auto" aria-label="Xarxes socials">
+              <!-- TODO: replace href="#" with the real LinkedIn and Instagram URLs -->
+              <li>
+                <a
+                  href="#"
+                  aria-label="LinkedIn"
+                  class="grid size-11 place-items-center rounded-full bg-ink text-cream transition-colors hover:bg-ink/85"
+                >
+                  <svg
+                    class="size-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+                    <rect x="2" y="9" width="4" height="12" />
+                    <circle cx="4" cy="4" r="2" />
+                  </svg>
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  aria-label="Instagram"
+                  class="grid size-11 place-items-center rounded-full bg-ink text-cream transition-colors hover:bg-ink/85"
+                >
+                  <svg
+                    class="size-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <rect x="2" y="2" width="20" height="20" rx="5" />
+                    <circle cx="12" cy="12" r="4" />
+                    <path d="M17.5 6.5h.01" />
+                  </svg>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+      <div class="mt-10 flex flex-col gap-2 border-t border-ink/10 pt-6 text-sm text-ink/70 md:flex-row md:justify-between">
+        <span data-reveal="item">2026. Tots els drets reservats</span>
+        <ul data-reveal="item" class="flex flex-col md:flex-row md:gap-6" aria-label="Informació legal">
+          <li><a href="{{ path('app_legal') }}#avis-legal" class="block py-1.5 hover:underline md:py-0">Avís legal</a></li>
+          <li><a href="{{ path('app_legal') }}#privacitat" class="block py-1.5 hover:underline md:py-0">Privacitat</a></li>
+          <li><a href="{{ path('app_legal') }}#cookies" class="block py-1.5 hover:underline md:py-0">Cookies</a></li>
+          <li><button type="button" data-cookie="settings" class="block py-1.5 text-left hover:underline md:py-0">Configurar cookies</button></li>
+        </ul>
+        <span data-reveal="item">Made by VoraStudio</span>
+      </div>
+    </div>
+  </div>
+</footer>

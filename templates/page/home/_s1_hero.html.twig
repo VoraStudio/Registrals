@@ -1,0 +1,20 @@
+<!-- === S1 · HERO === -->
+<section id="s1" aria-labelledby="s1-title" class="relative min-h-dvh overflow-hidden bg-cover bg-center" style="background-image: url('{{ asset('img/home-poster.webp') }}')">
+  <video class="absolute inset-0 size-full object-cover motion-reduce:hidden" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+    <source src="{{ asset('videos/home.mp4') }}" type="video/mp4" />
+  </video>
+  <div class="absolute inset-0 bg-linear-to-t from-ink/65 via-ink/10 to-ink/5"></div>
+  <div class="relative z-10 flex min-h-dvh flex-col items-center justify-center sm:justify-end px-4 pt-36 sm:pt-28 pb-14 text-center">
+    <h1 id="s1-title" class="max-w-2xl font-marcellus text-[2.6rem] leading-tight sm:leading-none text-whitef md:text-7xl">
+      El registre dels teus béns, a un clic
+    </h1>
+    <p data-reveal="description" class="mt-12 sm:mt-6 max-w-4xl text-xl text-whitef/90 md:text-2xl sm:pb-16">
+      Registra i certifica digitalment els teus béns perquè puguis acreditar-ne la propietat en cas de robatori, pèrdua, assegurança, venda o
+      conflicte legal.
+    </p>
+    <div data-reveal="cta" class="mt-24 sm:mt-8 flex flex-col items-center gap-2 py-3 sm:py-1 rounded-2xl bg-cream/85 p-2 sm:flex-row z-10">
+      <span class="px-4 py-2 font-medium text-xl text-ink">Amb tecnologia de blockchain</span>
+      <a href="#contacte" class="rounded-2xl bg-ink px-12 py-3 sm:px-8 sm:py-2 font-medium text-cream hover:bg-ink/90">REGISTRA UN BÉ</a>
+    </div>
+  </div>
+</section>

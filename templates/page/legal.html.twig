@@ -1,55 +1,16 @@
-<!doctype html>
-<html lang="ca">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Informació legal — Registrals</title>
-    <meta name="description" content="Avís legal, política de privacitat i política de cookies de Registrals." />
-    <meta name="robots" content="index, follow" />
-    <meta name="theme-color" content="#1D2F4B" />
-    <link rel="canonical" href="https://www.registrals.com/legal.html" />
-    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
-    <meta property="og:title" content="Informació legal — Registrals" />
-    <meta property="og:description" content="Avís legal, política de privacitat i política de cookies de Registrals." />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://www.registrals.com/legal.html" />
-    <meta property="og:site_name" content="Registrals" />
-    <meta property="og:locale" content="ca_ES" />
-    <meta property="og:image" content="https://www.registrals.com/img/og-image.png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Registrals — El registre dels teus béns, a un clic" />
-    <meta property="og:image:type" content="image/png" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content="https://www.registrals.com/img/og-image.png" />
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <style type="text/tailwindcss">
-      @theme {
-        --color-ink: #1d2f4b;
-        --color-steel: #6a86a2;
-        --color-gold: #caa36c;
-        --color-cream: #f1e3d3;
-        --color-whitef: #fdfdfd;
-        --color-cream-50: #faf6f0;
-        --font-marcellus: "Marcellus", serif;
-        --font-raleway: "Raleway", sans-serif;
-      }
-      @layer base {
-        :focus-visible {
-          outline: 2px solid var(--color-gold);
-          outline-offset: 3px;
-        }
-        button:not(:disabled) {
-          cursor: pointer;
-        }
-      }
-    </style>
-    <link rel="preload" href="fonts/Marcellus-Regular.ttf" as="font" type="font/ttf" crossorigin />
-    <link rel="preload" href="fonts/Raleway-Regular.ttf" as="font" type="font/ttf" crossorigin />
-    <link rel="stylesheet" href="css/fonts.css" />
-  </head>
-  <body class="bg-cream font-raleway text-ink antialiased">
+{% extends 'base.html.twig' %}
+
+{% set cookie_policy_href = '#cookies' %}
+
+{% block title %}Informació legal — Registrals{% endblock %}
+{% block meta_description %}Avís legal, política de privacitat i política de cookies de Registrals.{% endblock %}
+{% block canonical_url %}https://www.registrals.com/legal{% endblock %}
+{% block og_title %}Informació legal — Registrals{% endblock %}
+{% block og_description %}Avís legal, política de privacitat i política de cookies de Registrals.{% endblock %}
+
+{% block body_class %}bg-cream font-raleway text-ink antialiased{% endblock %}
+
+{% block body %}
     <a
       href="#main"
       class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[70] focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:font-medium focus:text-cream"
@@ -58,8 +19,8 @@
 
     <header class="bg-ink px-4 py-6">
       <div class="mx-auto flex max-w-3xl items-center justify-between gap-4">
-        <a href="./" class="font-marcellus text-2xl tracking-wider text-cream">REGISTRALS</a>
-        <a href="./" class="rounded-full bg-cream px-5 py-2.5 text-sm font-medium text-ink hover:bg-cream/90">TORNA A L'INICI</a>
+        <a href="{{ path('app_home') }}" class="font-marcellus text-2xl tracking-wider text-cream">REGISTRALS</a>
+        <a href="{{ path('app_home') }}" class="rounded-full bg-cream px-5 py-2.5 text-sm font-medium text-ink hover:bg-cream/90">TORNA A L'INICI</a>
       </div>
     </header>
 
@@ -196,20 +157,4 @@
     <footer class="bg-ink px-4 py-8 text-center text-sm text-cream/80">
       <p>2026. Tots els drets reservats · Made by VoraStudio</p>
     </footer>
-
-    <!-- === COOKIE BANNER (parcial: es repeteix a index.v2.html) === -->
-    <div id="cookie-banner" role="region" aria-label="Cookies" hidden class="fixed inset-x-4 bottom-4 z-[60] md:right-6 md:left-auto md:w-[44rem] md:max-w-[calc(100vw-3rem)]">
-      <div class="rounded-2xl border border-gold/50 bg-cream-50 p-5 text-ink shadow-xl md:flex md:items-center md:gap-6">
-        <p class="text-sm">
-          Aquest web només fa servir cookies tècniques necessàries per al seu funcionament. Pots consultar-ne els detalls a la
-          <a href="#cookies" class="font-semibold underline decoration-gold decoration-2 underline-offset-4 hover:text-steel">política de cookies</a>.
-        </p>
-        <div class="mt-4 flex flex-col gap-2 sm:flex-row md:mt-0 md:shrink-0">
-          <button type="button" data-cookie="accept" class="rounded-full bg-ink px-6 py-2.5 text-sm font-medium text-cream hover:bg-ink/90">ACCEPTA</button>
-          <button type="button" data-cookie="reject" class="rounded-full border border-ink px-6 py-2.5 text-sm font-medium text-ink hover:bg-ink/10">REBUTJA</button>
-        </div>
-      </div>
-    </div>
-    <script src="js/cookies.js" defer></script>
-  </body>
-</html>
+{% endblock %}

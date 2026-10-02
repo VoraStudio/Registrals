@@ -1,0 +1,25 @@
+{# Cookie banner shared by every page. Expects: cookie_policy_href (link to the cookie policy). #}
+<div
+  id="cookie-banner"
+  role="region"
+  aria-label="Cookies"
+  hidden
+  class="fixed inset-x-4 bottom-4 z-[60] md:right-6 md:left-auto md:w-[44rem] md:max-w-[calc(100vw-3rem)]"
+>
+  <div class="rounded-2xl border border-gold/50 bg-cream-50 p-5 text-ink shadow-xl md:flex md:items-center md:gap-6">
+    <p class="text-sm">
+      Aquest web només fa servir cookies tècniques necessàries per al seu funcionament. Pots consultar-ne els detalls a la
+      <a href="{{ cookie_policy_href }}" class="font-semibold underline decoration-gold decoration-2 underline-offset-4 hover:text-steel"
+        >política de cookies</a
+      >.
+    </p>
+    <div class="mt-4 flex flex-col gap-2 sm:flex-row md:mt-0 md:shrink-0">
+      <button type="button" data-cookie="accept" class="rounded-full bg-ink px-6 py-2.5 text-sm font-medium text-cream hover:bg-ink/90">
+        ACCEPTA
+      </button>
+      <button type="button" data-cookie="reject" class="rounded-full border border-ink px-6 py-2.5 text-sm font-medium text-ink hover:bg-ink/10">
+        REBUTJA
+      </button>
+    </div>
+  </div>
+</div>

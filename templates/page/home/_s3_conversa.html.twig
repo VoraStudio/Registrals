@@ -1,0 +1,20 @@
+<!-- === S3 · CONVERSACIÓ === -->
+<section id="s3" aria-label="Exemple d'ús" class="bg-cream px-4 md:px-0 pb-16 md:pb-24">
+  <div class="flex justify-center">
+    <div class="relative aspect-[945/477] w-[100%] sm:w-[80%] overflow-hidden rounded-2xl bg-placeholder" data-video-expand>
+      <video
+        class="absolute inset-0 size-full object-cover"
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="metadata"
+        poster="{{ asset('img/conversa-poster.webp') }}"
+        aria-describedby="s3-desc"
+      >
+        <source src="{{ asset('videos/conversa.mp4') }}" type="video/mp4" />
+      </video>
+      <p id="s3-desc" class="sr-only">Conversa de missatgeria: «M'acaben de robar la bicicleta.» — «I has denunciat?»</p>
+    </div>
+  </div>
+</section>
