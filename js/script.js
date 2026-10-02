@@ -1,57 +1,64 @@
+gsap.registerPlugin(ScrollTrigger, SplitText);
+const mm = gsap.matchMedia();
+
 const header = document.getElementById("site-header");
 const toggle = document.getElementById("menu-toggle");
 const menu = document.getElementById("main-menu");
+
+//ANIMACION ENTRADA ->
 const intro = document.getElementById("intro");
-const introLogo = intro.querySelector('[data-intro="logo"]');
-const introText = document.querySelector('[data-intro="text"]');
-const pillText = document.querySelector("[data-pill-text]");
+const introLogo = document.getElementById("intro-logo");
+let startHero;
+const heroGo = new Promise((resolve) => (startHero = resolve));
 
-//Reset de scroll a la pàgina ->
-history.scrollRestoration = "manual";
-window.scrollTo(0, 0);
+// Una vez por sesión: si ya se vio, se omite (try/catch: en modo privado el storage puede lanzar error)
+let introSeen = false;
+try {
+  introSeen = sessionStorage.getItem("intro-seen") === "1";
+  sessionStorage.setItem("intro-seen", "1");
+} catch {}
 
-//Ocultem la resta de pàgina y ocultes la pil del header original
-document.documentElement.style.overflow = "hidden";
-document.documentElement.style.backgroundColor = "var(--color-cream)";
-gsap.set(pillText, { opacity: 0 });
+// Sin foco ni clics en la página mientras dura la intro; el header además hasta que entra (data-ready)
+const lockedByIntro = [...document.querySelectorAll("main, footer, #cookie-banner, a[href='#main']")];
+header.inert = true;
 
-// El logo parte invisible (scale ~0) para que el "agrandar" sea una entrada con rebote
-gsap.set(introLogo, { scale: 0.01, opacity: 1 });
+if (introSeen) {
+  intro.remove();
+  startHero();
+} else {
+  //Bloqueo scroll (clase en <html>; el CSS bloquea el body para que la barra vertical no desaparezca)
+  history.scrollRestoration = "manual";
+  window.scrollTo(0, 0);
+  document.documentElement.classList.add("is-locked");
+  lockedByIntro.forEach((el) => (el.inert = true));
 
-const introTl = gsap.timeline({ delay: 0.2 });
+  gsap.set(introLogo, { scale: 0.01, opacity: 1 });
 
-introTl
-  .to(introLogo, { scale: 1.25, duration: 0.7, ease: "back.out(1.5)" })
-  .to(introText, { opacity: 1, duration: 0.4, ease: "power2.out" })
-  .to(introLogo, { scale: 0.6, opacity: 0, duration: 0.45, ease: "power2.in" }, "+=0.3")
-  .to(
-    introText,
-    {
-      x: () => pillText.getBoundingClientRect().left - introText.getBoundingClientRect().left,
-      y: () => pillText.getBoundingClientRect().top - introText.getBoundingClientRect().top,
-      duration: 0.9,
-      ease: "power3.inOut",
+  const introTl = gsap.timeline({
+    delay: 0.2,
+    onComplete: () => {
+      document.documentElement.classList.remove("is-locked");
+      lockedByIntro.forEach((el) => (el.inert = false));
+      intro.remove();
+      ScrollTrigger.refresh();
     },
-    "<0.1",
-  )
-  .to(intro, { yPercent: -100, duration: 0.9, ease: "power3.inOut" }, "-=0.3")
-  .add(() => {
-    // TEMP DEBUG: remove once the end-position offset is fixed
-    const r = (el) => {
-      const b = el.getBoundingClientRect();
-      return `left=${b.left.toFixed(2)} top=${b.top.toFixed(2)} w=${b.width.toFixed(2)} h=${b.height.toFixed(2)}`;
-    };
-    const w = () => `inner=${window.innerWidth} client=${document.documentElement.clientWidth}`;
-    console.log("[intro] BEFORE swap | flying:", r(introText), "| pill:", r(pillText), "|", w());
-    requestAnimationFrame(() => requestAnimationFrame(() => console.log("[intro] AFTER restore | pill:", r(pillText), "|", w())));
-
-    gsap.set(pillText, { opacity: 1 });
-    gsap.set(introText, { opacity: 0 });
-    document.documentElement.style.overflow = "";
-    document.documentElement.style.backgroundColor = "";
-    ScrollTrigger.refresh();
   });
+  introTl
+    .to(introLogo, { scale: 1, duration: 1, ease: "back.out(1.5)" })
+    .to(intro, { yPercent: -100, duration: 1, ease: "power3.inOut" }, "+=0.3")
+    .add(startHero, "-=0.5");
+}
 
+// Segunda señal: 0,1 s después de la primera. Header y CTA del hero entran juntos con este retraso.
+const headerGo = heroGo.then(() => new Promise((resolve) => gsap.delayedCall(0.1, resolve)));
+headerGo.then(() => {
+  header.inert = false;
+  header.setAttribute("data-ready", "");
+});
+//-----
+//HERO ->
+
+//HEADER ->
 const setMenuOpen = (isOpen) => {
   header.toggleAttribute("data-open", isOpen);
   toggle.setAttribute("aria-expanded", String(isOpen));
@@ -85,11 +92,82 @@ const heroObserver = new IntersectionObserver(
 );
 
 heroObserver.observe(hero);
+//-----
+
+// PREPARACIÓ COMUNA (plugins, matchMedia i helper d'entrada de títols) ->
+
+// ENTRADA DE TÍTOLS: una timeline per títol (lletres + descripció per línies opcional), per poder-la governar sencera.
+// Convenció: la descripció d'una secció és l'element amb data-reveal="description".
+const revealTitle = (title, { description, cta, titleAt = 0, titleDuration = 0.6, titleStagger, extras, scrollTrigger, startWhen } = {}) => {
+  let split;
+  // Sin señal: arranca ya. Con señal: espera a que se resuelva.
+  let released = !startWhen;
+  startWhen?.then(() => (released = true));
+
+  // Esperem les fonts: si no, les línies es tallen amb la tipografia de reserva
+  document.fonts.ready.then(() => {
+    split = SplitText.create(description ? [title, description] : title, {
+      type: "chars, lines",
+      mask: "lines",
+      autoSplit: true,
+      onSplit: (self) => {
+        const titleChars = self.chars.filter((char) => title.contains(char));
+        const tl = gsap.timeline({ scrollTrigger, paused: !released });
+        if (!released) startWhen.then(() => tl.play());
+
+        // Etiqueta "title": els passos d'una secció hi poden arrencar alhora (extras)
+        tl.addLabel("title", titleAt);
+
+        tl.from(
+          titleChars,
+          {
+            duration: titleDuration,
+            opacity: 0,
+            yPercent: 100,
+            clipPath: "inset(0 0 100% 0)",
+            ease: "power2.out",
+            // Per defecte, durada total màxima d'1s encara que el títol sigui llarg; titleStagger la fixa a mà
+            stagger: { amount: titleStagger ?? Math.min(titleChars.length * 0.03, 1) },
+          },
+          "title",
+        );
+
+        if (description) {
+          const descriptionLines = self.lines.filter((line) => description.contains(line));
+          tl.from(descriptionLines, { opacity: 0, yPercent: 100, duration: 0.8, ease: "power2.out", stagger: 0.12 }, "-=0.4");
+        }
+
+        if (cta) {
+          tl.from(cta, { opacity: 0, y: 60, duration: 0.8, ease: "power2.out" }, "-=0.3");
+        }
+
+        // Passos propis de cada secció, afegits a la mateixa timeline
+        extras?.(tl);
+
+        return tl;
+      },
+    });
+  });
+
+  return () => split?.revert();
+};
+
+// HERO (s1) ->
+const heroTitle = document.getElementById("s1-title");
+const heroDescription = document.querySelector("#s1 [data-reveal=description]");
+const heroCta = document.querySelector("#s1 [data-reveal=cta]");
+
+mm.add("(prefers-reduced-motion: no-preference)", () => {
+  // El CTA va aparte del timeline del título: entra a la vez que el header (headerGo)
+  const ctaIn = gsap.from(heroCta, { opacity: 0, y: 60, duration: 1.8, ease: "power2.out", paused: true });
+  headerGo.then(() => ctaIn.play());
+
+  return revealTitle(heroTitle, { description: heroDescription, startWhen: heroGo });
+});
+//-----
 
 // AMPLIACIÓ DE VIDEO SECTION: CONVERSA
-gsap.registerPlugin(ScrollTrigger, SplitText);
 const videoBox = document.querySelector("[data-video-expand]");
-const mm = gsap.matchMedia();
 
 mm.add("(min-width: 768px) and (prefers-reduced-motion: no-preference)", () => {
   gsap.fromTo(
@@ -194,61 +272,6 @@ mm.add("(prefers-reduced-motion: no-preference)", () => {
   );
 });
 
-// ENTRADA DE TÍTOLS: una timeline per títol (lletres + descripció per línies opcional), per poder-la governar sencera.
-// Convenció: la descripció d'una secció és l'element amb data-reveal="description".
-const revealTitle = (title, { description, cta, titleAt = 0, titleDuration = 0.6, titleStagger, extras, scrollTrigger } = {}) => {
-  let split;
-
-  // Esperem les fonts: si no, les línies es tallen amb la tipografia de reserva
-  document.fonts.ready.then(() => {
-    split = SplitText.create(description ? [title, description] : title, {
-      type: "chars, lines",
-      mask: "lines",
-      autoSplit: true,
-      onSplit: (self) => {
-        const titleChars = self.chars.filter((char) => title.contains(char));
-        const tl = gsap.timeline({ scrollTrigger });
-
-        // Etiqueta "title": els passos d'una secció hi poden arrencar alhora (extras)
-        tl.addLabel("title", titleAt);
-
-        tl.from(
-          titleChars,
-          {
-            duration: titleDuration,
-            opacity: 0,
-            yPercent: 100,
-            clipPath: "inset(0 0 100% 0)",
-            ease: "power2.out",
-            // Per defecte, durada total màxima d'1s encara que el títol sigui llarg; titleStagger la fixa a mà
-            stagger: { amount: titleStagger ?? Math.min(titleChars.length * 0.03, 1) },
-          },
-          "title",
-        );
-
-        if (description) {
-          const descriptionLines = self.lines.filter((line) => description.contains(line));
-          tl.from(descriptionLines, { opacity: 0, yPercent: 100, duration: 0.8, ease: "power2.out", stagger: 0.12 }, "-=0.4");
-        }
-
-        if (cta) {
-          tl.from(cta, { opacity: 0, y: 60, duration: 0.8, ease: "power2.out" }, "-=0.3");
-        }
-
-        // Passos propis de cada secció, afegits a la mateixa timeline
-        extras?.(tl);
-
-        return tl;
-      },
-    });
-  });
-
-  return () => split?.revert();
-};
-
-const heroTitle = document.getElementById("s1-title");
-const heroDescription = document.querySelector("#s1 [data-reveal=description]");
-const heroCta = document.querySelector("#s1 [data-reveal=cta]");
 const sectionTitles = gsap.utils.toArray("main section h2");
 const footerTitle = document.querySelector("footer [data-reveal=title]");
 
@@ -272,36 +295,6 @@ const sectionReveals = {
       tl.from("#s4 [data-reveal=card]", { opacity: 0, y: 160, duration: 1.3, ease: "power2.out", stagger: 0.4 }, "title");
     },
   },
-  contacte: {
-    // La descripció es divideix per línies i entra dins la mateixa timeline que el títol (com al hero)
-    splitDescription: true,
-    build: (tl) => {
-      // Camps del formulari i botó: fade up des de baix, en escala, a la mateixa timeline
-      tl.from("#contacte [data-reveal=field]", { opacity: 0, y: 40, duration: 0.8, ease: "power2.out", stagger: 0.15 }, "-=0.4");
-    },
-  },
-  s8: {
-    build: (tl) => {
-      // Descripció: fade up després del títol
-      tl.from("#s8 [data-reveal=description]", { opacity: 0, y: 40, duration: 0.8, ease: "power2.out" }, "-=0.4");
-      // Preguntes: fade up des de baix, stagger lent
-      tl.from("#s8 [data-reveal=card]", { opacity: 0, y: 40, duration: 0.9, ease: "power2.out", stagger: 0.3 }, "-=0.4");
-      // Icona de fons: només opacity (el transform el porta el CSS), alhora que el títol
-      tl.from("#s8 [data-reveal=icon]", { opacity: 0, duration: 4, ease: "power2.out" }, "title");
-    },
-  },
-  s7: {
-    build: (tl) => {
-      // Descripció: fade simple després del títol
-      tl.from("#s7 [data-reveal=description]", { opacity: 0, duration: 0.8, ease: "power2.out" }, "-=0.4");
-    },
-  },
-  s6: {
-    build: (tl) => {
-      // Aparició de les cards amb fade, en escala
-      tl.from("#s6 [data-reveal=card]", { opacity: 0, duration: 0.7, ease: "power2.out", stagger: 0.3 }, "-=0.4");
-    },
-  },
   s5: {
     build: (tl) => {
       tl.from("#s5 [data-reveal=subtitle]", { opacity: 0, y: 30, duration: 0.7, ease: "power2.out" }, "-=0.4");
@@ -315,11 +308,40 @@ const sectionReveals = {
       );
     },
   },
+  s6: {
+    build: (tl) => {
+      // Aparició de les cards amb fade, en escala
+      tl.from("#s6 [data-reveal=card]", { opacity: 0, duration: 0.7, ease: "power2.out", stagger: 0.3 }, "-=0.4");
+    },
+  },
+  s7: {
+    build: (tl) => {
+      // Descripció: fade simple després del títol
+      tl.from("#s7 [data-reveal=description]", { opacity: 0, duration: 0.8, ease: "power2.out" }, "-=0.4");
+    },
+  },
+  s8: {
+    build: (tl) => {
+      // Descripció: fade up després del títol
+      tl.from("#s8 [data-reveal=description]", { opacity: 0, y: 40, duration: 0.8, ease: "power2.out" }, "-=0.4");
+      // Preguntes: fade up des de baix, stagger lent
+      tl.from("#s8 [data-reveal=card]", { opacity: 0, y: 40, duration: 0.9, ease: "power2.out", stagger: 0.3 }, "-=0.4");
+      // Icona de fons: només opacity (el transform el porta el CSS), alhora que el títol
+      tl.from("#s8 [data-reveal=icon]", { opacity: 0, duration: 4, ease: "power2.out" }, "title");
+    },
+  },
+  contacte: {
+    // La descripció es divideix per línies i entra dins la mateixa timeline que el títol (com al hero)
+    splitDescription: true,
+    build: (tl) => {
+      // Camps del formulari i botó: fade up des de baix, en escala, a la mateixa timeline
+      tl.from("#contacte [data-reveal=field]", { opacity: 0, y: 40, duration: 0.8, ease: "power2.out", stagger: 0.15 }, "-=0.4");
+    },
+  },
 };
 
 mm.add("(prefers-reduced-motion: no-preference)", () => {
   const cleanups = [
-    revealTitle(heroTitle, { description: heroDescription, cta: heroCta }),
     ...sectionTitles.map((title) => {
       const section = title.closest("section");
       const { titleAt, build, splitDescription } = sectionReveals[section.id] ?? {};

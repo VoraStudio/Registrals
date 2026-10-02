@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://vorastudio.github.io/Registrals/sitemap.xml
+Sitemap: https://www.registrals.com/sitemap.xml

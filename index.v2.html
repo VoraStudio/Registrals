@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ca" class="[scrollbar-gutter:stable]">
+<html lang="ca" class="overflow-y-scroll">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,27 +10,29 @@
     />
     <meta name="robots" content="index, follow, max-image-preview:large" />
     <meta name="theme-color" content="#1D2F4B" />
-    <link rel="canonical" href="https://vorastudio.github.io/Registrals/" />
+    <link rel="canonical" href="https://www.registrals.com/" />
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="apple-touch-icon.png" />
     <meta property="og:title" content="Registrals — El registre dels teus béns, a un clic" />
     <meta property="og:description" content="Protegeix el que és teu amb una prova digital verificable." />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://vorastudio.github.io/Registrals/" />
+    <meta property="og:url" content="https://www.registrals.com/" />
     <meta property="og:site_name" content="Registrals" />
     <meta property="og:locale" content="ca_ES" />
-    <meta property="og:image" content="https://vorastudio.github.io/Registrals/img/og-image.png" />
+    <meta property="og:image" content="https://www.registrals.com/img/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="Registrals — El registre dels teus béns, a un clic" />
+    <meta property="og:image:type" content="image/png" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://www.registrals.com/img/og-image.png" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "Organization",
         "name": "Registrals",
-        "url": "https://vorastudio.github.io/Registrals/",
-        "logo": "https://vorastudio.github.io/Registrals/img/og-image.png",
+        "url": "https://www.registrals.com/",
+        "logo": "https://www.registrals.com/img/logos/Isotip/1.png",
         "email": "info@registrals.com",
         "description": "Registra i certifica digitalment els teus béns per acreditar-ne la propietat."
       }
@@ -64,13 +66,26 @@
     <link rel="preload" href="fonts/Marcellus-Regular.ttf" as="font" type="font/ttf" crossorigin />
     <link rel="preload" href="fonts/Raleway-Regular.ttf" as="font" type="font/ttf" crossorigin />
     <link rel="stylesheet" href="css/fonts.css" />
+    <style>
+      html.is-locked body {
+        overflow: hidden;
+        height: 100dvh;
+      }
+    </style>
+    <noscript
+      ><style>
+        #intro {
+          display: none;
+        }
+        #site-header {
+          translate: none !important;
+        }
+      </style></noscript
+    >
   </head>
   <body class="bg-ink font-raleway text-ink antialiased">
-    <div id="intro" class="fixed inset-0 z-60 grid place-items-center bg-cream" aria-hidden="true">
-      <img data-intro="logo" src="img/logos/Isotip/1.png" alt="" class="size-24 opacity-0" />
-    </div>
-    <div class="pointer-events-none fixed inset-0 z-70 grid place-items-center pt-36" aria-hidden="true">
-      <span data-intro="text" class="font-marcellus text-2xl tracking-wider text-ink opacity-0">REGISTRALS</span>
+    <div id="intro" class="fixed inset-0 z-80 grid place-items-center bg-cream" aria-hidden="true">
+      <img id="intro-logo" src="img/logos/Isotip/1-transparent.svg" width="112" height="112" alt="" class="size-28 opacity-0" />
     </div>
     <a
       href="#main"
@@ -90,7 +105,7 @@
 
     <header
       id="site-header"
-      class="group fixed inset-x-0 top-5 sm:top-16 z-50 flex justify-center px-4 transition-transform duration-700 ease-out starting:-translate-y-[85px] motion-reduce:transition-none"
+      class="group fixed inset-x-0 top-5 sm:top-16 z-50 flex justify-center px-4 transition-transform duration-[1800ms] ease-out translate-y-[calc(-100%-5rem)] data-ready:translate-y-0 motion-reduce:transition-none"
     >
       <!-- Accedeix: només visible al hero (sm+), a la mateixa altura que el pill; a mòbil xocaria amb ell -->
       <a
@@ -103,10 +118,7 @@
         <div
           class="relative border-cream border-2 z-10 flex items-center gap-12 rounded-xl bg-cream px-6 py-1 transition-colors duration-500 group-data-past-hero:bg-ink"
         >
-          <a
-            href="#s1"
-            data-pill-text
-            class="font-marcellus text-2xl tracking-wider text-ink transition-colors duration-500 group-data-past-hero:text-cream"
+          <a href="#s1" class="font-marcellus text-2xl tracking-wider text-ink transition-colors duration-500 group-data-past-hero:text-cream"
             >REGISTRALS</a
           >
           <button
@@ -827,6 +839,7 @@
                     type="checkbox"
                     name="privacy"
                     required
+                    aria-describedby="contact-privacy-error"
                     class="peer mt-1 size-5 shrink-0 accent-ink user-invalid:outline-2 user-invalid:outline-red-700"
                   />
                   <label for="contact-privacy" class="text-sm text-ink/90">
@@ -835,7 +848,9 @@
                       >política de privacitat</a
                     >.
                   </label>
-                  <p class="sr-only w-full pl-8 text-sm text-red-700 peer-user-invalid:not-sr-only">Cal que acceptis la política de privacitat.</p>
+                  <p id="contact-privacy-error" class="sr-only w-full pl-8 text-sm text-red-700 peer-user-invalid:not-sr-only">
+                    Cal que acceptis la política de privacitat.
+                  </p>
                 </div>
               </div>
               <button
@@ -860,21 +875,7 @@
         <div class="relative z-10 -mt-[3vw] rounded-3xl border border-gold/50 bg-cream p-8 md:-mt-10 md:p-12">
           <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
             <div class="md:col-span-1">
-              <svg
-                data-reveal="item"
-                class="size-20 text-ink"
-                viewBox="0 0 80 80"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-                role="img"
-                aria-label="Registrals"
-              >
-                <rect x="3" y="3" width="74" height="74" />
-                <path d="M10 10h60v60H10z" />
-                <path d="M22 20h18M22 60h18M26 20v40M36 20v40" />
-                <path d="M36 20h10a10 10 0 0 1 0 20H36M44 40l14 20" />
-              </svg>
+              <img data-reveal="item" src="img/logos/Isotip/1-transparent.svg" width="80" height="80" alt="Registrals" class="size-20" />
               <p data-reveal="item" class="mt-6 font-bold">Mantén-te al dia de l'evolució de la propietat digital</p>
               <a data-reveal="item" href="#contacte" class="mt-4 inline-block rounded-full bg-ink px-6 py-2.5 font-bold text-cream hover:bg-ink/90"
                 >Subscriure'm</a
@@ -899,9 +900,18 @@
                     <a
                       href="#"
                       aria-label="LinkedIn"
-                      class="grid size-10 place-items-center rounded-full bg-ink text-cream transition-colors hover:bg-ink/85"
+                      class="grid size-11 place-items-center rounded-full bg-ink text-cream transition-colors hover:bg-ink/85"
                     >
-                      <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <svg
+                        class="size-5"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                      >
                         <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
                         <rect x="2" y="9" width="4" height="12" />
                         <circle cx="4" cy="4" r="2" />
@@ -912,9 +922,18 @@
                     <a
                       href="#"
                       aria-label="Instagram"
-                      class="grid size-10 place-items-center rounded-full bg-ink text-cream transition-colors hover:bg-ink/85"
+                      class="grid size-11 place-items-center rounded-full bg-ink text-cream transition-colors hover:bg-ink/85"
                     >
-                      <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <svg
+                        class="size-5"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                      >
                         <rect x="2" y="2" width="20" height="20" rx="5" />
                         <circle cx="12" cy="12" r="4" />
                         <path d="M17.5 6.5h.01" />

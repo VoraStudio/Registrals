@@ -34,6 +34,8 @@ jobs:
           if [ ! -f _site/index.html ] && [ -f _site/index.v2.html ]; then
             cp _site/index.v2.html _site/index.html
           fi
+          # The v2 source is not published; index.html is the served copy
+          rm -f _site/index.v2.html
           touch _site/.nojekyll
 
       - uses: actions/configure-pages@v5
