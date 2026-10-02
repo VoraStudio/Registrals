@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ca">
+<html lang="ca" class="[scrollbar-gutter:stable]">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -66,6 +66,12 @@
     <link rel="stylesheet" href="css/fonts.css" />
   </head>
   <body class="bg-ink font-raleway text-ink antialiased">
+    <div id="intro" class="fixed inset-0 z-60 grid place-items-center bg-cream" aria-hidden="true">
+      <img data-intro="logo" src="img/logos/Isotip/1.png" alt="" class="size-24 opacity-0" />
+    </div>
+    <div class="pointer-events-none fixed inset-0 z-70 grid place-items-center pt-36" aria-hidden="true">
+      <span data-intro="text" class="font-marcellus text-2xl tracking-wider text-ink opacity-0">REGISTRALS</span>
+    </div>
     <a
       href="#main"
       class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[70] focus:rounded-full focus:bg-cream focus:px-4 focus:py-2 focus:font-medium focus:text-ink"
@@ -94,8 +100,13 @@
       >
       <div class="relative [filter:url(#goo)]">
         <!-- Pill principal -->
-        <div class="relative border-cream border-2 z-10 flex items-center gap-12 rounded-xl bg-cream px-6 py-1 transition-colors duration-500 group-data-past-hero:bg-ink">
-          <a href="#s1" class="font-marcellus text-2xl tracking-wider text-ink transition-colors duration-500 group-data-past-hero:text-cream"
+        <div
+          class="relative border-cream border-2 z-10 flex items-center gap-12 rounded-xl bg-cream px-6 py-1 transition-colors duration-500 group-data-past-hero:bg-ink"
+        >
+          <a
+            href="#s1"
+            data-pill-text
+            class="font-marcellus text-2xl tracking-wider text-ink transition-colors duration-500 group-data-past-hero:text-cream"
             >REGISTRALS</a
           >
           <button
@@ -343,7 +354,10 @@
             </ol>
             <div class="mt-12">
               <p data-reveal="description" class="text-xl text-cream">Evidència digital permanent</p>
-              <div data-reveal="cta" class="mt-4 flex flex-col gap-2 rounded-3xl bg-cream-50 p-2 sm:w-86 sm:flex justify-center gap-2 sm:flex-row sm:rounded-full">
+              <div
+                data-reveal="cta"
+                class="mt-4 flex flex-col gap-2 rounded-3xl bg-cream-50 p-2 sm:w-86 sm:flex justify-center gap-2 sm:flex-row sm:rounded-full"
+              >
                 <a href="#contacte" class="rounded-full bg-ink px-6 py-2 md:py-1.5 text-center font-medium text-cream hover:bg-ink/90"
                   >REGISTRA UN BÉ</a
                 >
@@ -410,30 +424,30 @@
           <h2 id="s6-title" class="font-marcellus text-4xl text-cream md:text-5xl">Qualsevol bé de valor, certificat</h2>
         </div>
         <div data-carousel class="relative mt-12 mb-8">
-        <ul
-        data-carousel="list"
-          class="flex overflow-x-auto snap-x snap-mandatory gap-6 px-4 pb-4 [scrollbar-width:none] md:scroll-pl-[calc(100vw-65%)] md:pl-[calc(100vw-65%)] scroll-px-4"
-        >
-          <li data-reveal="card" class="relative h-80 w-50 md:h-110 md:w-80 shrink-0 snap-start overflow-hidden rounded-2xl bg-transparent">
-            <img src="img/chain.webp" alt="" class="absolute inset-0 size-full object-cover" />
-            <div class="absolute inset-0 bg-linear-to-t from-ink/85 via-ink/10 to-transparent"></div>
-            <span class="absolute bottom-4 left-4 font-marcellus text-2xl text-cream">Joies</span>
-          </li>
-          <li data-reveal="card" class="relative h-80 w-50 md:h-110 md:w-80 shrink-0 snap-start overflow-hidden rounded-2xl bg-placeholder">
-            <div class="absolute inset-0 bg-linear-to-t from-ink/85 via-ink/10 to-transparent"></div>
-            <span class="absolute bottom-4 left-4 font-marcellus text-2xl text-cream">Electrònica</span>
-          </li>
-          <li data-reveal="card" class="relative h-80 w-50 md:h-110 md:w-80 shrink-0 snap-start overflow-hidden rounded-2xl bg-transparent">
-            <img src="img/studio.webp" alt="" class="absolute inset-0 size-full object-cover" />
-            <div class="absolute inset-0 bg-linear-to-t from-ink/85 via-ink/10 to-transparent"></div>
-            <span class="absolute bottom-4 left-4 font-marcellus text-2xl text-cream">Art</span>
-          </li>
-          <li data-reveal="card" class="relative h-80 w-50 md:h-110 md:w-80 shrink-0 snap-start overflow-hidden rounded-2xl bg-transparent">
-            <img src="img/coins.webp" alt="" class="absolute inset-0 size-full object-cover" />
-            <div class="absolute inset-0 bg-linear-to-t from-ink/85 via-ink/10 to-transparent"></div>
-            <span class="absolute bottom-4 left-4 font-marcellus text-2xl text-cream">Col·leccionisme</span>
-          </li>
-        </ul>
+          <ul
+            data-carousel="list"
+            class="flex overflow-x-auto snap-x snap-mandatory gap-6 px-4 pb-4 [scrollbar-width:none] md:scroll-pl-[calc(100vw-65%)] md:pl-[calc(100vw-65%)] scroll-px-4"
+          >
+            <li data-reveal="card" class="relative h-80 w-50 md:h-110 md:w-80 shrink-0 snap-start overflow-hidden rounded-2xl bg-transparent">
+              <img src="img/chain.webp" alt="" class="absolute inset-0 size-full object-cover" />
+              <div class="absolute inset-0 bg-linear-to-t from-ink/85 via-ink/10 to-transparent"></div>
+              <span class="absolute bottom-4 left-4 font-marcellus text-2xl text-cream">Joies</span>
+            </li>
+            <li data-reveal="card" class="relative h-80 w-50 md:h-110 md:w-80 shrink-0 snap-start overflow-hidden rounded-2xl bg-placeholder">
+              <div class="absolute inset-0 bg-linear-to-t from-ink/85 via-ink/10 to-transparent"></div>
+              <span class="absolute bottom-4 left-4 font-marcellus text-2xl text-cream">Electrònica</span>
+            </li>
+            <li data-reveal="card" class="relative h-80 w-50 md:h-110 md:w-80 shrink-0 snap-start overflow-hidden rounded-2xl bg-transparent">
+              <img src="img/studio.webp" alt="" class="absolute inset-0 size-full object-cover" />
+              <div class="absolute inset-0 bg-linear-to-t from-ink/85 via-ink/10 to-transparent"></div>
+              <span class="absolute bottom-4 left-4 font-marcellus text-2xl text-cream">Art</span>
+            </li>
+            <li data-reveal="card" class="relative h-80 w-50 md:h-110 md:w-80 shrink-0 snap-start overflow-hidden rounded-2xl bg-transparent">
+              <img src="img/coins.webp" alt="" class="absolute inset-0 size-full object-cover" />
+              <div class="absolute inset-0 bg-linear-to-t from-ink/85 via-ink/10 to-transparent"></div>
+              <span class="absolute bottom-4 left-4 font-marcellus text-2xl text-cream">Col·leccionisme</span>
+            </li>
+          </ul>
           <div class="mt-2 flex justify-center gap-6 md:justify-start md:pl-[calc(100vw-65%)]">
             <button
               type="button"
@@ -441,7 +455,16 @@
               data-carousel="prev"
               class="grid size-11 place-items-center rounded-full bg-whitef text-ink disabled:pointer-events-none disabled:opacity-40"
             >
-              <svg class="size-5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <svg
+                class="size-5"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
                 <path d="m10 4-4 4 4 4" />
               </svg>
             </button>
@@ -451,7 +474,16 @@
               data-carousel="next"
               class="grid size-11 place-items-center rounded-full bg-whitef text-ink disabled:pointer-events-none disabled:opacity-40"
             >
-              <svg class="size-5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <svg
+                class="size-5"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
                 <path d="m6 4 4 4-4 4" />
               </svg>
             </button>
@@ -460,7 +492,11 @@
       </section>
 
       <!-- === S7 · TARIFES === -->
-      <section id="s7" aria-labelledby="s7-title" class="relative z-10 -mt-8 overflow-hidden rounded-t-[2rem] bg-cream px-4 pt-16 pb-24 md:pt-24 md:pb-32">
+      <section
+        id="s7"
+        aria-labelledby="s7-title"
+        class="relative z-10 -mt-8 overflow-hidden rounded-t-[2rem] bg-cream px-4 pt-16 pb-24 md:pt-24 md:pb-32"
+      >
         <div class="mx-auto max-w-6xl">
           <h2 id="s7-title" class="font-marcellus text-4xl md:text-5xl">Transparent des del primer dia</h2>
           <p data-reveal="description" class="mt-4 max-w-3xl text-xl text-ink/80">La seguretat bàsica és un dret, no un producte de pagament.</p>
@@ -516,7 +552,11 @@
       </section>
 
       <!-- === S8 · FAQ === -->
-      <section id="s8" aria-labelledby="s8-title" class="relative z-10 -mt-8 overflow-hidden rounded-t-[2rem] border-t border-cream/10 bg-ink px-4 py-16 md:py-24">
+      <section
+        id="s8"
+        aria-labelledby="s8-title"
+        class="relative z-10 -mt-8 overflow-hidden rounded-t-[2rem] border-t border-cream/10 bg-ink px-4 py-16 md:py-24"
+      >
         <img
           data-reveal="icon"
           src="img/logos/Isotip/3-transparent.svg"
@@ -655,129 +695,157 @@
         <div class="mx-auto max-w-6xl">
           <h2 id="contacte-title" class="font-marcellus text-4xl md:text-5xl md:whitespace-nowrap">Confiança que es pot demostrar</h2>
           <div class="mt-8 grid grid-cols-1 gap-10 md:grid-cols-2">
-          <div>
-            <p data-reveal="description" class="max-w-md text-lg text-ink/90">
-              Cada registre genera una prova criptogràfica única que permet verificar la propietat de forma instantània davant asseguradores,
-              compradors o autoritats.
-            </p>
-            <ul class="mt-8 space-y-4">
-              <li data-reveal="field" class="flex items-center gap-4">
-                <span class="grid size-11 shrink-0 place-items-center rounded-full bg-ink text-cream" aria-hidden="true">
-                  <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z" />
-                  </svg>
-                </span>
-                <span class="flex flex-col">
-                  <span class="text-sm font-bold">Telèfon</span>
-                  <span class="text-ink/90">[Telèfon]</span>
-                </span>
-              </li>
-              <li data-reveal="field" class="flex items-center gap-4">
-                <span class="grid size-11 shrink-0 place-items-center rounded-full bg-ink text-cream" aria-hidden="true">
-                  <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="2" y="4" width="20" height="16" rx="2" />
-                    <path d="m22 7-10 6L2 7" />
-                  </svg>
-                </span>
-                <span class="flex flex-col">
-                  <span class="text-sm font-bold">Correu electrònic</span>
-                  <a href="mailto:info@registrals.com" class="text-ink/90 underline decoration-gold decoration-2 underline-offset-4 hover:text-steel"
-                    >info@registrals.com</a
-                  >
-                </span>
-              </li>
-              <li data-reveal="field" class="flex items-center gap-4">
-                <span class="grid size-11 shrink-0 place-items-center rounded-full bg-ink text-cream" aria-hidden="true">
-                  <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z" />
-                    <circle cx="12" cy="10" r="3" />
-                  </svg>
-                </span>
-                <span class="flex flex-col">
-                  <span class="text-sm font-bold">Adreça</span>
-                  <span class="text-ink/90">[Adreça postal]</span>
-                </span>
-              </li>
-            </ul>
-          </div>
-          <form action="#" method="post" class="grid grid-cols-1 content-start gap-4 sm:grid-cols-2">
-            <div data-reveal="field" class="flex flex-col gap-1.5">
-              <label for="contact-name" class="sr-only">Nom</label>
-              <input
-                id="contact-name"
-                type="text"
-                name="name"
-                autocomplete="name"
-                required
-                placeholder="Nom"
-                class="peer rounded-lg border border-ink/20 bg-cream/30 px-4 py-3 text-ink placeholder:text-ink/70 user-invalid:border-red-700"
-              />
-              <p class="hidden text-sm text-red-700 peer-user-invalid:block">Introdueix el teu nom.</p>
+            <div>
+              <p data-reveal="description" class="max-w-md text-lg text-ink/90">
+                Cada registre genera una prova criptogràfica única que permet verificar la propietat de forma instantània davant asseguradores,
+                compradors o autoritats.
+              </p>
+              <ul class="mt-8 space-y-4">
+                <li data-reveal="field" class="flex items-center gap-4">
+                  <span class="grid size-11 shrink-0 place-items-center rounded-full bg-ink text-cream" aria-hidden="true">
+                    <svg
+                      class="size-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"
+                      />
+                    </svg>
+                  </span>
+                  <span class="flex flex-col">
+                    <span class="text-sm font-bold">Telèfon</span>
+                    <span class="text-ink/90">[Telèfon]</span>
+                  </span>
+                </li>
+                <li data-reveal="field" class="flex items-center gap-4">
+                  <span class="grid size-11 shrink-0 place-items-center rounded-full bg-ink text-cream" aria-hidden="true">
+                    <svg
+                      class="size-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <rect x="2" y="4" width="20" height="16" rx="2" />
+                      <path d="m22 7-10 6L2 7" />
+                    </svg>
+                  </span>
+                  <span class="flex flex-col">
+                    <span class="text-sm font-bold">Correu electrònic</span>
+                    <a
+                      href="mailto:info@registrals.com"
+                      class="text-ink/90 underline decoration-gold decoration-2 underline-offset-4 hover:text-steel"
+                      >info@registrals.com</a
+                    >
+                  </span>
+                </li>
+                <li data-reveal="field" class="flex items-center gap-4">
+                  <span class="grid size-11 shrink-0 place-items-center rounded-full bg-ink text-cream" aria-hidden="true">
+                    <svg
+                      class="size-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z" />
+                      <circle cx="12" cy="10" r="3" />
+                    </svg>
+                  </span>
+                  <span class="flex flex-col">
+                    <span class="text-sm font-bold">Adreça</span>
+                    <span class="text-ink/90">[Adreça postal]</span>
+                  </span>
+                </li>
+              </ul>
             </div>
-            <div data-reveal="field" class="flex flex-col gap-1.5">
-              <label for="contact-email" class="sr-only">Correu electrònic</label>
-              <input
-                id="contact-email"
-                type="email"
-                name="email"
-                autocomplete="email"
-                required
-                placeholder="Correu electrònic"
-                class="peer rounded-lg border border-ink/20 bg-cream/30 px-4 py-3 text-ink placeholder:text-ink/70 user-invalid:border-red-700"
-              />
-              <p class="hidden text-sm text-red-700 peer-user-invalid:block">Introdueix un correu electrònic vàlid.</p>
-            </div>
-            <div data-reveal="field" class="flex flex-col gap-1.5 sm:col-span-2">
-              <label for="contact-subject" class="sr-only">Assumpte</label>
-              <input
-                id="contact-subject"
-                type="text"
-                name="subject"
-                autocomplete="off"
-                required
-                placeholder="Assumpte"
-                class="peer rounded-lg border border-ink/20 bg-cream/30 px-4 py-3 text-ink placeholder:text-ink/70 user-invalid:border-red-700"
-              />
-              <p class="hidden text-sm text-red-700 peer-user-invalid:block">Indica l'assumpte del missatge.</p>
-            </div>
-            <div data-reveal="field" class="flex flex-col gap-1.5 sm:col-span-2">
-              <label for="contact-message" class="sr-only">Missatge</label>
-              <textarea
-                id="contact-message"
-                name="message"
-                rows="6"
-                required
-                placeholder="Escriu aquí el teu missatge"
-                class="peer resize-y rounded-lg border border-ink/20 bg-cream/30 px-4 py-3 text-ink placeholder:text-ink/70 user-invalid:border-red-700"
-              ></textarea>
-              <p class="hidden text-sm text-red-700 peer-user-invalid:block">Escriu el teu missatge.</p>
-            </div>
-            <div data-reveal="field" class="flex flex-col gap-1.5 sm:col-span-2">
-              <div class="flex flex-wrap items-start gap-x-3 gap-y-1">
+            <form action="#" method="post" class="grid grid-cols-1 content-start gap-4 sm:grid-cols-2">
+              <div data-reveal="field" class="flex flex-col gap-1.5">
+                <label for="contact-name" class="sr-only">Nom</label>
                 <input
-                  id="contact-privacy"
-                  type="checkbox"
-                  name="privacy"
+                  id="contact-name"
+                  type="text"
+                  name="name"
+                  autocomplete="name"
                   required
-                  class="peer mt-1 size-5 shrink-0 accent-ink user-invalid:outline-2 user-invalid:outline-red-700"
+                  placeholder="Nom"
+                  class="peer rounded-lg border border-ink/20 bg-cream/30 px-4 py-3 text-ink placeholder:text-ink/70 user-invalid:border-red-700"
                 />
-                <label for="contact-privacy" class="text-sm text-ink/90">
-                  He llegit i accepto la
-                  <a href="legal.html#privacitat" class="font-semibold underline decoration-gold decoration-2 underline-offset-4 hover:text-steel"
-                    >política de privacitat</a
-                  >.
-                </label>
-                <p class="sr-only w-full pl-8 text-sm text-red-700 peer-user-invalid:not-sr-only">Cal que acceptis la política de privacitat.</p>
+                <p class="hidden text-sm text-red-700 peer-user-invalid:block">Introdueix el teu nom.</p>
               </div>
-            </div>
-            <button
-              data-reveal="field"
-              type="submit"
-              class="rounded-full bg-ink px-15 py-2 md:py-1 font-medium text-cream transition-[background-color,scale] hover:bg-ink/90 active:scale-[0.98] sm:col-span-2 md:justify-self-start pointer-events-auto"
-            >
-              ENVIA
-            </button>
-          </form>
+              <div data-reveal="field" class="flex flex-col gap-1.5">
+                <label for="contact-email" class="sr-only">Correu electrònic</label>
+                <input
+                  id="contact-email"
+                  type="email"
+                  name="email"
+                  autocomplete="email"
+                  required
+                  placeholder="Correu electrònic"
+                  class="peer rounded-lg border border-ink/20 bg-cream/30 px-4 py-3 text-ink placeholder:text-ink/70 user-invalid:border-red-700"
+                />
+                <p class="hidden text-sm text-red-700 peer-user-invalid:block">Introdueix un correu electrònic vàlid.</p>
+              </div>
+              <div data-reveal="field" class="flex flex-col gap-1.5 sm:col-span-2">
+                <label for="contact-subject" class="sr-only">Assumpte</label>
+                <input
+                  id="contact-subject"
+                  type="text"
+                  name="subject"
+                  autocomplete="off"
+                  required
+                  placeholder="Assumpte"
+                  class="peer rounded-lg border border-ink/20 bg-cream/30 px-4 py-3 text-ink placeholder:text-ink/70 user-invalid:border-red-700"
+                />
+                <p class="hidden text-sm text-red-700 peer-user-invalid:block">Indica l'assumpte del missatge.</p>
+              </div>
+              <div data-reveal="field" class="flex flex-col gap-1.5 sm:col-span-2">
+                <label for="contact-message" class="sr-only">Missatge</label>
+                <textarea
+                  id="contact-message"
+                  name="message"
+                  rows="6"
+                  required
+                  placeholder="Escriu aquí el teu missatge"
+                  class="peer resize-y rounded-lg border border-ink/20 bg-cream/30 px-4 py-3 text-ink placeholder:text-ink/70 user-invalid:border-red-700"
+                ></textarea>
+                <p class="hidden text-sm text-red-700 peer-user-invalid:block">Escriu el teu missatge.</p>
+              </div>
+              <div data-reveal="field" class="flex flex-col gap-1.5 sm:col-span-2">
+                <div class="relative flex flex-wrap items-start gap-x-3 gap-y-1">
+                  <input
+                    id="contact-privacy"
+                    type="checkbox"
+                    name="privacy"
+                    required
+                    class="peer mt-1 size-5 shrink-0 accent-ink user-invalid:outline-2 user-invalid:outline-red-700"
+                  />
+                  <label for="contact-privacy" class="text-sm text-ink/90">
+                    He llegit i accepto la
+                    <a href="legal.html#privacitat" class="font-semibold underline decoration-gold decoration-2 underline-offset-4 hover:text-steel"
+                      >política de privacitat</a
+                    >.
+                  </label>
+                  <p class="sr-only w-full pl-8 text-sm text-red-700 peer-user-invalid:not-sr-only">Cal que acceptis la política de privacitat.</p>
+                </div>
+              </div>
+              <button
+                data-reveal="field"
+                type="submit"
+                class="rounded-full bg-ink px-15 py-2 md:py-1 font-medium text-cream transition-[background-color,scale] hover:bg-ink/90 active:scale-[0.98] sm:col-span-2 md:justify-self-start pointer-events-auto"
+              >
+                ENVIA
+              </button>
+            </form>
           </div>
         </div>
       </section>
@@ -786,12 +854,15 @@
     <!-- === FOOTER === -->
     <footer class="overflow-hidden bg-ink px-4 pt-12 pb-10">
       <div class="mx-auto max-w-7xl">
-        <p data-reveal="title" class="text-center font-marcellus text-[clamp(3rem,16vw,10rem)] leading-none text-cream" aria-hidden="true">REGISTRALS</p>
+        <p data-reveal="title" class="text-center font-marcellus text-[clamp(3rem,16vw,10rem)] leading-none text-cream" aria-hidden="true">
+          REGISTRALS
+        </p>
         <div class="relative z-10 -mt-[3vw] rounded-3xl border border-gold/50 bg-cream p-8 md:-mt-10 md:p-12">
           <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
             <div class="md:col-span-1">
               <svg
-                data-reveal="item" class="size-20 text-ink"
+                data-reveal="item"
+                class="size-20 text-ink"
                 viewBox="0 0 80 80"
                 fill="none"
                 stroke="currentColor"
@@ -805,10 +876,12 @@
                 <path d="M36 20h10a10 10 0 0 1 0 20H36M44 40l14 20" />
               </svg>
               <p data-reveal="item" class="mt-6 font-bold">Mantén-te al dia de l'evolució de la propietat digital</p>
-              <a data-reveal="item" href="#contacte" class="mt-4 inline-block rounded-full bg-ink px-6 py-2.5 font-bold text-cream hover:bg-ink/90">Subscriure'm</a>
+              <a data-reveal="item" href="#contacte" class="mt-4 inline-block rounded-full bg-ink px-6 py-2.5 font-bold text-cream hover:bg-ink/90"
+                >Subscriure'm</a
+              >
             </div>
             <div class="md:col-span-2">
-              <nav aria-label="Peu de pàgina" class="flex items-start gap-8 text-sm md:gap-16">
+              <nav aria-label="Peu de pàgina" class="flex flex-wrap items-start gap-8 text-sm md:flex-nowrap md:gap-16">
                 <ul data-reveal="item" class="md:space-y-1">
                   <li><a href="#s1" class="block py-1.5 font-bold hover:underline md:py-0">Home</a></li>
                   <li><a href="#s4" class="block py-1.5 text-ink/75 hover:underline md:py-0">Solucions</a></li>
@@ -817,8 +890,37 @@
                   <li><a href="#contacte" class="block py-1.5 text-ink/75 hover:underline md:py-0">Contacte</a></li>
                 </ul>
                 <ul data-reveal="item" class="md:space-y-1">
-                <li><p class="font-bold">Contacte</p></li>
-                <li><a href="mailto:info@registrals.com" class="block py-1.5 text-ink/75 hover:underline md:py-0">info@registrals.com</a></li>
+                  <li><p class="font-bold">Contacte</p></li>
+                  <li><a href="mailto:info@registrals.com" class="block py-1.5 text-ink/75 hover:underline md:py-0">info@registrals.com</a></li>
+                </ul>
+                <ul data-reveal="item" class="flex gap-3 md:ml-auto" aria-label="Xarxes socials">
+                  <!-- TODO: replace href="#" with the real LinkedIn and Instagram URLs -->
+                  <li>
+                    <a
+                      href="#"
+                      aria-label="LinkedIn"
+                      class="grid size-10 place-items-center rounded-full bg-ink text-cream transition-colors hover:bg-ink/85"
+                    >
+                      <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+                        <rect x="2" y="9" width="4" height="12" />
+                        <circle cx="4" cy="4" r="2" />
+                      </svg>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="#"
+                      aria-label="Instagram"
+                      class="grid size-10 place-items-center rounded-full bg-ink text-cream transition-colors hover:bg-ink/85"
+                    >
+                      <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect x="2" y="2" width="20" height="20" rx="5" />
+                        <circle cx="12" cy="12" r="4" />
+                        <path d="M17.5 6.5h.01" />
+                      </svg>
+                    </a>
+                  </li>
                 </ul>
               </nav>
             </div>
@@ -838,15 +940,27 @@
     </footer>
 
     <!-- === COOKIE BANNER (parcial: se repite en legal.html) === -->
-    <div id="cookie-banner" role="region" aria-label="Cookies" hidden class="fixed inset-x-4 bottom-4 z-[60] md:right-6 md:left-auto md:w-[44rem] md:max-w-[calc(100vw-3rem)]">
+    <div
+      id="cookie-banner"
+      role="region"
+      aria-label="Cookies"
+      hidden
+      class="fixed inset-x-4 bottom-4 z-[60] md:right-6 md:left-auto md:w-[44rem] md:max-w-[calc(100vw-3rem)]"
+    >
       <div class="rounded-2xl border border-gold/50 bg-cream-50 p-5 text-ink shadow-xl md:flex md:items-center md:gap-6">
         <p class="text-sm">
           Aquest web només fa servir cookies tècniques necessàries per al seu funcionament. Pots consultar-ne els detalls a la
-          <a href="legal.html#cookies" class="font-semibold underline decoration-gold decoration-2 underline-offset-4 hover:text-steel">política de cookies</a>.
+          <a href="legal.html#cookies" class="font-semibold underline decoration-gold decoration-2 underline-offset-4 hover:text-steel"
+            >política de cookies</a
+          >.
         </p>
         <div class="mt-4 flex flex-col gap-2 sm:flex-row md:mt-0 md:shrink-0">
-          <button type="button" data-cookie="accept" class="rounded-full bg-ink px-6 py-2.5 text-sm font-medium text-cream hover:bg-ink/90">ACCEPTA</button>
-          <button type="button" data-cookie="reject" class="rounded-full border border-ink px-6 py-2.5 text-sm font-medium text-ink hover:bg-ink/10">REBUTJA</button>
+          <button type="button" data-cookie="accept" class="rounded-full bg-ink px-6 py-2.5 text-sm font-medium text-cream hover:bg-ink/90">
+            ACCEPTA
+          </button>
+          <button type="button" data-cookie="reject" class="rounded-full border border-ink px-6 py-2.5 text-sm font-medium text-ink hover:bg-ink/10">
+            REBUTJA
+          </button>
         </div>
       </div>
     </div>

@@ -1,7 +1,56 @@
-// Obre/tanca el menú: només canvia l'estat; l'animació la fa Tailwind amb group-data-open:
 const header = document.getElementById("site-header");
 const toggle = document.getElementById("menu-toggle");
 const menu = document.getElementById("main-menu");
+const intro = document.getElementById("intro");
+const introLogo = intro.querySelector('[data-intro="logo"]');
+const introText = document.querySelector('[data-intro="text"]');
+const pillText = document.querySelector("[data-pill-text]");
+
+//Reset de scroll a la pàgina ->
+history.scrollRestoration = "manual";
+window.scrollTo(0, 0);
+
+//Ocultem la resta de pàgina y ocultes la pil del header original
+document.documentElement.style.overflow = "hidden";
+document.documentElement.style.backgroundColor = "var(--color-cream)";
+gsap.set(pillText, { opacity: 0 });
+
+// El logo parte invisible (scale ~0) para que el "agrandar" sea una entrada con rebote
+gsap.set(introLogo, { scale: 0.01, opacity: 1 });
+
+const introTl = gsap.timeline({ delay: 0.2 });
+
+introTl
+  .to(introLogo, { scale: 1.25, duration: 0.7, ease: "back.out(1.5)" })
+  .to(introText, { opacity: 1, duration: 0.4, ease: "power2.out" })
+  .to(introLogo, { scale: 0.6, opacity: 0, duration: 0.45, ease: "power2.in" }, "+=0.3")
+  .to(
+    introText,
+    {
+      x: () => pillText.getBoundingClientRect().left - introText.getBoundingClientRect().left,
+      y: () => pillText.getBoundingClientRect().top - introText.getBoundingClientRect().top,
+      duration: 0.9,
+      ease: "power3.inOut",
+    },
+    "<0.1",
+  )
+  .to(intro, { yPercent: -100, duration: 0.9, ease: "power3.inOut" }, "-=0.3")
+  .add(() => {
+    // TEMP DEBUG: remove once the end-position offset is fixed
+    const r = (el) => {
+      const b = el.getBoundingClientRect();
+      return `left=${b.left.toFixed(2)} top=${b.top.toFixed(2)} w=${b.width.toFixed(2)} h=${b.height.toFixed(2)}`;
+    };
+    const w = () => `inner=${window.innerWidth} client=${document.documentElement.clientWidth}`;
+    console.log("[intro] BEFORE swap | flying:", r(introText), "| pill:", r(pillText), "|", w());
+    requestAnimationFrame(() => requestAnimationFrame(() => console.log("[intro] AFTER restore | pill:", r(pillText), "|", w())));
+
+    gsap.set(pillText, { opacity: 1 });
+    gsap.set(introText, { opacity: 0 });
+    document.documentElement.style.overflow = "";
+    document.documentElement.style.backgroundColor = "";
+    ScrollTrigger.refresh();
+  });
 
 const setMenuOpen = (isOpen) => {
   header.toggleAttribute("data-open", isOpen);
@@ -37,7 +86,7 @@ const heroObserver = new IntersectionObserver(
 
 heroObserver.observe(hero);
 
-// AMPLLIACIÓ DE VIDEO SECTION: CONVERSA
+// AMPLIACIÓ DE VIDEO SECTION: CONVERSA
 gsap.registerPlugin(ScrollTrigger, SplitText);
 const videoBox = document.querySelector("[data-video-expand]");
 const mm = gsap.matchMedia();
@@ -259,7 +308,11 @@ const sectionReveals = {
       // Les píldores dels passos entren pel lateral (esquerra), en escala
       tl.from("#s5 [data-reveal=pill]", { opacity: 0, x: -80, duration: 0.8, ease: "power2.out", stagger: 0.15 }, "-=0.3");
       // Descripció d'avall i píldora final: fade des de baix, una darrere l'altra
-      tl.from("#s5 [data-reveal=description], #s5 [data-reveal=cta]", { opacity: 0, y: 40, duration: 0.8, ease: "power2.out", stagger: 0.2 }, "-=0.3");
+      tl.from(
+        "#s5 [data-reveal=description], #s5 [data-reveal=cta]",
+        { opacity: 0, y: 40, duration: 0.8, ease: "power2.out", stagger: 0.2 },
+        "-=0.3",
+      );
     },
   },
 };
