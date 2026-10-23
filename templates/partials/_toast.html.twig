@@ -1,0 +1,74 @@
+<div id="registrals-toast-container" style="position: fixed; top: 1.5rem; right: 1.5rem; z-index: 99999; display: flex; flex-direction: column; gap: 0.75rem; pointer-events: none; width: calc(100% - 3rem); max-width: 24rem;"></div>
+
+<style>
+  .reg-toast-card {
+    background-color: #1D2F4B;
+    border: 1px solid rgba(202, 163, 108, 0.6);
+    color: #FAF6F0;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.7);
+    border-radius: 1rem;
+    padding: 0.875rem 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reg-toast-card.toast-error {
+    border-color: rgba(239, 68, 68, 0.6);
+  }
+</style>
+
+<script>
+  window.RegistralsToast = {
+    show: function(title, description, type = 'info', durationMs = 4500) {
+      const container = document.getElementById('registrals-toast-container');
+      if (!container) return;
+
+      const toast = document.createElement('div');
+      const isError = type === 'error';
+      toast.className = `reg-toast-card ${isError ? 'toast-error' : ''} pointer-events-auto transform -translate-y-4 opacity-0 font-raleway`;
+
+      let iconHtml = `
+        <div class="w-8 h-8 rounded-full bg-gold/20 border border-gold/40 text-gold flex items-center justify-center shrink-0 mt-0.5">
+          <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+      `;
+
+      if (isError) {
+        iconHtml = `
+          <div class="w-8 h-8 rounded-full bg-red-500/20 border border-red-400/50 text-red-400 flex items-center justify-center shrink-0 mt-0.5">
+            <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+        `;
+      }
+
+      toast.innerHTML = `
+        ${iconHtml}
+        <div class="flex-1 pr-1 text-xs">
+          <div class="font-bold ${isError ? 'text-red-200' : 'text-cream'} text-[13px] tracking-wide mb-0.5">${title}</div>
+          <div class="text-cream/80 text-[11px] leading-snug">${description}</div>
+        </div>
+        <button type="button" class="text-cream/50 hover:text-cream text-base leading-none p-1 shrink-0 cursor-pointer" aria-label="Tancar">&times;</button>
+        <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent ${isError ? 'via-red-400' : 'via-gold'} to-transparent opacity-80"></div>
+      `;
+
+      container.appendChild(toast);
+
+      requestAnimationFrame(() => {
+        toast.classList.remove('-translate-y-4', 'opacity-0');
+        toast.classList.add('translate-y-0', 'opacity-100');
+      });
+
+      const close = () => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('-translate-y-4', 'opacity-0');
+        setTimeout(() => toast.remove(), 300);
+      };
+
+      toast.querySelector('button').addEventListener('click', close);
+      setTimeout(close, durationMs);
+    }
+  };
+</script>

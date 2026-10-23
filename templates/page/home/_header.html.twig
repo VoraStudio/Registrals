@@ -15,10 +15,15 @@
 >
   <!-- Accedeix: només visible al hero (sm+), a la mateixa altura que el pill; a mòbil xocaria amb ell -->
   <a
-    href="#"
-    class="absolute top-0 right-8 hidden rounded-xl border-2 border-cream bg-cream px-8 text-sm font-semibold text-ink transition-[opacity,visibility,background-color] duration-500 hover:bg-cream/85 group-data-past-hero:invisible group-data-past-hero:opacity-0 sm:inline-flex sm:h-11 sm:items-center"
-    >Accedeix</a
+    href="/login"
+    aria-label="Accedeix"
+    title="Accedeix"
+    class="absolute top-0 right-8 hidden size-11 items-center justify-center rounded-full text-cream transition-[opacity,visibility,background-color,transform] duration-500 hover:bg-cream/15 hover:scale-110 focus-visible:outline-2 focus-visible:outline-gold group-data-past-hero:invisible group-data-past-hero:opacity-0 sm:inline-flex"
   >
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+    </svg>
+  </a>
   <div class="relative [filter:url(#goo)]">
     <!-- Pill principal -->
     <div
@@ -37,10 +42,13 @@
       >
         <span class="relative block size-5" aria-hidden="true">
           <span
-            class="absolute inset-x-0 top-1 h-1 rounded-lg bg-ink group-data-past-hero:bg-cream transition-all duration-300 group-data-open:top-[9px] group-data-open:rotate-45"
+            class="absolute inset-x-0 top-1 h-0.5 rounded-full bg-ink group-data-past-hero:bg-cream transition-all duration-300 group-data-open:top-[9px] group-data-open:rotate-45"
           ></span>
           <span
-            class="absolute inset-x-0 bottom-1 h-1 rounded-lg bg-ink group-data-past-hero:bg-cream transition-all duration-300 group-data-open:bottom-[9px] group-data-open:-rotate-45"
+            class="absolute inset-x-0 top-[9px] h-0.5 rounded-full bg-ink group-data-past-hero:bg-cream transition-all duration-300 group-data-open:opacity-0 group-data-open:scale-x-0"
+          ></span>
+          <span
+            class="absolute inset-x-0 bottom-1 h-0.5 rounded-full bg-ink group-data-past-hero:bg-cream transition-all duration-300 group-data-open:bottom-[9px] group-data-open:-rotate-45"
           ></span>
         </span>
       </button>
@@ -53,33 +61,45 @@
       <nav
         id="main-menu"
         aria-label="Principal"
-        class="flex flex-wrap content-center sm:flex-nowrap border-cream border-2 h-8 w-8 shrink-0 items-center justify-center gap-y-1 sm:gap-3 overflow-hidden rounded-xl bg-cream group-data-past-hero:bg-ink transition-[width,height,background-color] duration-400 ease-[cubic-bezier(.22,1,.36,1)] group-data-open:h-24 group-data-open:px-3 group-data-open:py-1 group-data-open:w-[min(24rem,calc(100vw-2rem))] sm:group-data-open:h-14 sm:group-data-open:w-[min(32rem,calc(100vw-2rem))] group-data-open:delay-200 motion-reduce:transition-none"
+        class="flex flex-nowrap border-cream border-2 h-8 w-8 shrink-0 items-center justify-center gap-1.5 sm:gap-3 overflow-hidden rounded-xl bg-cream group-data-past-hero:bg-ink transition-[width,height,background-color] duration-400 ease-[cubic-bezier(.22,1,.36,1)] group-data-open:h-14 group-data-open:px-3 group-data-open:py-1 group-data-open:w-[min(23rem,calc(100vw-2rem))] sm:group-data-open:h-14 sm:group-data-open:w-[min(32rem,calc(100vw-2rem))] group-data-open:delay-200 motion-reduce:transition-none"
       >
         <a
           href="#s4"
-          class="invisible shrink-0 rounded-xl px-3 py-2 text-base font-semibold text-ink group-data-past-hero:text-cream group-data-past-hero:hover:bg-cream/20 opacity-0 transition-[opacity,visibility,color] duration-200 hover:bg-ink/20 hover:rounded-md group-data-open:visible group-data-open:opacity-100 group-data-open:delay-[400ms] sm:text-sm"
+          class="invisible shrink-0 rounded-xl px-2 py-1 text-sm font-semibold text-ink group-data-past-hero:text-cream group-data-past-hero:hover:bg-cream/20 opacity-0 transition-[opacity,visibility,color] duration-200 hover:bg-ink/20 hover:rounded-md group-data-open:visible group-data-open:opacity-100 group-data-open:delay-[400ms] sm:px-3 sm:py-2"
           >Solucions</a
         >
         <a
           href="#s7"
-          class="invisible shrink-0 rounded-xl px-3 py-2 text-base font-semibold text-ink group-data-past-hero:text-cream group-data-past-hero:hover:bg-cream/20 opacity-0 transition-[opacity,visibility,color] duration-200 hover:bg-ink/20 group-data-open:visible group-data-open:opacity-100 group-data-open:delay-[450ms] sm:text-sm"
+          class="invisible shrink-0 rounded-xl px-2 py-1 text-sm font-semibold text-ink group-data-past-hero:text-cream group-data-past-hero:hover:bg-cream/20 opacity-0 transition-[opacity,visibility,color] duration-200 hover:bg-ink/20 group-data-open:visible group-data-open:opacity-100 group-data-open:delay-[450ms] sm:px-3 sm:py-2"
           >Tarifes</a
         >
         <a
           href="#s8"
-          class="invisible shrink-0 rounded-xl px-3 py-2 text-base font-semibold text-ink group-data-past-hero:text-cream group-data-past-hero:hover:bg-cream/20 opacity-0 transition-[opacity,visibility,color] duration-200 hover:bg-ink/20 group-data-open:visible group-data-open:opacity-100 group-data-open:delay-[500ms] sm:text-sm"
+          class="invisible shrink-0 rounded-xl px-2 py-1 text-sm font-semibold text-ink group-data-past-hero:text-cream group-data-past-hero:hover:bg-cream/20 opacity-0 transition-[opacity,visibility,color] duration-200 hover:bg-ink/20 group-data-open:visible group-data-open:opacity-100 group-data-open:delay-[500ms] sm:px-3 sm:py-2"
           >FAQS</a
         >
         <a
           href="#contacte"
-          class="invisible shrink-0 rounded-xl px-4 py-2 text-base bg-ink font-semibold text-cream group-data-past-hero:bg-cream group-data-past-hero:text-ink group-data-past-hero:hover:bg-cream/80 opacity-0 transition-[opacity,visibility,color,background-color] duration-200 hover:bg-ink/60 group-data-open:visible group-data-open:opacity-100 group-data-open:delay-[550ms] sm:text-sm"
-          >Contacte</a
+          aria-label="Contacte"
+          title="Contacte"
+          class="invisible shrink-0 rounded-xl px-2.5 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base bg-ink font-semibold text-cream group-data-past-hero:bg-cream group-data-past-hero:text-ink group-data-past-hero:hover:bg-cream/80 opacity-0 transition-[opacity,visibility,color,background-color] duration-200 hover:bg-ink/60 group-data-open:visible group-data-open:opacity-100 group-data-open:delay-[550ms] inline-flex items-center justify-center"
         >
+          <span class="hidden sm:inline">Contacte</span>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 sm:hidden" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+          </svg>
+        </a>
         <a
-          href="#"
-          class="invisible shrink-0 rounded-xl border-2 border-ink px-4 py-1.5 text-base font-semibold text-ink group-data-past-hero:border-cream group-data-past-hero:text-cream group-data-past-hero:hover:bg-cream/20 opacity-0 transition-[opacity,visibility,color,background-color] duration-200 hover:bg-ink/20 group-data-open:visible group-data-open:opacity-100 group-data-open:delay-[600ms] sm:text-sm"
-          >Accedeix</a
+          href="/login"
+          aria-label="Accedeix"
+          title="Accedeix"
+          class="invisible shrink-0 rounded-xl border-2 border-ink px-2.5 py-1 sm:px-4 sm:py-1.5 text-sm sm:text-base font-semibold text-ink group-data-past-hero:border-cream group-data-past-hero:text-cream group-data-past-hero:hover:bg-cream/20 opacity-0 transition-[opacity,visibility,color,background-color] duration-200 hover:bg-ink/20 group-data-open:visible group-data-open:opacity-100 group-data-open:delay-[600ms] inline-flex items-center justify-center"
         >
+          <span class="hidden sm:inline">Accedeix</span>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 sm:hidden" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+          </svg>
+        </a>
       </nav>
     </div>
   </div>

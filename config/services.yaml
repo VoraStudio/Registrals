@@ -21,3 +21,8 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    App\Service\OAuth\GoogleOAuthService:
+        arguments:
+            $clientId: '%env(string:OAUTH_GOOGLE_CLIENT_ID)%'
+            $clientSecret: '%env(string:OAUTH_GOOGLE_CLIENT_SECRET)%'

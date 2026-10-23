@@ -35,7 +35,8 @@
   <body class="{% block body_class %}{% endblock %}">
     {% block body %}{% endblock %}
 
-    {% include 'partials/_cookie_banner.html.twig' with { cookie_policy_href: cookie_policy_href } only %}
+    {% include 'partials/_cookie_banner.html.twig' with { cookie_policy_href: cookie_policy_href|default(path('app_legal')) } only %}
+    {% include 'partials/_toast.html.twig' %}
     {% block javascripts %}
     <script src="{{ asset('js/cookies.js') }}" defer></script>
     {% endblock %}

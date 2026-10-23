@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guia d'Estils — Registrals</title>
+  
+  <!-- Fonts Google: Marcellus (titulars/marca) i Raleway (cos/UI) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Raleway:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --ink: #1d2f4b;
+      --ink-dark: #121f33;
+      --ink-light: #2c4366;
+      --steel: #6a86a2;
+      --steel-light: #8fa6be;
+      --gold: #caa36c;
+      --gold-light: #dfc298;
+      --cream: #f1e3d3;
+      --cream-50: #faf6f0;
+      --whitef: #fdfdfd;
+      --placeholder: #d9d9d9;
+      --border-subtle: rgba(202, 163, 108, 0.35);
+
+      --font-marcellus: "Marcellus", serif;
+      --font-raleway: "Raleway", sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-raleway);
+      background-color: var(--cream-50);
+      color: var(--ink);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Layout Sidebar + Main */
+    .guide-sidebar {
+      width: 290px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      background: var(--ink);
+      color: var(--cream);
+      border-right: 1px solid rgba(202, 163, 108, 0.25);
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+    }
+
+    .guide-sidebar-logo {
+      padding: 2rem 1.75rem 1.5rem;
+      border-bottom: 1px solid rgba(241, 227, 211, 0.12);
+    }
+
+    .guide-logo-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--cream);
+    }
+
+    .guide-logo-brand .brand-name {
+      font-family: var(--font-marcellus);
+      font-size: 1.5rem;
+      letter-spacing: 2px;
+      color: var(--cream);
+    }
+
+    .guide-sidebar-tag {
+      display: inline-block;
+      margin-top: 0.6rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--gold);
+      background: rgba(202, 163, 108, 0.12);
+      border: 1px solid rgba(202, 163, 108, 0.3);
+      padding: 0.25rem 0.6rem;
+      border-radius: 9999px;
+      letter-spacing: 0.5px;
+    }
+
+    .guide-nav {
+      padding: 1.25rem 1rem;
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .guide-nav a {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.65rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: rgba(241, 227, 211, 0.8);
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .guide-nav a:hover,
+    .guide-nav a.active {
+      color: var(--whitef);
+      background: rgba(241, 227, 211, 0.12);
+    }
+
+    .guide-nav a .num {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--gold);
+      background: rgba(202, 163, 108, 0.15);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+    }
+
+    .guide-sidebar-footer {
+      padding: 1.25rem 1.75rem;
+      border-top: 1px solid rgba(241, 227, 211, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .guide-sidebar-footer a {
+      color: var(--gold);
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: color 0.2s;
+    }
+
+    .guide-sidebar-footer a:hover {
+      color: var(--cream);
+      text-decoration: underline;
+    }
+
+    .guide-main {
+      margin-left: 290px;
+      padding: 4rem 3.5rem 6rem;
+      max-width: 1200px;
+    }
+
+    /* Capçalera Guia */
+    .guide-header {
+      margin-bottom: 4rem;
+      padding-bottom: 2.5rem;
+      border-bottom: 1px solid rgba(29, 47, 75, 0.12);
+    }
+
+    .guide-header h1 {
+      font-family: var(--font-marcellus);
+      font-size: 3.25rem;
+      letter-spacing: 1px;
+      color: var(--ink);
+      line-height: 1.1;
+      margin-bottom: 0.75rem;
+    }
+
+    .guide-header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--ink);
+      color: var(--cream);
+      padding: 0.35rem 0.85rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+    }
+
+    .guide-header p {
+      font-size: 1.15rem;
+      color: var(--steel);
+      max-width: 760px;
+    }
+
+    /* Seccions */
+    .guide-section {
+      scroll-margin-top: 2.5rem;
+      margin-bottom: 5.5rem;
+    }
+
+    .guide-section-head {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .guide-section-num {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--gold);
+      background: var(--ink);
+      padding: 0.35rem 0.75rem;
+      border-radius: 8px;
+    }
+
+    .guide-h2 {
+      font-family: var(--font-marcellus);
+      font-size: 2.2rem;
+      color: var(--ink);
+      letter-spacing: 0.5px;
+    }
+
+    .guide-sub {
+      color: var(--steel);
+      font-size: 1rem;
+      margin-bottom: 2rem;
+      max-width: 820px;
+    }
+
+    .guide-card {
+      background: var(--whitef);
+      border: 1px solid rgba(29, 47, 75, 0.08);
+      border-radius: 16px;
+      padding: 2.25rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 20px -2px rgba(29, 47, 75, 0.04);
+    }
+
+    .guide-h3 {
+      font-family: var(--font-marcellus);
+      font-size: 1.35rem;
+      color: var(--ink);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .guide-note {
+      margin-top: 1.25rem;
+      padding: 1rem 1.25rem;
+      border-left: 3px solid var(--gold);
+      background: rgba(202, 163, 108, 0.08);
+      border-radius: 4px;
+      font-size: 0.88rem;
+      color: var(--ink);
+      line-height: 1.6;
+    }
+
+    .guide-note code,
+    .guide-card code {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--ink);
+      background: rgba(202, 163, 108, 0.2);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+    }
+
+    /* 01 COLORS */
+    .swatch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .swatch {
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(29, 47, 75, 0.1);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+
+    .swatch-color {
+      height: 110px;
+      padding: 1rem;
+      display: flex;
+      align-items: flex-end;
+      position: relative;
+    }
+
+    .swatch-info {
+      padding: 1rem;
+      background: var(--whitef);
+    }
+
+    .swatch-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--ink);
+      display: block;
+    }
+
+    .swatch-hex {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--steel);
+      margin-top: 0.2rem;
+      display: block;
+    }
+
+    .swatch-var {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--gold);
+      margin-top: 0.35rem;
+      display: block;
+    }
+
+    .swatch-role {
+      font-size: 0.78rem;
+      color: #666;
+      margin-top: 0.4rem;
+      line-height: 1.4;
+      display: block;
+    }
+
+    /* 02 TIPOGRAFIA */
+    .type-demo-box {
+      border-left: 3px solid var(--gold);
+      padding-left: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .type-scale-row {
+      display: flex;
+      align-items: baseline;
+      padding: 1.25rem 0;
+      border-bottom: 1px solid rgba(29, 47, 75, 0.08);
+      gap: 2rem;
+    }
+
+    .type-scale-meta {
+      width: 140px;
+      flex-shrink: 0;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--steel);
+    }
+
+    .type-scale-sample {
+      flex: 1;
+      color: var(--ink);
+    }
+
+    /* 03 BOTONS */
+    .button-showcase {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.25rem;
+      align-items: center;
+      margin-bottom: 1.75rem;
+    }
+
+    .btn-registrals-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--ink);
+      color: var(--cream);
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 0.75rem 1.75rem;
+      border-radius: 9999px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-registrals-primary:hover {
+      background: rgba(29, 47, 75, 0.9);
+      transform: translateY(-1px);
+    }
+
+    .btn-registrals-gold {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--gold);
+      color: var(--whitef);
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 0.75rem 1.75rem;
+      border-radius: 9999px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-registrals-gold:hover {
+      background: #b8925b;
+      transform: translateY(-1px);
+    }
+
+    .btn-registrals-cream {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--cream);
+      color: var(--ink);
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 0.75rem 1.75rem;
+      border-radius: 12px;
+      border: 2px solid var(--cream);
+      text-decoration: none;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .btn-registrals-cream:hover {
+      background: rgba(241, 227, 211, 0.85);
+      transform: translateY(-1px);
+    }
+
+    .btn-registrals-outline {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      color: var(--ink);
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 0.65rem 1.75rem;
+      border-radius: 12px;
+      border: 2px solid var(--ink);
+      text-decoration: none;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .btn-registrals-outline:hover {
+      background: rgba(29, 47, 75, 0.08);
+    }
+
+    .btn-hero-capsule {
+      display: inline-flex;
+      align-items: center;
+      background: rgba(241, 227, 211, 0.9);
+      padding: 0.35rem 0.5rem 0.35rem 1.25rem;
+      border-radius: 16px;
+      gap: 1rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+    }
+
+    .btn-hero-capsule .capsule-text {
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: var(--ink);
+    }
+
+    .btn-hero-capsule .capsule-btn {
+      background: var(--ink);
+      color: var(--cream);
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 0.6rem 1.5rem;
+      border-radius: 12px;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .btn-hero-capsule .capsule-btn:hover {
+      background: rgba(29, 47, 75, 0.9);
+    }
+
+    .btn-user-transparent {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--ink);
+      color: var(--cream);
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn-user-transparent:hover {
+      background: rgba(29, 47, 75, 0.85);
+      transform: scale(1.08);
+    }
+
+    /* 04 CARDS */
+    .card-dark-demo {
+      background: var(--ink);
+      color: var(--cream);
+      border: 1px solid rgba(202, 163, 108, 0.4);
+      border-radius: 24px;
+      padding: 2.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card-dark-demo h4 {
+      font-family: var(--font-marcellus);
+      font-size: 1.75rem;
+      color: var(--whitef);
+      margin-bottom: 0.75rem;
+    }
+
+    .card-cream-demo {
+      background: var(--cream);
+      color: var(--ink);
+      border-radius: 24px;
+      padding: 2.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card-cream-demo h4 {
+      font-family: var(--font-marcellus);
+      font-size: 1.75rem;
+      color: var(--ink);
+      margin-bottom: 0.75rem;
+    }
+
+    /* 05 FORMS */
+    .form-group {
+      margin-bottom: 1.5rem;
+      max-width: 480px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 0.4rem;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      font-family: var(--font-raleway);
+      font-size: 0.95rem;
+      border: 1.5px solid rgba(29, 47, 75, 0.2);
+      border-radius: 10px;
+      background: var(--whitef);
+      color: var(--ink);
+      transition: all 0.2s;
+    }
+
+    .form-input:focus {
+      outline: 2px solid var(--gold);
+      outline-offset: 3px;
+      border-color: var(--gold);
+    }
+
+    /* 06 BADGES */
+    .badge-demo-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .badge-blockchain {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(202, 163, 108, 0.15);
+      color: #946e37;
+      border: 1px solid rgba(202, 163, 108, 0.4);
+      padding: 0.35rem 0.85rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-verified {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(29, 47, 75, 0.08);
+      color: var(--ink);
+      padding: 0.35rem 0.85rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .badge-step {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--gold);
+      color: var(--whitef);
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+
+    /* 07 NAVEGACIÓ INTERACTIVA */
+    .pill-interactive-preview {
+      background: #0f1c2e;
+      padding: 3rem 2rem;
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      position: relative;
+    }
+
+    .demo-nav-pill {
+      background: var(--cream);
+      border: 2px solid var(--cream);
+      border-radius: 14px;
+      padding: 0.35rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 2.5rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+
+    .demo-nav-pill .logo-text {
+      font-family: var(--font-marcellus);
+      font-size: 1.45rem;
+      letter-spacing: 2px;
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .demo-hamburger-btn {
+      position: relative;
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+    }
+
+    .demo-hamburger-box {
+      position: relative;
+      width: 20px;
+      height: 20px;
+    }
+
+    .demo-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--ink);
+      border-radius: 9999px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .demo-line.top { top: 4px; }
+    .demo-line.mid { top: 9px; }
+    .demo-line.bot { bottom: 4px; }
+
+    /* Estat obert per a la demo */
+    .demo-nav-pill.is-open .demo-line.top {
+      top: 9px;
+      transform: rotate(45deg);
+    }
+    .demo-nav-pill.is-open .demo-line.mid {
+      opacity: 0;
+      transform: scaleX(0);
+    }
+    .demo-nav-pill.is-open .demo-line.bot {
+      bottom: 9px;
+      transform: rotate(-45deg);
+    }
+
+    .demo-nav-menu {
+      background: var(--cream);
+      border: 2px solid var(--cream);
+      border-radius: 14px;
+      padding: 0.5rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      transition: all 0.3s ease;
+    }
+
+    .demo-nav-menu a {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--ink);
+      text-decoration: none;
+      padding: 0.35rem 0.65rem;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+
+    .demo-nav-menu a:hover {
+      background: rgba(29, 47, 75, 0.1);
+    }
+
+    .demo-nav-menu a.btn-cta {
+      background: var(--ink);
+      color: var(--cream);
+      padding: 0.4rem 1rem;
+    }
+
+    .demo-nav-menu a.btn-cta:hover {
+      background: rgba(29, 47, 75, 0.85);
+    }
+
+    /* 08 BRAND IDENTITY */
+    .brand-family-title {
+      font-family: var(--font-marcellus);
+      font-size: 1.25rem;
+      color: var(--ink);
+      margin: 2rem 0 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .brand-family-title:first-of-type {
+      margin-top: 0;
+    }
+    .brand-showcase-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .brand-tile {
+      padding: 2.25rem 1.75rem;
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      text-align: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .brand-tile:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+    .brand-tile img {
+      max-height: 110px;
+      width: auto;
+      object-fit: contain;
+    }
+    .brand-tile.light {
+      background: var(--cream-50);
+      border: 1px solid rgba(29, 47, 75, 0.1);
+    }
+    .brand-tile.dark {
+      background: var(--ink);
+      color: var(--cream);
+      border: 1px solid rgba(202, 163, 108, 0.3);
+    }
+    .brand-tile-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    .brand-tile-path {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      opacity: 0.75;
+    }
+    .brand-tile-desc {
+      font-size: 0.8rem;
+      line-height: 1.4;
+      opacity: 0.85;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .guide-sidebar {
+        display: none;
+      }
+      .guide-main {
+        margin-left: 0;
+        padding: 3rem 1.5rem 5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar de la guia -->
+  <aside class="guide-sidebar">
+    <div class="guide-sidebar-logo">
+      <a href="/" class="guide-logo-brand">
+        <!-- Isotip SVG oficial des de /img/logos/Isotip/3-transparent.svg -->
+        <img src="/img/logos/Isotip/3-transparent.svg" alt="Registrals" width="28" height="28" style="width: 28px; height: 28px; object-fit: contain;">
+        <span class="brand-name">REGISTRALS</span>
+      </a>
+      <span class="guide-sidebar-tag">Guia d'Estils · v1.0 · 2026</span>
+    </div>
+
+    <nav class="guide-nav">
+      <a href="#colors"><span class="num">01</span> Colors & Tokens</a>
+      <a href="#typography"><span class="num">02</span> Tipografia</a>
+      <a href="#buttons"><span class="num">03</span> Botons & CTAs</a>
+      <a href="#cards"><span class="num">04</span> Targetes & Caixes</a>
+      <a href="#forms"><span class="num">05</span> Formularis & Camps</a>
+      <a href="#badges"><span class="num">06</span> Badges & Indicadors</a>
+      <a href="#navigation"><span class="num">07</span> Capçalera & Menú</a>
+      <a href="#identity"><span class="num">08</span> Identitat de Marca</a>
+      <a href="#animations"><span class="num">09</span> Animacions & GSAP</a>
+    </nav>
+
+    <div class="guide-sidebar-footer">
+      <a href="/">← Tornar a la Web</a>
+      <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--steel-light);">Symfony 7.4</span>
+    </div>
+  </aside>
+
+  <!-- Contingut Principal -->
+  <main class="guide-main">
+    
+    <header class="guide-header">
+      <div class="guide-header-badge">Sistema de Disseny Web & App</div>
+      <h1>Guia d'Estils — Registrals</h1>
+      <p>
+        Document oficial d'identitat visual, tokens de disseny, components d'interfície i patrons d'interacció per al web corporatiu i l'aplicació de certificació digital de béns.
+      </p>
+    </header>
+
+    <!-- 01 COLORS -->
+    <section id="colors" class="guide-section">
+      <div class="guide-section-head">
+        <span class="guide-section-num">01</span>
+        <h2 class="guide-h2">Colors & Tokens Cromàtics</h2>
+      </div>
+      <p class="guide-sub">
+        La paleta cromàtica de Registrals combina la solemnitat institucional del dret registral amb la calidesa i innovació de la certificació blockchain.
+      </p>
+
+      <div class="guide-card">
+        <h3 class="guide-h3">Paleta Principal</h3>
+        <div class="swatch-grid">
+          <!-- Ink -->
+          <div class="swatch">
+            <div class="swatch-color" style="background-color: #1d2f4b; color: #f1e3d3;">
+              <span style="font-weight: 700; font-size: 0.8rem;">Contrast Primari</span>
+            </div>
+            <div class="swatch-info">
+              <span class="swatch-name">Ink (Blau Nit)</span>
+              <span class="swatch-hex">#1D2F4B</span>
+              <span class="swatch-var">var(--color-ink)</span>
+              <span class="swatch-role">Fons de capçaleres nocturnes, botons principals i text fosc.</span>
+            </div>
+          </div>
+
+          <!-- Cream -->
+          <div class="swatch">
+            <div class="swatch-color" style="background-color: #f1e3d3; color: #1d2f4b;">
+              <span style="font-weight: 700; font-size: 0.8rem;">Base Càlida</span>
+            </div>
+            <div class="swatch-info">
+              <span class="swatch-name">Cream (Pell/Pergamí)</span>
+              <span class="swatch-hex">#F1E3D3</span>
+              <span class="swatch-var">var(--color-cream)</span>
+              <span class="swatch-role">Pill de navegació central, fons de targetes i contrast suau.</span>
+            </div>
+          </div>
+
+          <!-- Gold -->
+          <div class="swatch">
+            <div class="swatch-color" style="background-color: #caa36c; color: #fdfdfd;">
+              <span style="font-weight: 700; font-size: 0.8rem;">Accent de Certificació</span>
+            </div>
+            <div class="swatch-info">
+              <span class="swatch-name">Gold (Or Registral)</span>
+              <span class="swatch-hex">#CAA36C</span>
+              <span class="swatch-var">var(--color-gold)</span>
+              <span class="swatch-role">Vores de targetes, elements de focus i segells de garantia.</span>
+            </div>
+          </div>
+
+          <!-- Steel -->
+          <div class="swatch">
+            <div class="swatch-color" style="background-color: #6a86a2; color: #fdfdfd;">
+              <span style="font-weight: 700; font-size: 0.8rem;">Neutral Secundari</span>
+            </div>
+            <div class="swatch-info">
+              <span class="swatch-name">Steel (Acer / Pissarra)</span>
+              <span class="swatch-hex">#6A86A2</span>
+              <span class="swatch-var">var(--color-steel)</span>
+              <span class="swatch-role">Textos secundaris, subtítols i enllaços no destacats.</span>
+            </div>
+          </div>
+
+          <!-- Cream 50 -->
+          <div class="swatch">
+            <div class="swatch-color" style="background-color: #faf6f0; color: #1d2f4b; border-bottom: 1px solid #ddd;">
+              <span style="font-weight: 700; font-size: 0.8rem;">Fons Clar</span>
+            </div>
+            <div class="swatch-info">
+              <span class="swatch-name">Cream 50</span>
+              <span class="swatch-hex">#FAF6F0</span>
+              <span class="swatch-var">var(--color-cream-50)</span>
+              <span class="swatch-role">Fons general de lectura i targetes interiors suaus.</span>
+            </div>
+          </div>
+
+          <!-- Whitef -->
+          <div class="swatch">
+            <div class="swatch-color" style="background-color: #fdfdfd; color: #1d2f4b; border-bottom: 1px solid #ddd;">
+              <span style="font-weight: 700; font-size: 0.8rem;">Text Il·luminat</span>
+            </div>
+            <div class="swatch-info">
+              <span class="swatch-name">Whitef (Blanc Càlid)</span>
+              <span class="swatch-hex">#FDFDFD</span>
+              <span class="swatch-var">var(--color-whitef)</span>
+              <span class="swatch-role">Titulars principals sobre vídeo hero i targetes fosques.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="guide-note">
+          <strong>Regla de coherència cromàtica:</strong> Les targetes fosques utilitzen <code>bg-ink</code> amb un contorn daurat suau de <code>border-gold/40</code>. La vora del peu de pàgina es manté neta sobre el fons crema per mantenir la puresa visual del tancament.
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 TIPOGRAFIA -->
+    <section id="typography" class="guide-section">
+      <div class="guide-section-head">
+        <span class="guide-section-num">02</span>
+        <h2 class="guide-h2">Tipografia & Jerarquia</h2>
+      </div>
+      <p class="guide-sub">
+        El contrast harmònic entre una tipografia romana d'inspiració epigràfica (Marcellus) i una sans-serif geomètrica i llegible (Raleway).
+      </p>
+
+      <div class="guide-card">
+        <div class="type-demo-box">
+          <h3 style="font-family: var(--font-marcellus); font-size: 2.2rem; color: var(--ink);">
+            Marcellus — Tipografia de Marca & Titulars
+          </h3>
+          <p style="color: var(--steel); font-size: 0.95rem; margin-top: 0.25rem;">
+            Dissenyada per Brian J. Bonislawsky. Inspirada en les inscripcions lapidàries romanes clàssiques. Aporta autoritat legal, solemnitat i un tracte artesanal d'alta gamma.
+          </p>
+        </div>
+
+        <div class="type-demo-box" style="border-left-color: var(--steel);">
+          <h3 style="font-family: var(--font-raleway); font-weight: 700; font-size: 1.8rem; color: var(--ink);">
+            Raleway — Tipografia de Lectura, UI & Botons
+          </h3>
+          <p style="color: var(--steel); font-size: 0.95rem; margin-top: 0.25rem;">
+            Creada per Matt McInerney. Sans-serif elegant amb una gran família de pesos que garanteix màxima llegibilitat tant en paràgrafs densos com en botons o elements d'aplicació.
+          </p>
+        </div>
+
+        <h3 class="guide-h3" style="margin-top: 2rem;">Escala Tipogràfica</h3>
+        
+        <div class="type-scale-row">
+          <div class="type-scale-meta">
+            <strong>Hero Title</strong><br>
+            text-5xl a text-7xl<br>
+            Marcellus
+          </div>
+          <div class="type-scale-sample" style="font-family: var(--font-marcellus); font-size: 2.75rem; line-height: 1.15;">
+            El registre dels teus béns, a un clic
+          </div>
+        </div>
+
+        <div class="type-scale-row">
+          <div class="type-scale-meta">
+            <strong>H2 Secció</strong><br>
+            text-4xl (2.25rem)<br>
+            Marcellus
+          </div>
+          <div class="type-scale-sample" style="font-family: var(--font-marcellus); font-size: 2rem;">
+            Evidència digital permanent sobre blockchain
+          </div>
+        </div>
+
+        <div class="type-scale-row">
+          <div class="type-scale-meta">
+            <strong>Subtítol / Lead</strong><br>
+            text-xl a text-2xl<br>
+            Raleway Regular
+          </div>
+          <div class="type-scale-sample" style="font-size: 1.25rem; color: var(--steel);">
+            Registra i certifica digitalment els teus béns perquè puguis acreditar-ne la propietat en cas de robatori o conflicte.
+          </div>
+        </div>
+
+        <div class="type-scale-row">
+          <div class="type-scale-meta">
+            <strong>Cos de text</strong><br>
+            text-base (1rem)<br>
+            Raleway Regular
+          </div>
+          <div class="type-scale-sample" style="font-size: 1rem; color: var(--ink);">
+            El certificat digital emès per Registrals genera un hash criptogràfic únic indexat en una xarxa descentralitzada, oferint data certa i contingut inalterable davant de tercers o peritatges.
+          </div>
+        </div>
+
+        <div class="type-scale-row">
+          <div class="type-scale-meta">
+            <strong>Botons / CTA</strong><br>
+            text-sm a text-base<br>
+            Raleway SemiBold (600)
+          </div>
+          <div class="type-scale-sample" style="font-weight: 600; font-size: 0.95rem; letter-spacing: 0.5px;">
+            REGISTRA UN BÉ · CONTINUA · DESCARREGAR CERTIFICAT
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 BOTONS & CTAS -->
+    <section id="buttons" class="guide-section">
+      <div class="guide-section-head">
+        <span class="guide-section-num">03</span>
+        <h2 class="guide-h2">Botons & Accions (CTAs)</h2>
+      </div>
+      <p class="guide-sub">
+        Variants de botons utilitzades tant a la landing promocional com a l'àrea privada de registre.
+      </p>
+
+      <div class="guide-card">
+        <h3 class="guide-h3">Botons Estàndard</h3>
+        <div class="button-showcase">
+          <button class="btn-registrals-primary">REGISTRA UN BÉ (Primari Ink)</button>
+          <button class="btn-registrals-gold">CONTACTA (Daurat Gold)</button>
+          <button class="btn-registrals-cream">Accedeix (Crema)</button>
+          <button class="btn-registrals-outline">Documentació (Outline)</button>
+        </div>
+
+        <h3 class="guide-h3" style="margin-top: 2rem;">Càpsula CTA Doble (Hero)</h3>
+        <p style="font-size: 0.9rem; color: var(--steel); margin-bottom: 1rem;">
+          Combinació de missatge tecnològic de suport i crida directa a l'acció en una única peça arrodonida:
+        </p>
+        <div style="background: #18283f; padding: 2rem; border-radius: 16px; display: inline-block;">
+          <div class="btn-hero-capsule">
+            <span class="capsule-text">Amb tecnologia de blockchain</span>
+            <a href="/login" class="capsule-btn">REGISTRA UN BÉ</a>
+          </div>
+        </div>
+
+        <h3 class="guide-h3" style="margin-top: 2.5rem;">Botons d'Icona i Estat d'Usuari</h3>
+        <p style="font-size: 0.9rem; color: var(--steel); margin-bottom: 1rem;">
+          Botó transparent amb la icona SVG <code>user-circle</code> per a accés ràpid al perfil / login a la capçalera:
+        </p>
+        <div style="background: #121f33; padding: 1.5rem 2rem; border-radius: 14px; display: inline-flex; align-items: center; gap: 1.5rem;">
+          <a href="/login" class="btn-user-transparent" title="Accedeix">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="28" height="28">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+            </svg>
+          </a>
+          <span style="color: var(--cream); font-size: 0.85rem; font-family: var(--font-mono);">hover:scale-110 · transparent / text-cream</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 TARGETES & CAIXES -->
+    <section id="cards" class="guide-section">
+      <div class="guide-section-head">
+        <span class="guide-section-num">04</span>
+        <h2 class="guide-h2">Targetes & Contenidors</h2>
+      </div>
+      <p class="guide-sub">
+        Contenidors modulats per agrupar informació de característiques, preus, passes del procés i tancaments.
+      </p>
+
+      <div class="guide-card">
+        <h3 class="guide-h3">Targeta Fosca amb Vora Daurada (Features & Tarifes)</h3>
+        <div class="card-dark-demo">
+          <h4>01 · Certificació Immediata</h4>
+          <p style="color: rgba(241, 227, 211, 0.85); font-size: 0.98rem; max-width: 600px;">
+            Genera una prova criptogràfica irrefutable en qüestió de segons. Qualsevol document, factura de compra o imatge queda segellada amb validesa temporal perpètua.
+          </p>
+          <div style="margin-top: 1.5rem; display: flex; gap: 0.75rem;">
+            <span class="badge-blockchain">ETHEREUM & IPFS</span>
+            <span class="badge-verified" style="background: rgba(241, 227, 211, 0.15); color: var(--cream);">Data Certa Garantida</span>
+          </div>
+        </div>
+
+        <h3 class="guide-h3" style="margin-top: 2rem;">Targeta Crema Clàssica (Passos & Peu)</h3>
+        <div class="card-cream-demo">
+          <h4>Contenidor Crema Arrodonit</h4>
+          <p style="color: var(--ink); font-size: 0.95rem;">
+            Fons <code>bg-cream</code> amb radi pronunciat <code>rounded-3xl</code>, ideal per crear transicions visuals elegants entre fons foscos i zones de lectura descansada.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 FORMULARIS -->
+    <section id="forms" class="guide-section">
+      <div class="guide-section-head">
+        <span class="guide-section-num">05</span>
+        <h2 class="guide-h2">Formularis & Patrons d'Entrada de Dades</h2>
+      </div>
+      <p class="guide-sub">
+        Registrals empra dos patrons oficials de formulari segons el context d'ús: el patró clar (blanc cru translúcid) per a formularis extensos i registres, i el patró fosc (blau marí notarial) per a accés privat i accions solemnes.
+      </p>
+
+      <!-- Comparativa dels 2 Patrons Oficials -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 2rem; margin-bottom: 2.5rem;">
+        
+        <!-- PATRÓ 1: CLAR (Blanc Cru Tènue) -->
+        <div style="background: rgba(255, 255, 255, 0.82); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(202, 163, 108, 0.45); border-radius: 24px; padding: 2.25rem; box-shadow: 0 20px 45px rgba(29, 47, 75, 0.08); color: var(--ink); position: relative; overflow: hidden;">
+          <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, transparent, var(--gold), transparent);"></div>
+          
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+            <span style="font-family: var(--font-mono); font-size: 0.72rem; background: var(--cream); color: var(--gold-dark); border: 1px solid rgba(202,163,108,0.4); padding: 0.2rem 0.6rem; border-radius: 9999px; font-weight: 700;">PATRÓ CLAR · REGISTRE & ONBOARDING</span>
+          </div>
+
+          <div style="text-align: center; margin-bottom: 1.5rem;">
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--cream); border: 1px solid rgba(202, 163, 108, 0.5); color: var(--gold); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 0.5rem;">
+              <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+            </div>
+            <h4 style="font-family: var(--font-marcellus); font-size: 1.5rem; color: var(--ink); font-weight: normal;">Crea el teu Compte</h4>
+            <p style="font-size: 0.8rem; color: var(--steel); margin-top: 0.25rem;">Fons blanc cru tènue (<code>bg-white/80 backdrop-blur-md</code>)</p>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div>
+              <label style="display: block; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--ink); margin-bottom: 0.35rem;">Nom complet</label>
+              <input type="text" value="Carles Puig" style="width: 100%; padding: 0.65rem 0.9rem; font-size: 0.88rem; background: rgba(255,255,255,0.9); border: 1px solid rgba(106, 134, 162, 0.3); border-radius: 10px; color: var(--ink);">
+            </div>
+            <div>
+              <label style="display: block; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--ink); margin-bottom: 0.35rem;">Correu electrònic</label>
+              <input type="email" value="carles@registrals.cat" style="width: 100%; padding: 0.65rem 0.9rem; font-size: 0.88rem; background: rgba(255,255,255,0.9); border: 1px solid rgba(106, 134, 162, 0.3); border-radius: 10px; color: var(--ink);">
+            </div>
+            <button type="button" style="width: 100%; padding: 0.75rem 1rem; background: var(--ink); color: var(--cream); font-weight: 700; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 1px; border: none; border-radius: 10px; cursor: pointer; margin-top: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+              <span>Crear Compte Gratuït</span>
+              <span style="color: var(--gold);">→</span>
+            </button>
+          </div>
+
+          <p style="font-size: 0.78rem; color: var(--steel); margin-top: 1.25rem; text-align: center; border-top: 1px solid var(--cream); pt: 0.75rem;">
+            Aplicació: <code>templates/registration/register.html.twig</code>
+          </p>
+        </div>
+
+        <!-- PATRÓ 2: FOSC (Blau Marí Notarial Ink) -->
+        <div style="background: var(--ink); border: 1px solid rgba(202, 163, 108, 0.45); border-radius: 24px; padding: 2.25rem; box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8); color: var(--cream); position: relative; overflow: hidden;">
+          <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, transparent, var(--gold), transparent);"></div>
+          
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+            <span style="font-family: var(--font-mono); font-size: 0.72rem; background: rgba(202,163,108,0.18); color: var(--gold); border: 1px solid rgba(202,163,108,0.4); padding: 0.2rem 0.6rem; border-radius: 9999px; font-weight: 700;">PATRÓ FOSC · LOGIN & ACCÉS PRIVAT</span>
+          </div>
+
+          <div style="text-align: center; margin-bottom: 1.5rem;">
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: rgba(202, 163, 108, 0.15); border: 1px solid rgba(202, 163, 108, 0.4); color: var(--gold); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 0.5rem;">
+              <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            </div>
+            <h4 style="font-family: var(--font-marcellus); font-size: 1.5rem; color: var(--cream); font-weight: normal;">Accés Privat</h4>
+            <p style="font-size: 0.8rem; color: rgba(241, 227, 211, 0.75); margin-top: 0.25rem;">Blau marí amb ombrejat 80% (<code>bg-ink shadow-2xl</code>)</p>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div>
+              <label style="display: block; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: rgba(241, 227, 211, 0.9); margin-bottom: 0.35rem;">Correu electrònic</label>
+              <input type="email" value="carles@registrals.cat" style="width: 100%; padding: 0.65rem 0.9rem; font-size: 0.88rem; background: rgba(255,255,255,0.9); border: 1px solid rgba(106, 134, 162, 0.3); border-radius: 10px; color: var(--ink);">
+            </div>
+            <div>
+              <label style="display: block; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: rgba(241, 227, 211, 0.9); margin-bottom: 0.35rem;">Contrasenya</label>
+              <input type="password" value="••••••••" style="width: 100%; padding: 0.65rem 0.9rem; font-size: 0.88rem; background: rgba(255,255,255,0.9); border: 1px solid rgba(106, 134, 162, 0.3); border-radius: 10px; color: var(--ink);">
+            </div>
+            <button type="button" style="width: 100%; padding: 0.75rem 1rem; background: var(--gold); color: var(--ink); font-weight: 700; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 1px; border: none; border-radius: 10px; cursor: pointer; margin-top: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+              <span>Inicia Sessió</span>
+              <span style="color: var(--ink);">→</span>
+            </button>
+          </div>
+
+          <p style="font-size: 0.78rem; color: rgba(241, 227, 211, 0.75); margin-top: 1.25rem; text-align: center; border-top: 1px solid rgba(202, 163, 108, 0.2); pt: 0.75rem;">
+            Aplicació: <code>templates/security/login.html.twig</code>
+          </p>
+        </div>
+
+      </div>
+
+      <div class="guide-card">
+        <h3 class="guide-h3">Especificacions Tècniques d'Inputs & Accessibilitat</h3>
+        <p style="font-size: 0.92rem; color: var(--steel); margin-bottom: 1.5rem;">
+          Tots dos patrons comparteixen la mateixa configuració d'elements d'entrada per garantir consistència i comoditat d'escriptura:
+        </p>
+
+        <div class="form-group">
+          <label class="form-label" for="demo-email">Correu electrònic professional</label>
+          <input type="email" id="demo-email" class="form-input" placeholder="nom@empresa.cat" value="usuari@registrals.com">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="demo-select">Tipus de bé a certificar</label>
+          <select id="demo-select" class="form-input">
+            <option>Obra d'art / Joieria</option>
+            <option>Bicicleta / Vehicle de mobilitat</option>
+            <option>Equipament informàtic o audiovisual</option>
+            <option>Drets d'autor o propietat intel·lectual</option>
+          </select>
+        </div>
+
+        <div class="guide-note">
+          <strong>Accessibilitat de focus:</strong> Tots els elements interactius empren <code>outline: 2px solid var(--color-gold)</code> amb un desplaçament d'<code>outline-offset: 3px</code> per garantir conformitat WCAG 2.1 AA tant sobre fons clar com fosc.
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 BADGES & INDICADORS -->
+    <section id="badges" class="guide-section">
+      <div class="guide-section-head">
+        <span class="guide-section-num">06</span>
+        <h2 class="guide-h2">Badges & Indicadors</h2>
+      </div>
+      <p class="guide-sub">
+        Píndoles d'estat i elements de metadades utilitzats a taules i resums de propietats.
+      </p>
+
+      <div class="guide-card">
+        <div class="badge-demo-list">
+          <span class="badge-blockchain">BLOCKCHAIN VERIFIED</span>
+          <span class="badge-verified">PROPIETARI VALIDAT</span>
+          <span class="badge-step">01</span>
+          <span class="badge-step" style="background: var(--ink);">02</span>
+          <span class="badge-step" style="background: var(--steel);">03</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07 NAVEGACIÓ & CAPÇALERA -->
+    <section id="navigation" class="guide-section">
+      <div class="guide-section-head">
+        <span class="guide-section-num">07</span>
+        <h2 class="guide-h2">Capçalera & Menú Flotant (Pill)</h2>
+      </div>
+      <p class="guide-sub">
+        El component més distintiu de la interfície de Registrals: un pill flotant amb animació líquida (*goo effect*), botó hamburguesa de 3 ratlles que muta a X, i desplegable adaptatiu.
+      </p>
+
+      <div class="guide-card">
+        <h3 class="guide-h3">Estat del Pill & Botó Hamburguesa (3 Línies → X)</h3>
+        <p style="font-size: 0.9rem; color: var(--steel); margin-bottom: 1.25rem;">
+          Clica al botó dret del pill per comprovar la transició viva de les 3 ratlles cap a la X:
+        </p>
+
+        <div class="pill-interactive-preview">
+          <!-- Pill de demo interactiu -->
+          <div class="demo-nav-pill" id="demo-nav-pill">
+            <span class="logo-text">REGISTRALS</span>
+            <button class="demo-hamburger-btn" id="demo-toggle-btn" aria-label="Provar menú">
+              <span class="demo-hamburger-box">
+                <span class="demo-line top"></span>
+                <span class="demo-line mid"></span>
+                <span class="demo-line bot"></span>
+              </span>
+            </button>
+          </div>
+
+          <!-- Menú desplegat interactiu -->
+          <div class="demo-nav-menu" id="demo-nav-menu">
+            <a href="#s4">Solucions</a>
+            <a href="#s7">Tarifes</a>
+            <a href="#s8">FAQS</a>
+            <a href="#contacte" class="btn-cta">Contacte</a>
+            <a href="/login" style="border: 2px solid var(--ink); border-radius: 8px;">Accedeix</a>
+          </div>
+        </div>
+
+        <div class="guide-note" style="margin-top: 1.5rem;">
+          <strong>Comportament Responsive a Mòbil (&lt; 640px):</strong>
+          <ul style="margin-top: 0.5rem; margin-left: 1.25rem; font-size: 0.88rem; line-height: 1.6;">
+            <li>El botó <em>Contacte</em> commuta automàticament al seu <strong>SVG de sobre de correu</strong>.</li>
+            <li>El botó <em>Accedeix</em> commuta a la icona <strong>user-circle</strong>.</li>
+            <li>Això permet que el menú conservi la seva alçada compacta (<code>h-14</code>) en <strong>una sola fila</strong> sense salts incòmodes.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 08 IDENTITAT DE MARCA -->
+    <section id="identity" class="guide-section">
+      <div class="guide-section-head">
+        <span class="guide-section-num">08</span>
+        <h2 class="guide-h2">Identitat & Simbologia de Marca</h2>
+      </div>
+      <p class="guide-sub">
+        L'isotip sintetitza la lletra "R" amb la solidesa d'una columna clàssica i la doble línia de segell registral.
+      </p>
+
+      <div class="guide-card">
+        <p style="color: var(--steel); font-size: 0.95rem; margin-bottom: 2rem;">
+          Tots els actius vectorials oficials de la marca estan organitzats a la carpeta <code>/img/logos/</code> en tres famílies segons la seva aplicació:
+        </p>
+
+        <!-- 1. ISOTIP -->
+        <h4 class="brand-family-title">1. Família Isotip (/img/logos/Isotip/)</h4>
+        <div class="brand-showcase-grid">
+          <div class="brand-tile light">
+            <img src="/img/logos/Isotip/1-transparent.svg" alt="Isotip Ink Transparent" width="80" height="80">
+            <span class="brand-tile-name" style="color: var(--ink);">Isotip Ink (Transparent)</span>
+            <span class="brand-tile-path">Isotip/1-transparent.svg</span>
+            <span class="brand-tile-desc">Vector en tinta #1D2F4B sobre fons transparent. Ideal per a capçaleres clares, documents PDF i segells.</span>
+          </div>
+
+          <div class="brand-tile dark">
+            <img src="/img/logos/Isotip/3-transparent.svg" alt="Isotip Gold Transparent" width="80" height="80">
+            <span class="brand-tile-name" style="color: var(--gold);">Isotip Gold (Transparent)</span>
+            <span class="brand-tile-path">Isotip/3-transparent.svg</span>
+            <span class="brand-tile-desc">Vector en or #CAA36C sobre transparent. Ideal per a la capçalera nocturna, footers foscos i contrast premium.</span>
+          </div>
+
+          <div class="brand-tile light">
+            <img src="/img/logos/Isotip/1.svg" alt="Isotip 1 Targeta" width="80" height="80">
+            <span class="brand-tile-name" style="color: var(--ink);">Isotip amb Marc Clar</span>
+            <span class="brand-tile-path">Isotip/1.svg</span>
+            <span class="brand-tile-desc">Versió completa amb targeta de fons per a avatars, xarxes socials i favicon d'aplicació.</span>
+          </div>
+
+          <div class="brand-tile dark">
+            <img src="/img/logos/Isotip/3.svg" alt="Isotip 3 Targeta" width="80" height="80">
+            <span class="brand-tile-name" style="color: var(--gold);">Isotip amb Marc Fosc</span>
+            <span class="brand-tile-path">Isotip/3.svg</span>
+            <span class="brand-tile-desc">Versió contrastada amb fons integrat per a modalitats de mode fosc i icones d'aplicació mòbil.</span>
+          </div>
+        </div>
+
+        <!-- 2. LOGOTIP -->
+        <h4 class="brand-family-title">2. Família Logotip (/img/logos/Logotip/)</h4>
+        <div class="brand-showcase-grid">
+          <div class="brand-tile light">
+            <img src="/img/logos/Logotip/5.svg" alt="Logotip Ink" style="max-height: 55px; width: auto;">
+            <span class="brand-tile-name" style="color: var(--ink); margin-top: 0.5rem;">Logotip Ink</span>
+            <span class="brand-tile-path">Logotip/5.svg</span>
+            <span class="brand-tile-desc">Marca tipogràfica oficial 'REGISTRALS' en color Ink sobre fons clar.</span>
+          </div>
+
+          <div class="brand-tile dark">
+            <img src="/img/logos/Logotip/6.svg" alt="Logotip Blanc" style="max-height: 55px; width: auto;">
+            <span class="brand-tile-name" style="color: var(--cream); margin-top: 0.5rem;">Logotip Blanc / Clar</span>
+            <span class="brand-tile-path">Logotip/6.svg</span>
+            <span class="brand-tile-desc">Marca tipogràfica per a fons foscos, vídeos hero i capçaleres amb màxim contrast.</span>
+          </div>
+        </div>
+
+        <!-- 3. ISOLOGO -->
+        <h4 class="brand-family-title">3. Família Isologo (/img/logos/Isologo/)</h4>
+        <div class="brand-showcase-grid">
+          <div class="brand-tile light">
+            <img src="/img/logos/Isologo/9.svg" alt="Isologo Complet Ink" style="max-height: 120px; width: auto;">
+            <span class="brand-tile-name" style="color: var(--ink);">Isologo Complet (Ink)</span>
+            <span class="brand-tile-path">Isologo/9.svg</span>
+            <span class="brand-tile-desc">Composició oficial amb Isotip + 'REGISTRALS' + subtítol institucional 'CERTIFICACIÓ DIGITAL'.</span>
+          </div>
+
+          <div class="brand-tile dark">
+            <img src="/img/logos/Isologo/11.svg" alt="Isologo Complet Clar" style="max-height: 120px; width: auto;">
+            <span class="brand-tile-name" style="color: var(--cream);">Isologo Complet (Clar)</span>
+            <span class="brand-tile-path">Isologo/11.svg</span>
+            <span class="brand-tile-desc">Composició oficial invertida per a presentacions corporatives, fons d'ink i certificats digitals oficials.</span>
+          </div>
+        </div>
+
+        <div class="guide-note">
+          <strong>Directiva d'ús de marca:</strong> L'<strong>Isotip</strong> (1-transparent i 3-transparent) s'ha d'emprar a capçaleres, pills, favicons i miniatures de navegació. L'<strong>Isologo</strong> (9 i 11) és l'identificador reservat per a documents formals, factures i capçaleres de certificats de propietat.
+        </div>
+      </div>
+    </section>
+
+    <!-- 09 ANIMACIONS & GSAP -->
+    <section id="animations" class="guide-section">
+      <div class="guide-section-head">
+        <span class="guide-section-num">09</span>
+        <h2 class="guide-h2">Animacions & Micro-interaccions (GSAP)</h2>
+      </div>
+      <p class="guide-sub">
+        Principis de moviment orgànic que aporten dinamisme i refinament a tota la plataforma.
+      </p>
+
+      <div class="guide-card">
+        <h3 class="guide-h3">1. Entrada de Títols (SplitText)</h3>
+        <p style="font-size: 0.95rem; color: var(--ink); line-height: 1.6;">
+          Cada lletra apareix mitjançant una màscara d'escapament inferior (<code>clipPath: inset(0 0 100% 0)</code>) i un lleuger desplaçament vertical (<code>yPercent: 100</code>), orquestrat amb corba <code>power2.out</code> i un decalatge (stagger) màxim d'1 segon.
+        </p>
+
+        <h3 class="guide-h3" style="margin-top: 1.75rem;">2. Desplegament Líquid (SVG Goo Filter)</h3>
+        <p style="font-size: 0.95rem; color: var(--ink); line-height: 1.6;">
+          El menú desplegable utilitza una matriu de color SVG combinada amb desenfocament gaussià per crear la impressió que el menú brolla de la part inferior del pill central com una gota d'oli abans d'estirar-se.
+        </p>
+
+        <h3 class="guide-h3" style="margin-top: 1.75rem;">3. Transició de Hero a Capçalera Sticky</h3>
+        <p style="font-size: 0.95rem; color: var(--ink); line-height: 1.6;">
+          Quan el visitant supera la secció Hero (monitorat via <code>IntersectionObserver</code>), la capçalera adquireix l'atribut <code>data-past-hero</code>: el pill canvia el fons a <code>bg-ink</code>, el text passa a <code>text-cream</code> i el botó superior d'accés s'amaga de forma fluida.
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // Interacció de la demo del Pill i el botó hamburguesa
+    const demoPill = document.getElementById('demo-nav-pill');
+    const demoToggle = document.getElementById('demo-toggle-btn');
+    const demoMenu = document.getElementById('demo-nav-menu');
+
+    demoToggle.addEventListener('click', () => {
+      demoPill.classList.toggle('is-open');
+      if (demoPill.classList.contains('is-open')) {
+        demoMenu.style.opacity = '1';
+        demoMenu.style.transform = 'translateY(0)';
+      } else {
+        demoMenu.style.opacity = '0.4';
+        demoMenu.style.transform = 'translateY(-6px)';
+      }
+    });
+
+    // ScrollSpy senzill per a la navegació lateral
+    const navLinks = document.querySelectorAll('.guide-nav a');
+    const sections = document.querySelectorAll('.guide-section');
+
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach((sec) => {
+        const top = sec.offsetTop - 120;
+        if (pageYOffset >= top) {
+          current = sec.getAttribute('id');
+        }
+      });
+
+      navLinks.forEach((link) => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === `#${current}`) {
+          link.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
