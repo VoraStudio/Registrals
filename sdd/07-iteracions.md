@@ -54,23 +54,28 @@ Cada subiteració segueix un flux d'enginyeria estricte:
 ### Iteració 2: El Patrimoni Personal (CRUD d'Ítems, CUI i Custòdia d'Arxius)
 **Objectiu:** Alta manual d'objectes personals, generació de codis CUI únics i custòdia documental privada.
 
-- [ ] **Subiteració 2.1: Model de Dades `Category`, `Item`, `ItemDocument` i Enums**
-  - [ ] Enums: `ItemStatus` (draft, active, transfer_pending, transferred, stolen, lost, archived, needs_review), `AcquisitionType`, `DocumentType`.
-  - [ ] Entitat Doctrine `Category` amb arbre jeràrquic (categories i subcategories) i suport per a `customFieldDefinitions` en JSON.
-  - [ ] Entitat Doctrine `Item` amb suport per a col·leccions i subítems (`parent_id`, `isCollection`) i relació amb `Category`.
-  - [ ] Entitat Doctrine `ItemDocument` (hashes SHA-256, mides, mimetypes i `aiMetadata`).
-  - [ ] Comanda de fixtures `app:init-categories` per poblar les categories i subcategories base B2C/C2C.
-  - [ ] Migració Doctrine provada a MySQL 8.4.
-- [ ] **Subiteració 2.2: Generador de CUI i Seguretat Documental (Flysystem + Voters)**
-  - [ ] Servei de generació automàtica de CUI únic (`REG-2026-XXXXXX`).
-  - [ ] Configuració de Flysystem amb emmagatzematge protegit fora de l'arrel web (`/var/data/registrals_storage`).
-  - [ ] `ItemVoter` per controlar accés de lectura/escriptura estricte per propietari.
-  - [ ] `MediaController` segur amb `StreamedResponse` per servir fotos i tiquets només a usuaris autoritzats.
-- [ ] **Subiteració 2.3: Formulari Wizard d'Alta (Mòbil & Escriptori) i Dashboard**
-  - [ ] Wizard pas a pas (Dades del bé -> Documents/Fotos -> Resum).
-  - [ ] Dashboard "El meu Patrimoni": targetes de béns, cerques, filtres per categoria i barra de progrés de patrimoni.
-- [ ] **Subiteració 2.4: Verificació & Validació HITL**
-  - [ ] Prova d'alta d'ítems, comprovació de càrrega segura de fotografies i verificació dels Voters de seguretat.
+- [x] **Subiteració 2.1: Model de Dades `Category`, `Item`, `ItemDocument` i Enums**
+  - [x] Enums: `ItemStatus` (draft, active, transfer_pending, transferred, stolen, lost, archived, needs_review), `AcquisitionType`, `DocumentType`.
+  - [x] Entitat Doctrine `Category` amb arbre jeràrquic (categories i subcategories) i suport per a `customFieldDefinitions` en JSON.
+  - [x] Entitat Doctrine `Item` amb suport per a col·leccions i subítems (`parent_id`, `isCollection`) i relació amb `Category`.
+  - [x] Entitat Doctrine `ItemDocument` (hashes SHA-256, mides, mimetypes i `aiMetadata`).
+  - [x] Comanda de fixtures `app:init-categories` per poblar les categories i subcategories base B2C/C2C.
+  - [x] Migració Doctrine provada a MySQL 8.4.
+- [x] **Subiteració 2.2: Generador de CUI i Seguretat Documental (Flysystem + Voters)**
+  - [x] Servei de generació automàtica de CUI únic (`REG-2026-XXXXXX`).
+  - [x] Configuració de Flysystem amb emmagatzematge protegit fora de l'arrel web (`var/data/registrals_storage`).
+  - [x] `ItemVoter` per controlar accés de lectura/escriptura estricte per propietari.
+  - [x] `MediaController` segur amb `StreamedResponse` per servir fotos i tiquets només a usuaris autoritzats.
+- [x] **Subiteració 2.3: Formulari Wizard d'Alta (Mòbil & Escriptori) i Dashboard**
+  - [x] Wizard pas a pas (Dades del bé -> Documents/Fotos -> Resum).
+  - [x] Dashboard "El meu Patrimoni": barra compacta de KPIs mòbil/PC, targetes d'ítems amb CUI prominent, filtres i barra d'accions per lot.
+  - [x] Fitxa de Detall del Bé PWA & Desktop: seqüència canònica en mòbil (Títol -> Foto 16:9 -> Fitxa -> Proves -> Garantia Notarial) amb barra contextual inferior, i graella 2x2 harmonitzada en PC adaptada a pantalles de portàtil.
+- [x] **Subiteració 2.4: Verificació & Validació HITL** *(Completada)*
+  - [x] Model i persistència validats amb `doctrine:schema:validate` (esquema MySQL 8.4 100% sincronitzat).
+  - [x] Control d'accés estricte amb `ItemVoter` i custòdia documental aïllada Flysystem servida per `MediaController`.
+  - [x] Fitxa del bé en PC harmonitzada en graella 2x2 amb controls de navegació `< >`, peus unificats i avís d'immutabilitat complet.
+  - [x] Fitxa del bé en Mòbil PWA ordenada canònicament (Títol -> Foto 16:9 -> Fitxa -> Proves -> Garantia Notarial) i barra contextual inferior.
+  - [x] Validació visual HITL completada al navegador per l'usuari humà.
 
 ---
 
@@ -149,8 +154,9 @@ Cada subiteració segueix un flux d'enginyeria estricte:
 - [ ] **Subiteració 7.1: Panell d'Administració Backoffice (`/admin`)**
   - [ ] Dashboard de control amb KPIs globals (usuaris actius, béns registrats, certificats emesos).
   - [ ] Gestió d'usuaris (activació, bloqueig i auditoria).
-- [ ] **Subiteració 7.2: Mòdul de Parametrització de Plans i Tarifes en Calent**
-  - [ ] Formulari d'edició dels paràmetres de cada pla (preu, màxim d'ítems, quotes de certificats, quotes d'IA).
+- [ ] **Subiteració 7.2: Mòdul de Parametrització de Plans, Tarifes i Àmbit Geogràfic**
+  - [ ] Formulari d'edició en calent dels paràmetres de cada pla des de Backoffice: màxim de béns actius (Free: 20, Plus: 100, Unlimited: -1 il·limitat), límit de fotografies per bé (Free: 1, Plus: 5, Unlimited: -1 il·limitat), límit de proves/evidències per bé (Free: 1, Plus: 5, Unlimited: -1 il·limitat), quotes de certificats oficials i assistència d'IA.
+  - [ ] Parametrització geogràfica i monetària: abast operatiu inicial centrat a la Unió Europea (EUR); selecció i acotament de països admesos al registre de plans Plus i Unlimited amb moneda ISO associada gestionable des de Backoffice.
 - [ ] **Subiteració 7.3: Passarel·la de Pagament (Stripe)**
   - [ ] Checkout per a subscripcions anuals (Pla Plus i Unlimited).
   - [ ] Microtransaccions de pagament per ús (certificat oficial puntual de 6 € o traspàs de 2,90 €).

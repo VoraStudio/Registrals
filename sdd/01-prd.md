@@ -123,6 +123,10 @@ S'aplica la metodologia de **"Fricció Positiva en el Moment del Valor"** (*Cont
    Indicador de progrés visual elegant: *"Has protegit 4.250 € en 4 béns. Cobertura documental: 85%"*.
 4. **Micropagaments d'1 sol Clic:**
    Integració de Stripe/Redsýs amb targeta guardada (i Apple Pay / Google Pay) per autoritzar microtransaccions de 2 € a 6 € sense sortir del flux.
+5. **Acció Contextual d'Assistent IA a la Fitxa del Bé:**
+   A la barra inferior mòbil de la fitxa del bé, s'introdueix l'acció `[ ✨ Assistent IA ]` amb micro-badge `PLUS`. En el Pla Free roman inactiva i, en fer-hi clic, un Toast/Modal notarial presenta el valor afegit del Pla Plus: redacció automàtica d'informes pericials de sinistre/robatori i auditoria de resolució i validesa de proves documentals.
+6. **Cost de Mutabilitat i Re-segellat de Fingerprints (Model Econòmic d'Edició):**
+   Cada addició, eliminació, reordenació de fotos o canvi documental invalida el fingerprint SHA-256 previ i genera una nova versió (`v1` -> `v2`). El re-segellat de temps qualificat eIDAS i el re-ancoratge a Polygon tenen un cost unitari directe. Al Pla Free la fitxa és rígida (1 foto + 1 prova); els plans Plus i Unlimited inclouen el versionat i re-segellat dins la quota de manteniment de patrimoni.
 
 ---
 
@@ -131,12 +135,15 @@ S'aplica la metodologia de **"Fricció Positiva en el Moment del Valor"** (*Cont
 | Concepte | Pla Free | Pla Plus (Subscripció) | Pla Unlimited / Business | Microtransacció (Pay-per-Use) |
 | :--- | :--- | :--- | :--- | :--- |
 | **Preu** | 0 € | 22,00 € / any (o 2,99 €/mes) | 59,00 € / any | Pagament per operació puntual |
-| **Béns Actius** | Fins a 20 | Fins a 100 | Il·limitats | — |
+| **Béns Actius** | Fins a 20 | Fins a 100 *(Parametritzable Admin)* | Il·limitats | — |
+| **Fotos per bé** | 1 foto principal | Fins a 5 fotografies | Il·limitades | — |
+| **Evidències / Proves per bé** | 1 prova (factura/tiquet/garantia) | Fins a 5 evidències | Il·limitades | — |
 | **Certificats Oficials** | 0 inclosos (amb marca d'aigua) | 10 oficials / any | Il·limitats | 6,00 € / certificat |
 | **Traspàs C2C Notaritzat**| De pagament per ús | 5 inclosos / any | Il·limitats | 2,90 € / traspàs |
 | **Assistent IA (OCR+Visió)**| 2 consultes de benvinguda | 50 consultes / any | Il·limitat | 0,20 € / consulta |
-| **Docs per bé** | Fins a 4 documents/fotos | Fins a 20 documents | Il·limitats | — |
 | **Verificació KYC eIDAS** | Opcional (de pagament) | 1 verificació inclosa | Inclosa | 3,50 € / verificació |
+
+*Nota d'Arquitectura Backoffice:* Tots els llindars (`maxActiveItems`, `maxPhotosPerItem`, `maxEvidencesPerItem`, preus i quotes) són parametritzables en calent des del panell d'Administració (`/admin/plans`).
 
 ---
 

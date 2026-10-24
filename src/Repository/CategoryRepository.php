@@ -37,6 +37,23 @@ class CategoryRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * Retorna les subcategories actives (que tenen categoria mare).
+     *
+     * @return list<Category>
+     */
+    public function findSubcategories(): array
+    {
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.parent IS NOT NULL')
+            ->andWhere('c.isActive = :active')
+            ->setParameter('active', true)
+            ->orderBy('c.sortOrder', 'ASC')
+            ->addOrderBy('c.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
     public function findBySlug(string $slug): ?Category
     {
         return $this->findOneBy(['slug' => $slug]);

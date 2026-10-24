@@ -14,8 +14,10 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class DashboardController extends AbstractController
 {
     #[Route('/dashboard', name: 'dashboard')]
-    public function index(): Response
-    {
+    public function index(
+        \App\Repository\ItemRepository $itemRepository,
+        \App\Repository\CategoryRepository $categoryRepository
+    ): Response {
         /** @var \App\Entity\User $user */
         $user = $this->getUser();
 
@@ -23,8 +25,13 @@ class DashboardController extends AbstractController
             return $this->redirectToRoute('app_onboarding_welcome');
         }
 
+        $items = $itemRepository->findTopLevelItemsByOwner($user);
+        $categories = $categoryRepository->findRootCategories();
+
         return $this->render('dashboard/index.html.twig', [
             'user' => $user,
+            'items' => $items,
+            'categories' => $categories,
         ]);
     }
 }

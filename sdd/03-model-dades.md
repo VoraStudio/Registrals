@@ -186,7 +186,7 @@ class Item
     private ?string $serialNumber = null;
 
     #[ORM\Column(type: 'bigint', nullable: true)]
-    private ?int $declaredValueCents = null;
+    private ?int $declaredValueCents = null; // Moneda base inicial EUR (€) per marc legal UE; parametritzable a nivell d'usuari/admin en fases posteriors (codi ISO 4217).
 
     #[ORM\Column(type: 'date_immutable', nullable: true)]
     private ?\DateTimeImmutable $acquisitionDate = null;
@@ -656,8 +656,11 @@ private int $transfersIncluded = 0;
 #[ORM\Column(type: 'integer', options: ['default' => 200])]
 private int $extraTransferPriceCents = 200;
 
-#[ORM\Column(type: 'integer', options: ['default' => 4])]
-private int $maxDocumentsPerItem = 4;
+#[ORM\Column(type: 'integer', options: ['default' => 1])]
+private int $maxPhotosPerItem = 1;
+
+#[ORM\Column(type: 'integer', options: ['default' => 1])]
+private int $maxEvidencesPerItem = 1;
 
 #[ORM\Column(type: 'boolean', options: ['default' => true])]
 private bool $isActive = true;
@@ -665,6 +668,13 @@ private bool $isActive = true;
 #[ORM\Column(type: 'datetime_immutable')]
 private \DateTimeImmutable $createdAt;
 }
+```
+
+*Regla de Negoci i Backoffice Admin:*
+- `maxActiveItems`: FREE: 20 | PLUS: 100 *(configurable a Admin)* | UNLIMITED: -1 (il·limitat).
+- `maxPhotosPerItem`: FREE: 1 | PLUS: 5 | UNLIMITED: -1 (il·limitat).
+- `maxEvidencesPerItem`: FREE: 1 | PLUS: 5 | UNLIMITED: -1 (il·limitat).
+- Totes les quotes han de ser modificables en calent pels administradors des de `/admin/plans` (EasyAdmin / Symfony Form).
 
 Aquest model connecta directament l'estat de l'ítem amb el seu cicle de vida i la blockchain.
 

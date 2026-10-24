@@ -38,3 +38,70 @@
     display: none;
   }
 }
+
+@utility no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Avisos Notarials Canònics de Formularis i Vistes (Segons Guia d'Estils web/guia-destils.html) */
+.guide-note,
+.form-note {
+  margin-top: 1rem;
+  padding: 0.875rem 1.15rem;
+  border-left: 3.5px solid var(--color-gold);
+  background: rgba(202, 163, 108, 0.08);
+  border-radius: 4px;
+  font-size: 0.825rem;
+  color: var(--color-ink);
+  line-height: 1.6;
+}
+
+.guide-note strong,
+.form-note strong {
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.guide-note code,
+.form-note code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.75rem;
+  color: var(--color-ink);
+  background: rgba(202, 163, 108, 0.2);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+}
+
+/* Variant sobre fons fosc (per a targetes marí Ink com Garantia Notarial) */
+.guide-note-dark,
+.form-note-dark {
+  margin-top: 1rem;
+  padding: 0.875rem 1.15rem;
+  border-left: 3.5px solid var(--color-gold);
+  background: rgba(202, 163, 108, 0.12);
+  border-radius: 4px;
+  font-size: 0.825rem;
+  color: rgba(250, 246, 240, 0.9);
+  line-height: 1.6;
+}
+
+.guide-note-dark strong,
+.form-note-dark strong {
+  font-weight: 700;
+  color: var(--color-gold);
+}
+
+.guide-note-dark code,
+.form-note-dark code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.75rem;
+  color: var(--color-gold-light);
+  background: rgba(202, 163, 108, 0.25);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+}
+

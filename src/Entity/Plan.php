@@ -52,6 +52,12 @@ class Plan
     #[ORM\Column(type: 'integer', options: ['default' => 4])]
     private int $maxDocumentsPerItem = 4;
 
+    #[ORM\Column(type: 'integer', options: ['default' => 1])]
+    private int $maxPhotosPerItem = 1;
+
+    #[ORM\Column(type: 'integer', options: ['default' => 1])]
+    private int $maxEvidencesPerItem = 1;
+
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
     private bool $isActive = true;
 
@@ -200,6 +206,28 @@ class Plan
     public function setMaxDocumentsPerItem(int $maxDocumentsPerItem): static
     {
         $this->maxDocumentsPerItem = $maxDocumentsPerItem;
+        return $this;
+    }
+
+    public function getMaxPhotosPerItem(): int
+    {
+        return $this->maxPhotosPerItem;
+    }
+
+    public function setMaxPhotosPerItem(int $maxPhotosPerItem): static
+    {
+        $this->maxPhotosPerItem = $maxPhotosPerItem;
+        return $this;
+    }
+
+    public function getMaxEvidencesPerItem(): int
+    {
+        return $this->maxEvidencesPerItem;
+    }
+
+    public function setMaxEvidencesPerItem(int $maxEvidencesPerItem): static
+    {
+        $this->maxEvidencesPerItem = $maxEvidencesPerItem;
         return $this;
     }
 

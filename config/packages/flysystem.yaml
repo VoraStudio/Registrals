@@ -1,0 +1,7 @@
+flysystem:
+    storages:
+        item_document.storage:
+            adapter: 'local'
+            options:
+                directory: '%kernel.project_dir%/var/data/registrals_storage'
+

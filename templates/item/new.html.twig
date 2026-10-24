@@ -1,0 +1,522 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Registrar Nou Bé — Registrals{% endblock %}
+{% block meta_description %}Afegeix un nou bé moble al teu espai segur de custòdia notarial.{% endblock %}
+
+{% block body_class %}bg-cream text-ink min-h-screen flex flex-col justify-between selection:bg-gold selection:text-ink font-raleway{% endblock %}
+
+{% block body %}
+<div class="min-h-screen flex flex-col justify-between bg-cream">
+
+  {# Barra Superior Privada Unificada (Fons Blanc + Línia Tènue + Avatar amb Micro-Badge) #}
+  {% include 'partials/_private_header.html.twig' with { back_to_dashboard: true } %}
+
+  {# Contingut Principal #}
+  <main class="w-full max-w-6xl mx-auto my-auto py-5 sm:py-8 px-4 sm:px-6 lg:px-8 space-y-4 sm:space-y-6">
+
+    {# Capçalera del Bé i CUI Preassignat (Compacta a mòbil) #}
+    <div class="flex items-center justify-between sm:justify-center gap-3 pb-1 sm:pb-2">
+      <div>
+        <h1 class="text-xl sm:text-3xl md:text-4xl font-marcellus text-ink tracking-wide">Registra un Nou Bé</h1>
+        <p class="text-xs text-ink/70 font-raleway hidden sm:block mt-1">
+          Introdueix les dades i proves documentals per immutabilitzar la titularitat notarial.
+        </p>
+      </div>
+
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cream/70 border border-gold/40 text-[11px] sm:text-xs font-mono text-ink shrink-0 shadow-2xs">
+        <span class="w-2 h-2 rounded-full bg-gold animate-pulse"></span>
+        <span>CUI: <strong class="font-bold text-ink">{{ cui }}</strong></span>
+      </div>
+    </div>
+
+    {# Indicador de Passos del Wizard en Mòbil (< lg) #}
+    <div class="lg:hidden bg-white/95 backdrop-blur-xs border border-gold/30 rounded-2xl p-1 flex items-center justify-between text-xs font-semibold shadow-xs">
+      <button type="button" onclick="goToStep(1)" id="step-nav-1" class="flex-1 py-1.5 px-1 rounded-xl text-center transition-all bg-ink text-gold border border-gold/40 font-mono text-[11px] font-bold">
+        1 · Foto
+      </button>
+      <div class="w-1 h-0.5 bg-steel/20"></div>
+      <button type="button" onclick="goToStep(2)" id="step-nav-2" class="flex-1 py-1.5 px-1 rounded-xl text-center transition-all text-ink/60 font-mono text-[11px]">
+        2 · Proves
+      </button>
+      <div class="w-1 h-0.5 bg-steel/20"></div>
+      <button type="button" onclick="goToStep(3)" id="step-nav-3" class="flex-1 py-1.5 px-1 rounded-xl text-center transition-all text-ink/60 font-mono text-[11px]">
+        3 · Dades
+      </button>
+      <div class="w-1 h-0.5 bg-steel/20"></div>
+      <button type="button" onclick="goToStep(4)" id="step-nav-4" class="flex-1 py-1.5 px-1 rounded-xl text-center transition-all text-ink/60 font-mono text-[11px]">
+        4 · Origen
+      </button>
+    </div>
+
+    {# Targeta Patró Clar Notarial (2 Columnes en Desktop / Slider Horitzontal en Mòbil) #}
+    <div class="bg-white/90 backdrop-blur-md border border-gold/40 rounded-3xl p-4 sm:p-7 md:p-9 shadow-2xl shadow-ink/10 relative overflow-hidden text-ink">
+      {# Lluentor daurada superior #}
+      <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent opacity-90"></div>
+
+      <style>
+        @media (min-width: 1024px) {
+          #wizard-track {
+            transform: none !important;
+          }
+        }
+      </style>
+
+      {{ form_start(form, {'attr': {'class': 'space-y-6', 'enctype': 'multipart/form-data', 'id': 'form-item-wizard'}}) }}
+
+        {# Contenidor amb Retall Horitzontal per al Lliscament en Mòbil #}
+        <div class="overflow-hidden w-full">
+
+          {# Track de Lliscament (Flex suau a mòbil / CSS Grid 12 cols a Desktop) #}
+          <div id="wizard-track" class="flex transition-transform duration-300 ease-out lg:grid lg:grid-cols-12 lg:gap-8 lg:translate-x-0 w-full items-start">
+
+            {# ============================================================== #}
+            {# PAS 1: FOTOGRAFIA PRINCIPAL                                    #}
+            {# ============================================================== #}
+            <div id="step-panel-1" class="w-full shrink-0 flex-none space-y-4 px-0.5 lg:w-auto lg:shrink lg:px-0 lg:col-start-1 lg:col-span-5 lg:row-start-1">
+              <div class="flex items-center gap-2.5 pb-2 border-b border-gold/20">
+                <span class="w-6 h-6 rounded-full bg-ink text-gold flex items-center justify-center font-bold text-xs font-mono">1</span>
+                <h2 class="font-marcellus text-base sm:text-lg text-ink">Fotografia Principal</h2>
+              </div>
+
+              {# Marc Càrrega Foto Principal #}
+              <label for="{{ form.primaryPhoto.vars.id }}" class="border-2 border-dashed border-gold/50 hover:border-gold rounded-2xl p-4 sm:p-5 text-center bg-cream/25 hover:bg-cream/45 transition-all flex flex-col justify-between items-center group cursor-pointer focus-within:ring-2 focus-within:ring-gold min-h-[190px] sm:min-h-[220px]">
+                {{ form_widget(form.primaryPhoto) }}
+                <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-cream border border-gold/40 text-gold flex items-center justify-center mb-1 sm:mb-2 group-hover:scale-105 transition-transform">
+                  <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </div>
+                <div class="space-y-0.5">
+                  <div class="text-xs sm:text-sm font-bold text-ink" id="photo-label">Fotografia Principal de l'Objecte</div>
+                  <div class="text-[11px] sm:text-xs text-ink/65">Fes clic o arrossega la imatge</div>
+                </div>
+                <span class="mt-2.5 sm:mt-3 px-3 py-1 bg-ink text-cream text-[10px] sm:text-[11px] font-semibold rounded-lg uppercase tracking-wider group-hover:bg-ink/90 transition-colors">
+                  Seleccionar Imatge
+                </span>
+                {{ form_errors(form.primaryPhoto, {'attr': {'class': 'text-red-600 text-xs mt-2'}}) }}
+              </label>
+
+              {# Botó de navegació Mòbil per al Pas 1 #}
+              <div class="lg:hidden flex items-center justify-between pt-3 border-t border-gold/20">
+                <a href="{{ path('app_dashboard') }}" class="text-xs text-ink/70 hover:text-ink font-semibold">
+                  Cancel·lar
+                </a>
+                <button type="button" onclick="goToStep(2)" class="py-2.5 px-5 rounded-xl bg-ink text-cream text-xs font-bold font-raleway flex items-center gap-1.5 shadow-md">
+                  <span>Següent: Proves</span>
+                  <span class="text-gold">→</span>
+                </button>
+              </div>
+            </div>
+
+            {# ============================================================== #}
+            {# PAS 2: FACTURA O COMPROVANT (PROVES)                           #}
+            {# ============================================================== #}
+            <div id="step-panel-2" class="w-full shrink-0 flex-none space-y-4 px-0.5 lg:w-auto lg:shrink lg:px-0 lg:col-start-1 lg:col-span-5 lg:row-start-2">
+              <div class="flex items-center gap-2.5 pb-2 border-b border-gold/20">
+                <span class="w-6 h-6 rounded-full bg-ink text-gold flex items-center justify-center font-bold text-xs font-mono">2</span>
+                <h2 class="font-marcellus text-base sm:text-lg text-ink">Proves & Comprovants</h2>
+              </div>
+
+              {# Marc Càrrega Factura o Comprovant #}
+              <label for="{{ form.invoiceFile.vars.id }}" class="border-2 border-dashed border-steel/30 hover:border-gold/60 rounded-2xl p-4 sm:p-5 text-center bg-white/50 hover:bg-cream/35 transition-all flex flex-col justify-between items-center group cursor-pointer focus-within:ring-2 focus-within:ring-gold min-h-[160px] sm:min-h-[190px]">
+                {{ form_widget(form.invoiceFile) }}
+                <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-cream border border-steel/40 text-steel flex items-center justify-center mb-1 sm:mb-2 group-hover:scale-105 transition-transform">
+                  <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                </div>
+                <div class="space-y-0.5">
+                  <div class="text-xs sm:text-sm font-bold text-ink" id="invoice-label">Factura, Tiquet o Garantia</div>
+                  <div class="text-[11px] sm:text-xs text-ink/65">Arxiu PDF o foto del comprovant fiscal</div>
+                </div>
+                <span class="mt-2.5 sm:mt-3 px-3 py-1 bg-cream border border-steel/30 text-ink text-[10px] sm:text-[11px] font-semibold rounded-lg uppercase tracking-wider group-hover:bg-cream/80 transition-colors">
+                  Adjuntar Comprovant
+                </span>
+                {{ form_errors(form.invoiceFile, {'attr': {'class': 'text-red-600 text-xs mt-2'}}) }}
+              </label>
+
+              {# Nota d'informació sobre la custòdia (Guia d'Estils) #}
+              <div class="guide-note">
+                <strong>Custòdia Notarial de Proves:</strong> Els fitxers i comprovants es custodien xifrats fora de l'arrel web i vinculats al hash <code>SHA-256</code> mestre del bé.
+              </div>
+
+              {# Botons de navegació Mòbil per al Pas 2 #}
+              <div class="lg:hidden flex items-center justify-between pt-3 border-t border-gold/20">
+                <button type="button" onclick="goToStep(1)" class="py-2.5 px-4 rounded-xl bg-cream border border-steel/30 text-ink text-xs font-semibold">
+                  ← Enrere
+                </button>
+                <button type="button" onclick="goToStep(3)" class="py-2.5 px-5 rounded-xl bg-ink text-cream text-xs font-bold font-raleway flex items-center gap-1.5 shadow-md">
+                  <span>Següent: Dades</span>
+                  <span class="text-gold">→</span>
+                </button>
+              </div>
+            </div>
+
+            {# ============================================================== #}
+            {# PAS 3: IDENTIFICACIÓ DEL BÉ                                    #}
+            {# ============================================================== #}
+            <div id="step-panel-3" class="w-full shrink-0 flex-none space-y-4 px-0.5 lg:w-auto lg:shrink lg:px-0 lg:col-start-6 lg:col-span-7 lg:row-start-1">
+              <div class="flex items-center gap-2.5 pb-2 border-b border-gold/20">
+                <span class="w-6 h-6 rounded-full bg-ink text-gold flex items-center justify-center font-bold text-xs font-mono">3</span>
+                <h2 class="font-marcellus text-base sm:text-lg text-ink">Identificació del Bé</h2>
+              </div>
+
+              <div class="space-y-3.5">
+                {# 1a Fila: Nom o Títol del Bé #}
+                <div>
+                  {{ form_label(form.name, null, {'label_attr': {'class': 'block text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-ink mb-1'}}) }}
+                  {{ form_widget(form.name) }}
+                  {{ form_errors(form.name, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
+                </div>
+
+                {# 2a Fila: Categoria Principal i Subcategoria #}
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <div>
+                    {{ form_label(form.category, null, {'label_attr': {'class': 'block text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-ink mb-1'}}) }}
+                    {{ form_widget(form.category) }}
+                    {{ form_errors(form.category, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
+                  </div>
+                  <div>
+                    {{ form_label(form.subcategory, null, {'label_attr': {'class': 'block text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-ink mb-1'}}) }}
+                    {{ form_widget(form.subcategory) }}
+                    {{ form_errors(form.subcategory, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
+                  </div>
+                </div>
+
+                {# 3a Fila: Marca / Fabricant i Model / Versió #}
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <div>
+                    {{ form_label(form.brand, null, {'label_attr': {'class': 'block text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-ink mb-1'}}) }}
+                    {{ form_widget(form.brand) }}
+                    {{ form_errors(form.brand, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
+                  </div>
+                  <div>
+                    {{ form_label(form.model, null, {'label_attr': {'class': 'block text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-ink mb-1'}}) }}
+                    {{ form_widget(form.model) }}
+                    {{ form_errors(form.model, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
+                  </div>
+                </div>
+
+                {# 4a Fila: Número de Sèrie i Valor Estimat (amb Toggle Progressiu) #}
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 items-end">
+                  <div>
+                    {{ form_label(form.serialNumber, null, {'label_attr': {'class': 'block text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-ink mb-1'}}) }}
+                    {{ form_widget(form.serialNumber) }}
+                    {{ form_errors(form.serialNumber, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
+                  </div>
+
+                  {# Valor Estimat amb Revelació Progressiva #}
+                  <div>
+                    {# Botó inicial si està buit #}
+                    <div id="btn-toggle-declared-value-wrapper">
+                      <button type="button" onclick="showDeclaredValueField()" class="w-full h-[46px] rounded-xl border border-dashed border-steel/40 hover:border-gold bg-cream/25 hover:bg-cream/45 text-xs font-semibold text-ink/80 flex items-center justify-center gap-1.5 transition-all cursor-pointer">
+                        <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                        <span>Vols registrar el valor?</span>
+                      </button>
+                    </div>
+
+                    {# Camp Desplegat #}
+                    <div id="container-declared-value" class="hidden space-y-1">
+                      <div class="flex items-center justify-between">
+                        {{ form_label(form.declaredValueEuros, null, {'label_attr': {'class': 'block text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-ink font-raleway'}}) }}
+                        <button type="button" onclick="hideDeclaredValueField()" class="text-[11px] text-steel hover:text-ink font-semibold">
+                          ✕ Sense valor
+                        </button>
+                      </div>
+                      {{ form_widget(form.declaredValueEuros) }}
+                      {{ form_errors(form.declaredValueEuros, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {# Botons de navegació Mòbil per al Pas 3 #}
+              <div class="lg:hidden flex items-center justify-between pt-3 border-t border-gold/20">
+                <button type="button" onclick="goToStep(2)" class="py-2.5 px-4 rounded-xl bg-cream border border-steel/30 text-ink text-xs font-semibold">
+                  ← Enrere
+                </button>
+                <button type="button" onclick="validateStep3AndNext()" class="py-2.5 px-5 rounded-xl bg-ink text-cream text-xs font-bold font-raleway flex items-center gap-1.5 shadow-md">
+                  <span>Següent: Origen</span>
+                  <span class="text-gold">→</span>
+                </button>
+              </div>
+            </div>
+
+            {# ============================================================== #}
+            {# PAS 4: ORIGEN, TRAÇABILITAT I TANCAMENT                        #}
+            {# ============================================================== #}
+            <div id="step-panel-4" class="w-full shrink-0 flex-none space-y-4 px-0.5 lg:w-auto lg:shrink lg:px-0 lg:col-start-6 lg:col-span-7 lg:row-start-2">
+              <div class="flex items-center gap-2.5 pb-2 border-b border-gold/20">
+                <span class="w-6 h-6 rounded-full bg-ink text-gold flex items-center justify-center font-bold text-xs font-mono">4</span>
+                <h2 class="font-marcellus text-base sm:text-lg text-ink">Origen & Traçabilitat</h2>
+              </div>
+
+              <div class="space-y-3.5">
+                {# 1a Fila: Origen de Propietat i Data d'Adquisició #}
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <div>
+                    {{ form_label(form.acquisitionType, null, {'label_attr': {'class': 'block text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-ink mb-1'}}) }}
+                    {{ form_widget(form.acquisitionType) }}
+                    {{ form_errors(form.acquisitionType, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
+                  </div>
+                  <div>
+                    {{ form_label(form.acquisitionDate, null, {'label_attr': {'class': 'block text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-ink mb-1'}}) }}
+                    {{ form_widget(form.acquisitionDate) }}
+                    {{ form_errors(form.acquisitionDate, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
+                  </div>
+                </div>
+
+                {# 2a Fila: Circumstàncies d'Adquisició / Observacions #}
+                <div>
+                  {{ form_label(form.acquisitionCircumstances, null, {'label_attr': {'class': 'block text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-ink mb-1'}}) }}
+                  {{ form_widget(form.acquisitionCircumstances) }}
+                  {{ form_errors(form.acquisitionCircumstances, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
+                </div>
+
+                {# Avís Notarial de Segellat Inicial (Guia d'Estils) #}
+                <div class="guide-note">
+                  <strong>Segellat Notarial Inicial:</strong> En confirmar l'alta es generarà la versió <code>v1</code> immutable. Qualsevol modificació posterior de fotografies o proves alterarà el hash <code>SHA-256</code> mestre i requerirà un nou ancoratge criptogràfic.
+                </div>
+              </div>
+
+              {# Botons de navegació Mòbil per al Pas 4 (amb Confirmació Final) #}
+              <div class="lg:hidden flex items-center justify-between pt-3 border-t border-gold/20 gap-3">
+                <button type="button" onclick="goToStep(3)" class="py-2.5 px-4 rounded-xl bg-cream border border-steel/30 text-ink text-xs font-semibold shrink-0">
+                  ← Enrere
+                </button>
+                <button type="submit" style="background-color: #1D2F4B; color: #FAF6F0;" class="flex-1 py-3 px-4 rounded-xl shadow-lg hover:bg-ink/90 active:scale-[0.99] font-bold text-xs font-raleway cursor-pointer transition-all flex items-center justify-center gap-2">
+                  <span>Guardar i Registrar</span>
+                  <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        {# Botó d'Acció Final en Escriptori (Visible només a lg:) #}
+        <div class="hidden lg:flex pt-5 border-t border-gold/30 items-center justify-between gap-4">
+          <a href="{{ path('app_dashboard') }}" class="text-xs sm:text-sm text-ink/70 hover:text-ink font-semibold">
+            Cancel·lar i tornar
+          </a>
+
+          <button type="submit" style="background-color: #1D2F4B; color: #FAF6F0;" class="w-auto py-3.5 px-8 rounded-xl shadow-lg hover:bg-ink/90 active:scale-[0.99] font-bold text-sm sm:text-base font-raleway cursor-pointer transition-all flex items-center justify-center gap-2.5">
+            <span>Confirmar i Registrar Bé</span>
+            <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </button>
+        </div>
+
+      {{ form_end(form) }}
+
+    </div>
+
+  </main>
+
+  {# Peu de pàgina discret #}
+  <footer class="w-full max-w-5xl mx-auto py-4 text-center text-xs text-ink/60">
+    <p>&copy; {{ "now"|date("Y") }} Registrals &middot; Custòdia protegida i xifrada en repòs.</p>
+  </footer>
+
+</div>
+
+<script>
+  // Dades estructurades de categories i subcategories des de la base de dades
+  const categoryTree = {
+    {% for cat in categories %}
+      "{{ cat.id }}": [
+        {% for sub in cat.children %}
+          { id: "{{ sub.id }}", name: "{{ sub.name|e('js') }}" },
+        {% endfor %}
+      ],
+    {% endfor %}
+  };
+
+  const catSelect = document.getElementById('{{ form.category.vars.id }}');
+  const subSelect = document.getElementById('{{ form.subcategory.vars.id }}');
+
+  function updateSubcategories() {
+    if (!catSelect || !subSelect) return;
+    const selectedCatId = catSelect.value;
+    const subs = categoryTree[selectedCatId] || [];
+
+    const previousValue = subSelect.value;
+    subSelect.innerHTML = '';
+
+    if (subs.length === 0) {
+      const opt = document.createElement('option');
+      opt.value = '';
+      opt.textContent = 'Sense subcategories específiques';
+      subSelect.appendChild(opt);
+      subSelect.disabled = true;
+      return;
+    }
+
+    subSelect.disabled = false;
+    const defaultOpt = document.createElement('option');
+    defaultOpt.value = '';
+    defaultOpt.textContent = 'Selecciona una subcategoria...';
+    subSelect.appendChild(defaultOpt);
+
+    let hasMatchedPrevious = false;
+    subs.forEach(sub => {
+      const opt = document.createElement('option');
+      opt.value = sub.id;
+      opt.textContent = sub.name;
+      if (previousValue && String(previousValue) === String(sub.id)) {
+        opt.selected = true;
+        hasMatchedPrevious = true;
+      }
+      subSelect.appendChild(opt);
+    });
+
+    if (!hasMatchedPrevious) {
+      defaultOpt.selected = true;
+    }
+  }
+
+  if (catSelect && subSelect) {
+    catSelect.addEventListener('change', updateSubcategories);
+    updateSubcategories();
+  }
+
+  // Feedback dinàmic en triar arxius
+  const primaryInput = document.getElementById('{{ form.primaryPhoto.vars.id }}');
+  if (primaryInput) {
+    primaryInput.addEventListener('change', function() {
+      if (this.files && this.files[0]) {
+        const lbl = document.getElementById('photo-label');
+        if (lbl) {
+          lbl.innerText = '✓ ' + this.files[0].name;
+          lbl.classList.add('text-emerald-700');
+        }
+      }
+    });
+  }
+
+  const invoiceInput = document.getElementById('{{ form.invoiceFile.vars.id }}');
+  if (invoiceInput) {
+    invoiceInput.addEventListener('change', function() {
+      if (this.files && this.files[0]) {
+        const lbl = document.getElementById('invoice-label');
+        if (lbl) {
+          lbl.innerText = '✓ ' + this.files[0].name;
+          lbl.classList.add('text-emerald-700');
+        }
+      }
+    });
+  }
+
+  // ==========================================
+  // Revelació Progressiva del Valor Estimat
+  // ==========================================
+  const declaredValueInput = document.getElementById('{{ form.declaredValueEuros.vars.id }}');
+  const declaredValueContainer = document.getElementById('container-declared-value');
+  const declaredValueToggleWrapper = document.getElementById('btn-toggle-declared-value-wrapper');
+
+  function showDeclaredValueField() {
+    if (declaredValueContainer && declaredValueToggleWrapper) {
+      declaredValueContainer.classList.remove('hidden');
+      declaredValueToggleWrapper.classList.add('hidden');
+      if (declaredValueInput) declaredValueInput.focus();
+    }
+  }
+
+  function hideDeclaredValueField() {
+    if (declaredValueContainer && declaredValueToggleWrapper) {
+      if (declaredValueInput) declaredValueInput.value = '';
+      declaredValueContainer.classList.add('hidden');
+      declaredValueToggleWrapper.classList.remove('hidden');
+    }
+  }
+
+  // Inicialitzar valor estimat si ja conté dades (p.ex. en errors de formulari o edició)
+  if (declaredValueInput && declaredValueInput.value.trim() !== '') {
+    showDeclaredValueField();
+  }
+
+  // ==========================================
+  // Navegació Wizard Pas a Pas en Mòbil (< lg)
+  // ==========================================
+  let currentStep = 1;
+  const nameInput = document.getElementById('{{ form.name.vars.id }}');
+  const wizardTrack = document.getElementById('wizard-track');
+
+  function goToStep(step) {
+    if (window.innerWidth >= 1024) return; // En desktop no apliquem lliscament
+
+    currentStep = Math.max(1, Math.min(4, step));
+
+    if (wizardTrack) {
+      const offsetPercent = (currentStep - 1) * 100;
+      wizardTrack.style.transform = `translateX(-${offsetPercent}%)`;
+    }
+
+    // Actualitzar estils dels indicadors de passos
+    for (let i = 1; i <= 4; i++) {
+      const nav = document.getElementById('step-nav-' + i);
+      if (nav) {
+        if (i === currentStep) {
+          nav.className = 'flex-1 py-1.5 px-1 rounded-xl text-center transition-all bg-ink text-gold border border-gold/40 font-mono text-[11px] font-bold shadow-xs';
+        } else if (i < currentStep) {
+          nav.className = 'flex-1 py-1.5 px-1 rounded-xl text-center transition-all bg-cream/70 text-ink/80 font-mono text-[11px]';
+        } else {
+          nav.className = 'flex-1 py-1.5 px-1 rounded-xl text-center transition-all text-ink/50 font-mono text-[11px]';
+        }
+      }
+    }
+
+    // Ajust suau d'scroll a l'inici del formulari
+    window.scrollTo({ top: 60, behavior: 'smooth' });
+  }
+
+  function validateStep3AndNext() {
+    if (nameInput && !nameInput.value.trim()) {
+      if (window.RegistralsToast) {
+        window.RegistralsToast.show('Nom requerit', 'Indica un nom per al teu bé abans de continuar.', 'error');
+      } else {
+        alert('Si us plau, indica un nom per al teu bé abans de continuar.');
+      }
+      nameInput.focus();
+      return;
+    }
+    goToStep(4);
+  }
+
+  // Gestos tàctils de Swipe Horitzontal en mòbil
+  if (wizardTrack) {
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    wizardTrack.addEventListener('touchstart', function(e) {
+      touchStartX = e.changedTouches[0].screenX;
+      touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+
+    wizardTrack.addEventListener('touchend', function(e) {
+      if (window.innerWidth >= 1024) return;
+      const touchEndX = e.changedTouches[0].screenX;
+      const touchEndY = e.changedTouches[0].screenY;
+      const diffX = touchEndX - touchStartX;
+      const diffY = touchEndY - touchStartY;
+
+      // Detectar swipe horitzontal clar (> 50px)
+      if (Math.abs(diffX) > 50 && Math.abs(diffX) > Math.abs(diffY)) {
+        if (diffX < 0) {
+          // Desplaçament cap a l'esquerra (Següent)
+          if (currentStep === 1) goToStep(2);
+          else if (currentStep === 2) goToStep(3);
+          else if (currentStep === 3) validateStep3AndNext();
+        } else {
+          // Desplaçament cap a la dreta (Enrere)
+          if (currentStep > 1) goToStep(currentStep - 1);
+        }
+      }
+    }, { passive: true });
+  }
+
+  // Restaurar estat en canviar la mida de finestra
+  window.addEventListener('resize', function() {
+    if (window.innerWidth >= 1024) {
+      if (wizardTrack) wizardTrack.style.transform = '';
+    } else {
+      goToStep(currentStep);
+    }
+  });
+</script>
+{% endblock %}

@@ -27,7 +27,8 @@ Per maximitzar la claredat i la solemnitat segons el context d'ús, el sistema d
 1. **Patró Clar (Blanc Cru Tènue):**
    - **Contenidor:** `bg-white/80 backdrop-blur-md border border-gold/40 rounded-3xl shadow-2xl shadow-ink/10 text-ink`.
    - **Distribució:** 2 columnes en desktop (`grid-cols-1 md:grid-cols-2 max-w-4xl`) per aprofitar l'espai horitzontal i evitar talls verticals en pantalla; apilament a 1 columna en mòbil.
-   - **Inputs & Botons:** Camps `bg-white/90 border border-steel/30 text-ink` i botó primari solemníssim `bg-ink text-cream hover:bg-ink/90` amb fletxa `text-gold`.
+   - **Inputs & Botons:** Camps `bg-white/90 border border-steel/30 text-ink text-sm font-raleway` i botó primari solemníssim `bg-ink text-cream hover:bg-ink/90` amb fletxa `text-gold`.
+   - **Camps Monetaris i Unitats:** La unitat (`(€)`) s'indica exclusivament al label (`VALOR ESTIMAT / COMPRA (€)`), mantenint l'interior del camp d'entrada 100% net amb placeholder `0,00` per evitar duplicitats i garantir màxima coherència estètica amb la resta d'inputs.
    - **Cas d'ús principal:** Formulari de registre (`/register`), onboarding d'usuaris i altes patrimonials complexes.
 
 3. **Patró Fosc (Blau Marí Notarial Ink):**
@@ -49,6 +50,13 @@ Per optimitzar el flux recurrent de l'usuari i emular l'estàndard d'experiènci
    - **Usuaris Locals (Contrasenya):** Es mostra el xip d'identitat (*"Hola de nou, Carles"*) amb avatar i correu. El camp de correu queda amagat o bloquejat per centrar el focus exclusivament a introduir la contrasenya en 1 pas.
    - **Usuaris OAuth (Google / Apple):** Es mostra el xip d'identitat i el botó primari esdevé l'acció directa en 1 clic: *"Desbloquejar amb Google"* (sense demanar cap contrasenya local inexistent).
    - **Canvi de compte:** Un botó accessible *"No ets tu? Inicia sessió amb un altre compte"* esborra la memòria del dispositiu i retorna al formulari complet.
+
+### 1.3. Regla Global de Capçaleres (Header Unificat Blanc)
+
+A totes les pantalles de l'aplicació privada (Dashboard, Fitxa de Bé, Formularis d'Alta, etc.), el header es regeix per una estètica neta i institucional:
+- **Fons sempre blanc sòlid (`bg-white` / `bg-whitef`):** Mai fons transparents sobre el crema que puguin provocar col·lisions visuals de text.
+- **Posició:** Fixat a dalt (`sticky top-0 z-50`) amb una línia inferior tènue (`border-b border-steel/20`).
+- **Comportament adaptatiu:** Alçada de 64px (`h-16`) en mòbil amb reducció de mida del logotip i botó compacte *"El meu Patrimoni"*, i alçada de 80px (`h-20`) en tauleta i escriptori.
 
 ## 2. Arquitectura d'Informació i Disseny Adaptatiu (Responsive UX)
 
@@ -117,19 +125,24 @@ Per garantir coherència visual absoluta a tota la plataforma, qualsevol notific
 
 ### 4.2. Formulari de Registre de Bé (Nova Alta)
 
-Dissenyat per eliminar la mandra d'omplir formularis manuals:
+Dissenyat per eliminar la mandra d'omplir formularis manuals i optimitzat per a dispositius mòbils i escriptori:
 
-- **Bloc 1: Prova Visual (Drag & Drop o Càmera Directa):**
-- Marc gran puntejat amb color Steel.
-- Al mòbil, dos botons gegants: **"Fes una foto a l'objecte"** (obre càmera d'entorn) i **"Puja tiquet/factura"** (obre escàner/galeria).
-- **Bloc 2: Dades d'Identificació (Auto-suggerides):**
-- Camps de text nets amb la classe form-input de la guia d'estils.
-- En fer clic o focus, s'activa el contorn daurat característic outline: 2px solid var(--gold).
-- Camps: Nom de l'actiu, Categoria (select), Marca, Model, Número de Sèrie / IMEI / Contrast.
-- **Bloc 3: Justificació d'Origen:**
-- Selector d'origen: *Compra en botiga*, *Segona mà*, *Herència / Donació*, *Creació pròpia*.
-- Si no hi ha factura, camp obert per redactar declaració jurada de circumstàncies.
-- **Acció Final:** Botó de tancament btn-registrals-primary amb text *"Confirmar i Immutabilitzar"*.
+- **Escriptori (`lg:`):** Vista panoràmica de 2 grans columnes (columna esquerra per a proves visuals i documents; columna dreta per a identificació i dades) que aprofita les pantalles amples i evita talls o desplaçaments verticals forçats.
+- **Mòbil (`< lg` — Wizard Pas a Pas de 4 Etapes):** L'experiència mòbil es desglossa en 4 passos seqüencials compactes que ocupen l'alçada útil del dispositiu amb transicions suaus i navegació `Següent →` / `← Enrere`:
+  - **Pas 1 · Fotografia Principal:** Focus exclusiu en la captura fotogràfica de l'objecte o càrrega des de la galeria.
+  - **Pas 2 · Proves & Comprovants:** Càrrega de la factura de compra, tiquet o garantia en PDF/imatge.
+  - **Pas 3 · Identificació del Bé:**
+    - *1a fila:* Nom o títol del bé.
+    - *2a fila:* Categoria principal i Subcategoria específica (filtrada en viu).
+    - *3a fila:* Marca i Model / Versió.
+    - *4a fila:* Número de sèrie / IMEI i Valor estimat (amb mecanisme de revelació progressiva *toggle*).
+  - **Pas 4 · Traçabilitat & Tancament:**
+    - *1a fila:* Origen / transmissió de propietat i Data d'adquisició.
+    - *2a fila:* Circumstàncies d'adquisició / Observacions.
+    - *Botó d'Acció Final:* Botó solemne `bg-ink text-cream` amb fletxa `text-gold` (*"Confirmar i Registrar Bé"*).
+
+- **Mecanisme de Revelació Progressiva del Valor Estimat:**
+  Per defecte, el camp monetari no satura la vista: es mostra un botó discret `+ Indicar valor estimat (opcional)`. En prémer-lo (o si l'assistent IA o l'usuari ja hi han introduït dades), es desplega suau l'input de text amb el placeholder `0,00` i l'opció de tornar-lo a amagar si no es vol declarar cap import.
 
 ### 4.3. Fitxa de Certificat i Pantalla de Verificació Pública (**/verify/{uuid}**)
 

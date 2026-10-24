@@ -6,22 +6,24 @@
 {% block body_class %}bg-cream text-ink min-h-screen flex flex-col justify-between selection:bg-gold selection:text-ink font-raleway{% endblock %}
 
 {% block body %}
-<div class="min-h-screen flex flex-col justify-between py-6 px-4 sm:px-6 lg:px-8 bg-cream">
+<div class="min-h-screen flex flex-col justify-between bg-cream">
 
-  {# Capçalera de navegació #}
-  <header class="w-full max-w-7xl mx-auto flex justify-between items-center py-2">
-    <a href="{{ path('app_home') }}" class="flex items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-gold rounded-xl p-1" aria-label="Tornar a la pàgina d'inici">
-      <img src="{{ asset('img/logos/Isotip/1-transparent.svg') }}" alt="Isotip Registrals" class="w-10 h-10 transition-transform duration-300 group-hover:scale-105" />
-      <span class="font-marcellus tracking-widest uppercase text-xl text-ink font-medium group-hover:text-gold transition-colors">Registrals</span>
-    </a>
-    <a href="{{ path('app_home') }}" class="text-sm text-ink/80 hover:text-ink transition-colors flex items-center gap-1.5 font-medium">
-      <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-      Tornar a l'inici
-    </a>
+  {# Barra Superior Unificada (Fons Blanc + Línia Tènue) #}
+  <header class="border-b border-steel/20 bg-white sticky top-0 z-50 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
+      <a href="{{ path('app_home') }}" class="flex items-center gap-2.5 sm:gap-3.5 group focus:outline-none focus-visible:ring-2 focus-visible:ring-gold rounded-xl p-1" aria-label="Tornar a la pàgina d'inici">
+        <img src="{{ asset('img/logos/Isotip/1-transparent.svg') }}" alt="Isotip Registrals" class="w-8 h-8 sm:w-10 sm:h-10 transition-transform duration-300 group-hover:scale-105" />
+        <span class="font-marcellus tracking-widest uppercase text-lg sm:text-2xl text-ink font-medium group-hover:text-gold transition-colors">Registrals</span>
+      </a>
+      <a href="{{ path('app_home') }}" class="text-xs sm:text-sm text-ink/75 hover:text-ink transition-colors flex items-center gap-1 sm:gap-1.5 font-semibold shrink-0">
+        <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        <span>Tornar a l'inici</span>
+      </a>
+    </div>
   </header>
 
   {# Contingut Principal / Targeta Blau Marí Notarial Fosc amb Ombrejat 80% #}
-  <main class="w-full max-w-md mx-auto my-auto">
+  <main class="w-full max-w-md mx-auto my-auto py-8 px-4 sm:px-6 lg:px-8">
     <div class="bg-ink border border-gold/40 rounded-3xl p-6 sm:p-8 md:p-9 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] relative overflow-hidden text-cream">
       {# Lluentor daurada superior #}
       <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent opacity-90"></div>

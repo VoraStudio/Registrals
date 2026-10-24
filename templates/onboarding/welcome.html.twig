@@ -6,22 +6,24 @@
 {% block body_class %}bg-cream text-ink min-h-screen flex flex-col justify-between selection:bg-gold selection:text-ink font-raleway{% endblock %}
 
 {% block body %}
-<div class="min-h-screen flex flex-col justify-between py-8 px-4 sm:px-6 lg:px-8 bg-cream">
+<div class="min-h-screen flex flex-col justify-between bg-cream">
 
-  {# Capçalera mínima solemne #}
-  <header class="w-full max-w-5xl mx-auto flex justify-between items-center pb-6">
-    <div class="flex items-center gap-3">
-      <img src="{{ asset('img/logos/Isotip/1-transparent.svg') }}" alt="Isotip Registrals" class="w-9 h-9" />
-      <span class="font-marcellus tracking-widest uppercase text-xl text-ink font-medium">Registrals</span>
-    </div>
-    <div class="flex items-center gap-2 text-xs text-steel font-medium">
-      <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-      Compte actiu
+  {# Barra Superior Unificada (Fons Blanc + Línia Tènue) #}
+  <header class="border-b border-steel/20 bg-white sticky top-0 z-50 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
+      <div class="flex items-center gap-2.5 sm:gap-3.5">
+        <img src="{{ asset('img/logos/Isotip/1-transparent.svg') }}" alt="Isotip Registrals" class="w-8 h-8 sm:w-10 sm:h-10" />
+        <span class="font-marcellus tracking-widest uppercase text-lg sm:text-2xl text-ink font-medium">Registrals</span>
+      </div>
+      <div class="flex items-center gap-2 text-xs text-steel font-medium">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        Compte actiu
+      </div>
     </div>
   </header>
 
   {# Contingut Central Onboarding #}
-  <main class="w-full max-w-4xl mx-auto my-auto space-y-8">
+  <main class="w-full max-w-4xl mx-auto my-auto py-8 px-4 sm:px-6 lg:px-8 space-y-8">
     
     {# Banner de Benvinguda Notarial #}
     <div class="text-center space-y-3">

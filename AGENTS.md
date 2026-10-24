@@ -8,6 +8,15 @@ Aquest document estableix les regles d'arquitectura, el stack tecnològic, el si
 - **Nom:** Registrals
 - **Finalitat:** Plataforma privada de referència per al registre, custòdia de proves i emissió de certificats digitals de propietat per a béns mobles (joies, tecnologia, bicicletes, rellotges, art), amb doble capa de certificació: legal (eIDAS via Signaturit) i criptogràfica (Polygon Blockchain Layer 2).
 - **Model de Negoci:** Freemium de custòdia + Pay-per-Value (quotes de béns, certificats oficials, traspassos C2C i assistent d'IA).
+- **Límits de Plans i Parametrització Backoffice (Regla d'Or):**
+  - **Pla Free (actiu per defecte):** Fins a 20 béns actius, 1 fotografia principal i 1 evidència/comprovant documental per bé.
+  - **Pla Plus:** Fins a 100 béns actius, 5 fotografies i 5 evidències/comprovants per bé (parametritzable a Admin).
+  - **Pla Unlimited:** Il·limitat en béns, fotografies i evidències documentals.
+  - **Parametrització en calent:** Tots els límits i quotes no han d'estar mai "hardcodejats" i han de poder-se modificar pels administradors des del panell d'Administració (`/admin/plans`).
+- **Immutabilitat, Canvi de Hash i Cost de Re-segellat (Regla de Seguretat Notarial):**
+  - El fingerprint mestre d'un bé és un hash SHA-256 determinista calculat sobre les seves dades i les fotos/proves associades.
+  - Qualsevol modificació (afegir/eliminar fotografies, reordenar i canviar quina és la foto principal, afegir noves factures o editar camps essencials) **canvia inevitablement el hash SHA-256**.
+  - Aquest canvi crea una nova versió immutable (`v1` -> `v2`) a l'històric d'auditoria (`ItemHistoryLog`) i invalida el segellat anterior fins a un nou ancoratge criptogràfic i legal (amb el seu cost operatiu i de gas/signatura associat). La interfície ha d'advertir-ho amb total solemnitat i claredat.
 
 ---
 
@@ -28,15 +37,31 @@ Aquest document estableix les regles d'arquitectura, el stack tecnològic, el si
 
 ## 3. Sistema de Disseny i Frontend (Guia d'Estils)
 
-- **Font de veritat oficial:** [`web/guia-destils.html`](web/guia-destils.html) (accessible en local a `http://127.0.0.1:8004/guia-destils.html`) i directrius a [`sdd/05-disseny-ui-ux.md`](sdd/05-disseny-ui-ux.md).
+- **Font de veritat oficial:** [`web/guia-destils.html`](web/guia-destils.html) (accessible en local a `http://127.0.0.1:8004/guia-destils.html`), directrius a [`sdd/05-disseny-ui-ux.md`](sdd/05-disseny-ui-ux.md) i arquitectura de pantalles a [`sdd/05-guia-interficies.md`](sdd/05-guia-interficies.md).
 - **Paleta de Colors Corporativa (Estètica Notarial Lluminosa):**
   - *Tinta & Estructura:* **Ink (`#1D2F4B`)** — Blau marí profund/tinta per a capçaleres, tipografia principal i botons primaris solemnes.
   - *Fons Càlids:* **Cream 50 (`#FAF6F0`)** (fons general de lectura del Dashboard), **Cream (`#F1E3D3`)** (elements de suport i pills d'estat), **Whitef (`#FDFDFD`)** (fons de targetes de béns i formularis).
   - *Accents de Segellat:* **Gold (`#CAA36C`)** (indicador de certificació, anells de focus i insígnies de garantia), **Steel (`#6A86A2`)** (textos secundaris, CUI i dates).
   - *Tipografia:* **Marcellus** (serif per a títols solemnes, CUI principal i marca); **Raleway** (sans-serif per a interfície, camps de text i botons); **monospace** per a hashes i claus públiques.
-- **Patrons Duals de Formularis (Living Style Guide):**
-  - *Patró Clar (Blanc Cru Tènue):* Fons `bg-white/80 backdrop-blur-md` amb vora `border-gold/40`, text `text-ink` i botó `bg-ink text-cream`. Dissenyat per a formularis extensos, encolumnats horitzontals (2 columnes en desktop per evitar talls verticals) i processos d'alta/onboarding (`templates/registration/register.html.twig`).
-  - *Patró Fosc (Blau Marí Notarial Ink):* Fons `bg-ink border border-gold/40` amb ombrejat intens del 80% (`shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)]`), text `text-cream`, inputs `bg-white/90` i botó `bg-gold text-ink font-bold`. Utilitzat per a accés privat/login (`templates/security/login.html.twig`), autenticació ràpida i modals solemnes de segellat.
+- **Regla Global de Capçaleres (Headers):** A totes les vistes privades i d'aplicació, el header és **sempre fons blanc sòlid (`bg-white`)**, fixat a la part superior (`sticky top-0 z-50`) i delimitat per una **línia inferior tènue (`border-b border-steel/20`)**, sense fletxes de navegació soltes (el retorn pertany al context intern de cada pàgina o fil d'Ariadna).
+- **Avatar d'Usuari amb Micro-Badge de Pla i Desplegable:**
+  - Avatar a la dreta del header amb micro-badge a la cantonada inferior: `FREE` (fons beix Cream `#F1E3D3`), `PLUS` (fons blau marí Ink `#1D2F4B`), `UNLIMITED` (fons daurat Gold `#CAA36C`).
+  - Desplegable notarial de perfil: dades d'usuari, estat i opcions del pla contractat, manual d'ús ràpid i acció de tancar sessió.
+- **Navegació Dual i Consistència de Sub-barra (PC):**
+  - *En PC:* Header 100% net + Sub-barra superior de pestanyes solemnes (`[ El meu Patrimoni ] [ Certificats ] [ Traspassos ]`). Les accions principals de capçalera sempre se situen a la mateixa posició superior dreta per coherència de memòria muscular (`[+ Nou Bé]` al dashboard vs `[📜 Emetre Certificat] [⇄ Traspassar]` a la fitxa).
+  - *En Mòbil PWA:* Barra inferior d'accions (*Bottom App Bar*) amb acció central `(+) Nou Bé` en mode normal, convertible en *Barra d'Accions per Lot* al Dashboard, i en *Barra Contextual d'Ítem* a la fitxa del bé (`[⬅ Patrimoni]`, `[📜 Certificat]`, `[⇄ Traspàs]`, `[✨ IA (PLUS)]`).
+- **Fitxa del Bé a PC (Graella 2x2 Harmonitzada en 2 Files):** 
+  - *Fila 1 (Superiors igualades en alçada):* Bloc 1 (Especificacions & Identificació) a l'esquerra i Bloc 2 (Galeria Fotogràfica 16:9 amb controls `< >` a la capçalera i peu de custòdia Flysystem) a la dreta.
+  - *Fila 2 (Inferiors al mateix nivell horitzontal):* Bloc 4 (Garantia Notarial Registrals amb Caixa Blava Ink) a l'esquerra i Bloc 3 (Proves Documentals custodiades sota Flysystem) a la dreta, començant exactament a la mateixa alçada.
+  - *Micro-textos d'1 línia:* Capçaleres, píndoles i avisos condensats estrictament a 1 línia sense trencaments ni salts visuals, amb botons nets (`+ Nova Foto`, `+ Nova Prova`).
+- **Fitxa del Bé en Mòbil PWA (Seqüència d'Ús Canònica):** Ordre vertical d'alta llegibilitat: 1. Títol & Identitat (Nom, Categoria, CUI, Estat i Valor Estimat) -> 2. Fotografia Panoràmica 16:9 amb comptador -> 3. Fitxa d'Especificacions -> 4. Proves Documentals -> 5. Garantia Notarial Notarial Ink. Accions principals reubicades a la barra inferior d'accions.
+- **Wizard d'Alta en Mòbil (UX Pas a Pas):** A pantalles petites, l'alta de béns s'executa en 4 etapes atòmiques adaptades a l'alçada del viewport (1. Foto -> 2. Factura/Proves -> 3. Identificació -> 4. Traçabilitat), amb revelació progressiva (*toggle*) per al valor estimat opcional.
+- **Avisos Notarials Canònics als Formularis i Targetes (Regla de Guia d'Estils):**
+  - Tots els missatges d'avís, notes explicatives, advertències legals o de límits de pla han de seguir **estrictament** el patró oficial de la Guia d'Estils (`.guide-note` / `.form-note`):
+    - **Línia d'accent esquerra daurada sòlida:** `border-left: 3.5px solid var(--color-gold)` (`border-l-[3.5px] border-gold`).
+    - **Fons suau i discret:** `rgba(202, 163, 108, 0.08)` sobre superfícies clares / formularis, o `rgba(202, 163, 108, 0.12)` sobre targetes fosques (`.guide-note-dark`).
+    - **Tipografia:** Encapçalament `<strong>` en negreta, text en `Raleway`, i termes/valors tècnics en `<code>` amb fons daurat suau (`rgba(202, 163, 108, 0.2)`).
+    - Mai utilitzar caixes tancades convencionals amb icones soltes d'alerta o vores aleatòries.
 - **Actius:** Logotips i isotips SVG ubicats a `web/img/logos/`. No utilitzar mai imatges genèriques o placeholders temporals.
 
 ---

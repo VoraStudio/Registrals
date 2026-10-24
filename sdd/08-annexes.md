@@ -158,36 +158,25 @@ D'allà se n'extreuen clarament dues fonts de tarifes i models de preu que convi
 #### A. Segons **tarifes.pdf** (Esquema comparatiu de 3 plans)
 
 - **Pla Free (Gratuït):**
-- 
-- **Béns permesos:** Fins a 20 béns.
-- 
-- **Certificats:** Només mode *Esborrany* (*Borrador*).
-- 
-- **Documents per certificat:** Fins a 4 documents.
-- 
-- **Transferències:** Cost per traspàs (apunta a pagament per ús, ex: 2,90 €).
-- 
-- **Identificació:** Nivell simple d'usuari.
-- 
-- **IA per entrar béns:** 0 o molt limitada (1-2 de tast).
-- 
+  - **Béns permesos:** Fins a 20 béns actius.
+  - **Fotos per bé:** 1 fotografia principal de l'objecte.
+  - **Evidències per bé:** 1 prova documental (factura, tiquet o garantia).
+  - **Certificats:** Només mode *Esborrany* (*Borrador*).
+  - **Transferències:** Cost per traspàs (pagament per ús: 2,90 €).
+  - **Identificació:** Nivell simple d'usuari.
+  - **IA per entrar béns:** 1-2 de tast.
+
 - **Pla Plus:**
-- 
-- **Béns permesos:** Fins a 100 béns.
-- 
-- **Certificats:** 10 certificats oficials anuals inclosos.
-- 
-- **Documents per certificat:** Fins a 20 documents.
-- 
-- **Transferències:** 5 anuals incloses (després pagament per ús).
-- 
-- **IA per entrar béns:** 10 consultes/assistències incloses.
-- 
-- **Identificació:** Nivell certificat / KYC.
-- 
+  - **Béns permesos:** Fins a 100 béns actius (parametritzable des de Backoffice).
+  - **Fotos per bé:** Fins a 5 fotografies per bé (galeria d'angles i detalls).
+  - **Evidències per bé:** Fins a 5 proves documentals per bé.
+  - **Certificats:** 10 certificats oficials anuals inclosos.
+  - **Transferències:** 5 anuals incloses (després pagament per ús).
+  - **IA per entrar béns:** 10-50 consultes/assistències incloses.
+  - **Identificació:** Nivell certificat / KYC.
+
 - **Pla Unlimited:**
-- 
-- Volum il·limitat de béns, certificats oficials i transferències, amb màxima cobertura documental i d'IA.
+  - Volum il·limitat de béns actius, fotografies (sense límit) i proves documentals (sense límit), certificats oficials i transferències, amb màxima cobertura documental i d'IA.
 - 
 
 #### B. Segons **RBM (4).xlsx** (Pestanya de Tarifes i Micro-accions)
@@ -231,7 +220,9 @@ En una arquitectura SaaS sòlida desenvolupada amb **Symfony**, aquests valors *
 - 
 - Nombre de crides a l'assistent d'IA local (ai_assistance_quota).
 - 
-- Màxim de documents o fotos per bé (max_documents_per_item).
+- Màxim de fotografies per bé (max_photos_per_item: 1 a Free, 5 a Plus, -1 a Unlimited).
+- 
+- Màxim de proves o evidències per bé (max_evidences_per_item: 1 a Free, 5 a Plus, -1 a Unlimited).
 - 
 - **Preus de les accions soltes (Microtransaccions / Pay-per-use):**
 - 

@@ -419,4 +419,24 @@ class Item
         }
         return null;
     }
+
+    /**
+     * Retorna exclusivament la col·lecció de fotografies (principal i de detall)
+     *
+     * @return Collection<int, ItemDocument>
+     */
+    public function getPhotos(): Collection
+    {
+        return $this->documents->filter(fn(ItemDocument $doc) => $doc->getType()->isPhoto());
+    }
+
+    /**
+     * Retorna exclusivament la col·lecció de proves documentals (factures, garanties, denúncies, etc.)
+     *
+     * @return Collection<int, ItemDocument>
+     */
+    public function getEvidenceDocuments(): Collection
+    {
+        return $this->documents->filter(fn(ItemDocument $doc) => $doc->getType()->isEvidence());
+    }
 }

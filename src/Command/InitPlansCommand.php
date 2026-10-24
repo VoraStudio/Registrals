@@ -43,7 +43,9 @@ class InitPlansCommand extends Command
                 'aiAssistanceQuota' => 2,
                 'transfersIncluded' => 0,
                 'extraTransferPriceCents' => 290,
-                'maxDocumentsPerItem' => 4,
+                'maxDocumentsPerItem' => 2,
+                'maxPhotosPerItem' => 1,
+                'maxEvidencesPerItem' => 1,
             ],
             [
                 'code' => 'plus',
@@ -57,7 +59,9 @@ class InitPlansCommand extends Command
                 'aiAssistanceQuota' => 50,
                 'transfersIncluded' => 5,
                 'extraTransferPriceCents' => 0,
-                'maxDocumentsPerItem' => 20,
+                'maxDocumentsPerItem' => 10,
+                'maxPhotosPerItem' => 5,
+                'maxEvidencesPerItem' => 5,
             ],
             [
                 'code' => 'unlimited',
@@ -71,7 +75,9 @@ class InitPlansCommand extends Command
                 'aiAssistanceQuota' => 9999,
                 'transfersIncluded' => 9999,
                 'extraTransferPriceCents' => 0,
-                'maxDocumentsPerItem' => 50,
+                'maxDocumentsPerItem' => 9999,
+                'maxPhotosPerItem' => 9999,
+                'maxEvidencesPerItem' => 9999,
             ],
         ];
 
@@ -96,6 +102,8 @@ class InitPlansCommand extends Command
                 ->setTransfersIncluded($data['transfersIncluded'])
                 ->setExtraTransferPriceCents($data['extraTransferPriceCents'])
                 ->setMaxDocumentsPerItem($data['maxDocumentsPerItem'])
+                ->setMaxPhotosPerItem($data['maxPhotosPerItem'])
+                ->setMaxEvidencesPerItem($data['maxEvidencesPerItem'])
                 ->setIsActive(true);
         }
 

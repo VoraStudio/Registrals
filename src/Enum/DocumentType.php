@@ -24,4 +24,17 @@ enum DocumentType: string
             self::LEGAL_DECLARATION => 'Declaració jurada o acta notarial',
         };
     }
+
+    public function isPhoto(): bool
+    {
+        return match ($this) {
+            self::PHOTO_PRIMARY, self::PHOTO_DETAIL => true,
+            default => false,
+        };
+    }
+
+    public function isEvidence(): bool
+    {
+        return !$this->isPhoto();
+    }
 }
