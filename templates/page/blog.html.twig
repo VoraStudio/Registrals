@@ -1,0 +1,231 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Blog de Fe Pública Digital & Seguretat — Registrals{% endblock %}
+{% block meta_description %}Articles d'actualitat, consells legals, tecnologia blockchain, eIDAS i bones pràctiques per a la custòdia i protecció del patrimoni moble.{% endblock %}
+
+{% block body_class %}bg-cream text-ink min-h-screen flex flex-col justify-between selection:bg-gold selection:text-ink font-raleway{% endblock %}
+
+{% block body %}
+<div class="min-h-screen flex flex-col justify-between bg-cream">
+
+  {# Header Institucional per a Subpàgines #}
+  {% include 'partials/_public_subpage_header.html.twig' %}
+
+  <main class="w-full flex-1">
+
+    {# Hero Blog #}
+    <section class="bg-ink text-cream py-16 sm:py-20 px-4 sm:px-6 lg:px-8 text-center relative overflow-hidden">
+      <div class="absolute inset-0 bg-radial-at-t from-gold/15 via-transparent to-transparent pointer-events-none"></div>
+      <div class="max-w-4xl mx-auto space-y-4 relative z-10">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cream/10 border border-gold/30 text-gold text-xs font-mono">
+          <span>✍️ Divulgació, Dret & Tecnologia</span>
+        </div>
+        <h1 class="text-3xl sm:text-5xl font-marcellus text-cream tracking-wide leading-tight">
+          El Blog de la Propietat Digital
+        </h1>
+        <p class="text-sm sm:text-base text-cream/80 max-w-2xl mx-auto font-raleway leading-relaxed">
+          Consells pericials, novetats normatives i anàlisi tècnica sobre com custodiar i defensar el teu patrimoni moble.
+        </p>
+      </div>
+    </section>
+
+    {# Contingut del Blog en Caixes Blau Suau (Ink Light #2C4366) #}
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-14 space-y-12">
+
+      {# Filtres / Categories del Blog #}
+      <div class="flex flex-wrap items-center justify-center gap-2.5 text-xs font-semibold">
+        <span class="px-4 py-2 rounded-full bg-ink-light text-gold border border-gold/40 shadow-sm cursor-pointer">
+          Tots els articles
+        </span>
+        <span class="px-4 py-2 rounded-full bg-ink/5 text-ink/75 border border-steel/25 hover:bg-ink-light hover:text-cream hover:border-gold/30 transition-all cursor-pointer">
+          Seguretat & Peritatge
+        </span>
+        <span class="px-4 py-2 rounded-full bg-ink/5 text-ink/75 border border-steel/25 hover:bg-ink-light hover:text-cream hover:border-gold/30 transition-all cursor-pointer">
+          Dret Europeu & eIDAS
+        </span>
+        <span class="px-4 py-2 rounded-full bg-ink/5 text-ink/75 border border-steel/25 hover:bg-ink-light hover:text-cream hover:border-gold/30 transition-all cursor-pointer">
+          Mercat C2C & Traçabilitat
+        </span>
+        <span class="px-4 py-2 rounded-full bg-ink/5 text-ink/75 border border-steel/25 hover:bg-ink-light hover:text-cream hover:border-gold/30 transition-all cursor-pointer">
+          Col·leccionisme
+        </span>
+      </div>
+
+      {# Article Destacat en Gran Format #}
+      <article class="bg-ink-light text-cream rounded-3xl border border-gold/40 shadow-2xl p-8 sm:p-12 relative overflow-hidden transition-all hover:border-gold/60">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+        <div class="absolute -right-16 -bottom-16 w-72 h-72 rounded-full bg-gold/10 blur-3xl pointer-events-none"></div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+          <div class="lg:col-span-8 space-y-4">
+            <div class="flex items-center gap-3 text-xs font-mono text-gold">
+              <span class="px-3 py-1 rounded-full bg-gold/20 border border-gold/30 font-bold uppercase tracking-wider text-[10px]">
+                ★ Article Destacat
+              </span>
+              <span>24 d'octubre de 2026</span>
+              <span class="text-cream/50">&middot;</span>
+              <span class="text-cream/70">8 min de lectura</span>
+            </div>
+
+            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-marcellus text-cream leading-tight">
+              La prova diabòlica en el robatori de joies i bicicletes: com la fe pública digital canvia les regles
+            </h2>
+
+            <p class="text-xs sm:text-sm text-cream/80 font-raleway leading-relaxed max-w-3xl">
+              Als jutjats i comissaries, la càrrega de provar la possessió prèvia d'un objecte moble sovint s'anomena la "prova diabòlica" per la dificultat extrema d'aportar factures datades o certificacions d'autenticitat vàlides. Analitzem com el binomi eIDAS + Blockchain Polygon crea una presumpció jurídica d'exactitud instantània.
+            </p>
+
+            <div class="pt-2 flex items-center gap-4 text-xs font-mono text-cream/70">
+              <span>Per l'Equip Jurídic de Registrals</span>
+              <span class="text-gold/50">&middot;</span>
+              <span class="text-gold font-bold hover:underline cursor-pointer flex items-center gap-1">
+                <span>Llegir article complet</span>
+                <span>→</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="lg:col-span-4 p-6 rounded-2xl bg-cream/5 border border-gold/20 space-y-3 text-xs font-raleway">
+            <span class="text-gold font-mono font-bold block text-sm">Punts Clau de la Guia:</span>
+            <ul class="space-y-2 text-cream/80">
+              <li class="flex items-start gap-2">
+                <span class="text-gold font-bold">1.</span>
+                <span>Per què una foto al mòbil sense hash no constitueix prova plena en un judici.</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-gold font-bold">2.</span>
+                <span>Com el segellat eIDAS inverteix la càrrega de la prova davant l'asseguradora.</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-gold font-bold">3.</span>
+                <span>Protocol d'actuació a comissaria amb el certificat CUI de Registrals.</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      {# Graella de 3 Articles en Caixes Blau Menys Intens (bg-ink-light) #}
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        {# Article 1 #}
+        <article class="bg-ink-light text-cream rounded-3xl border border-gold/40 shadow-xl p-7 sm:p-8 flex flex-col justify-between relative overflow-hidden transition-all hover:scale-[1.01] hover:border-gold/60 group">
+          <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+          
+          <div class="space-y-4">
+            <div class="flex items-center justify-between text-[11px] font-mono">
+              <span class="px-2.5 py-1 rounded-full bg-gold/15 text-gold border border-gold/30 font-bold uppercase tracking-wider text-[10px]">
+                Seguretat
+              </span>
+              <span class="text-cream/60">18 d'octubre 2026</span>
+            </div>
+
+            <h3 class="font-marcellus text-xl text-cream leading-snug group-hover:text-gold-light transition-colors">
+              Com fer fotografies que serveixin com a prova pericial davant la policia
+            </h3>
+
+            <p class="text-xs sm:text-sm text-cream/75 font-raleway leading-relaxed">
+              Consells pràctics sobre il·luminació, números de sèrie gravats, detalls microscòpics i marques singulars per assegurar la fe pública del bé.
+            </p>
+          </div>
+
+          <div class="pt-5 mt-6 border-t border-gold/20 flex items-center justify-between text-xs font-mono">
+            <span class="text-cream/60">5 min de lectura</span>
+            <span class="text-gold font-bold group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+              <span>Llegir article</span>
+              <span>→</span>
+            </span>
+          </div>
+        </article>
+
+        {# Article 2 #}
+        <article class="bg-ink-light text-cream rounded-3xl border border-gold/40 shadow-xl p-7 sm:p-8 flex flex-col justify-between relative overflow-hidden transition-all hover:scale-[1.01] hover:border-gold/60 group">
+          <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+
+          <div class="space-y-4">
+            <div class="flex items-center justify-between text-[11px] font-mono">
+              <span class="px-2.5 py-1 rounded-full bg-gold/15 text-gold border border-gold/30 font-bold uppercase tracking-wider text-[10px]">
+                Dret Europeu
+              </span>
+              <span class="text-cream/60">12 d'octubre 2026</span>
+            </div>
+
+            <h3 class="font-marcellus text-xl text-cream leading-snug group-hover:text-gold-light transition-colors">
+              Què és el segellat de temps qualificat eIDAS i per què té validesa judicial?
+            </h3>
+
+            <p class="text-xs sm:text-sm text-cream/75 font-raleway leading-relaxed">
+              Descobreix com el reglament europeu 910/2014 garanteix que cap jutge pugui rebutjar una prova digital amb data certa certificada.
+            </p>
+          </div>
+
+          <div class="pt-5 mt-6 border-t border-gold/20 flex items-center justify-between text-xs font-mono">
+            <span class="text-cream/60">7 min de lectura</span>
+            <span class="text-gold font-bold group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+              <span>Llegir article</span>
+              <span>→</span>
+            </span>
+          </div>
+        </article>
+
+        {# Article 3 #}
+        <article class="bg-ink-light text-cream rounded-3xl border border-gold/40 shadow-xl p-7 sm:p-8 flex flex-col justify-between relative overflow-hidden transition-all hover:scale-[1.01] hover:border-gold/60 group">
+          <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+
+          <div class="space-y-4">
+            <div class="flex items-center justify-between text-[11px] font-mono">
+              <span class="px-2.5 py-1 rounded-full bg-gold/15 text-gold border border-gold/30 font-bold uppercase tracking-wider text-[10px]">
+                Mercat C2C
+              </span>
+              <span class="text-cream/60">4 d'octubre 2026</span>
+            </div>
+
+            <h3 class="font-marcellus text-xl text-cream leading-snug group-hover:text-gold-light transition-colors">
+              Els 4 paranys més freqüents en la compravenda d'objectes de luxe entre particulars
+            </h3>
+
+            <p class="text-xs sm:text-sm text-cream/75 font-raleway leading-relaxed">
+              Receptació involuntària, falsificacions documentals i com el traspàs digital C2C amb traçabilitat soluciona la desconfiança del mercat.
+            </p>
+          </div>
+
+          <div class="pt-5 mt-6 border-t border-gold/20 flex items-center justify-between text-xs font-mono">
+            <span class="text-cream/60">6 min de lectura</span>
+            <span class="text-gold font-bold group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+              <span>Llegir article</span>
+              <span>→</span>
+            </span>
+          </div>
+        </article>
+
+      </div>
+
+      {# Caixa de Subscripció al Butlletí en Blau Menys Intens #}
+      <section class="bg-ink-light text-cream p-8 sm:p-12 rounded-3xl border border-gold/40 shadow-2xl relative overflow-hidden flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+        <div class="space-y-2 relative z-10 max-w-xl">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cream/10 border border-gold/30 text-gold text-xs font-mono mb-1">
+            <span>📬 Butlletí Notarial</span>
+          </div>
+          <h4 class="font-marcellus text-2xl text-cream font-bold leading-tight">Rep les anàlisis i novetats legals</h4>
+          <p class="text-xs sm:text-sm text-cream/75 font-raleway leading-relaxed">
+            Una publicació mensual amb novetats normatives de la UE, jurisprudència sobre béns mobles i consells de custòdia forense.
+          </p>
+        </div>
+        <div class="w-full sm:w-auto relative z-10 flex flex-col sm:flex-row gap-3">
+          <input type="email" placeholder="el-teu@correu.com" class="px-4 py-3 rounded-xl bg-ink/50 border border-gold/30 text-cream placeholder:text-cream/40 text-xs font-raleway focus:outline-gold w-full sm:w-64">
+          <button type="button" onclick="if (window.RegistralsToast) { window.RegistralsToast.show('Subscripció', 'Gràcies pel teu interès! T\'hem afegit a la llista del butlletí mensual.', 'success', 4000); }" class="px-5 py-3 rounded-xl bg-gold text-ink font-raleway font-bold text-xs uppercase tracking-wider shadow-md hover:bg-gold/90 transition-all shrink-0">
+            Subscriure'm
+          </button>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+  {# Peu de pàgina institucional #}
+  {{ include('page/home/_footer.html.twig') }}
+
+</div>
+{% endblock %}
