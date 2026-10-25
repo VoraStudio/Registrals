@@ -1,0 +1,327 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Gestió d'Usuaris & Auditoria — Administració Registrals{% endblock %}
+
+{% block admin_content %}
+<div class="space-y-6">
+
+  {# Capçalera de Pàgina #}
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="font-marcellus text-2xl sm:text-3xl text-ink tracking-tight font-medium">Gestió d'Usuaris & Auditoria</h1>
+      <p class="font-raleway text-xs sm:text-sm text-ink/70 mt-1">
+        Control de comptes, suspensió administrativa, quotes de servei i traçabilitat.
+      </p>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <span class="text-xs text-ink/65 font-semibold font-mono bg-white border border-steel/25 px-3 py-1.5 rounded-xl shadow-2xs">
+        Total trobats: <strong class="text-ink">{{ totalMatches }}</strong>
+      </span>
+    </div>
+  </div>
+
+  {# Formulari de Filtres i Cerca #}
+  <div class="bg-white rounded-2xl border border-steel/20 p-4 sm:p-5 shadow-xs">
+    <form method="get" action="{{ path('app_admin_users') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4 items-end">
+      
+      {# Cercador de Text #}
+      <div class="sm:col-span-5">
+        <label for="search-input" class="block text-xs font-semibold text-ink/80 mb-1.5 font-raleway">Cerca per Nom, Email o DNI</label>
+        <div class="relative">
+          <input type="text" id="search-input" name="q" value="{{ query }}" placeholder="Ex: Carles, carles@example.com, 12345678Z..."
+                 class="w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white transition-all pl-9" />
+          <svg class="w-4 h-4 text-steel absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        </div>
+      </div>
+
+      {# Filtre per Pla #}
+      <div class="sm:col-span-3">
+        <label for="filter-plan" class="block text-xs font-semibold text-ink/80 mb-1.5 font-raleway">Subscripció / Pla</label>
+        <select id="filter-plan" name="pla" class="w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3 py-2 text-xs sm:text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white transition-all">
+          <option value="">Tots els plans</option>
+          {% for p in plans %}
+            <option value="{{ p.code }}" {{ selectedPlan == p.code ? 'selected' : '' }}>{{ p.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      {# Filtre per Estat #}
+      <div class="sm:col-span-2">
+        <label for="filter-status" class="block text-xs font-semibold text-ink/80 mb-1.5 font-raleway">Estat del Compte</label>
+        <select id="filter-status" name="estat" class="w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3 py-2 text-xs sm:text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white transition-all">
+          <option value="">Tots</option>
+          <option value="active" {{ selectedStatus == 'active' ? 'selected' : '' }}>Actius</option>
+          <option value="blocked" {{ selectedStatus == 'blocked' ? 'selected' : '' }}>Suspesos</option>
+        </select>
+      </div>
+
+      {# Botó d'Acció de Filtrar #}
+      <div class="sm:col-span-2 flex items-center gap-2">
+        <button type="submit" class="w-full bg-ink hover:bg-ink/90 text-gold font-semibold text-xs sm:text-sm py-2 px-4 rounded-xl border border-gold/40 transition-colors shadow-2xs">
+          Filtrar
+        </button>
+        {% if query or selectedPlan or selectedStatus %}
+          <a href="{{ path('app_admin_users') }}" class="p-2 text-steel hover:text-ink hover:bg-cream rounded-xl transition-colors" title="Netejar filtres">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </a>
+        {% endif %}
+      </div>
+
+    </form>
+  </div>
+
+  {# Taula Notarial d'Usuaris #}
+  <div class="bg-white rounded-2xl border border-steel/20 shadow-xs overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse text-xs sm:text-sm">
+        
+        <thead>
+          <tr class="bg-cream-50/80 border-b border-steel/20 text-ink/75 font-raleway font-semibold text-[11px] uppercase tracking-wider">
+            <th scope="col" class="py-3.5 px-4 sm:px-6">Usuari & Identitat</th>
+            <th scope="col" class="py-3.5 px-4">Pla / Subscripció</th>
+            <th scope="col" class="py-3.5 px-4">Béns & IA</th>
+            <th scope="col" class="py-3.5 px-4">Data d'Alta</th>
+            <th scope="col" class="py-3.5 px-4">Estat</th>
+            <th scope="col" class="py-3.5 px-4 sm:px-6 text-right">Accions</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-steel/10 font-raleway">
+          {% for u in users %}
+            <tr class="hover:bg-cream/20 transition-colors {{ not u.isActive ? 'bg-red-50/30' : '' }}">
+              
+              {# Usuari & Identitat #}
+              <td class="py-3.5 px-4 sm:px-6">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-cream border border-gold/40 text-ink flex items-center justify-center font-bold text-xs shrink-0">
+                    {{ u.firstName|first|upper }}{{ u.lastName|first|upper }}
+                  </div>
+                  <div class="min-w-0">
+                    <a href="{{ path('app_admin_user_detail', {id: u.id}) }}" class="font-bold text-ink hover:text-gold transition-colors block truncate">
+                      {{ u.fullName }}
+                      {% if u.isAdmin %}
+                        <span class="ml-1 px-1.5 py-0.2 rounded bg-ink text-gold font-mono text-[9px] font-bold">ADMIN</span>
+                      {% endif %}
+                    </a>
+                    <div class="text-[11px] text-ink/65 truncate">{{ u.email }}</div>
+                    {% if u.taxId %}
+                      <div class="text-[10px] font-mono text-steel">NIF: {{ u.taxId }}</div>
+                    {% endif %}
+                  </div>
+                </div>
+              </td>
+
+              {# Pla #}
+              <td class="py-3.5 px-4">
+                <span class="inline-block px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider {{ u.plan.code == 'plus' ? 'bg-ink text-gold' : (u.plan.code == 'unlimited' ? 'bg-gold text-ink' : 'bg-cream text-steel border border-steel/20') }}">
+                  {{ u.plan.name }}
+                </span>
+                <div class="text-[10px] text-ink/50 mt-0.5">
+                  {{ u.authProvider == 'google' ? 'Google OAuth' : 'Email/Password' }}
+                </div>
+              </td>
+
+              {# Béns & Consums #}
+              <td class="py-3.5 px-4">
+                <div class="text-xs font-semibold text-ink">
+                  {{ u.items|length }} béns
+                </div>
+                <div class="text-[10px] text-ink/60 font-mono">
+                  IA: {{ u.aiUsageCount }} / {{ u.plan.aiAssistanceQuota == -1 ? '∞' : u.plan.aiAssistanceQuota }}
+                </div>
+              </td>
+
+              {# Data #}
+              <td class="py-3.5 px-4 text-xs text-ink/70">
+                <div>{{ u.createdAt|date('d/m/Y') }}</div>
+                <div class="text-[10px] text-ink/50">{{ u.createdAt|date('H:i') }} h</div>
+              </td>
+
+              {# Estat #}
+              <td class="py-3.5 px-4">
+                {% if u.isActive %}
+                  <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    Actiu
+                  </span>
+                {% else %}
+                  <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-100 text-red-800 border border-red-300" title="{{ u.blockReason }}">
+                    <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span>
+                    Suspès
+                  </span>
+                  {% if u.blockedAt %}
+                    <div class="text-[9px] text-red-700 mt-0.5">{{ u.blockedAt|date('d/m/Y') }}</div>
+                  {% endif %}
+                {% endif %}
+              </td>
+
+              {# Accions #}
+              <td class="py-3.5 px-4 sm:px-6 text-right space-x-2">
+                <a href="{{ path('app_admin_user_detail', {id: u.id}) }}" class="inline-block p-1.5 text-steel hover:text-ink hover:bg-cream rounded-lg transition-colors" title="Veure Fitxa & Auditoria">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                </a>
+
+                {% if u != app.user %}
+                  <button type="button" 
+                          data-csrf="{{ csrf_token('toggle_user_status_' ~ u.id) }}"
+                          onclick="openStatusModal({{ u.id }}, '{{ u.fullName|escape('js') }}', '{{ u.email|escape('js') }}', {{ u.isActive ? 'true' : 'false' }}, this.dataset.csrf)"
+                          class="inline-block p-1.5 rounded-lg transition-colors cursor-pointer {{ u.isActive ? 'text-amber-700 hover:bg-amber-50 hover:text-amber-900' : 'text-emerald-700 hover:bg-emerald-50 hover:text-emerald-900' }}" 
+                          title="{{ u.isActive ? 'Suspendre compte d\'usuari' : 'Reactivar compte d\'usuari' }}">
+                    {% if u.isActive %}
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                    {% else %}
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    {% endif %}
+                  </button>
+                {% endif %}
+              </td>
+
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="6" class="py-8 text-center text-ink/60 text-xs italic">
+                No s'ha trobat cap usuari amb els criteris de cerca especificats.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+
+      </table>
+    </div>
+
+    {# Paginació Notarial #}
+    {% if totalPages > 1 %}
+      <div class="px-4 sm:px-6 py-4 border-t border-steel/15 bg-cream-50/50 flex items-center justify-between text-xs font-raleway">
+        <div class="text-ink/65">
+          Pàgina <span class="font-bold text-ink">{{ currentPage }}</span> de <span class="font-bold text-ink">{{ totalPages }}</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          {% if currentPage > 1 %}
+            <a href="{{ path('app_admin_users', {q: query, pla: selectedPlan, estat: selectedStatus, page: currentPage - 1}) }}" 
+               class="px-3 py-1.5 rounded-lg border border-steel/30 bg-white hover:bg-cream text-ink font-semibold transition-colors">
+              &larr; Anterior
+            </a>
+          {% endif %}
+          {% if currentPage < totalPages %}
+            <a href="{{ path('app_admin_users', {q: query, pla: selectedPlan, estat: selectedStatus, page: currentPage + 1}) }}" 
+               class="px-3 py-1.5 rounded-lg border border-steel/30 bg-white hover:bg-cream text-ink font-semibold transition-colors">
+              Següent &rarr;
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+
+  </div>
+
+</div>
+
+{# Modal Notarial de Canvi d'Estat (Regla UI: Mai window.confirm) #}
+<div id="status-modal-backdrop" class="hidden fixed inset-0 z-50 bg-ink/65 backdrop-blur-xs flex items-center justify-center p-4 transition-opacity" role="dialog" aria-modal="true" aria-labelledby="status-modal-title">
+  
+  <div class="bg-white border border-gold/40 rounded-2xl shadow-2xl max-w-md w-full relative overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+    {# Lluentor Superior Daurada #}
+    <div class="h-1 bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+
+    <form id="status-modal-form" method="post" action="">
+      <input type="hidden" name="_csrf_token" id="status-modal-csrf" value="" />
+
+      <div class="p-5 sm:p-6">
+        
+        {# Capçalera #}
+        <div class="flex items-start justify-between gap-3 mb-4">
+          <div class="flex items-center gap-3">
+            <div id="status-modal-icon-container" class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
+              {# Icona dinàmica #}
+            </div>
+            <div>
+              <h3 id="status-modal-title" class="font-marcellus text-lg text-ink font-bold leading-tight"></h3>
+              <p id="status-modal-subtitle" class="font-raleway text-xs text-ink/70 mt-0.5"></p>
+            </div>
+          </div>
+          <button type="button" onclick="closeStatusModal()" class="text-steel hover:text-ink p-1 rounded-lg transition-colors cursor-pointer" aria-label="Tancar">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+
+        {# Advertiment Notarial #}
+        <div id="status-modal-note" class="border-l-[3.5px] border-gold bg-gold/10 p-3.5 rounded-r-xl font-raleway text-xs text-ink/80 mb-4 leading-relaxed">
+          {# Text dinàmic #}
+        </div>
+
+        {# Camp de Motiu (Només quan es vol suspendre) #}
+        <div id="status-modal-reason-group" class="mb-2">
+          <label for="block-reason-input" class="block text-xs font-semibold text-ink/80 mb-1.5 font-raleway">Motiu de la suspensió (visible en auditoria i accés)</label>
+          <input type="text" id="block-reason-input" name="block_reason" value="Incompliment de condicions d'ús / Verificació d'identitat pendent."
+                 class="w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3 py-2 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white transition-all font-raleway" />
+        </div>
+
+      </div>
+
+      {# Botoier Notarial d'Acció #}
+      <div class="px-5 sm:px-6 py-3.5 bg-cream-50/60 border-t border-steel/15 flex items-center justify-end gap-2.5">
+        <button type="button" onclick="closeStatusModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-ink bg-cream hover:bg-cream/80 transition-colors cursor-pointer">
+          Cancel·lar
+        </button>
+        <button type="submit" id="status-modal-submit-btn" class="px-4 py-2 rounded-xl text-xs font-semibold text-white transition-colors shadow-xs cursor-pointer">
+          Confirmar
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
+<script>
+  function openStatusModal(userId, fullName, email, isCurrentlyActive, csrfToken) {
+    const backdrop = document.getElementById('status-modal-backdrop');
+    const form = document.getElementById('status-modal-form');
+    const title = document.getElementById('status-modal-title');
+    const subtitle = document.getElementById('status-modal-subtitle');
+    const note = document.getElementById('status-modal-note');
+    const reasonGroup = document.getElementById('status-modal-reason-group');
+    const submitBtn = document.getElementById('status-modal-submit-btn');
+    const iconContainer = document.getElementById('status-modal-icon-container');
+
+    form.action = '/admin/usuaris/' + userId + '/toggle-status';
+    document.getElementById('status-modal-csrf').value = csrfToken;
+
+    if (isCurrentlyActive) {
+      title.textContent = 'Suspendre Compte d\'Usuari';
+      subtitle.textContent = fullName + ' (' + email + ')';
+      note.innerHTML = '<strong>Atenció Notarial:</strong> En suspendre aquest compte, l\'usuari no podrà iniciar sessió ni emetre certificats de béns. Les proves custodiades a Flysystem romandran bloquejades i inalterables.';
+      reasonGroup.classList.remove('hidden');
+      submitBtn.textContent = 'Suspendre Compte';
+      submitBtn.className = 'px-4 py-2 rounded-xl text-xs font-semibold text-white bg-red-700 hover:bg-red-800 transition-colors shadow-xs cursor-pointer';
+      iconContainer.className = 'w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-red-100 text-red-700';
+      iconContainer.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>';
+    } else {
+      title.textContent = 'Reactivar Compte d\'Usuari';
+      subtitle.textContent = fullName + ' (' + email + ')';
+      note.innerHTML = '<strong>Garantia de Reactivació:</strong> El compte recuperarà l\'accés complet a la plataforma, al seu patrimoni i a les quotes del seu pla contractat.';
+      reasonGroup.classList.add('hidden');
+      submitBtn.textContent = 'Reactivar Compte';
+      submitBtn.className = 'px-4 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 transition-colors shadow-xs cursor-pointer';
+      iconContainer.className = 'w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-emerald-100 text-emerald-700';
+      iconContainer.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+    }
+
+    backdrop.classList.remove('hidden');
+  }
+
+  function closeStatusModal() {
+    const backdrop = document.getElementById('status-modal-backdrop');
+    if (backdrop) backdrop.classList.add('hidden');
+  }
+
+  // Tancar amb tecla ESC o clic exterior
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeStatusModal();
+  });
+  document.getElementById('status-modal-backdrop')?.addEventListener('click', function(e) {
+    if (e.target === this) closeStatusModal();
+  });
+</script>
+{% endblock %}

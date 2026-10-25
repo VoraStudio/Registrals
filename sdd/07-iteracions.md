@@ -16,10 +16,20 @@ Cada subiteració segueix un flux d'enginyeria estricte:
 
 ## Estat del Desenvolupament
 
-- [x] **Iteració 0: Landing Page Corporativa** *(Tancada)*
-  - Header amb navegació responsive, menú mòbil i accés d'usuaris.
-  - Seccions Hero amb vídeo de fons, pilars de valor, carrusel de passos i footer amb enllaços Vora Data & Studio.
-  - Guia d'estils viva creada a [`web/guia-destils.html`](../web/guia-destils.html).
+- [x] **Iteració 0: Landing Page Corporativa & Arquitectura Institucional** *(100% Completada)*
+  - [x] **Subiteració 0.1: Landing Page Corporativa** *(Tancada)*
+    - Header amb navegació responsive, menú mòbil i accés d'usuaris.
+    - Seccions Hero amb vídeo de fons, pilars de valor, carrusel de passos i footer amb enllaços Vora Data & Studio.
+    - Guia d'estils viva creada a [`web/guia-destils.html`](../web/guia-destils.html).
+  - [x] **Subiteració 0.2: Arquitectura Institucional, Caixa Final de 4 Columnes & Estilització de Subpàgines** *(100% Completada)*
+    - [x] **Peu de Pàgina Institucional («Caixa Final»):** reestructuració estandarditzada en 4 columnes canòniques (*Producte*, *Aplicació*, *Sobre nosaltres* i *Comunitat* amb xarxes LinkedIn/Instagram i newsletter).
+    - [x] **Header Públic Unificat:** component [`templates/partials/_public_subpage_header.html.twig`](../templates/partials/_public_subpage_header.html.twig) amb navegació institucional i icona d'accés d'usuari idèntica a la de la portada.
+    - [x] **Pàgina `/producte`:** explicació de l'aplicació, *Què és Registrals*, *Propòsit*, *Què ens diferencia* i *Plataformes*, unificada en caixes blaves notarials (`bg-ink`) solemnes amb rivets daurats.
+    - [x] **Pàgina `/sobre-nosaltres`:** *Qui som?*, manifest fundacional de Vora Data & Studio, 4 Compromisos Innegociables en graella 2x2 i Caixa 03 d'Aliances destacada en daurat corporatiu (`bg-gold text-ink`).
+    - [x] **Pàgina `/histories`:** recuperació de les 5 històries reals de custòdia de `../Prototip-3` adaptades a la nova Guia d'Estils notarial amb fotografies patrimonials.
+    - [x] **Pàgina `/premsa`:** sala de comunicació amb atenció directa (Albert), espais preparats per a enllaços d'aparicions als mitjans, Kit Oficial de Marca (Press Kit amb descàrrega directa de SVG) i comunicats oficials, intercalant els dos tons de blau (`bg-ink` i `bg-ink-light`).
+    - [x] **Pàgina `/blog`:** revista de fe pública digital i seguretat amb filtre per categories, article destacat gran, graella d'articles en blau suau (`bg-ink-light`) i caixa de Butlletí Notarial en daurat (`bg-gold text-ink`).
+    - [x] **Pàgina `/contacte`:** atenció directa amb columna esquerra neta i transparent (sense caixes artificials), i formulari dret en caixa blava notarial (`bg-ink`) amb els mateixos camps estructurats que el formulari de la Landing (Nom, Correu, Assumpte, Missatge i Checkbox RGPD).
 
 ---
 
@@ -47,7 +57,16 @@ Cada subiteració segueix un flux d'enginyeria estricte:
 - [x] **Subiteració 1.4: Onboarding de Benvinguda i Àrea Privada Inicial**
   - [x] Selector de pla per defecte (Pla Free assignat automàticament, Plus i Unlimited deshabilitats amb Toast informatiu).
   - [x] Pàgina de benvinguda (`/onboarding/welcome`) i redirecció al Dashboard privat (`/app/dashboard`) amb estat buit elegant.
-  - [x] Validació HITL completa de la Iteració 1.
+  - [x] Validació HITL completa de l'Onboarding.
+- [x] **Subiteració 1.5: Gestió del Perfil d'Usuari i Panell "El meu Pla i Quotes"** *(Completada)*
+  - [x] Pàgina de Perfil d'Usuari (`/app/profile`): dades personals (nom, cognoms, email, NIF/CIF fiscal, telèfon amb migració a `users`), canvi segur de contrasenya (o delegació transparent a Google OAuth2) i targeta de credencial notarial.
+  - [x] Pàgina "El meu Pla i Quotes" (`/app/plan`): estat del pla contractat, comptador visual de consum en calent (béns registrats, fotos, consultes d'IA consumides, certificats emesos), renovació anual, comparador notarial dels 3 plans i Modal Notarial de sol·licitud d'upgrade.
+  - [x] Enllaços directes des del desplegable notarial de l'avatar d'usuari (`partials/_private_header.html.twig`).
+- [x] **Subiteració 1.6: PWA & Guia Dual d'Instal·lació de l'App Mòbil (`/profile/install-app`)** *(Completada)*
+  - [x] Manifest oficial PWA (`web/manifest.json`) amb icones corporatives, `theme_color: #1D2F4B` i `display: standalone`.
+  - [x] Nova pàgina `/profile/install-app`: experiència dual amb Codi QR dinàmic en directe per a PC (captura amb càmera) i instruccions visuals pas a pas per a iOS (Safari) i Android (Chrome).
+  - [x] Suport actiu de l'API `beforeinstallprompt` a mòbil amb botó directe d'instal·lació.
+  - [x] Nova entrada al desplegable del Header privat i targeta d'acció a la pàgina de Perfil.
 
 ---
 
@@ -82,17 +101,33 @@ Cada subiteració segueix un flux d'enginyeria estricte:
 ### Iteració 3: Integració de Serveis Locals (Assistent d'IA amb SGLang + Qwen VL)
 **Objectiu:** Automatització de la captura de dades i OCR de tiquets mitjançant el model de visió local.
 
-- [ ] **Subiteració 3.1: Infraestructura de Cues Asíncrones (Symfony Messenger)**
-  - [ ] Transport de cues `async_ai` emmagatzemat a MySQL (`doctrine://default`).
-  - [ ] Missatge `AnalyzeItemMediaMessage` i handler associat.
-- [ ] **Subiteració 3.2: Client d'Inferència Local `SglangVisionClient`**
-  - [ ] Client HTTP cap al servei local SGLang a `http://127.0.0.1:30000/v1` (format OpenAI Chat Completions amb Structured Outputs JSON).
-  - [ ] DTO d'extracció estructurada (marca, model, número de sèrie, import de factura, NIF i data).
-- [ ] **Subiteració 3.3: Interfície d'Usuari Assistida per IA al Wizard**
-  - [ ] Càrrega ràpida de fitxer al Pas 1 amb anàlisi de fons i auto-omplert automàtic de camps al Pas 2.
-  - [ ] Indicadors visuals de confiança per a les dades deduïdes per la IA.
+- [x] **Subiteració 3.1: Infraestructura de Cues Asíncrones (Symfony Messenger)**
+  - [x] Transport de cues `async_ai` configurat sobre MySQL (`doctrine://default?queue_name=async_ai`).
+  - [x] Missatge `AnalyzeItemMediaMessage` i handler associat `AnalyzeItemMediaMessageHandler`.
+  - [x] Camp `aiExtractedData` (JSON) afegit a l'entitat `Item` amb migració executada i schema sincronitzat.
+- [x] **Subiteració 3.2: Client d'Inferència Local `SglangVisionClient`**
+  - [x] Variables d'entorn `SGLANG_API_BASE_URL` (`http://192.168.1.195:30000/v1`) i `SGLANG_MODEL_NAME` a `.env` i `.env.local`.
+  - [x] Interfície `AiVisionAnalyzerInterface` i adaptador `SglangVisionClient` amb Structured Outputs JSON i prompts especialitzats per a fotos i factures.
+  - [x] DTO `AiVisionExtractionDto` per normalitzar la resposta de visió i OCR.
+- [x] **Subiteració 3.3: Endpoint AJAX i Interfície d'Usuari Assistida per IA al Wizard**
+  - [x] Endpoint `POST /app/items/analyze-media` per a inferència síncrona ràpida des del navegador amb mapatge automàtic de categoria.
+  - [x] Interacció al Pas 1 (Foto): estat visual d'anàlisi notarial ("Assistent d'IA SGLang") i auto-completat de dades del Pas 3 (Nom, Categoria, Marca, Model).
+  - [x] Interacció al Pas 2 (Factura): OCR d'import i data d'adquisició per auto-omplir Pas 3 (Valor estimat amb toggle) i Pas 4 (Data d'adquisició).
+  - [x] Indicadors visuals notarials daurats (*"ring-gold"* temporal) i notificacions Toast d'èxit o avís transparent.
 - [ ] **Subiteració 3.4: Verificació & Validació HITL**
-  - [ ] Validació d'anàlisi d'un tiquet/foto real amb el model local i revisió de camps auto-omplerts.
+  - [ ] Prova d'anàlisi real d'imatge i document amb el node SGLang i comprovació dels camps al Wizard.
+- [x] **Subiteració 3.5: Marc Legal i Transparència d'IA Sobirana Local (AI Act & RGPD)**
+  - [x] Pàgina de Transparència d'IA Sobirana (`/legal/ia-sobirana`): documentació pública de l'aïllament en node privat SGLang propi, garantia de no transferència de dades a tercers i compromís de no re-entrenament.
+  - [x] Governança i principi Human-in-the-Loop (Art. 22 RGPD): la IA és estrictament eina d'assistència tècnica d'OCR/visió; la decisió i validació jurídica pertany exclusivament a l'usuari humà ("Dades validades pel titular").
+  - [x] Traçabilitat d'auditoria: registre forense de model utilitzat, certesa i resposta en brut a la base de dades per a integritat legal.
+- [x] **Subiteració 3.6: Protecció Anti-Frau Documental, C2PA, Preservació d'EXIF, Bloqueig Notarial i Pont QR**
+  - [x] Filtre C2PA immediat: detecció i rebuig instantani d'imatges amb manifestos de generadors d'IA (Google Media Processing, DALL-E, Firefly, Midjourney) via lectura de metadades.
+  - [x] Pipeline d'ingestió fotogràfica amb redimensionat segur: extracció i persistència forense de l'EXIF complet a `ItemDocument::$aiMetadata` abans d'escalar la imatge a 2048px WebP per a Flysystem (evitant fitxers massius de 48MP sense perdre valor probatori).
+  - [x] Pont QR per a PC (Mobile Handoff): generació de QR temporal (10 min) al Wizard d'escriptori per capturar fotos en directe amb la càmera del mòbil i sincronització automàtica al formulari del PC (`/handoff/{token}`).
+  - [x] Regles de validació creuada de tiquets: comprovació matemàtica (Base + IVA = Total) i validació de dígit de control de NIF/CIF.
+  - [x] Bloqueig Notarial del Botó "Guardar Bé": el botó final de submissió roman deshabilitat fins que totes les fotos i proves adjuntades superin amb èxit les guàrdies d'integritat (C2PA net, dimensions congruents i sense discrepàncies crítiques), acompanyat d'un indicador visual d'estat de validació.
+  - [x] Arquitectura de càrrega mòbil W3C & Càmera Directa: refactorització dels marcs de Pas 1 i Pas 2 de `<label>` a `<div>` neutre amb disparador per maquinari (`capture="environment"`), evitant que el nou Android Photo Picker (Google) bloquegi o amagui la càmera en viu.
+  - [x] Barra de passos Wizard 1-4 compacta en 1 línia: aplicació de `whitespace-nowrap`, tipografia proporcional de lectura i separadors subtils de 1px a l'indicador de passos a mòbil, eliminant salts de línia a `2 · Proves` i `4 · Origen`.
 
 ---
 
@@ -151,11 +186,12 @@ Cada subiteració segueix un flux d'enginyeria estricte:
 ### Iteració 7: Panell d'Administració (Backoffice) i Facturació
 **Objectiu:** Control global de negoci, administració d'usuaris, parametrització de tarifes i passarel·la de pagament.
 
-- [ ] **Subiteració 7.1: Panell d'Administració Backoffice (`/admin`)**
-  - [ ] Dashboard de control amb KPIs globals (usuaris actius, béns registrats, certificats emesos).
-  - [ ] Gestió d'usuaris (activació, bloqueig i auditoria).
+- [x] **Subiteració 7.1: Panell d'Administració Backoffice (`/admin`)**
+  - [x] Dashboard de control amb KPIs globals (usuaris actius, béns registrats, certificats emesos).
+  - [x] Gestió d'usuaris (activació, bloqueig i auditoria).
 - [ ] **Subiteració 7.2: Mòdul de Parametrització de Plans, Tarifes i Àmbit Geogràfic**
-  - [ ] Formulari d'edició en calent dels paràmetres de cada pla des de Backoffice: màxim de béns actius (Free: 20, Plus: 100, Unlimited: -1 il·limitat), límit de fotografies per bé (Free: 1, Plus: 5, Unlimited: -1 il·limitat), límit de proves/evidències per bé (Free: 1, Plus: 5, Unlimited: -1 il·limitat), quotes de certificats oficials i assistència d'IA.
+  - [ ] Formulari d'edició en calent dels paràmetres de cada pla des de Backoffice: màxim de béns actius (Free: 20, Plus: 100, Unlimited: -1 il·limitat), límit de fotografies per bé (Free: 1, Plus: 5, Unlimited: -1 il·limitat), límit de proves/evidències per bé (Free: 1, Plus: 5, Unlimited: -1 il·limitat), quotes de certificats oficials i assistència d'IA (Free: 20, Plus: 100, Unlimited: 9.999).
+  - [ ] Interruptor global i per pla per activar o desactivar l'ús d'Assistència d'IA en calent (Feature Toggle d'IA des de Backoffice), amb gestió de quotes i consums per usuari.
   - [ ] Parametrització geogràfica i monetària: abast operatiu inicial centrat a la Unió Europea (EUR); selecció i acotament de països admesos al registre de plans Plus i Unlimited amb moneda ISO associada gestionable des de Backoffice.
 - [ ] **Subiteració 7.3: Passarel·la de Pagament (Stripe)**
   - [ ] Checkout per a subscripcions anuals (Pla Plus i Unlimited).
@@ -165,15 +201,38 @@ Cada subiteració segueix un flux d'enginyeria estricte:
 
 ---
 
+### Iteració 8: Marc Legal Notarial, Privacitat RGPD i Manual d'Ús Interactiu
+**Objectiu:** Blindatge jurídic de la plataforma, compliment integral del RGPD/LSSI/AI Act i formació guiada del titular.
+
+- [ ] **Subiteració 8.1: Condicions Generals del Servei Notarial Digital (`/legal/condicions`)**
+  - [ ] Marc contractual de custòdia de proves digitals i emissió de certificats de propietat de béns mobles.
+  - [ ] Clàusules solemnes d'immutabilitat, canvi de hash SHA-256 davant modificacions i cost de re-segellat.
+  - [ ] Règim de responsabilitat del titular en la declaració de béns i proves adjuntades.
+  - [ ] Finestra modal notarial de lectura i consentiment exprés al registre (`/register`) i onboarding social OAuth2.
+  - [ ] Persistència forense d'acceptació a la BDD (taula `users`): camps `legalTermsAcceptedAt`, `privacyAcceptedAt`, `legalTermsVersion` i `registrationIp` per a validesa jurídica davant tercers.
+- [ ] **Subiteració 8.2: Política de Privadesa i Protecció de Dades RGPD (`/legal/privadesa`)**
+  - [ ] Protocol de custòdia d'arxius privats fora de l'arrel web amb lliurament controlat via Flysystem i ItemVoter.
+  - [ ] Exercici de drets ARCO/POL (accés, rectificació, supressió, limitació i portabilitat).
+  - [ ] Política de galetes (gestió de la galeta tècnica segura de dispositiu `reg_device_user`).
+- [ ] **Subiteració 8.3: Guia d'Ús Notarial i Manual Interactiu del Titular (`/manual` o `/ajuda`)**
+  - [ ] Manual pràctic interactiu pas a pas: com preparar fotografies probatòries nítides, requisits de factures i tiquets, emetre certificats oficials i flux de traspàs C2C.
+  - [ ] Accés directe des del desplegable d'usuari i des del peu de pàgina de l'aplicació.
+- [ ] **Subiteració 8.4: Verificació & Validació HITL**
+  - [ ] Auditoria de navegabilitat de totes les pàgines legals i manual al navegador.
+  - [ ] Validació del bloqueig de registre sense acceptació i comprovació dels registres d'auditoria d'acceptació a MySQL.
+
+---
+
 ## Taula Resum d'Iteracions i Estat
 
 | Macro-Iteració | Subiteracions | Dependències Clau | Estat |
 | :--- | :--- | :--- | :--- |
 | **Iteració 0** | Landing Page Corporativa | Twig, Tailwind, Guia d'Estils | **100% Completada** |
-| **Iteració 1** | 1.1 Model & Persistència <br> 1.2 Auth Nativa <br> 1.3 OAuth2 & Cookie <br> 1.4 Onboarding & Dashboard | Symfony Security, MySQL 8.4, Docker | **Subiteracions 1.1 i 1.2 Fetes (50%)** |
-| **Iteració 2** | 2.1 Model Ítems <br> 2.2 CUI & Flysystem <br> 2.3 Wizard & Dashboard <br> 2.4 Validació HITL | Flysystem, Symfony Voters, Twig | Pendent |
-| **Iteració 3** | 3.1 Messenger Cues <br> 3.2 SGLang Client <br> 3.3 UI Assistència IA <br> 3.4 Validació HITL | SGLang, Qwen VL local, Messenger | Pendent |
+| **Iteració 1** | 1.1 Model & Persistència <br> 1.2 Auth Nativa <br> 1.3 OAuth2 & Cookie <br> 1.4 Onboarding <br> 1.5 Perfil d'Usuari & El meu Pla <br> 1.6 PWA & Instal·lació App Mòbil | Symfony Security, MySQL 8.4, Docker | **100% Completada** |
+| **Iteració 2** | 2.1 Model Ítems <br> 2.2 CUI & Flysystem <br> 2.3 Wizard & Dashboard <br> 2.4 Validació HITL | Flysystem, Symfony Voters, Twig | **100% Completada** |
+| **Iteració 3** | 3.1 Messenger Cues <br> 3.2 SGLang Client <br> 3.3 UI Assistència IA <br> 3.4 Validació HITL <br> 3.5 Transparència IA Sobirana <br> 3.6 Anti-Frau C2PA, EXIF & QR | SGLang, Qwen VL local, Messenger | **Subiteracions 3.1, 3.2, 3.3, 3.5 i 3.6 Fetes (90%)** |
 | **Iteració 4** | 4.1 Model Blockchain <br> 4.2 Càlcul Hash & RPC <br> 4.3 Cua & UI Insígnia <br> 4.4 Validació HITL | Polygon/Base RPC, SHA-256 | Pendent |
 | **Iteració 5** | 5.1 Model Certificats <br> 5.2 Motor PDF Vectorial <br> 5.3 eIDAS Signaturit & QR <br> 5.4 Validació HITL | KnpSnappy/Chromium, Signaturit API | Pendent |
 | **Iteració 6** | 6.1 Model Traspassos <br> 6.2 Symfony Workflow <br> 6.3 UI Traspàs Notarial <br> 6.4 Validació HITL | Symfony Workflow, Mailer | Pendent |
 | **Iteració 7** | 7.1 Backoffice Admin <br> 7.2 Editor de Plans <br> 7.3 Passarel·la Stripe <br> 7.4 Validació HITL MVP | EasyAdmin/Custom, Stripe API | Pendent |
+| **Iteració 8** | 8.1 Condicions Legals <br> 8.2 Privadesa RGPD <br> 8.3 Guia d'Ús i Manual <br> 8.4 Validació HITL | Twig, Guia d'Estils, Marc Normatiu | Pendent |

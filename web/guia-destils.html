@@ -821,6 +821,7 @@
       <a href="#navigation"><span class="num">07</span> Capçalera & Menú</a>
       <a href="#identity"><span class="num">08</span> Identitat de Marca</a>
       <a href="#animations"><span class="num">09</span> Animacions & GSAP</a>
+      <a href="#modals"><span class="num">10</span> Modals & Diàlegs</a>
     </nav>
 
     <div class="guide-sidebar-footer">
@@ -1404,11 +1405,121 @@
           Quan el visitant supera la secció Hero (monitorat via <code>IntersectionObserver</code>), la capçalera adquireix l'atribut <code>data-past-hero</code>: el pill canvia el fons a <code>bg-ink</code>, el text passa a <code>text-cream</code> i el botó superior d'accés s'amaga de forma fluida.
         </p>
       </div>
+    <!-- 10 MODALS & DIÀLEGS NOTARIALS -->
+    <section id="modals" class="guide-section">
+      <div class="guide-section-head">
+        <span class="guide-section-num">10</span>
+        <h2 class="guide-h2">Modals & Diàlegs Notarials de Confirmació</h2>
+      </div>
+      <p class="guide-sub">
+        Patró institucional canònic per a decisions solemnes, advertències de concordança i desvinculació de proves, eliminant per complet els diàlegs natius del navegador.
+      </p>
+
+      <div class="guide-card">
+        <h3 class="guide-h3">1. Prova Interactiva de Modal Notarial</h3>
+        <p style="font-size: 0.95rem; color: var(--ink); line-height: 1.6; margin-bottom: 1.5rem;">
+          Clica per obrir el modal i comprovar la lluentor superior daurada, el desenfocament de fons (<code>backdrop-blur</code>) i la interacció amb <code>ESC</code> o clic exterior:
+        </p>
+
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+          <button type="button" class="btn-registrals-primary" onclick="openDemoModal('confirm')">
+            ⚖️ Modal Solemne (Segellat / Traspàs)
+          </button>
+          <button type="button" class="btn-registrals-cream" style="border-color: rgba(220, 38, 38, 0.4); color: #991b1b;" onclick="openDemoModal('destructive')">
+            ⚠️ Modal de Discrepància / Desvinculació
+          </button>
+        </div>
+
+        <div class="guide-note" style="margin-top: 2rem;">
+          <strong>Regla de Disseny Notarial:</strong> Cap decisió crítica (baixa patrimonial, desvinculació de factura o canvi de titularitat) pot emprar <code>window.confirm()</code>. L'anatomia obligatòria inclou: fons blanc amb vora daurada (<code>border-gold/40</code>), lluentor superior daurada, titular en <code>Marcellus</code>, cos en <code>Raleway</code> i botoier alineat a la dreta amb acció secundària en Cream.
+        </div>
+      </div>
     </section>
 
   </main>
 
+  <!-- Modal Notarial de Mostra (Demo) -->
+  <div id="demo-notarial-modal" style="display: none; position: fixed; inset: 0; z-index: 999; background: rgba(29, 47, 75, 0.65); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 1rem;">
+    <div style="background: var(--whitef); border: 1px solid rgba(202, 163, 108, 0.4); border-radius: 20px; box-shadow: 0 25px 60px -15px rgba(0,0,0,0.4); max-width: 480px; width: 100%; position: relative; overflow: hidden; padding: 1.75rem;">
+      <!-- Lluentor daurada superior -->
+      <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, transparent, var(--gold), transparent);"></div>
+      
+      <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1rem;">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <div id="demo-modal-icon-container" style="width: 36px; height: 36px; border-radius: 10px; background: rgba(202, 163, 108, 0.15); display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+            ⚖️
+          </div>
+          <h3 id="demo-modal-title" style="font-family: var(--font-marcellus); font-size: 1.35rem; color: var(--ink);">Confirmació Notarial</h3>
+        </div>
+        <button type="button" onclick="closeDemoModal()" style="background: transparent; border: none; font-size: 1.2rem; color: var(--steel); cursor: pointer; padding: 0.25rem;">✕</button>
+      </div>
+
+      <p id="demo-modal-body" style="font-size: 0.95rem; color: var(--ink); opacity: 0.85; line-height: 1.6; margin-bottom: 1.25rem;">
+        Es procedirà a registrar una nova versió immutable del bé sota custòdia amb el corresponent hash criptogràfic SHA-256.
+      </p>
+
+      <div id="demo-modal-note" class="guide-note" style="margin-top: 0; margin-bottom: 1.5rem; font-size: 0.82rem;">
+        <strong>Avís Notarial:</strong> Aquesta acció generarà un nou assentament immutable a l'històric d'auditoria.
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button type="button" class="btn-registrals-cream" style="padding: 0.5rem 1.25rem; font-size: 0.88rem;" onclick="closeDemoModal()">Cancel·lar</button>
+        <button id="demo-modal-action-btn" type="button" class="btn-registrals-primary" style="padding: 0.5rem 1.4rem; font-size: 0.88rem;" onclick="closeDemoModal()">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
   <script>
+    // Demo del Modal Notarial
+    const demoModal = document.getElementById('demo-notarial-modal');
+    function openDemoModal(type) {
+      if (!demoModal) return;
+      const title = document.getElementById('demo-modal-title');
+      const body = document.getElementById('demo-modal-body');
+      const note = document.getElementById('demo-modal-note');
+      const icon = document.getElementById('demo-modal-icon-container');
+      const actionBtn = document.getElementById('demo-modal-action-btn');
+
+      if (type === 'destructive') {
+        icon.innerHTML = '⚠️';
+        icon.style.background = 'rgba(220, 38, 38, 0.12)';
+        title.innerText = 'Desvincular Document de Prova';
+        body.innerText = 'L\'assistent d\'IA ha detectat que aquest document sembla no correspondre al bé catalogat. Si el desvincules, el fitxer s\'esborrarà del formulari.';
+        note.innerHTML = '<strong>Atenció:</strong> Sempre pots tornar a adjuntar el document correcte o continuar sense comprovant inicial.';
+        actionBtn.innerText = 'Desvincular Document';
+        actionBtn.className = 'btn-registrals-cream';
+        actionBtn.style.background = '#dc2626';
+        actionBtn.style.borderColor = '#dc2626';
+        actionBtn.style.color = '#ffffff';
+      } else {
+        icon.innerHTML = '⚖️';
+        icon.style.background = 'rgba(202, 163, 108, 0.15)';
+        title.innerText = 'Confirmació Notarial de Segellat';
+        body.innerText = 'Es procedirà a registrar una nova versió immutable del bé sota custòdia amb el corresponent hash criptogràfic SHA-256 a Polygon.';
+        note.innerHTML = '<strong>Avís Notarial:</strong> Aquesta acció generarà un nou assentament immutable a l\'històric d\'auditoria.';
+        actionBtn.innerText = 'Confirmar Segellat';
+        actionBtn.className = 'btn-registrals-primary';
+        actionBtn.style.background = 'var(--ink)';
+        actionBtn.style.color = 'var(--cream)';
+      }
+
+      demoModal.style.display = 'flex';
+    }
+
+    function closeDemoModal() {
+      if (demoModal) demoModal.style.display = 'none';
+    }
+
+    // Tancament amb ESC o clic exterior
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeDemoModal();
+    });
+    if (demoModal) {
+      demoModal.addEventListener('click', (e) => {
+        if (e.target === demoModal) closeDemoModal();
+      });
+    }
+
     // Interacció de la demo del Pill i el botó hamburguesa
     const demoPill = document.getElementById('demo-nav-pill');
     const demoToggle = document.getElementById('demo-toggle-btn');

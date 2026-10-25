@@ -102,6 +102,26 @@ Per garantir coherència visual absoluta a tota la plataforma, qualsevol notific
   - `error`: Icona d'alerta `text-red-400`.
 - **API JavaScript Universal:** Accessible globalment mitjançant `window.RegistralsToast.show(message, type = 'info', durationMs = 4000)`.
 
+### 3.4. Modals i Diàlegs Notarials de Decisió Solemne (`.notarial-modal`)
+
+Per mantenir la solemnitat jurídica i evitar trencaments d'experiència d'usuari:
+- **Prohibició de diàlegs natius:** Queda expressament prohibit l'ús de `window.confirm()` o `window.alert()` del navegador per a qualsevol flux del sistema.
+- **Anatomia Estàndard del Modal Notarial:**
+  - **Backdrop Solemne:** `fixed inset-0 z-50 bg-ink/65 backdrop-blur-xs flex items-center justify-center p-4 transition-opacity`.
+  - **Superfície Notarial:** `bg-white rounded-2xl border border-gold/40 shadow-2xl max-w-md w-full p-5 sm:p-6 text-ink relative overflow-hidden`.
+  - **Lluentor Notarial Superior:** Línia subtil de gradient daurat `absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent`.
+  - **Capçalera:** Icona notarial (`text-gold` en confirmacions solemnes o `text-red-700` en accions destructives), títol en `font-marcellus text-lg text-ink`, i botó `✕` net a la cantonada superior dreta.
+  - **Cos:** Text explicatiu en `font-raleway text-xs sm:text-sm text-ink/80 leading-relaxed`. Si hi ha un advertiment legal o discrepància tècnica, s'incrusta un avís canònic `.guide-note`.
+  - **Botoier Inferior (Dual Action):**
+    - Botó Secundari: `[ Cancel·lar ]` (`bg-cream hover:bg-cream/80 text-ink text-xs font-semibold px-4 py-2 rounded-xl transition-all`).
+    - Botó Primari / Decisió: `[ Confirmar ]` (`bg-ink hover:bg-ink/90 text-gold font-bold text-xs px-4 py-2 rounded-xl border border-gold/40 shadow-sm transition-all`) o `[ Desvincular / Eliminar ]` (`bg-red-700 hover:bg-red-800 text-white font-bold text-xs px-4 py-2 rounded-xl shadow-sm transition-all`).
+  - **Accessibilitat:** Tancament amb la tecla `ESC`, tancament en clicar sobre el fons (*backdrop click*) i restauració del focus a l'element d'origen.
+- **Casos d'Ús Canònics:**
+  1. *Desvinculació o substitució de documents de prova quan la IA o l'usuari detecten discrepàncies.*
+  2. *Baixa definitiva o arxiu d'un bé del patrimoni actiu.*
+  3. *Re-segellat notarial davant l'edició essencial de dades que altera el hash SHA-256 mestre.*
+  4. *Traspàs de titularitat C2C i emissió de certificats oficials eIDAS.*
+
 ## 4. Disseny Detallat de les Pantalles Clau
 
 ### 4.1. Dashboard Principal ("El meu Patrimoni")
@@ -129,8 +149,9 @@ Dissenyat per eliminar la mandra d'omplir formularis manuals i optimitzat per a 
 
 - **Escriptori (`lg:`):** Vista panoràmica de 2 grans columnes (columna esquerra per a proves visuals i documents; columna dreta per a identificació i dades) que aprofita les pantalles amples i evita talls o desplaçaments verticals forçats.
 - **Mòbil (`< lg` — Wizard Pas a Pas de 4 Etapes):** L'experiència mòbil es desglossa en 4 passos seqüencials compactes que ocupen l'alçada útil del dispositiu amb transicions suaus i navegació `Següent →` / `← Enrere`:
-  - **Pas 1 · Fotografia Principal:** Focus exclusiu en la captura fotogràfica de l'objecte o càrrega des de la galeria.
-  - **Pas 2 · Proves & Comprovants:** Càrrega de la factura de compra, tiquet o garantia en PDF/imatge.
+  - **Indicador de Passos en 1 Línia Estricta:** Barra superior de píndola notarial de 4 etapes (`1 · Foto`, `2 · Proves`, `3 · Dades`, `4 · Origen`) amb `whitespace-nowrap`, tipografia proporcional de lectura (`font-raleway text-[10.5px] sm:text-xs`) i separadors verticals fins de `1px`. Garanteix que cap pas trenqui mai en dues línies a cap amplada de pantalla mòbil (fins i tot 320px).
+  - **Pas 1 · Fotografia Principal:** Focus exclusiu en la captura fotogràfica de l'objecte. Marc `<div>` conforme a l'estàndard W3C (sense `<label>` embolcallant botons) amb doble acció nativa: `📸 Obrir Càmera del Mòbil` (via `accept="image/*" capture="environment"` directe per evitar que el nou Photo Picker d'Android 13+ amagui la càmera) i `🖼️ Triar de la Galeria`.
+  - **Pas 2 · Proves & Comprovants:** Càrrega de la factura de compra, tiquet o garantia en PDF o imatge. Marc `<div>` amb doble acció mòbil (`Fotografiar Tiquet` i `PDF o Galeria`), anàlisi OCR d'IA en fons i previsualització de custòdia.
   - **Pas 3 · Identificació del Bé:**
     - *1a fila:* Nom o títol del bé.
     - *2a fila:* Categoria principal i Subcategoria específica (filtrada en viu).

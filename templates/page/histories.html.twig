@@ -1,0 +1,383 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Històries Reals de Protecció de Béns — Registrals{% endblock %}
+{% block meta_description %}Casos reals on la custòdia notarial de Registrals ha permès recuperar objectes sostrets, cobrar indemnitzacions d'assegurances i resoldre herències pacíficament.{% endblock %}
+
+{% block body_class %}bg-cream text-ink min-h-screen flex flex-col justify-between selection:bg-gold selection:text-ink font-raleway{% endblock %}
+
+{% block body %}
+<div class="min-h-screen flex flex-col justify-between bg-cream">
+
+  {# Header Institucional per a Subpàgines #}
+  {% include 'partials/_public_subpage_header.html.twig' %}
+
+  <main class="w-full flex-1">
+
+    {# Hero Històries #}
+    <section class="bg-ink text-cream py-14 sm:py-18 px-4 sm:px-6 lg:px-8 text-center relative overflow-hidden">
+      <div class="max-w-4xl mx-auto space-y-3 relative z-10">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cream/10 border border-gold/30 text-gold text-xs font-mono">
+          <span>📜 Casos d'Ús Reals</span>
+        </div>
+        <h1 class="text-3xl sm:text-5xl font-marcellus text-cream tracking-wide leading-tight">
+          Històries de Propietat Protegida
+        </h1>
+        <p class="text-sm sm:text-base text-cream/80 max-w-2xl mx-auto font-raleway leading-relaxed">
+          Com la fe pública digital i la custòdia forense de proves resolen problemes reals del dia a dia.
+        </p>
+      </div>
+    </section>
+
+    {# Llistat de les 5 Històries en Graella Harmonitzada amb Còmic Il·lustrat #}
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+
+      {# Història 1: La bicicleta robada #}
+      <article class="bg-white rounded-3xl border border-gold/40 shadow-xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 transition-all hover:shadow-2xl">
+        <div class="lg:col-span-6 bg-ink p-6 sm:p-8 text-cream flex flex-col justify-between relative overflow-hidden">
+          <div class="space-y-2 relative z-10">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-1 rounded-full bg-gold/20 text-gold text-[10px] font-mono font-bold uppercase tracking-wider">Mobilitat Urbana</span>
+              <span class="text-[11px] text-cream/70 font-mono">CUI: REG-2026-B871X2</span>
+            </div>
+            <h2 class="text-xl sm:text-2xl font-marcellus text-cream leading-tight">La bicicleta que va tornar a casa</h2>
+          </div>
+
+          {# Imatge del Còmic Il·lustrat #}
+          <div class="my-5 rounded-2xl overflow-hidden border border-gold/30 bg-white shadow-md relative group cursor-pointer aspect-[3/2] flex items-center justify-center" onclick="openComicModal('{{ asset('img/histories/historia1.jpeg') }}', 'Història 1: La bicicleta que va tornar a casa')">
+            <img src="{{ asset('img/histories/historia1.jpeg') }}" 
+                 alt="Tira còmica: La bicicleta que va tornar a casa" 
+                 class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
+                 loading="eager">
+            <div class="absolute inset-0 bg-ink/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <span class="px-3 py-1.5 rounded-full bg-ink/85 text-gold text-xs font-mono border border-gold/40 backdrop-blur-xs flex items-center gap-1.5 shadow-lg">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg>
+                Ampliar còmic
+              </span>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-gold/20 flex items-center justify-between relative z-10 text-xs">
+            <span class="text-emerald-400 font-bold flex items-center gap-1.5">
+              <span>✓</span> Prova davant la policia
+            </span>
+            <span class="text-cream/60 font-mono text-[10px]">9 vinyetes</span>
+          </div>
+        </div>
+
+        <div class="lg:col-span-6 p-6 sm:p-8 flex flex-col justify-between space-y-4 text-xs font-raleway bg-white">
+          <div class="space-y-4 leading-relaxed text-ink/80 text-sm">
+            <p>
+              En Marc va patir el robatori de la seva bicicleta de carretera d'alta gamma mentre era a la terrassa d'un cafè. En denunciar els fets a comissaria, la majoria de denúncies queden arxivades per manca de dades precises.
+            </p>
+            <p>
+              Gràcies al registre previ a Registrals, en Marc va aportar a l'instant el <strong>Certificat Digital Notarial</strong> amb el número de quadre encunyat, fotografies d'alta resolució dels components específics i el segell eIDAS.
+            </p>
+            <div class="guide-note p-3.5 text-xs leading-relaxed">
+              <strong>El desenllaç:</strong> Tres setmanes després, els Mossos d'Esquadra van interceptar un magatzem de material sostret. En confrontar el número de sèrie amb el certificat de titularitat d'en Marc, la bicicleta li va ser retornada immediatament sense cap discrepància.
+            </div>
+          </div>
+          <div class="pt-4 border-t border-steel/15 flex items-center justify-between text-xs text-steel">
+            <span>Certificació eIDAS + Polygon L2</span>
+            <span class="font-mono text-ink font-semibold">100% resolt</span>
+          </div>
+        </div>
+      </article>
+
+      {# Història 2: Les joies familiars i l'assegurança #}
+      <article class="bg-white rounded-3xl border border-gold/40 shadow-xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 transition-all hover:shadow-2xl">
+        <div class="lg:col-span-6 bg-ink p-6 sm:p-8 text-cream flex flex-col justify-between relative overflow-hidden">
+          <div class="space-y-2 relative z-10">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-1 rounded-full bg-gold/20 text-gold text-[10px] font-mono font-bold uppercase tracking-wider">Joieria & Valor Sentimental</span>
+              <span class="text-[11px] text-cream/70 font-mono">CUI: REG-2026-J449Y8</span>
+            </div>
+            <h2 class="text-xl sm:text-2xl font-marcellus text-cream leading-tight">Les joies de la família</h2>
+          </div>
+
+          {# Imatge del Còmic Il·lustrat #}
+          <div class="my-5 rounded-2xl overflow-hidden border border-gold/30 bg-white shadow-md relative group cursor-pointer aspect-[3/2] flex items-center justify-center" onclick="openComicModal('{{ asset('img/histories/historia2.jpeg') }}', 'Història 2: Les joies de la família')">
+            <img src="{{ asset('img/histories/historia2.jpeg') }}" 
+                 alt="Tira còmica: Les joies de la família" 
+                 class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
+                 loading="eager">
+            <div class="absolute inset-0 bg-ink/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <span class="px-3 py-1.5 rounded-full bg-ink/85 text-gold text-xs font-mono border border-gold/40 backdrop-blur-xs flex items-center gap-1.5 shadow-lg">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg>
+                Ampliar còmic
+              </span>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-gold/20 flex items-center justify-between relative z-10 text-xs">
+            <span class="text-emerald-400 font-bold flex items-center gap-1.5">
+              <span>✓</span> Indemnització del 100%
+            </span>
+            <span class="text-cream/60 font-mono text-[10px]">9 vinyetes</span>
+          </div>
+        </div>
+
+        <div class="lg:col-span-6 p-6 sm:p-8 flex flex-col justify-between space-y-4 text-xs font-raleway bg-white">
+          <div class="space-y-4 leading-relaxed text-ink/80 text-sm">
+            <p>
+              Després d'un assalt a la vivenda de la família Soler, diverses peces de joieria heretades de generacions anteriors van desaparèixer. Les asseguradores solen rebutjar o reduir dràsticament les indemnitzacions per falta de factures recents.
+            </p>
+            <p>
+              La família havia custodiat a Registrals fotografies detallades dels encunyats d'orfebreria, certificat de taxació pericial d'un joier i declaració de possessió datada criptogràficament amb anterioritat al sinistre.
+            </p>
+            <div class="guide-note p-3.5 text-xs leading-relaxed">
+              <strong>El desenllaç:</strong> L'auditor de la companyia asseguradora va acceptar el paquet probatori de Registrals com a evidència d'existència indiscutible, aprovant la indemnització màxima de la pòlissa sense judicis ni retards.
+            </div>
+          </div>
+          <div class="pt-4 border-t border-steel/15 flex items-center justify-between text-xs text-steel">
+            <span>Peritatge & Taxació Notarial</span>
+            <span class="font-mono text-ink font-semibold">Sinistre cobert</span>
+          </div>
+        </div>
+      </article>
+
+      {# Història 3: Herència pacífica i transparent #}
+      <article class="bg-white rounded-3xl border border-gold/40 shadow-xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 transition-all hover:shadow-2xl">
+        <div class="lg:col-span-6 bg-ink p-6 sm:p-8 text-cream flex flex-col justify-between relative overflow-hidden">
+          <div class="space-y-2 relative z-10">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-1 rounded-full bg-gold/20 text-gold text-[10px] font-mono font-bold uppercase tracking-wider">Successió & Patrimoni</span>
+              <span class="text-[11px] text-cream/70 font-mono">CUI: REG-2026-H102K3</span>
+            </div>
+            <h2 class="text-xl sm:text-2xl font-marcellus text-cream leading-tight">Un repartiment just i pacífic</h2>
+          </div>
+
+          {# Imatge del Còmic Il·lustrat #}
+          <div class="my-5 rounded-2xl overflow-hidden border border-gold/30 bg-white shadow-md relative group cursor-pointer aspect-[3/2] flex items-center justify-center" onclick="openComicModal('{{ asset('img/histories/historia3.jpeg') }}', 'Història 3: Un repartiment just i pacífic')">
+            <img src="{{ asset('img/histories/historia3.jpeg') }}" 
+                 alt="Tira còmica: Un repartiment just i pacífic" 
+                 class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
+                 loading="eager">
+            <div class="absolute inset-0 bg-ink/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <span class="px-3 py-1.5 rounded-full bg-ink/85 text-gold text-xs font-mono border border-gold/40 backdrop-blur-xs flex items-center gap-1.5 shadow-lg">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg>
+                Ampliar còmic
+              </span>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-gold/20 flex items-center justify-between relative z-10 text-xs">
+            <span class="text-emerald-400 font-bold flex items-center gap-1.5">
+              <span>✓</span> Zero conflictes familiars
+            </span>
+            <span class="text-cream/60 font-mono text-[10px]">9 vinyetes</span>
+          </div>
+        </div>
+
+        <div class="lg:col-span-6 p-6 sm:p-8 flex flex-col justify-between space-y-4 text-xs font-raleway bg-white">
+          <div class="space-y-4 leading-relaxed text-ink/80 text-sm">
+            <p>
+              L'Antoni va voler deixar ordenat el seu patrimoni de col·leccionista (rellotges històrics, instruments musicals i quadres) abans de faltar. Sovint, el repartiment de béns mobles entre hereus és motiu de tensions i malentesos.
+            </p>
+            <p>
+              Va crear un inventari digital a Registrals assignant un certificat individualitzat a cada peça, amb les seves circumstàncies d'adquisició i valor aproximat validat.
+            </p>
+            <div class="guide-note p-3.5 text-xs leading-relaxed">
+              <strong>El desenllaç:</strong> A l'obertura del testament, els tres fills van accedir a l'inventari auditat. El traspàs digital dels béns es va fer mitjançant el flux C2C de Registrals en menys de 48 hores, amb total concòrdia i transparència.
+            </div>
+          </div>
+          <div class="pt-4 border-t border-steel/15 flex items-center justify-between text-xs text-steel">
+            <span>Inventari Notariat & Traspàs C2C</span>
+            <span class="font-mono text-ink font-semibold">Concòrdia total</span>
+          </div>
+        </div>
+      </article>
+
+      {# Història 4: Segona mà amb garantia d'origen #}
+      <article class="bg-white rounded-3xl border border-gold/40 shadow-xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 transition-all hover:shadow-2xl">
+        <div class="lg:col-span-6 bg-ink p-6 sm:p-8 text-cream flex flex-col justify-between relative overflow-hidden">
+          <div class="space-y-2 relative z-10">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-1 rounded-full bg-gold/20 text-gold text-[10px] font-mono font-bold uppercase tracking-wider">Mercat C2C</span>
+              <span class="text-[11px] text-cream/70 font-mono">CUI: REG-2026-C552M9</span>
+            </div>
+            <h2 class="text-xl sm:text-2xl font-marcellus text-cream leading-tight">Segona mà sense sospites</h2>
+          </div>
+
+          {# Imatge del Còmic Il·lustrat #}
+          <div class="my-5 rounded-2xl overflow-hidden border border-gold/30 bg-white shadow-md relative group cursor-pointer aspect-[3/2] flex items-center justify-center" onclick="openComicModal('{{ asset('img/histories/historia4.jpeg') }}', 'Història 4: Segona mà sense sospites')">
+            <img src="{{ asset('img/histories/historia4.jpeg') }}" 
+                 alt="Tira còmica: Segona mà sense sospites" 
+                 class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
+                 loading="eager">
+            <div class="absolute inset-0 bg-ink/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <span class="px-3 py-1.5 rounded-full bg-ink/85 text-gold text-xs font-mono border border-gold/40 backdrop-blur-xs flex items-center gap-1.5 shadow-lg">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg>
+                Ampliar còmic
+              </span>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-gold/20 flex items-center justify-between relative z-10 text-xs">
+            <span class="text-emerald-400 font-bold flex items-center gap-1.5">
+              <span>✓</span> Traçabilitat transferida
+            </span>
+            <span class="text-cream/60 font-mono text-[10px]">9 vinyetes</span>
+          </div>
+        </div>
+
+        <div class="lg:col-span-6 p-6 sm:p-8 flex flex-col justify-between space-y-4 text-xs font-raleway bg-white">
+          <div class="space-y-4 leading-relaxed text-ink/80 text-sm">
+            <p>
+              La Laura venia la seva càmera fotogràfica professional d'ocasió a través d'una plataforma d'anuncis. El comprador potencial dubtava de la procedència legítima de l'aparell per por que fos una unitat robada.
+            </p>
+            <p>
+              La Laura li va enviar l'enllaç de verificació pública de Registrals (<code>/verify/{uuid}</code>). El comprador va poder comprovar en viu que la càmera portava dos anys registrada per la mateixa titular, sense alertes de robatori i amb factura de compra custodiada.
+            </p>
+            <div class="guide-note p-3.5 text-xs leading-relaxed">
+              <strong>El desenllaç:</strong> La compravenda es va tancar a l'acte pel preu desitjat. En el mateix moment del pagament, la Laura va executar el traspàs digital C2C a Registrals, transmetent la titularitat i el certificat al nou propietari.
+            </div>
+          </div>
+          <div class="pt-4 border-t border-steel/15 flex items-center justify-between text-xs text-steel">
+            <span>Passaport Digital del Producte</span>
+            <span class="font-mono text-ink font-semibold">Traspàs C2C immediat</span>
+          </div>
+        </div>
+      </article>
+
+      {# Història 5: El panell de patrimoni personal #}
+      <article class="bg-white rounded-3xl border border-gold/40 shadow-xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 transition-all hover:shadow-2xl">
+        <div class="lg:col-span-6 bg-ink p-6 sm:p-8 text-cream flex flex-col justify-between relative overflow-hidden">
+          <div class="space-y-2 relative z-10">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-1 rounded-full bg-gold/20 text-gold text-[10px] font-mono font-bold uppercase tracking-wider">Tranquil·litat Personal</span>
+              <span class="text-[11px] text-cream/70 font-mono">CUI: REG-2026-P881Z1</span>
+            </div>
+            <h2 class="text-xl sm:text-2xl font-marcellus text-cream leading-tight">El teu patrimoni sota control</h2>
+          </div>
+
+          {# Imatge del Còmic Il·lustrat #}
+          <div class="my-5 rounded-2xl overflow-hidden border border-gold/30 bg-white shadow-md relative group cursor-pointer aspect-[3/2] flex items-center justify-center" onclick="openComicModal('{{ asset('img/histories/historia5.jpeg') }}', 'Història 5: El teu patrimoni sota control')">
+            <img src="{{ asset('img/histories/historia5.jpeg') }}" 
+                 alt="Infografia: El teu patrimoni sota control" 
+                 class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
+                 loading="eager">
+            <div class="absolute inset-0 bg-ink/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <span class="px-3 py-1.5 rounded-full bg-ink/85 text-gold text-xs font-mono border border-gold/40 backdrop-blur-xs flex items-center gap-1.5 shadow-lg">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg>
+                Ampliar infografia
+              </span>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-gold/20 flex items-center justify-between relative z-10 text-xs">
+            <span class="text-emerald-400 font-bold flex items-center gap-1.5">
+              <span>✓</span> Custòdia 24/7
+            </span>
+            <span class="text-cream/60 font-mono text-[10px]">Infografia</span>
+          </div>
+        </div>
+
+        <div class="lg:col-span-6 p-6 sm:p-8 flex flex-col justify-between space-y-4 text-xs font-raleway bg-white">
+          <div class="space-y-4 leading-relaxed text-ink/80 text-sm">
+            <p>
+              En Jordi té passió pels rellotges de col·lecció i la tecnologia vintage. Abans tenia factures en calaixos, correus antics i fotos disperses pel mòbil que corrien el risc d'esborrar-se.
+            </p>
+            <p>
+              Ara té un panell centralitzat a Registrals on visualitza el valor estimat de la seva col·lecció, el CUI immutable de cada peça i les proves emmagatzemades sota xifrat d'alta seguretat.
+            </p>
+            <div class="guide-note p-3.5 text-xs leading-relaxed">
+              <strong>El desenllaç:</strong> Una visió integral i serena del seu patrimoni moble, disponible des del mòbil en qualsevol moment i lloc amb garanties notarials.
+            </div>
+          </div>
+          <div class="pt-4 border-t border-steel/15 flex items-center justify-between text-xs text-steel">
+            <span>Bòbila Digital Xifrada Flysystem</span>
+            <span class="font-mono text-ink font-semibold">Sempre accessible</span>
+          </div>
+        </div>
+      </article>
+
+    </div>
+
+    {# Modal Notarial per a Ampliar el Còmic #}
+    <div id="comic-modal" class="hidden fixed inset-0 z-50 bg-ink/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 transition-opacity" role="dialog" aria-modal="true">
+      <div class="bg-white border border-gold/40 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[92vh] flex flex-col overflow-hidden relative animate-in fade-in zoom-in-95 duration-200">
+        {# Lluentor daurada superior #}
+        <div class="h-1 bg-gradient-to-r from-transparent via-gold to-transparent w-full"></div>
+        
+        {# Capçalera del Modal #}
+        <div class="px-5 py-3.5 border-b border-steel/15 flex items-center justify-between bg-cream/30">
+          <div class="flex items-center gap-2">
+            <span class="text-gold font-serif">📜</span>
+            <h3 id="comic-modal-title" class="font-marcellus text-base sm:text-lg text-ink font-bold"></h3>
+          </div>
+          <button type="button" onclick="closeComicModal()" class="w-8 h-8 rounded-lg border border-steel/20 text-steel hover:text-ink hover:bg-cream flex items-center justify-center transition-all text-sm font-bold" aria-label="Tancar">
+            ✕
+          </button>
+        </div>
+
+        {# Contingut: Imatge del Còmic a Alta Resolució #}
+        <div class="p-3 sm:p-4 overflow-y-auto flex items-center justify-center bg-cream/10 flex-1">
+          <img id="comic-modal-img" src="" alt="Còmic a pantalla completa" class="max-h-[75vh] w-auto max-w-full rounded-xl shadow-md border border-steel/20 object-contain">
+        </div>
+
+        {# Peu del Modal #}
+        <div class="px-5 py-3 border-t border-steel/15 flex items-center justify-between bg-white text-xs text-steel">
+          <span>Toca <kbd class="px-1.5 py-0.5 rounded bg-cream border border-steel/20 font-mono text-[10px]">ESC</kbd> o l'exterior per tancar</span>
+          <button type="button" onclick="closeComicModal()" class="px-4 py-1.5 rounded-lg bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-raleway font-bold text-xs transition-all">
+            Tancar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    {# Script per al Modal Notarial del Còmic #}
+    <script>
+      function openComicModal(src, title) {
+        var modal = document.getElementById('comic-modal');
+        var img = document.getElementById('comic-modal-img');
+        var titleElem = document.getElementById('comic-modal-title');
+        if (modal && img && titleElem) {
+          img.src = src;
+          titleElem.textContent = title;
+          modal.classList.remove('hidden');
+          document.body.classList.add('overflow-hidden');
+        }
+      }
+
+      function closeComicModal() {
+        var modal = document.getElementById('comic-modal');
+        if (modal) {
+          modal.classList.add('hidden');
+          document.body.classList.remove('overflow-hidden');
+        }
+      }
+
+      // Tancar amb tecla ESC o clic exterior
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          closeComicModal();
+        }
+      });
+
+      document.getElementById('comic-modal')?.addEventListener('click', function(e) {
+        if (e.target === this) {
+          closeComicModal();
+        }
+      });
+    </script>
+
+    {# Crida a l'acció final #}
+    <div class="max-w-4xl mx-auto px-4 pb-16 text-center space-y-4">
+      <h3 class="text-2xl font-marcellus text-ink font-bold">Comença a protegir el teu patrimoni avui mateix</h3>
+      <p class="text-xs sm:text-sm text-ink/70 font-raleway max-w-xl mx-auto">
+        El pla gratuït inclou fins a 20 béns registrats amb certificat i custòdia documental de per vida.
+      </p>
+      <div class="pt-2">
+        <a href="{{ path('app_register') }}" class="px-6 py-3 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-raleway font-bold text-xs uppercase tracking-wider shadow-md transition-all inline-block">
+          Registrar el meu primer bé de franc →
+        </a>
+      </div>
+    </div>
+
+  </main>
+
+  {# Peu de pàgina institucional #}
+  {{ include('page/home/_footer.html.twig') }}
+
+</div>
+{% endblock %}

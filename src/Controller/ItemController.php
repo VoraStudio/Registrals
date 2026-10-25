@@ -13,9 +13,13 @@ use App\Repository\ItemRepository;
 use App\Security\Voter\ItemVoter;
 use App\Service\Item\CuiGeneratorService;
 use App\Service\Storage\SecureDocumentStorageService;
+use App\Service\Validation\MediaIntegrityValidator;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Infrastructure\Adapter\Ai\AiVisionAnalyzerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -34,6 +38,7 @@ class ItemController extends AbstractController
         CategoryRepository $categoryRepository,
         CuiGeneratorService $cuiGenerator,
         SecureDocumentStorageService $storageService,
+        MediaIntegrityValidator $integrityValidator,
         EntityManagerInterface $entityManager
     ): Response {
         /** @var User $user */
@@ -62,33 +67,59 @@ class ItemController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($item);
+            $hasIntegrityErrors = false;
 
-            // Gestió de la fotografia principal
+            // Validació d'integritat de la fotografia principal
             /** @var UploadedFile|null $primaryPhoto */
             $primaryPhoto = $form->get('primaryPhoto')->getData();
+            $photoMetadata = null;
             if ($primaryPhoto instanceof UploadedFile) {
-                $storageService->storeUploadedDocument($item, $primaryPhoto, DocumentType::PHOTO_PRIMARY);
+                $photoCheck = $integrityValidator->validateItemPhoto($primaryPhoto);
+                if (!$photoCheck->isValid) {
+                    $form->get('primaryPhoto')->addError(new FormError($photoCheck->rejectionReason ?? 'Fotografia no vàlida.'));
+                    $hasIntegrityErrors = true;
+                } else {
+                    $photoMetadata = $photoCheck->metadata;
+                }
             }
 
-            // Gestió del comprovant/factura d'adquisició
+            // Validació d'integritat del comprovant/factura d'adquisició
             /** @var UploadedFile|null $invoiceFile */
             $invoiceFile = $form->get('invoiceFile')->getData();
+            $invoiceMetadata = null;
             if ($invoiceFile instanceof UploadedFile) {
-                $storageService->storeUploadedDocument($item, $invoiceFile, DocumentType::INVOICE_RECEIPT);
+                $invoiceCheck = $integrityValidator->validateProofDocument($invoiceFile);
+                if (!$invoiceCheck->isValid) {
+                    $form->get('invoiceFile')->addError(new FormError($invoiceCheck->rejectionReason ?? 'Document de prova no vàlid.'));
+                    $hasIntegrityErrors = true;
+                } else {
+                    $invoiceMetadata = $invoiceCheck->metadata;
+                }
             }
 
-            // Increment del comptador de béns registrats
-            $user->setLifetimeItemsRegistered($user->getLifetimeItemsRegistered() + 1);
+            if (!$hasIntegrityErrors) {
+                $entityManager->persist($item);
 
-            $entityManager->flush();
+                if ($primaryPhoto instanceof UploadedFile) {
+                    $storageService->storeUploadedDocument($item, $primaryPhoto, DocumentType::PHOTO_PRIMARY, $photoMetadata);
+                }
 
-            $this->addFlash('success', sprintf(
-                'Bé registrat amb èxit! S\'ha generat el codi notarial únic %s.',
-                $item->getCui()
-            ));
+                if ($invoiceFile instanceof UploadedFile) {
+                    $storageService->storeUploadedDocument($item, $invoiceFile, DocumentType::INVOICE_RECEIPT, $invoiceMetadata);
+                }
 
-            return $this->redirectToRoute('app_item_show', ['cui' => $item->getCui()]);
+                // Increment del comptador de béns registrats
+                $user->setLifetimeItemsRegistered($user->getLifetimeItemsRegistered() + 1);
+
+                $entityManager->flush();
+
+                $this->addFlash('success', sprintf(
+                    'Bé registrat amb èxit! S\'ha generat el codi notarial únic %s.',
+                    $item->getCui()
+                ));
+
+                return $this->redirectToRoute('app_item_show', ['cui' => $item->getCui()]);
+            }
         }
 
         $rootCategories = $categoryRepository->findRootCategories();
@@ -119,4 +150,148 @@ class ItemController extends AbstractController
             'item' => $item,
         ]);
     }
+
+    /**
+     * Endpoint AJAX per a l'anàlisi de visió per computador i OCR en temps real (SGLang).
+     */
+    #[Route('/analyze-media', name: 'analyze_media', methods: ['POST'])]
+    public function analyzeMedia(
+        Request $request,
+        AiVisionAnalyzerInterface $aiAnalyzer,
+        CategoryRepository $categoryRepository,
+        MediaIntegrityValidator $integrityValidator,
+        EntityManagerInterface $entityManager,
+    ): JsonResponse {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        /** @var UploadedFile|null $file */
+        $file = $request->files->get('file');
+        if (!$file) {
+            return $this->json(['success' => false, 'error' => 'No s\'ha rebut cap fitxer.'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $promptType = $request->request->get('promptType', 'photo');
+        if (!in_array($promptType, ['photo', 'invoice'], true)) {
+            $promptType = 'photo';
+        }
+
+        $realPath = $file->getRealPath();
+        if ($realPath === false || !file_exists($realPath)) {
+            return $this->json(['success' => false, 'error' => 'Fitxer temporal inaccessible.'], Response::HTTP_BAD_REQUEST);
+        }
+
+        // 1. GUÀRDIA D'INTEGRITAT I ANTI-FRAU FORENSE (C2PA / Generadors d'IA)
+        // Aquest filtre s'executa SEMPRE en 0.5 ms, tant si la IA està activada com si està desactivada.
+        $integrity = $promptType === 'photo'
+            ? $integrityValidator->validateItemPhoto($file)
+            : $integrityValidator->validateProofDocument($file);
+
+        if (!$integrity->isValid) {
+            return $this->json([
+                'success' => false,
+                'code' => 'AI_SYNTHETIC_REJECTED',
+                'error' => $integrity->rejectionReason,
+                'detectedGenerator' => $integrity->detectedGenerator,
+                'integrityVerified' => false,
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        // 2. Guard de Feature Toggle (activació/desactivació global des de configuració o backoffice)
+        $aiEnabled = (bool) $this->getParameter('app.ai_assistance_enabled');
+        if (!$aiEnabled) {
+            return $this->json([
+                'success' => true,
+                'aiEnabled' => false,
+                'integrityVerified' => true,
+                'message' => 'L\'arxiu ha superat les validacions d\'autenticitat. L\'assistència d\'IA està desactivada; pots omplir les dades manualment.',
+                'data' => [
+                    'exif' => $integrity->metadata['exif'] ?? [],
+                    'warnings' => $integrity->warnings,
+                ],
+            ]);
+        }
+
+        // 3. Guard de Quota de Crèdits IA segons el Pla de l'usuari
+        $planQuota = $user->getPlan()->getAiAssistanceQuota();
+        $usage = $user->getAiUsageCount();
+        $remainingCredits = max(0, $planQuota - $usage);
+
+        if ($remainingCredits <= 0) {
+            return $this->json([
+                'success' => false,
+                'code' => 'AI_QUOTA_EXCEEDED',
+                'integrityVerified' => true,
+                'error' => sprintf(
+                    'Has exhaurit els teus crèdits d\'IA (%d/%d consultes utilitzades). L\'arxiu és vàlid, pots continuar omplint les dades manualment.',
+                    $usage,
+                    $planQuota
+                ),
+                'quota' => $planQuota,
+                'usage' => $usage,
+                'creditsRemaining' => 0,
+            ], Response::HTTP_FORBIDDEN);
+        }
+
+        $fileContent = file_get_contents($realPath);
+        if ($fileContent === false) {
+            return $this->json(['success' => false, 'error' => 'Error llegint el fitxer.'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        $mimeType = $file->getMimeType() ?? 'image/jpeg';
+
+        $extraction = $aiAnalyzer->analyzeMedia($fileContent, $mimeType, $promptType);
+
+        // 4. Incrementem el comptador de consultes d'IA consumides i persistim
+        $user->incrementAiUsage();
+        $entityManager->flush();
+
+        $remainingAfter = max(0, $planQuota - $user->getAiUsageCount());
+
+        $categoryId = null;
+        if ($extraction->categorySlug) {
+            $category = $categoryRepository->findOneBy(['slug' => $extraction->categorySlug]);
+            $categoryId = $category?->getId();
+        }
+
+        $subcategoryId = null;
+        if ($extraction->subcategorySlug) {
+            $subcategory = $categoryRepository->findOneBy(['slug' => $extraction->subcategorySlug]);
+            $subcategoryId = $subcategory?->getId();
+            if ($subcategory && $subcategory->getParent() && !$categoryId) {
+                $categoryId = $subcategory->getParent()->getId();
+            }
+        }
+
+        // 5. Validacions deterministes en PHP (Dígit de control NIF/CIF i Aritmètica del document)
+        $taxIdValid = null;
+        if ($extraction->taxId) {
+            $taxIdValid = $integrityValidator->validateSpanishTaxId($extraction->taxId);
+        }
+
+        $arithmeticCheck = null;
+        if ($extraction->declaredValueEuros !== null && $extraction->subtotalEuros !== null) {
+            $arithmeticCheck = $integrityValidator->validateInvoiceArithmetic(
+                $extraction->subtotalEuros,
+                $extraction->taxAmountEuros,
+                $extraction->declaredValueEuros
+            );
+        }
+
+        $responseData = array_merge($extraction->toArray(), [
+            'categoryId' => $categoryId,
+            'subcategoryId' => $subcategoryId,
+            'taxIdValid' => $taxIdValid,
+            'arithmeticCheck' => $arithmeticCheck,
+            'integrityVerified' => true,
+            'warnings' => $integrity->warnings,
+        ]);
+
+        return $this->json([
+            'success' => true,
+            'creditsRemaining' => $remainingAfter,
+            'data' => $responseData,
+        ]);
+    }
 }
+

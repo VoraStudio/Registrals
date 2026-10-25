@@ -1,0 +1,25 @@
+{
+  "name": "Registrals — Custòdia Notarial de Béns",
+  "short_name": "Registrals",
+  "description": "Plataforma de registre, custòdia de proves i emissió de certificats digitals de propietat per a béns mobles.",
+  "start_url": "/app/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FAF6F0",
+  "theme_color": "#1D2F4B",
+  "icons": [
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

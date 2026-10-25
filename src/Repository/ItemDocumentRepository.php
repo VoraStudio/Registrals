@@ -17,4 +17,22 @@ class ItemDocumentRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, ItemDocument::class);
     }
+
+    public function countTotal(): int
+    {
+        return (int) $this->createQueryBuilder('d')
+            ->select('COUNT(d.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function sumTotalBytes(): int
+    {
+        $res = $this->createQueryBuilder('d')
+            ->select('SUM(d.fileSizeBytes)')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return (int) ($res ?? 0);
+    }
 }

@@ -55,4 +55,36 @@ class ItemRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
     }
+
+    public function countTotal(): int
+    {
+        return (int) $this->createQueryBuilder('i')
+            ->select('COUNT(i.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function countActiveTotal(): int
+    {
+        return (int) $this->createQueryBuilder('i')
+            ->select('COUNT(i.id)')
+            ->andWhere('i.status = :status')
+            ->setParameter('status', \App\Enum\ItemStatus::ACTIVE)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    /**
+     * @return list<Item>
+     */
+    public function findRecent(int $limit = 5): array
+    {
+        return $this->createQueryBuilder('i')
+            ->leftJoin('i.owner', 'o')
+            ->addSelect('o')
+            ->orderBy('i.createdAt', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
 }

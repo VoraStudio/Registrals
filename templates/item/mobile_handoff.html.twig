@@ -1,0 +1,229 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Captura de Foto amb el Mòbil — Registrals{% endblock %}
+{% block meta_description %}Sincronització en directe de la càmera del mòbil amb el formulari del PC a Registrals.{% endblock %}
+
+{% block body_class %}bg-cream font-raleway text-ink antialiased min-h-screen flex flex-col justify-between selection:bg-gold/30 selection:text-ink{% endblock %}
+
+{% block body %}
+<div class="max-w-md mx-auto w-full min-h-screen flex flex-col justify-between p-4 sm:p-6">
+
+  {# Capçalera Mobile #}
+  <header class="text-center py-4 border-b border-gold/30">
+    <div class="inline-flex items-center gap-2 mb-1">
+      <img src="{{ asset('img/logos/Isotip/1-transparent.svg') }}" alt="Isotip" class="w-7 h-7" />
+      <span class="font-marcellus text-xl tracking-wider text-ink font-medium">REGISTRALS</span>
+    </div>
+    <div class="text-[11px] font-mono uppercase tracking-widest text-gold font-bold">
+      Pont de Captura Mòbil · PC Sync
+    </div>
+  </header>
+
+  {# Cos Principal #}
+  <main class="my-auto py-6">
+    {% if isExpired %}
+      {# Estat Caducat #}
+      <div class="bg-white rounded-2xl border border-red-300 p-6 text-center shadow-lg space-y-4 animate-in fade-in">
+        <div class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto text-xl font-bold">
+          ✕
+        </div>
+        <div>
+          <h1 class="font-marcellus text-lg text-ink font-bold">Sessió Caducada</h1>
+          <p class="text-xs text-ink/75 mt-1.5 leading-relaxed">
+            Aquesta sessió temporal de captura ha superat el límit de 10 minuts o ja ha estat utilitzada.
+          </p>
+        </div>
+        <div class="p-3 rounded-xl bg-cream/40 border border-gold/30 text-[11px] text-ink/80 text-left">
+          <strong>Com continuar?</strong> Genera un nou codi QR fent clic a "Capturar foto amb el mòbil" a la pantalla del teu ordinador.
+        </div>
+      </div>
+    {% else %}
+      {% set isInvoice = session and session.target == 'invoice' %}
+      {# Estat Actiu per a Captura #}
+      <div id="capture-card" class="bg-white rounded-2xl border border-gold/40 p-6 shadow-xl text-center space-y-5">
+        <div>
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[10px] font-mono font-semibold mb-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            Connexió Activa amb el PC
+          </div>
+          <h1 class="font-marcellus text-xl text-ink">
+            {{ isInvoice ? 'Fes la Foto del Comprovant' : 'Fes la Fotografia del Bé' }}
+          </h1>
+          <p class="text-xs text-ink/75 mt-1 leading-relaxed">
+            {{ isInvoice ? 'Fes una foto nítida de la factura, tiquet o garantia de compra. S\'enviarà automàticament al formulari del teu ordinador.' : 'Fes una foto nítida i ben il·luminada de l\'objecte. S\'enviarà automàticament al teu formulari de l\'ordinador.' }}
+          </p>
+        </div>
+
+        {# Àrea de Previsualització #}
+        <div id="preview-wrapper" class="hidden relative rounded-xl overflow-hidden border-2 border-gold/50 bg-cream/30 aspect-4/3 flex items-center justify-center shadow-inner">
+          <img id="mobile-preview-img" src="" alt="Previsualització" class="w-full h-full object-cover" />
+          <button type="button" onclick="retakePhoto()" class="absolute top-2 right-2 px-2.5 py-1 rounded-lg bg-ink/85 backdrop-blur-xs text-cream text-[10px] font-bold hover:bg-ink transition-colors shadow-sm">
+            ↺ Repetir Foto
+          </button>
+        </div>
+
+        {# Caixa de Missatge d'Error / Rebuig #}
+        <div id="error-box" class="hidden p-3 rounded-xl bg-red-50 border border-red-300 text-left text-xs text-red-800 space-y-1">
+          <div class="font-bold flex items-center gap-1.5">
+            <span>⚠️</span>
+            <span id="error-title">Document Rebutjat</span>
+          </div>
+          <p id="error-message" class="text-[11px] text-red-700 leading-snug"></p>
+        </div>
+
+        {# Input Ocult de Càmera en Directe #}
+        <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden" />
+
+        {# Botoier d'Acció #}
+        <div class="space-y-2.5 pt-1">
+          <button type="button" id="btn-open-camera" onclick="document.getElementById('camera-input').click()" class="w-full py-3 px-4 rounded-xl bg-ink text-cream hover:bg-ink/90 active:scale-[0.99] transition-all font-bold text-xs sm:text-sm font-raleway flex items-center justify-center gap-2 shadow-md">
+            <svg class="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span id="btn-camera-text">{{ isInvoice ? 'Obrir Càmera per al Comprovant' : 'Obrir Càmera del Mòbil' }}</span>
+          </button>
+
+          <button type="button" id="btn-upload" onclick="uploadPhoto()" class="hidden w-full py-3 px-4 rounded-xl bg-gold text-ink hover:bg-gold/90 active:scale-[0.99] transition-all font-bold text-xs sm:text-sm font-raleway flex items-center justify-center gap-2 shadow-md">
+            <span>✓ {{ isInvoice ? 'Enviar Comprovant al PC' : 'Enviar Fotografia al PC' }}</span>
+          </button>
+        </div>
+
+        {# Indicador de càrrega #}
+        <div id="loading-spinner" class="hidden py-2 text-center text-xs text-ink/70 flex items-center justify-center gap-2">
+          <div class="w-4 h-4 rounded-full border-2 border-gold border-t-transparent animate-spin"></div>
+          <span>Verificant integritat i sincronitzant...</span>
+        </div>
+      </div>
+
+      {# Estat d'Èxit (Un cop enviada la foto) #}
+      <div id="success-card" class="hidden bg-white rounded-2xl border border-emerald-500/40 p-6 text-center shadow-xl space-y-4 animate-in fade-in zoom-in-95">
+        <div class="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto text-2xl font-bold shadow-xs">
+          ✓
+        </div>
+        <div>
+          <h2 class="font-marcellus text-xl text-ink font-bold">
+            {{ isInvoice ? 'Comprovant Enviat!' : 'Fotografia Enviada!' }}
+          </h2>
+          <p class="text-xs text-ink/80 mt-1.5 leading-relaxed">
+            {{ isInvoice ? 'El document s\'ha transmès amb èxit cap al teu ordinador. Ja pots mirar la pantalla del PC per revisar les dades deduïdes.' : 'La foto s\'ha transmès amb èxit cap al teu ordinador. Ja pots mirar la pantalla del PC per continuar el registre.' }}
+          </p>
+        </div>
+        <div class="p-3.5 rounded-xl bg-cream/40 border border-gold/30 text-[11px] text-ink/80 text-left space-y-1">
+          <div class="font-bold text-ink">Què passa ara al teu ordinador?</div>
+          <p class="text-ink/75">
+            {{ isInvoice ? 'L\'Assistent d\'IA està extraient l\'import, data i dades fiscals del comprovant.' : 'L\'Assistent d\'IA està analitzant la imatge per auto-omplir la marca, model i especificacions del bé.' }}
+          </p>
+        </div>
+        <button type="button" onclick="retakePhoto()" class="text-xs text-steel hover:text-ink font-semibold underline decoration-gold">
+          Vols fer una altra foto?
+        </button>
+      </div>
+    {% endif %}
+  </main>
+
+  {# Peu Mobile #}
+  <footer class="text-center py-4 border-t border-gold/20 text-[11px] text-ink/60">
+    Registrals · Seguretat Notarial i Custòdia Criptogràfica
+  </footer>
+
+</div>
+
+<script>
+  let selectedFile = null;
+  const token = '{{ token }}';
+
+  const cameraInput = document.getElementById('camera-input');
+  const previewWrapper = document.getElementById('preview-wrapper');
+  const previewImg = document.getElementById('mobile-preview-img');
+  const btnCameraText = document.getElementById('btn-camera-text');
+  const btnUpload = document.getElementById('btn-upload');
+  const errorBox = document.getElementById('error-box');
+  const errorMsg = document.getElementById('error-message');
+  const loadingSpinner = document.getElementById('loading-spinner');
+  const captureCard = document.getElementById('capture-card');
+  const successCard = document.getElementById('success-card');
+
+  if (cameraInput) {
+    cameraInput.addEventListener('change', function(e) {
+      if (this.files && this.files[0]) {
+        selectedFile = this.files[0];
+        hideError();
+
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          if (previewImg && previewWrapper) {
+            previewImg.src = evt.target.result;
+            previewWrapper.classList.remove('hidden');
+          }
+          if (btnUpload) btnUpload.classList.remove('hidden');
+          if (btnCameraText) btnCameraText.innerText = 'Canviar Fotografia';
+        };
+        reader.readAsDataURL(selectedFile);
+      }
+    });
+  }
+
+  function retakePhoto() {
+    selectedFile = null;
+    if (cameraInput) cameraInput.value = '';
+    if (previewImg) previewImg.src = '';
+    if (previewWrapper) previewWrapper.classList.add('hidden');
+    if (btnUpload) btnUpload.classList.add('hidden');
+    if (btnCameraText) btnCameraText.innerText = 'Obrir Càmera del Mòbil';
+    if (successCard) successCard.classList.add('hidden');
+    if (captureCard) captureCard.classList.remove('hidden');
+    hideError();
+  }
+
+  function showError(msg) {
+    if (errorBox && errorMsg) {
+      errorMsg.innerText = msg;
+      errorBox.classList.remove('hidden');
+    }
+  }
+
+  function hideError() {
+    if (errorBox) errorBox.classList.add('hidden');
+  }
+
+  async function uploadPhoto() {
+    if (!selectedFile) {
+      showError('Si us plau, fes primer una fotografia.');
+      return;
+    }
+
+    hideError();
+    if (loadingSpinner) loadingSpinner.classList.remove('hidden');
+    if (btnUpload) btnUpload.disabled = true;
+
+    const formData = new FormData();
+    formData.append('photo', selectedFile);
+
+    try {
+      const response = await fetch('/handoff/' + encodeURIComponent(token) + '/upload', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      });
+
+      const res = await response.json().catch(() => null);
+
+      if (!response.ok || (res && res.success === false)) {
+        const errorText = res ? res.error : 'Error en l\'enviament de la fotografia.';
+        showError(errorText);
+        return;
+      }
+
+      // Èxit
+      if (captureCard) captureCard.classList.add('hidden');
+      if (successCard) successCard.classList.remove('hidden');
+
+    } catch (err) {
+      showError('Error de connexió amb el servidor. Comprova la teva connexió WiFi.');
+    } finally {
+      if (loadingSpinner) loadingSpinner.classList.add('hidden');
+      if (btnUpload) btnUpload.disabled = false;
+    }
+  }
+</script>
+{% endblock %}

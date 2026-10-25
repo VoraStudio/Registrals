@@ -9,14 +9,19 @@ Aquest document estableix les regles d'arquitectura, el stack tecnològic, el si
 - **Finalitat:** Plataforma privada de referència per al registre, custòdia de proves i emissió de certificats digitals de propietat per a béns mobles (joies, tecnologia, bicicletes, rellotges, art), amb doble capa de certificació: legal (eIDAS via Signaturit) i criptogràfica (Polygon Blockchain Layer 2).
 - **Model de Negoci:** Freemium de custòdia + Pay-per-Value (quotes de béns, certificats oficials, traspassos C2C i assistent d'IA).
 - **Límits de Plans i Parametrització Backoffice (Regla d'Or):**
-  - **Pla Free (actiu per defecte):** Fins a 20 béns actius, 1 fotografia principal i 1 evidència/comprovant documental per bé.
-  - **Pla Plus:** Fins a 100 béns actius, 5 fotografies i 5 evidències/comprovants per bé (parametritzable a Admin).
-  - **Pla Unlimited:** Il·limitat en béns, fotografies i evidències documentals.
+  - **Pla Free (actiu per defecte):** Fins a 20 béns actius, 1 fotografia principal, 1 evidència/comprovant documental per bé i 20 consultes d'IA.
+  - **Pla Plus:** Fins a 100 béns actius, 5 fotografies, 5 evidències/comprovants per bé i 100 consultes d'IA (parametritzable a Admin).
+  - **Pla Unlimited:** Il·limitat en béns, fotografies, evidències documentals i consultes d'IA (9.999).
   - **Parametrització en calent:** Tots els límits i quotes no han d'estar mai "hardcodejats" i han de poder-se modificar pels administradors des del panell d'Administració (`/admin/plans`).
 - **Immutabilitat, Canvi de Hash i Cost de Re-segellat (Regla de Seguretat Notarial):**
   - El fingerprint mestre d'un bé és un hash SHA-256 determinista calculat sobre les seves dades i les fotos/proves associades.
   - Qualsevol modificació (afegir/eliminar fotografies, reordenar i canviar quina és la foto principal, afegir noves factures o editar camps essencials) **canvia inevitablement el hash SHA-256**.
   - Aquest canvi crea una nova versió immutable (`v1` -> `v2`) a l'històric d'auditoria (`ItemHistoryLog`) i invalida el segellat anterior fins a un nou ancoratge criptogràfic i legal (amb el seu cost operatiu i de gas/signatura associat). La interfície ha d'advertir-ho amb total solemnitat i claredat.
+- **Assistent d'IA Sobirà, Privadesa per Disseny i Marc Legal (AI Act & RGPD):**
+  - **Sobirania i aïllament local:** El model de visió (Qwen VL) s'executa exclusivament en infraestructura pròpia (SGLang en node privat), sense enviar mai dades ni contingut a servidors de tercers ni emprar dades per a re-entrenament.
+  - **Human-in-the-Loop (Art. 22 RGPD):** La IA és estrictament una eina d'assistència tècnica i d'extracció documental (OCR/visió). Mai pren decisions automatitzades ni emet certificats: la decisió i validació jurídica correspon exclusivament a l'usuari humà (`Dades validades pel titular`).
+  - **Traçabilitat forense:** Tota extracció d'IA enregistra el model, la certesa i la resposta en brut a la base de dades per a integritat i auditoria.
+  - **Terminologia pública:** Evitar "la IA valida" o "emès per IA". Utilitzar sempre terminologia d'assistència sobirana: *"Assistència de lectura sobirana (execució local protegida)"*.
 
 ---
 
@@ -55,13 +60,22 @@ Aquest document estableix les regles d'arquitectura, el stack tecnològic, el si
   - *Fila 2 (Inferiors al mateix nivell horitzontal):* Bloc 4 (Garantia Notarial Registrals amb Caixa Blava Ink) a l'esquerra i Bloc 3 (Proves Documentals custodiades sota Flysystem) a la dreta, començant exactament a la mateixa alçada.
   - *Micro-textos d'1 línia:* Capçaleres, píndoles i avisos condensats estrictament a 1 línia sense trencaments ni salts visuals, amb botons nets (`+ Nova Foto`, `+ Nova Prova`).
 - **Fitxa del Bé en Mòbil PWA (Seqüència d'Ús Canònica):** Ordre vertical d'alta llegibilitat: 1. Títol & Identitat (Nom, Categoria, CUI, Estat i Valor Estimat) -> 2. Fotografia Panoràmica 16:9 amb comptador -> 3. Fitxa d'Especificacions -> 4. Proves Documentals -> 5. Garantia Notarial Notarial Ink. Accions principals reubicades a la barra inferior d'accions.
-- **Wizard d'Alta en Mòbil (UX Pas a Pas):** A pantalles petites, l'alta de béns s'executa en 4 etapes atòmiques adaptades a l'alçada del viewport (1. Foto -> 2. Factura/Proves -> 3. Identificació -> 4. Traçabilitat), amb revelació progressiva (*toggle*) per al valor estimat opcional.
+- **Wizard d'Alta en Mòbil (UX Pas a Pas):** A pantalles petites, l'alta de béns s'executa en 4 etapes atòmiques adaptades a l'alçada del viewport (1. Foto -> 2. Factura/Proves -> 3. Identificació -> 4. Traçabilitat), amb revelació progressiva (*toggle*) per al valor estimat opcional. La barra superior d'indicadors de pas ha de mantenir-se estrictament en **1 sola línia** (`whitespace-nowrap` i tipografia proporcional) sense trencaments de text, i els marcs de càrrega han d'utilitzar contenidors `<div>` nets (complint l'estàndard W3C) amb acció directa de càmera per maquinari (`accept="image/*" capture="environment"`) per evitar que el Photo Picker d'Android amagui la càmera.
 - **Avisos Notarials Canònics als Formularis i Targetes (Regla de Guia d'Estils):**
   - Tots els missatges d'avís, notes explicatives, advertències legals o de límits de pla han de seguir **estrictament** el patró oficial de la Guia d'Estils (`.guide-note` / `.form-note`):
     - **Línia d'accent esquerra daurada sòlida:** `border-left: 3.5px solid var(--color-gold)` (`border-l-[3.5px] border-gold`).
     - **Fons suau i discret:** `rgba(202, 163, 108, 0.08)` sobre superfícies clares / formularis, o `rgba(202, 163, 108, 0.12)` sobre targetes fosques (`.guide-note-dark`).
     - **Tipografia:** Encapçalament `<strong>` en negreta, text en `Raleway`, i termes/valors tècnics en `<code>` amb fons daurat suau (`rgba(202, 163, 108, 0.2)`).
     - Mai utilitzar caixes tancades convencionals amb icones soltes d'alerta o vores aleatòries.
+- **Modals i Diàlegs de Confirmació Notarials (Regla d'Arquitectura UI):**
+  - Prohibició expressa de fer servir `window.confirm()` o `window.alert()` natius del navegador.
+  - Els diàlegs de confirmació o decisió crítica han de seguir el patró de **Modal Notarial (`.notarial-modal`)**:
+    - **Backdrop Solemne:** `fixed inset-0 z-50 bg-ink/65 backdrop-blur-xs flex items-center justify-center p-4 transition-opacity`.
+    - **Caixa Notarial:** Fons blanc (`bg-white`), vora daurada tènue (`border border-gold/40`), cantonades arrodonides (`rounded-2xl`), ombra profunda (`shadow-2xl`), amplada màxima canònica (`max-w-md w-full`), i lluentor superior daurada (`h-1 bg-gradient-to-r from-transparent via-gold to-transparent`).
+    - **Capçalera Solemne:** Títol en `font-marcellus text-lg text-ink`, acompanyat d'icona temàtica (daurada per a confirmació ordinària, carmesí per a accions destructives) i botó de tancament `✕` net a la cantonada superior dreta.
+    - **Cos:** Text explicatiu en `font-raleway text-xs sm:text-sm text-ink/80 leading-relaxed`. Si hi ha un advertiment legal o discrepància, incloure-hi una `.guide-note` interna.
+    - **Botoier d'Acció:** Footer alineat a la dreta amb botó secundari `[ Cancel·lar ]` (`bg-cream hover:bg-cream/80 text-ink`) i botó d'acció primari `[ Confirmar ]` (`bg-ink text-gold border border-gold/40`) o destructiu `[ Desvincular / Eliminar ]` (`bg-red-700 text-white`).
+    - **Accessibilitat:** Gestió de tancament amb tecla `ESC`, clic a l'àrea exterior del backdrop i restabliment del focus.
 - **Actius:** Logotips i isotips SVG ubicats a `web/img/logos/`. No utilitzar mai imatges genèriques o placeholders temporals.
 
 ---

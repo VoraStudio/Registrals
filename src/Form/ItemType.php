@@ -36,7 +36,7 @@ class ItemType extends AbstractType
                 'label' => 'Nom o Títol del Bé',
                 'attr' => [
                     'placeholder' => 'Ex: Bicicleta Gravel Canyon Grizl 7, Rellotge Omega Seamaster...',
-                    'class' => 'w-full px-4 py-3 rounded-xl bg-white/90 border border-steel/30 text-ink focus:border-gold focus:ring-2 focus:ring-gold/30',
+                    'class' => 'w-full px-3.5 py-2 sm:py-2.5 rounded-xl bg-white/90 border border-steel/30 text-ink text-xs sm:text-sm focus:border-gold focus:ring-2 focus:ring-gold/30',
                 ],
                 'constraints' => [
                     new NotBlank(['message' => 'Si us plau, indica un nom per identificar el teu bé.']),
@@ -50,7 +50,7 @@ class ItemType extends AbstractType
                 'label' => 'Categoria Principal',
                 'placeholder' => 'Selecciona una categoria...',
                 'attr' => [
-                    'class' => 'w-full px-4 py-3 rounded-xl bg-white/90 border border-steel/30 text-ink text-sm font-raleway focus:border-gold focus:ring-2 focus:ring-gold/30',
+                    'class' => 'w-full px-3.5 py-2 sm:py-2.5 rounded-xl bg-white/90 border border-steel/30 text-ink text-xs sm:text-sm font-raleway focus:border-gold focus:ring-2 focus:ring-gold/30',
                 ],
                 'constraints' => [
                     new NotBlank(['message' => 'Selecciona una categoria principal.']),
@@ -64,7 +64,7 @@ class ItemType extends AbstractType
                 'required' => false,
                 'placeholder' => 'Selecciona primer una categoria...',
                 'attr' => [
-                    'class' => 'w-full px-4 py-3 rounded-xl bg-white/90 border border-steel/30 text-ink text-sm font-raleway placeholder-steel/60 focus:border-gold focus:ring-2 focus:ring-gold/30',
+                    'class' => 'w-full px-3.5 py-2 sm:py-2.5 rounded-xl bg-white/90 border border-steel/30 text-ink text-xs sm:text-sm font-raleway placeholder-steel/60 focus:border-gold focus:ring-2 focus:ring-gold/30',
                 ],
             ])
             ->add('brand', TextType::class, [
@@ -72,7 +72,7 @@ class ItemType extends AbstractType
                 'required' => false,
                 'attr' => [
                     'placeholder' => 'Ex: Apple, Canyon, Rolex, Specialized...',
-                    'class' => 'w-full px-4 py-3 rounded-xl bg-white/90 border border-steel/30 text-ink text-sm font-raleway focus:border-gold focus:ring-2 focus:ring-gold/30',
+                    'class' => 'w-full px-3.5 py-2 sm:py-2.5 rounded-xl bg-white/90 border border-steel/30 text-ink text-xs sm:text-sm font-raleway focus:border-gold focus:ring-2 focus:ring-gold/30',
                 ],
             ])
             ->add('model', TextType::class, [
@@ -80,7 +80,7 @@ class ItemType extends AbstractType
                 'required' => false,
                 'attr' => [
                     'placeholder' => 'Ex: iPhone 15 Pro, Grizl CF SL 7, Submariner Date...',
-                    'class' => 'w-full px-4 py-3 rounded-xl bg-white/90 border border-steel/30 text-ink text-sm font-raleway focus:border-gold focus:ring-2 focus:ring-gold/30',
+                    'class' => 'w-full px-3.5 py-2 sm:py-2.5 rounded-xl bg-white/90 border border-steel/30 text-ink text-xs sm:text-sm font-raleway focus:border-gold focus:ring-2 focus:ring-gold/30',
                 ],
             ])
             ->add('serialNumber', TextType::class, [
@@ -88,7 +88,7 @@ class ItemType extends AbstractType
                 'required' => false,
                 'attr' => [
                     'placeholder' => 'Ex: SN12345678, Bastidor o Codi d\'autenticitat...',
-                    'class' => 'w-full px-4 py-3 rounded-xl bg-white/90 border border-steel/30 text-ink text-sm font-raleway focus:border-gold focus:ring-2 focus:ring-gold/30',
+                    'class' => 'w-full px-3.5 py-2 sm:py-2.5 rounded-xl bg-white/90 border border-steel/30 text-ink text-xs sm:text-sm font-raleway focus:border-gold focus:ring-2 focus:ring-gold/30',
                 ],
                 'help' => 'Element clau per a la identificació policial i asseguradora en cas de pèrdua o robatori.',
             ])
@@ -99,7 +99,7 @@ class ItemType extends AbstractType
                 'html5' => false,
                 'attr' => [
                     'placeholder' => '0,00',
-                    'class' => 'w-full px-4 py-3 rounded-xl bg-white/90 border border-steel/30 text-ink text-sm font-raleway placeholder-steel/60 focus:border-gold focus:ring-2 focus:ring-gold/30',
+                    'class' => 'w-full px-3.5 py-2 sm:py-2.5 rounded-xl bg-white/90 border border-steel/30 text-ink text-xs sm:text-sm font-raleway placeholder-steel/60 focus:border-gold focus:ring-2 focus:ring-gold/30',
                 ],
             ])
             ->add('acquisitionType', ChoiceType::class, [
@@ -112,7 +112,7 @@ class ItemType extends AbstractType
                     AcquisitionType::OTHER->label() => AcquisitionType::OTHER,
                 ],
                 'attr' => [
-                    'class' => 'w-full px-4 py-3 rounded-xl bg-white/90 border border-steel/30 text-ink focus:border-gold focus:ring-2 focus:ring-gold/30',
+                    'class' => 'w-full px-3.5 py-2 sm:py-2.5 rounded-xl bg-white/90 border border-steel/30 text-ink text-xs sm:text-sm focus:border-gold focus:ring-2 focus:ring-gold/30',
                 ],
             ])
             ->add('acquisitionDate', DateType::class, [
@@ -121,16 +121,16 @@ class ItemType extends AbstractType
                 'input' => 'datetime_immutable',
                 'required' => false,
                 'attr' => [
-                    'class' => 'w-full px-4 py-3 rounded-xl bg-white/90 border border-steel/30 text-ink focus:border-gold focus:ring-2 focus:ring-gold/30',
+                    'class' => 'w-full px-3.5 py-2 sm:py-2.5 rounded-xl bg-white/90 border border-steel/30 text-ink text-xs sm:text-sm focus:border-gold focus:ring-2 focus:ring-gold/30',
                 ],
             ])
             ->add('acquisitionCircumstances', TextareaType::class, [
                 'label' => 'Circumstàncies d\'Adquisició / Observacions',
                 'required' => false,
                 'attr' => [
-                    'rows' => 3,
+                    'rows' => 2,
                     'placeholder' => 'Detalls addicionals sobre la compra, establiment, context o característiques particulars del bé...',
-                    'class' => 'w-full px-4 py-3 rounded-xl bg-white/90 border border-steel/30 text-ink focus:border-gold focus:ring-2 focus:ring-gold/30',
+                    'class' => 'w-full px-3 py-1.5 sm:py-2 rounded-xl bg-white/90 border border-steel/30 text-ink text-xs font-raleway focus:border-gold focus:ring-2 focus:ring-gold/30',
                 ],
             ])
             // Camps per a la càrrega de fitxers i documents (Step 2)

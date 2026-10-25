@@ -1,0 +1,333 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}El meu Pla i Quotes — Registrals{% endblock %}
+{% block meta_description %}Estat de la subscripció, consum en calent de quotes i comparativa de plans a Registrals.{% endblock %}
+
+{% block body_class %}bg-cream text-ink min-h-screen flex flex-col justify-between selection:bg-gold selection:text-ink font-raleway{% endblock %}
+
+{% block body %}
+<div class="min-h-screen flex flex-col justify-between bg-cream">
+
+  {# Barra Superior Privada Unificada #}
+  {% include 'partials/_private_header.html.twig' %}
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8 w-full flex-1">
+
+    {# Capçalera de la Pàgina #}
+    <div class="mb-6 pb-4 border-b border-gold/20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div>
+        <div class="flex items-center gap-2 text-xs font-mono text-steel uppercase tracking-wider mb-1">
+          <a href="{{ path('app_dashboard') }}" class="hover:text-gold transition-colors">Patrimoni</a>
+          <span>/</span>
+          <span class="text-ink font-bold">Pla & Quotes</span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-marcellus text-ink tracking-wide">El meu Pla i Quotes</h1>
+        <p class="text-xs sm:text-sm text-ink/75 mt-0.5">Seguiment del consum en calent de les teves quotes i gestió de la subscripció notarial.</p>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a href="{{ path('app_profile') }}" class="px-4 py-2 rounded-xl text-xs font-semibold bg-white border border-steel/30 text-ink hover:border-gold hover:text-gold shadow-2xs transition-all flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+          <span>El meu Perfil</span>
+        </a>
+      </div>
+    </div>
+
+    {# Secció 1: Estat del Pla Actual i Consum en Calent #}
+    <div class="bg-white rounded-2xl border border-steel/20 shadow-xs p-5 sm:p-7 mb-8">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-5 mb-6 border-b border-steel/15 gap-4">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-2xl bg-cream border border-gold/40 flex items-center justify-center text-ink shrink-0 shadow-2xs">
+            {% if currentPlan.code == 'plus' %}
+              <svg class="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            {% elseif currentPlan.code == 'unlimited' %}
+              <svg class="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+            {% else %}
+              <svg class="w-6 h-6 text-steel" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+            {% endif %}
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="font-marcellus text-xl sm:text-2xl text-ink">{{ currentPlan.name }}</h2>
+              <span class="px-2 py-0.5 rounded-md font-mono text-[10px] font-bold uppercase tracking-wider {{ currentPlan.code == 'plus' ? 'bg-ink text-gold border border-gold/40' : (currentPlan.code == 'unlimited' ? 'bg-gold text-ink' : 'bg-cream text-steel border border-steel/20') }}">
+                {{ currentPlan.code|upper }}
+              </span>
+            </div>
+            <p class="text-xs text-ink/65 mt-0.5">
+              Actiu des del {{ user.planStartedAt|date('d/m/Y') }} 
+              {% if user.planExpiresAt %}
+                · Renovació el {{ user.planExpiresAt|date('d/m/Y') }}
+              {% else %}
+                · Modalitat permanent
+              {% endif %}
+            </p>
+          </div>
+        </div>
+
+        <div class="text-left sm:text-right">
+          <div class="text-xs text-ink/60 uppercase font-mono">Quota de subscripció</div>
+          <div class="text-lg sm:text-xl font-bold font-mono text-ink">
+            {% if currentPlan.priceCents > 0 %}
+              {{ (currentPlan.priceCents / 100)|number_format(2, ',', '.') }} € <span class="text-xs font-normal text-ink/60">/ any</span>
+            {% else %}
+              0,00 € <span class="text-xs font-normal text-ink/60">(Gratuït)</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      {# Graella de 4 Targetes de Consum #}
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+        {# KPI 1: Béns Custodiats #}
+        <div class="p-4 rounded-xl bg-cream/30 border border-steel/15 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between text-xs text-ink/70 mb-1">
+              <span class="font-semibold">Béns Actius</span>
+              <span class="font-mono text-xs">{{ activeItemsCount }} / {{ maxActive }}</span>
+            </div>
+            <div class="text-xl font-bold font-mono text-ink mt-1">
+              {{ activeItemsCount }} <span class="text-xs font-normal text-ink/60">béns registrats</span>
+            </div>
+          </div>
+          <div class="mt-3">
+            <div class="w-full bg-steel/20 rounded-full h-2 overflow-hidden">
+              <div class="bg-ink h-2 rounded-full transition-all duration-500" style="width: {{ itemsPct }}%;"></div>
+            </div>
+            <span class="text-[10px] text-ink/50 mt-1 block text-right font-mono">{{ itemsPct }}% ocupat</span>
+          </div>
+        </div>
+
+        {# KPI 2: Assistència d'IA Sobirana #}
+        <div class="p-4 rounded-xl bg-cream/30 border border-steel/15 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between text-xs text-ink/70 mb-1">
+              <span class="font-semibold">Consultes d'IA</span>
+              <span class="font-mono text-xs">{{ aiUsed }} / {{ maxAi }}</span>
+            </div>
+            <div class="text-xl font-bold font-mono text-ink mt-1">
+              {{ aiUsed }} <span class="text-xs font-normal text-ink/60">de {{ maxAi }} anuals</span>
+            </div>
+          </div>
+          <div class="mt-3">
+            <div class="w-full bg-steel/20 rounded-full h-2 overflow-hidden">
+              <div class="bg-gold h-2 rounded-full transition-all duration-500" style="width: {{ aiPct }}%;"></div>
+            </div>
+            <span class="text-[10px] text-ink/50 mt-1 block text-right font-mono">{{ aiPct }}% consumit</span>
+          </div>
+        </div>
+
+        {# KPI 3: Fotos i Proves per Bé #}
+        <div class="p-4 rounded-xl bg-cream/30 border border-steel/15 flex flex-col justify-between">
+          <div>
+            <div class="text-xs text-ink/70 font-semibold mb-1">Evidències per Bé</div>
+            <div class="text-sm font-bold text-ink mt-1 space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-ink/75">Fotografies:</span>
+                <span class="font-mono font-bold">{{ currentPlan.maxPhotosPerItem }} per bé</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-ink/75">Comprovants/Tiquets:</span>
+                <span class="font-mono font-bold">{{ currentPlan.maxDocumentsPerItem }} per bé</span>
+              </div>
+            </div>
+          </div>
+          <div class="mt-2 text-[10px] text-ink/50">
+            {% if currentPlan.code == 'free' %}
+              * Ampliable a 5 fotos amb Pla Plus
+            {% else %}
+              * Capacitat multievidència activa
+            {% endif %}
+          </div>
+        </div>
+
+        {# KPI 4: Certificats i Traspassos #}
+        <div class="p-4 rounded-xl bg-cream/30 border border-steel/15 flex flex-col justify-between">
+          <div>
+            <div class="text-xs text-ink/70 font-semibold mb-1">Garantia Notarial eIDAS</div>
+            <div class="text-sm font-bold text-ink mt-1 space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-ink/75">Certificats emesos:</span>
+                <span class="font-mono font-bold">{{ user.certificatesIssuedCount }}</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-ink/75">Segellat oficial:</span>
+                <span class="font-mono text-xs {{ currentPlan.allowOfficialCertificates ? 'text-emerald-700 font-bold' : 'text-amber-700' }}">
+                  {{ currentPlan.allowOfficialCertificates ? 'Inclòs' : 'Esborrany (Free)' }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="mt-2 text-[10px] text-ink/50">
+            Doble capa: eIDAS (Signaturit) + Polygon L2
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    {# Secció 2: Comparativa Notarial de Plans #}
+    <div class="mb-4">
+      <h2 class="text-xl sm:text-2xl font-marcellus text-ink mb-1">Comparativa de Plans</h2>
+      <p class="text-xs text-ink/65 mb-6">Selecciona el nivell de protecció patrimonial i custòdia documental que millor s'adapti a les teves necessitats.</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        {% for plan in allPlans %}
+          {% set isCurrent = (plan.code == currentPlan.code) %}
+          {% set isPlus = (plan.code == 'plus') %}
+          {% set isUnlimited = (plan.code == 'unlimited') %}
+
+          <div class="rounded-2xl bg-white border {{ isCurrent ? 'border-gold shadow-md ring-2 ring-gold/20' : 'border-steel/20 shadow-xs hover:border-gold/50' }} flex flex-col justify-between p-6 transition-all relative">
+            
+            {# Insígnia del Pla Actual #}
+            {% if isCurrent %}
+              <div class="absolute -top-3 right-6 px-3 py-0.5 rounded-full bg-ink text-gold border border-gold/50 font-mono text-[10px] font-bold uppercase tracking-wider shadow-xs">
+                Pla Actual
+              </div>
+            {% endif %}
+
+            <div>
+              {# Capçalera de la Targeta de Pla #}
+              <div class="mb-4">
+                <h3 class="font-marcellus text-xl text-ink">{{ plan.name }}</h3>
+                <div class="mt-2 flex items-baseline gap-1">
+                  <span class="font-mono text-3xl font-bold text-ink">
+                    {{ plan.priceCents > 0 ? (plan.priceCents / 100)|number_format(0, ',', '.') : '0' }} €
+                  </span>
+                  <span class="text-xs text-ink/60 font-raleway">
+                    {{ plan.priceCents > 0 ? '/ any' : 'per sempre' }}
+                  </span>
+                </div>
+              </div>
+
+              {# Llista de Prestacions #}
+              <ul class="space-y-3 py-4 border-t border-steel/15 text-xs text-ink/80">
+                <li class="flex items-center gap-2.5">
+                  <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                  <span>Fins a <strong class="text-ink font-bold">{{ plan.maxActiveItems > 0 ? plan.maxActiveItems : 'Il·limitats' }}</strong> béns actius</span>
+                </li>
+
+                <li class="flex items-center gap-2.5">
+                  <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                  <span><strong class="text-ink font-bold">{{ plan.maxPhotosPerItem }}</strong> fotografia{{ plan.maxPhotosPerItem > 1 ? 'es' : '' }} per bé</span>
+                </li>
+
+                <li class="flex items-center gap-2.5">
+                  <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                  <span><strong class="text-ink font-bold">{{ plan.maxDocumentsPerItem }}</strong> prova{{ plan.maxDocumentsPerItem > 1 ? 'es' : '' }} / tiquets per bé</span>
+                </li>
+
+                <li class="flex items-center gap-2.5">
+                  <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                  <span><strong class="text-ink font-bold">{{ plan.aiAssistanceQuota }}</strong> consultes d'IA sobirana a l'any</span>
+                </li>
+
+                <li class="flex items-center gap-2.5">
+                  {% if plan.allowOfficialCertificates %}
+                    <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    <span>Certificats oficials eIDAS d'alta seguretat</span>
+                  {% else %}
+                    <svg class="w-4 h-4 text-steel/50 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    <span class="text-ink/60">Esborranys de certificat (marca d'aigua)</span>
+                  {% endif %}
+                </li>
+
+                <li class="flex items-center gap-2.5">
+                  <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                  <span>Ancoratge criptogràfic a Polygon Blockchain</span>
+                </li>
+              </ul>
+            </div>
+
+            {# Botó d'Acció de la Targeta #}
+            <div class="pt-4 border-t border-steel/15 mt-4">
+              {% if isCurrent %}
+                <button type="button" disabled class="w-full py-2.5 px-4 rounded-xl bg-cream/70 text-ink/60 border border-steel/20 text-xs font-bold uppercase tracking-wider text-center cursor-default">
+                  Pla Contractat
+                </button>
+              {% else %}
+                <button type="button" onclick="showUpgradeNotice('{{ plan.name }}')" class="w-full py-2.5 px-4 rounded-xl {{ isPlus ? 'bg-ink text-gold border border-gold/40 hover:bg-ink/90' : 'bg-white border border-steel/30 text-ink hover:border-gold hover:text-gold' }} text-xs font-bold uppercase tracking-wider text-center shadow-xs transition-all cursor-pointer">
+                  Sol·licitar Canvi a {{ plan.name }}
+                </button>
+              {% endif %}
+            </div>
+
+          </div>
+        {% endfor %}
+
+      </div>
+    </div>
+
+    {# Avís Notarial Canònic (.guide-note oficial) #}
+    <div class="mt-8 p-4 rounded-xl bg-gold/10 border-l-[3.5px] border-gold text-xs text-ink/80 leading-relaxed">
+      <strong class="text-ink font-bold block mb-1">Parametrització en Calent i Garantia Notarial</strong>
+      Tots els límits i quotes associades als plans són dinàmics i es poden ampliar en qualsevol moment sense interrompre la custòdia digital ni alterar els segellats criptogràfics dels teus béns existents.
+    </div>
+
+    {# Modal Notarial d'Upgrade #}
+    <div id="upgrade-modal" class="hidden fixed inset-0 z-50 bg-ink/65 backdrop-blur-xs flex items-center justify-center p-4 transition-opacity" role="dialog" aria-modal="true" aria-labelledby="upgrade-modal-title">
+      <div class="relative bg-white border border-gold/40 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+        <div class="h-1 bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+        <div class="p-6">
+          <div class="flex items-center justify-between pb-3 mb-3 border-b border-steel/15">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-lg bg-cream flex items-center justify-center text-gold">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              </div>
+              <h3 id="upgrade-modal-title" class="font-marcellus text-lg text-ink">Sol·licitud d'Upgrade</h3>
+            </div>
+            <button type="button" onclick="closeUpgradeModal()" class="text-steel hover:text-ink text-sm font-bold p-1 cursor-pointer" aria-label="Tancar">✕</button>
+          </div>
+
+          <p class="text-xs sm:text-sm text-ink/80 leading-relaxed font-raleway">
+            Has seleccionat l'ampliació al pla <strong id="modal-plan-name" class="text-ink font-bold">Pla Plus</strong>.
+          </p>
+
+          <div class="my-4 p-3.5 rounded-xl bg-gold/10 border-l-[3.5px] border-gold text-xs text-ink/85 leading-relaxed font-raleway">
+            <strong class="text-ink font-bold block mb-1">Passarel·la de Pagament (Iteració 7)</strong>
+            La passarel·la automatitzada de targetes i subscripcions amb Stripe estarà disponible en la fase de facturació. Mentrestant, el canvi de pla és gestionat directament pel nostre equip notarial sense interrupció de la custòdia.
+          </div>
+
+          <div class="pt-2 flex items-center justify-end gap-2">
+            <button type="button" onclick="closeUpgradeModal()" class="px-4 py-2 rounded-xl bg-cream hover:bg-cream/80 text-ink text-xs font-semibold font-raleway cursor-pointer transition-colors">
+              Entesos
+            </button>
+            <a href="mailto:suport@registrals.com?subject=Sol·licitud%20de%20Canvi%20de%20Pla%20Registrals" class="px-4 py-2 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 text-xs font-bold font-raleway shadow-xs cursor-pointer transition-colors inline-flex items-center gap-1.5">
+              <span>Contactar Suport</span>
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  function showUpgradeNotice(planName) {
+    const modal = document.getElementById('upgrade-modal');
+    const nameSpan = document.getElementById('modal-plan-name');
+    if (!modal) return;
+    if (nameSpan) nameSpan.textContent = planName;
+    modal.classList.remove('hidden');
+  }
+
+  function closeUpgradeModal() {
+    const modal = document.getElementById('upgrade-modal');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  // Tancar amb tecla ESC o clic al backdrop
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeUpgradeModal();
+  });
+  const modalElem = document.getElementById('upgrade-modal');
+  if (modalElem) {
+    modalElem.addEventListener('click', function(e) {
+      if (e.target === this) closeUpgradeModal();
+    });
+  }
+</script>
+{% endblock %}

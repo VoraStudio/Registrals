@@ -12,13 +12,13 @@
   {% include 'partials/_private_header.html.twig' with { back_to_dashboard: true } %}
 
   {# Contingut Principal #}
-  <main class="w-full max-w-6xl mx-auto my-auto py-5 sm:py-8 px-4 sm:px-6 lg:px-8 space-y-4 sm:space-y-6">
+  <main class="w-full max-w-5xl mx-auto py-2 sm:py-3 px-3 sm:px-6 lg:px-8 space-y-2 sm:space-y-2.5">
 
     {# Capçalera del Bé i CUI Preassignat (Compacta a mòbil) #}
-    <div class="flex items-center justify-between sm:justify-center gap-3 pb-1 sm:pb-2">
+    <div class="flex items-center justify-between sm:justify-center gap-4 pb-1">
       <div>
-        <h1 class="text-xl sm:text-3xl md:text-4xl font-marcellus text-ink tracking-wide">Registra un Nou Bé</h1>
-        <p class="text-xs text-ink/70 font-raleway hidden sm:block mt-1">
+        <h1 class="text-lg sm:text-xl font-marcellus text-ink tracking-wide">Registra un Nou Bé</h1>
+        <p class="text-xs text-ink/70 font-raleway hidden sm:block mt-0.5">
           Introdueix les dades i proves documentals per immutabilitzar la titularitat notarial.
         </p>
       </div>
@@ -30,26 +30,26 @@
     </div>
 
     {# Indicador de Passos del Wizard en Mòbil (< lg) #}
-    <div class="lg:hidden bg-white/95 backdrop-blur-xs border border-gold/30 rounded-2xl p-1 flex items-center justify-between text-xs font-semibold shadow-xs">
-      <button type="button" onclick="goToStep(1)" id="step-nav-1" class="flex-1 py-1.5 px-1 rounded-xl text-center transition-all bg-ink text-gold border border-gold/40 font-mono text-[11px] font-bold">
+    <div class="lg:hidden bg-white/95 backdrop-blur-xs border border-gold/30 rounded-2xl p-1 flex items-center justify-between text-xs font-semibold shadow-xs gap-0.5">
+      <button type="button" onclick="goToStep(1)" id="step-nav-1" class="flex-1 py-1.5 px-0.5 sm:px-1 rounded-xl text-center transition-all bg-ink text-gold border border-gold/40 text-[10.5px] sm:text-xs font-bold whitespace-nowrap">
         1 · Foto
       </button>
-      <div class="w-1 h-0.5 bg-steel/20"></div>
-      <button type="button" onclick="goToStep(2)" id="step-nav-2" class="flex-1 py-1.5 px-1 rounded-xl text-center transition-all text-ink/60 font-mono text-[11px]">
+      <div class="w-px h-3 bg-steel/20 shrink-0"></div>
+      <button type="button" onclick="goToStep(2)" id="step-nav-2" class="flex-1 py-1.5 px-0.5 sm:px-1 rounded-xl text-center transition-all text-ink/65 text-[10.5px] sm:text-xs whitespace-nowrap">
         2 · Proves
       </button>
-      <div class="w-1 h-0.5 bg-steel/20"></div>
-      <button type="button" onclick="goToStep(3)" id="step-nav-3" class="flex-1 py-1.5 px-1 rounded-xl text-center transition-all text-ink/60 font-mono text-[11px]">
+      <div class="w-px h-3 bg-steel/20 shrink-0"></div>
+      <button type="button" onclick="goToStep(3)" id="step-nav-3" class="flex-1 py-1.5 px-0.5 sm:px-1 rounded-xl text-center transition-all text-ink/65 text-[10.5px] sm:text-xs whitespace-nowrap">
         3 · Dades
       </button>
-      <div class="w-1 h-0.5 bg-steel/20"></div>
-      <button type="button" onclick="goToStep(4)" id="step-nav-4" class="flex-1 py-1.5 px-1 rounded-xl text-center transition-all text-ink/60 font-mono text-[11px]">
+      <div class="w-px h-3 bg-steel/20 shrink-0"></div>
+      <button type="button" onclick="goToStep(4)" id="step-nav-4" class="flex-1 py-1.5 px-0.5 sm:px-1 rounded-xl text-center transition-all text-ink/65 text-[10.5px] sm:text-xs whitespace-nowrap">
         4 · Origen
       </button>
     </div>
 
     {# Targeta Patró Clar Notarial (2 Columnes en Desktop / Slider Horitzontal en Mòbil) #}
-    <div class="bg-white/90 backdrop-blur-md border border-gold/40 rounded-3xl p-4 sm:p-7 md:p-9 shadow-2xl shadow-ink/10 relative overflow-hidden text-ink">
+    <div class="bg-white/95 backdrop-blur-md border border-gold/40 rounded-2xl p-4 sm:p-5 lg:p-6 shadow-xl shadow-ink/10 relative overflow-hidden text-ink">
       {# Lluentor daurada superior #}
       <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent opacity-90"></div>
 
@@ -61,45 +61,107 @@
         }
       </style>
 
-      {{ form_start(form, {'attr': {'class': 'space-y-6', 'enctype': 'multipart/form-data', 'id': 'form-item-wizard'}}) }}
+      {{ form_start(form, {'attr': {'class': 'space-y-3 sm:space-y-4', 'enctype': 'multipart/form-data', 'id': 'form-item-wizard'}}) }}
 
         {# Contenidor amb Retall Horitzontal per al Lliscament en Mòbil #}
         <div class="overflow-hidden w-full">
 
           {# Track de Lliscament (Flex suau a mòbil / CSS Grid 12 cols a Desktop) #}
-          <div id="wizard-track" class="flex transition-transform duration-300 ease-out lg:grid lg:grid-cols-12 lg:gap-8 lg:translate-x-0 w-full items-start">
+          <div id="wizard-track" class="flex transition-transform duration-300 ease-out lg:grid lg:grid-cols-12 lg:gap-x-6 lg:gap-y-4 lg:translate-x-0 w-full items-start">
 
             {# ============================================================== #}
             {# PAS 1: FOTOGRAFIA PRINCIPAL                                    #}
             {# ============================================================== #}
-            <div id="step-panel-1" class="w-full shrink-0 flex-none space-y-4 px-0.5 lg:w-auto lg:shrink lg:px-0 lg:col-start-1 lg:col-span-5 lg:row-start-1">
-              <div class="flex items-center gap-2.5 pb-2 border-b border-gold/20">
-                <span class="w-6 h-6 rounded-full bg-ink text-gold flex items-center justify-center font-bold text-xs font-mono">1</span>
-                <h2 class="font-marcellus text-base sm:text-lg text-ink">Fotografia Principal</h2>
+            <div id="step-panel-1" class="w-full shrink-0 flex-none space-y-2 px-0.5 lg:w-auto lg:shrink lg:px-0 lg:col-start-1 lg:col-span-5 lg:row-start-1 flex flex-col justify-start">
+              <div class="flex items-center gap-2 pb-1 border-b border-gold/20 shrink-0 w-full">
+                <span class="w-5 h-5 rounded-full bg-ink text-gold flex items-center justify-center font-bold text-[11px] font-mono">1</span>
+                <h2 class="font-marcellus text-sm sm:text-base text-ink">Fotografia Principal</h2>
               </div>
 
-              {# Marc Càrrega Foto Principal #}
-              <label for="{{ form.primaryPhoto.vars.id }}" class="border-2 border-dashed border-gold/50 hover:border-gold rounded-2xl p-4 sm:p-5 text-center bg-cream/25 hover:bg-cream/45 transition-all flex flex-col justify-between items-center group cursor-pointer focus-within:ring-2 focus-within:ring-gold min-h-[190px] sm:min-h-[220px]">
+              {# Marc Càrrega Foto Principal (Contenidor DIV per complir W3C i evitar col·lisions de clicks a mòbil) #}
+              <div class="relative overflow-hidden border-2 border-dashed border-gold/50 hover:border-gold rounded-xl p-3 text-center bg-cream/25 hover:bg-cream/45 transition-all flex flex-col justify-center items-center group focus-within:ring-2 focus-within:ring-gold w-full min-h-[175px] sm:min-h-[195px]">
                 {{ form_widget(form.primaryPhoto) }}
-                <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-cream border border-gold/40 text-gold flex items-center justify-center mb-1 sm:mb-2 group-hover:scale-105 transition-transform">
-                  <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                {# Input Ocult amb Càmera en Directe per a Mòbil #}
+                <input type="file" id="primary-photo-camera" accept="image/*" capture="environment" class="hidden" />
+
+                {# Label invisible per a Desktop (permet arrossegar o fer clic a tot el marc a PC) #}
+                <label for="{{ form.primaryPhoto.vars.id }}" class="absolute inset-0 cursor-pointer hidden lg:block z-0"></label>
+
+                {# Previsualització de la imatge carregada #}
+                <div id="photo-preview-container" class="hidden absolute inset-0 w-full h-full bg-cream/30 z-10 pointer-events-none">
+                  <img id="photo-preview-img" src="" alt="Previsualització del bé" class="w-full h-full object-cover rounded-xl" />
+                  <div class="absolute inset-0 bg-gradient-to-t from-ink/80 via-transparent to-transparent flex items-end p-2.5 pointer-events-auto">
+                    <div class="w-full bg-ink/90 backdrop-blur-xs text-cream py-1 px-2.5 rounded-lg flex items-center justify-between text-[11px] border border-gold/30">
+                      <span id="photo-preview-name" class="truncate font-sans font-medium text-cream max-w-[130px] sm:max-w-[160px]">foto.jpg</span>
+                      <div class="flex items-center gap-2 shrink-0">
+                        <span class="text-gold text-[10px] font-bold uppercase tracking-wider hover:underline cursor-pointer" onclick="document.getElementById('{{ form.primaryPhoto.vars.id }}').click()">Canviar</span>
+                        <button type="button" onclick="removePrimaryPhoto(event)" class="text-red-400 hover:text-red-300 text-[10px] font-bold uppercase tracking-wider ml-1 hover:underline cursor-pointer">✕ Treure</button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div class="space-y-0.5">
-                  <div class="text-xs sm:text-sm font-bold text-ink" id="photo-label">Fotografia Principal de l'Objecte</div>
-                  <div class="text-[11px] sm:text-xs text-ink/65">Fes clic o arrossega la imatge</div>
+
+                {# Overlay d'anàlisi d'IA en curs #}
+                <div id="photo-ai-loading" class="hidden absolute inset-0 bg-ink/90 backdrop-blur-xs rounded-xl flex flex-col items-center justify-center p-3 text-center text-cream z-20 transition-all pointer-events-none">
+                  <div class="w-8 h-8 rounded-full border-2 border-gold/40 border-t-gold animate-spin mb-2"></div>
+                  <div class="text-xs font-bold text-gold font-marcellus">Assistent d'IA SGLang</div>
+                  <div class="text-[10px] text-cream/80 mt-0.5">Analitzant la imatge i catalogant l'objecte...</div>
                 </div>
-                <span class="mt-2.5 sm:mt-3 px-3 py-1 bg-ink text-cream text-[10px] sm:text-[11px] font-semibold rounded-lg uppercase tracking-wider group-hover:bg-ink/90 transition-colors">
-                  Seleccionar Imatge
-                </span>
-                {{ form_errors(form.primaryPhoto, {'attr': {'class': 'text-red-600 text-xs mt-2'}}) }}
-              </label>
+
+                {# Overlay de Rebuig per IA Sintètica (C2PA) #}
+                <div id="photo-rejection-overlay" class="hidden absolute inset-0 bg-red-50/95 backdrop-blur-xs rounded-xl flex flex-col items-center justify-center p-3 text-center text-red-900 border-2 border-red-500 z-30 transition-all">
+                  <div class="w-8 h-8 rounded-full bg-red-100 text-red-700 flex items-center justify-center font-bold text-sm mb-1.5 shadow-2xs">✕</div>
+                  <div class="text-xs font-bold text-red-800 font-raleway">Fotografia Sintètica Rebutjada</div>
+                  <div id="photo-rejection-reason" class="text-[10px] text-red-700 leading-snug px-2 mt-0.5"></div>
+                  <button type="button" onclick="removePrimaryPhoto(event)" class="mt-2 px-3 py-1 rounded-lg bg-red-700 text-white text-[10px] font-bold hover:bg-red-800 transition-colors shadow-2xs cursor-pointer">
+                    ✕ Treure fitxer i pujar foto real
+                  </button>
+                </div>
+
+                <div id="photo-empty-state" class="relative z-1 flex flex-col justify-center items-center w-full h-full py-2 gap-2">
+                  <div onclick="if(window.innerWidth < 1024) document.getElementById('primary-photo-camera').click();" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-cream border border-gold/40 text-gold flex items-center justify-center group-hover:scale-105 transition-transform cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                  </div>
+                  <div class="space-y-0.5 text-center">
+                    <div class="text-xs sm:text-sm font-bold text-ink" id="photo-label">Fotografia Principal de l'Objecte</div>
+                    <div class="text-[10px] sm:text-[11px] text-ink/65">
+                      <span class="lg:hidden">Fes una foto nítida amb la càmera o tria de la galeria</span>
+                      <span class="hidden lg:inline">Fes clic o arrossega per auto-omplir dades</span>
+                    </div>
+                  </div>
+
+                  {# Botoier Mòbil: Càmera directa o Galeria #}
+                  <div class="lg:hidden flex flex-col sm:flex-row items-center gap-1.5 w-full max-w-xs mt-1">
+                    <button type="button" onclick="document.getElementById('primary-photo-camera').click();" class="w-full py-2 px-3 bg-ink text-gold border border-gold/40 rounded-xl text-xs font-bold font-raleway flex items-center justify-center gap-1.5 shadow-xs active:scale-[0.98] transition-transform cursor-pointer">
+                      <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                      <span>Obrir Càmera del Mòbil</span>
+                    </button>
+                    <button type="button" onclick="document.getElementById('{{ form.primaryPhoto.vars.id }}').click();" class="w-full py-1.5 px-3 bg-cream/70 hover:bg-cream border border-steel/30 text-ink rounded-xl text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer">
+                      <span>🖼️ Triar de la Galeria</span>
+                    </button>
+                  </div>
+
+                  <span class="hidden lg:inline-block mt-0.5 px-3 py-1 bg-ink text-cream text-[10px] font-semibold rounded-lg uppercase tracking-wider group-hover:bg-ink/90 transition-colors shadow-2xs pointer-events-none">
+                    Seleccionar Imatge
+                  </span>
+                </div>
+                {{ form_errors(form.primaryPhoto, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
+              </div>
+
+              {# Pont QR per a PC (Mobile Handoff) #}
+              <div class="hidden lg:flex items-center justify-center pt-1">
+                <button type="button" onclick="openMobileHandoffModal('photo')" class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-ink/80 hover:text-ink bg-cream/70 hover:bg-cream border border-gold/40 px-3 py-1.5 rounded-xl transition-all shadow-2xs hover:shadow-xs group cursor-pointer">
+                  <svg class="w-3.5 h-3.5 text-gold group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                  <span>Capturar foto amb el mòbil (QR)</span>
+                </button>
+              </div>
 
               {# Botó de navegació Mòbil per al Pas 1 #}
-              <div class="lg:hidden flex items-center justify-between pt-3 border-t border-gold/20">
+              <div class="lg:hidden flex items-center justify-between pt-2 border-t border-gold/20">
                 <a href="{{ path('app_dashboard') }}" class="text-xs text-ink/70 hover:text-ink font-semibold">
                   Cancel·lar
                 </a>
-                <button type="button" onclick="goToStep(2)" class="py-2.5 px-5 rounded-xl bg-ink text-cream text-xs font-bold font-raleway flex items-center gap-1.5 shadow-md">
+                <button type="button" onclick="goToStep(2)" class="py-2 px-4 rounded-xl bg-ink text-cream text-xs font-bold font-raleway flex items-center gap-1.5 shadow-md">
                   <span>Següent: Proves</span>
                   <span class="text-gold">→</span>
                 </button>
@@ -109,39 +171,107 @@
             {# ============================================================== #}
             {# PAS 2: FACTURA O COMPROVANT (PROVES)                           #}
             {# ============================================================== #}
-            <div id="step-panel-2" class="w-full shrink-0 flex-none space-y-4 px-0.5 lg:w-auto lg:shrink lg:px-0 lg:col-start-1 lg:col-span-5 lg:row-start-2">
-              <div class="flex items-center gap-2.5 pb-2 border-b border-gold/20">
-                <span class="w-6 h-6 rounded-full bg-ink text-gold flex items-center justify-center font-bold text-xs font-mono">2</span>
-                <h2 class="font-marcellus text-base sm:text-lg text-ink">Proves & Comprovants</h2>
+            <div id="step-panel-2" class="w-full shrink-0 flex-none space-y-2 px-0.5 lg:w-auto lg:shrink lg:px-0 lg:col-start-1 lg:col-span-5 lg:row-start-2 flex flex-col justify-start">
+              <div class="flex items-center gap-2 pb-1 border-b border-gold/20 shrink-0 w-full">
+                <span class="w-5 h-5 rounded-full bg-ink text-gold flex items-center justify-center font-bold text-[11px] font-mono">2</span>
+                <h2 class="font-marcellus text-sm sm:text-base text-ink">Proves & Comprovants</h2>
               </div>
 
-              {# Marc Càrrega Factura o Comprovant #}
-              <label for="{{ form.invoiceFile.vars.id }}" class="border-2 border-dashed border-steel/30 hover:border-gold/60 rounded-2xl p-4 sm:p-5 text-center bg-white/50 hover:bg-cream/35 transition-all flex flex-col justify-between items-center group cursor-pointer focus-within:ring-2 focus-within:ring-gold min-h-[160px] sm:min-h-[190px]">
+              {# Marc Càrrega Factura o Comprovant (Contenidor DIV per complir W3C) #}
+              <div class="relative overflow-hidden border-2 border-dashed border-steel/30 hover:border-gold/60 rounded-xl p-2.5 text-center bg-white/50 hover:bg-cream/35 transition-all flex flex-col justify-center items-center group focus-within:ring-2 focus-within:ring-gold w-full min-h-[125px] sm:min-h-[135px]">
                 {{ form_widget(form.invoiceFile) }}
-                <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-cream border border-steel/40 text-steel flex items-center justify-center mb-1 sm:mb-2 group-hover:scale-105 transition-transform">
-                  <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                </div>
-                <div class="space-y-0.5">
-                  <div class="text-xs sm:text-sm font-bold text-ink" id="invoice-label">Factura, Tiquet o Garantia</div>
-                  <div class="text-[11px] sm:text-xs text-ink/65">Arxiu PDF o foto del comprovant fiscal</div>
-                </div>
-                <span class="mt-2.5 sm:mt-3 px-3 py-1 bg-cream border border-steel/30 text-ink text-[10px] sm:text-[11px] font-semibold rounded-lg uppercase tracking-wider group-hover:bg-cream/80 transition-colors">
-                  Adjuntar Comprovant
-                </span>
-                {{ form_errors(form.invoiceFile, {'attr': {'class': 'text-red-600 text-xs mt-2'}}) }}
-              </label>
+                {# Input Ocult amb Càmera en Directe per al comprovant a Mòbil #}
+                <input type="file" id="invoice-file-camera" accept="image/*" capture="environment" class="hidden" />
 
-              {# Nota d'informació sobre la custòdia (Guia d'Estils) #}
-              <div class="guide-note">
-                <strong>Custòdia Notarial de Proves:</strong> Els fitxers i comprovants es custodien xifrats fora de l'arrel web i vinculats al hash <code>SHA-256</code> mestre del bé.
+                {# Label invisible per a Desktop #}
+                <label for="{{ form.invoiceFile.vars.id }}" class="absolute inset-0 cursor-pointer hidden lg:block z-0"></label>
+
+                {# Previsualització del comprovant carregat (Imatge o PDF) #}
+                <div id="invoice-preview-container" class="hidden absolute inset-0 w-full h-full bg-cream/30 z-10 pointer-events-none">
+                  {# Imatge del tiquet o factura #}
+                  <img id="invoice-preview-img" src="" alt="Previsualització del comprovant" class="hidden w-full h-full object-cover rounded-xl" />
+
+                  {# Targeta Notarial per a PDF #}
+                  <div id="invoice-preview-pdf" class="hidden w-full h-full bg-gradient-to-br from-ink/95 via-ink to-ink/90 text-cream flex flex-col items-center justify-center p-2.5 rounded-xl">
+                    <div class="flex items-center gap-1.5 mb-1">
+                      <span class="px-1.5 py-0.5 rounded bg-red-600 text-white font-mono font-bold text-[9px] tracking-wider uppercase">PDF</span>
+                      <span class="text-xs font-marcellus text-gold tracking-wide">Comprovant Fiscal</span>
+                    </div>
+                    <div id="invoice-pdf-name" class="text-[11px] font-sans text-cream/90 truncate max-w-[180px]">document.pdf</div>
+                    <div class="text-[9px] text-cream/60 mt-0.5 font-raleway">Custòdia xifrada garantida</div>
+                  </div>
+
+                  {# Barra inferior interactiva amb Nom, Canviar i Treure #}
+                  <div class="absolute inset-0 bg-gradient-to-t from-ink/80 via-transparent to-transparent flex items-end p-2 pointer-events-auto">
+                    <div class="w-full bg-ink/90 backdrop-blur-xs text-cream py-1 px-2.5 rounded-lg flex items-center justify-between text-[11px] border border-gold/30">
+                      <span id="invoice-preview-name" class="truncate font-sans font-medium text-cream max-w-[130px] sm:max-w-[160px]">tiquet.jpg</span>
+                      <div class="flex items-center gap-2 shrink-0">
+                        <span class="text-gold text-[10px] font-bold uppercase tracking-wider hover:underline cursor-pointer" onclick="document.getElementById('{{ form.invoiceFile.vars.id }}').click()">Canviar</span>
+                        <button type="button" onclick="removeInvoiceDocument(event)" class="text-red-400 hover:text-red-300 text-[10px] font-bold uppercase tracking-wider ml-1 hover:underline cursor-pointer">✕ Treure</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {# Overlay d'anàlisi d'IA de factura en curs #}
+                <div id="invoice-ai-loading" class="hidden absolute inset-0 bg-ink/90 backdrop-blur-xs rounded-xl flex flex-col items-center justify-center p-3 text-center text-cream z-20 transition-all pointer-events-none">
+                  <div class="w-7 h-7 rounded-full border-2 border-gold/40 border-t-gold animate-spin mb-1.5"></div>
+                  <div class="text-xs font-bold text-gold font-marcellus">OCR Notarial d'IA</div>
+                  <div class="text-[10px] text-cream/80 mt-0.5">Extraient import fiscal, comerç i dades de compra...</div>
+                </div>
+
+                <div id="invoice-empty-state" class="relative z-1 flex flex-col justify-center items-center w-full h-full py-2 gap-1.5">
+                  <div onclick="if(window.innerWidth < 1024) document.getElementById('invoice-file-camera').click();" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-cream border border-steel/40 text-steel flex items-center justify-center mb-0.5 group-hover:scale-105 transition-transform cursor-pointer">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                  </div>
+                  <div class="space-y-0.5 text-center">
+                    <div class="text-xs font-bold text-ink" id="invoice-label">Factura, Tiquet o Garantia</div>
+                    <div class="text-[10px] text-ink/65">
+                      <span class="lg:hidden">Fotografia el comprovant o adjunta un document PDF</span>
+                      <span class="hidden lg:inline">PDF o foto del comprovant fiscal</span>
+                    </div>
+                  </div>
+
+                  {# Botoier Mòbil per al comprovant #}
+                  <div class="lg:hidden flex flex-col sm:flex-row items-center gap-1.5 w-full max-w-xs mt-1">
+                    <button type="button" onclick="document.getElementById('invoice-file-camera').click();" class="w-full py-2 px-3 bg-ink text-gold border border-gold/40 rounded-xl text-xs font-bold font-raleway flex items-center justify-center gap-1.5 shadow-xs active:scale-[0.98] transition-transform cursor-pointer">
+                      <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                      <span>Fotografiar Tiquet</span>
+                    </button>
+                    <button type="button" onclick="document.getElementById('{{ form.invoiceFile.vars.id }}').click();" class="w-full py-1.5 px-3 bg-cream/70 hover:bg-cream border border-steel/30 text-ink rounded-xl text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer">
+                      <span>📄 PDF o Galeria</span>
+                    </button>
+                  </div>
+
+                  <span class="hidden lg:inline-block mt-0.5 px-2.5 py-0.5 bg-cream border border-steel/30 text-ink text-[10px] font-semibold rounded-lg uppercase tracking-wider group-hover:bg-cream/80 transition-colors pointer-events-none">
+                    Adjuntar Comprovant
+                  </span>
+                </div>
+                {{ form_errors(form.invoiceFile, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
+              </div>
+
+              {# Pont QR per a PC (Mobile Handoff per al comprovant) #}
+              <div class="hidden lg:flex items-center justify-center pt-1">
+                <button type="button" onclick="openMobileHandoffModal('invoice')" class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-ink/80 hover:text-ink bg-cream/70 hover:bg-cream border border-gold/40 px-3 py-1.5 rounded-xl transition-all shadow-2xs hover:shadow-xs group cursor-pointer">
+                  <svg class="w-3.5 h-3.5 text-gold group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                  <span>Capturar comprovant amb el mòbil (QR)</span>
+                </button>
+              </div>
+
+              {# Estat de Concordança i Lectura de la Prova #}
+              <div id="invoice-feedback-container" class="hidden transition-all"></div>
+
+              {# Nota d'informació sobre la custòdia (Guia d'Estils condensada) #}
+              <div id="custody-note" class="guide-note text-[10px] sm:text-[11px] py-1.5 px-2.5 leading-snug">
+                <strong>Custòdia de Proves:</strong> Fitxers xifrats fora de l'arrel web i vinculats al hash <code>SHA-256</code> mestre.
               </div>
 
               {# Botons de navegació Mòbil per al Pas 2 #}
-              <div class="lg:hidden flex items-center justify-between pt-3 border-t border-gold/20">
-                <button type="button" onclick="goToStep(1)" class="py-2.5 px-4 rounded-xl bg-cream border border-steel/30 text-ink text-xs font-semibold">
+              <div class="lg:hidden flex items-center justify-between pt-2 border-t border-gold/20">
+                <button type="button" onclick="goToStep(1)" class="py-2 px-3.5 rounded-xl bg-cream border border-steel/30 text-ink text-xs font-semibold">
                   ← Enrere
                 </button>
-                <button type="button" onclick="goToStep(3)" class="py-2.5 px-5 rounded-xl bg-ink text-cream text-xs font-bold font-raleway flex items-center gap-1.5 shadow-md">
+                <button type="button" onclick="goToStep(3)" class="py-2 px-4 rounded-xl bg-ink text-cream text-xs font-bold font-raleway flex items-center gap-1.5 shadow-md">
                   <span>Següent: Dades</span>
                   <span class="text-gold">→</span>
                 </button>
@@ -151,87 +281,87 @@
             {# ============================================================== #}
             {# PAS 3: IDENTIFICACIÓ DEL BÉ                                    #}
             {# ============================================================== #}
-            <div id="step-panel-3" class="w-full shrink-0 flex-none space-y-4 px-0.5 lg:w-auto lg:shrink lg:px-0 lg:col-start-6 lg:col-span-7 lg:row-start-1">
-              <div class="flex items-center gap-2.5 pb-2 border-b border-gold/20">
-                <span class="w-6 h-6 rounded-full bg-ink text-gold flex items-center justify-center font-bold text-xs font-mono">3</span>
-                <h2 class="font-marcellus text-base sm:text-lg text-ink">Identificació del Bé</h2>
+            <div id="step-panel-3" class="w-full shrink-0 flex-none space-y-2.5 px-0.5 lg:w-auto lg:shrink lg:px-0 lg:col-start-6 lg:col-span-7 lg:row-start-1">
+              <div class="flex items-center gap-2 pb-1 border-b border-gold/20">
+                <span class="w-5 h-5 rounded-full bg-ink text-gold flex items-center justify-center font-bold text-[11px] font-mono">3</span>
+                <h2 class="font-marcellus text-sm sm:text-base text-ink">Identificació del Bé</h2>
               </div>
 
-              <div class="space-y-3.5">
+              <div class="space-y-2 sm:space-y-2.5">
                 {# 1a Fila: Nom o Títol del Bé #}
                 <div>
-                  {{ form_label(form.name, null, {'label_attr': {'class': 'block text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-ink mb-1'}}) }}
+                  {{ form_label(form.name, null, {'label_attr': {'class': 'block text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-ink mb-1'}}) }}
                   {{ form_widget(form.name) }}
-                  {{ form_errors(form.name, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
+                  {{ form_errors(form.name, {'attr': {'class': 'text-red-600 text-xs mt-0.5'}}) }}
                 </div>
 
                 {# 2a Fila: Categoria Principal i Subcategoria #}
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                   <div>
-                    {{ form_label(form.category, null, {'label_attr': {'class': 'block text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-ink mb-1'}}) }}
+                    {{ form_label(form.category, null, {'label_attr': {'class': 'block text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-ink mb-1'}}) }}
                     {{ form_widget(form.category) }}
-                    {{ form_errors(form.category, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
+                    {{ form_errors(form.category, {'attr': {'class': 'text-red-600 text-xs mt-0.5'}}) }}
                   </div>
                   <div>
-                    {{ form_label(form.subcategory, null, {'label_attr': {'class': 'block text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-ink mb-1'}}) }}
+                    {{ form_label(form.subcategory, null, {'label_attr': {'class': 'block text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-ink mb-1'}}) }}
                     {{ form_widget(form.subcategory) }}
-                    {{ form_errors(form.subcategory, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
+                    {{ form_errors(form.subcategory, {'attr': {'class': 'text-red-600 text-xs mt-0.5'}}) }}
                   </div>
                 </div>
 
                 {# 3a Fila: Marca / Fabricant i Model / Versió #}
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                   <div>
-                    {{ form_label(form.brand, null, {'label_attr': {'class': 'block text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-ink mb-1'}}) }}
+                    {{ form_label(form.brand, null, {'label_attr': {'class': 'block text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-ink mb-1'}}) }}
                     {{ form_widget(form.brand) }}
-                    {{ form_errors(form.brand, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
+                    {{ form_errors(form.brand, {'attr': {'class': 'text-red-600 text-xs mt-0.5'}}) }}
                   </div>
                   <div>
-                    {{ form_label(form.model, null, {'label_attr': {'class': 'block text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-ink mb-1'}}) }}
+                    {{ form_label(form.model, null, {'label_attr': {'class': 'block text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-ink mb-1'}}) }}
                     {{ form_widget(form.model) }}
-                    {{ form_errors(form.model, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
+                    {{ form_errors(form.model, {'attr': {'class': 'text-red-600 text-xs mt-0.5'}}) }}
                   </div>
                 </div>
 
                 {# 4a Fila: Número de Sèrie i Valor Estimat (amb Toggle Progressiu) #}
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 items-end">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 items-end">
                   <div>
-                    {{ form_label(form.serialNumber, null, {'label_attr': {'class': 'block text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-ink mb-1'}}) }}
+                    {{ form_label(form.serialNumber, null, {'label_attr': {'class': 'block text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-ink mb-1'}}) }}
                     {{ form_widget(form.serialNumber) }}
-                    {{ form_errors(form.serialNumber, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
+                    {{ form_errors(form.serialNumber, {'attr': {'class': 'text-red-600 text-xs mt-0.5'}}) }}
                   </div>
 
                   {# Valor Estimat amb Revelació Progressiva #}
                   <div>
                     {# Botó inicial si està buit #}
                     <div id="btn-toggle-declared-value-wrapper">
-                      <button type="button" onclick="showDeclaredValueField()" class="w-full h-[46px] rounded-xl border border-dashed border-steel/40 hover:border-gold bg-cream/25 hover:bg-cream/45 text-xs font-semibold text-ink/80 flex items-center justify-center gap-1.5 transition-all cursor-pointer">
-                        <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-                        <span>Vols registrar el valor?</span>
+                      <button type="button" onclick="showDeclaredValueField()" class="w-full h-[38px] sm:h-[40px] rounded-xl border border-dashed border-steel/40 hover:border-gold bg-cream/25 hover:bg-cream/45 text-xs font-semibold text-ink/80 flex items-center justify-center gap-1.5 transition-all cursor-pointer">
+                        <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                        <span id="btn-toggle-declared-value-text">Vols entrar import? (opcional)</span>
                       </button>
                     </div>
 
                     {# Camp Desplegat #}
-                    <div id="container-declared-value" class="hidden space-y-1">
+                    <div id="container-declared-value" class="hidden space-y-0.5">
                       <div class="flex items-center justify-between">
-                        {{ form_label(form.declaredValueEuros, null, {'label_attr': {'class': 'block text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-ink font-raleway'}}) }}
-                        <button type="button" onclick="hideDeclaredValueField()" class="text-[11px] text-steel hover:text-ink font-semibold">
+                        {{ form_label(form.declaredValueEuros, null, {'label_attr': {'class': 'block text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-ink font-raleway mb-1'}}) }}
+                        <button type="button" onclick="hideDeclaredValueField()" class="text-[10px] text-steel hover:text-ink font-semibold">
                           ✕ Sense valor
                         </button>
                       </div>
                       {{ form_widget(form.declaredValueEuros) }}
-                      {{ form_errors(form.declaredValueEuros, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
+                      {{ form_errors(form.declaredValueEuros, {'attr': {'class': 'text-red-600 text-xs mt-0.5'}}) }}
                     </div>
                   </div>
                 </div>
               </div>
 
               {# Botons de navegació Mòbil per al Pas 3 #}
-              <div class="lg:hidden flex items-center justify-between pt-3 border-t border-gold/20">
-                <button type="button" onclick="goToStep(2)" class="py-2.5 px-4 rounded-xl bg-cream border border-steel/30 text-ink text-xs font-semibold">
+              <div class="lg:hidden flex items-center justify-between pt-2 border-t border-gold/20">
+                <button type="button" onclick="goToStep(2)" class="py-2 px-3.5 rounded-xl bg-cream border border-steel/30 text-ink text-xs font-semibold">
                   ← Enrere
                 </button>
-                <button type="button" onclick="validateStep3AndNext()" class="py-2.5 px-5 rounded-xl bg-ink text-cream text-xs font-bold font-raleway flex items-center gap-1.5 shadow-md">
+                <button type="button" onclick="validateStep3AndNext()" class="py-2 px-4 rounded-xl bg-ink text-cream text-xs font-bold font-raleway flex items-center gap-1.5 shadow-md">
                   <span>Següent: Origen</span>
                   <span class="text-gold">→</span>
                 </button>
@@ -241,46 +371,46 @@
             {# ============================================================== #}
             {# PAS 4: ORIGEN, TRAÇABILITAT I TANCAMENT                        #}
             {# ============================================================== #}
-            <div id="step-panel-4" class="w-full shrink-0 flex-none space-y-4 px-0.5 lg:w-auto lg:shrink lg:px-0 lg:col-start-6 lg:col-span-7 lg:row-start-2">
-              <div class="flex items-center gap-2.5 pb-2 border-b border-gold/20">
-                <span class="w-6 h-6 rounded-full bg-ink text-gold flex items-center justify-center font-bold text-xs font-mono">4</span>
-                <h2 class="font-marcellus text-base sm:text-lg text-ink">Origen & Traçabilitat</h2>
+            <div id="step-panel-4" class="w-full shrink-0 flex-none space-y-2.5 px-0.5 lg:w-auto lg:shrink lg:px-0 lg:col-start-6 lg:col-span-7 lg:row-start-2">
+              <div class="flex items-center gap-2 pb-1 border-b border-gold/20">
+                <span class="w-5 h-5 rounded-full bg-ink text-gold flex items-center justify-center font-bold text-[11px] font-mono">4</span>
+                <h2 class="font-marcellus text-sm sm:text-base text-ink">Origen & Traçabilitat</h2>
               </div>
 
-              <div class="space-y-3.5">
+              <div class="space-y-2 sm:space-y-2.5">
                 {# 1a Fila: Origen de Propietat i Data d'Adquisició #}
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                   <div>
-                    {{ form_label(form.acquisitionType, null, {'label_attr': {'class': 'block text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-ink mb-1'}}) }}
+                    {{ form_label(form.acquisitionType, null, {'label_attr': {'class': 'block text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-ink mb-1'}}) }}
                     {{ form_widget(form.acquisitionType) }}
-                    {{ form_errors(form.acquisitionType, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
+                    {{ form_errors(form.acquisitionType, {'attr': {'class': 'text-red-600 text-xs mt-0.5'}}) }}
                   </div>
                   <div>
-                    {{ form_label(form.acquisitionDate, null, {'label_attr': {'class': 'block text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-ink mb-1'}}) }}
+                    {{ form_label(form.acquisitionDate, null, {'label_attr': {'class': 'block text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-ink mb-1'}}) }}
                     {{ form_widget(form.acquisitionDate) }}
-                    {{ form_errors(form.acquisitionDate, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
+                    {{ form_errors(form.acquisitionDate, {'attr': {'class': 'text-red-600 text-xs mt-0.5'}}) }}
                   </div>
                 </div>
 
                 {# 2a Fila: Circumstàncies d'Adquisició / Observacions #}
                 <div>
-                  {{ form_label(form.acquisitionCircumstances, null, {'label_attr': {'class': 'block text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-ink mb-1'}}) }}
+                  {{ form_label(form.acquisitionCircumstances, null, {'label_attr': {'class': 'block text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-ink mb-1'}}) }}
                   {{ form_widget(form.acquisitionCircumstances) }}
-                  {{ form_errors(form.acquisitionCircumstances, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
+                  {{ form_errors(form.acquisitionCircumstances, {'attr': {'class': 'text-red-600 text-xs mt-0.5'}}) }}
                 </div>
 
-                {# Avís Notarial de Segellat Inicial (Guia d'Estils) #}
-                <div class="guide-note">
-                  <strong>Segellat Notarial Inicial:</strong> En confirmar l'alta es generarà la versió <code>v1</code> immutable. Qualsevol modificació posterior de fotografies o proves alterarà el hash <code>SHA-256</code> mestre i requerirà un nou ancoratge criptogràfic.
+                {# Avís Notarial de Segellat Inicial en Mòbil (a desktop es mostra al footer) #}
+                <div class="guide-note lg:hidden text-[10px] sm:text-[11px] mt-1 py-1.5 px-2.5 leading-snug">
+                  <strong>Segellat Notarial Inicial:</strong> En confirmar l'alta es generarà la versió <code>v1</code> immutable vinculada al hash <code>SHA-256</code>.
                 </div>
               </div>
 
               {# Botons de navegació Mòbil per al Pas 4 (amb Confirmació Final) #}
-              <div class="lg:hidden flex items-center justify-between pt-3 border-t border-gold/20 gap-3">
-                <button type="button" onclick="goToStep(3)" class="py-2.5 px-4 rounded-xl bg-cream border border-steel/30 text-ink text-xs font-semibold shrink-0">
+              <div class="lg:hidden flex items-center justify-between pt-2 border-t border-gold/20 gap-3">
+                <button type="button" onclick="goToStep(3)" class="py-2 px-3.5 rounded-xl bg-cream border border-steel/30 text-ink text-xs font-semibold shrink-0">
                   ← Enrere
                 </button>
-                <button type="submit" style="background-color: #1D2F4B; color: #FAF6F0;" class="flex-1 py-3 px-4 rounded-xl shadow-lg hover:bg-ink/90 active:scale-[0.99] font-bold text-xs font-raleway cursor-pointer transition-all flex items-center justify-center gap-2">
+                <button type="submit" id="btn-submit-item-mobile" style="background-color: #1D2F4B; color: #FAF6F0;" class="flex-1 py-2.5 px-4 rounded-xl shadow-lg hover:bg-ink/90 active:scale-[0.99] font-bold text-xs font-raleway cursor-pointer transition-all flex items-center justify-center gap-2">
                   <span>Guardar i Registrar</span>
                   <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                 </button>
@@ -290,15 +420,21 @@
           </div>
         </div>
 
-        {# Botó d'Acció Final en Escriptori (Visible només a lg:) #}
-        <div class="hidden lg:flex pt-5 border-t border-gold/30 items-center justify-between gap-4">
-          <a href="{{ path('app_dashboard') }}" class="text-xs sm:text-sm text-ink/70 hover:text-ink font-semibold">
-            Cancel·lar i tornar
+        {# Botó d'Acció Final en Escriptori (Visible només a lg:) amb Garantia Integrada #}
+        <div class="hidden lg:flex pt-3.5 border-t border-gold/25 items-center justify-between gap-4">
+          <a href="{{ path('app_dashboard') }}" class="text-xs text-ink/70 hover:text-ink font-semibold transition-colors">
+            ← Cancel·lar
           </a>
 
-          <button type="submit" style="background-color: #1D2F4B; color: #FAF6F0;" class="w-auto py-3.5 px-8 rounded-xl shadow-lg hover:bg-ink/90 active:scale-[0.99] font-bold text-sm sm:text-base font-raleway cursor-pointer transition-all flex items-center justify-center gap-2.5">
+          <div class="flex items-center gap-2 text-[11px] text-ink/75 font-raleway">
+            <span class="w-1.5 h-1.5 rounded-full bg-gold"></span>
+            <span>Segellat Notarial Inicial: es generarà la versió <code class="font-mono text-gold bg-ink px-1 py-0.5 rounded text-[10px]">v1</code> immutable (SHA-256).</span>
+            <div id="submit-guard-badge" class="ml-2 inline-flex items-center"></div>
+          </div>
+
+          <button type="submit" id="btn-submit-item-desktop" style="background-color: #1D2F4B; color: #FAF6F0;" class="w-auto py-2.5 px-6 rounded-xl shadow-md hover:bg-ink/90 active:scale-[0.99] font-bold text-xs sm:text-sm font-raleway cursor-pointer transition-all flex items-center justify-center gap-2">
             <span>Confirmar i Registrar Bé</span>
-            <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
           </button>
         </div>
 
@@ -330,12 +466,12 @@
   const catSelect = document.getElementById('{{ form.category.vars.id }}');
   const subSelect = document.getElementById('{{ form.subcategory.vars.id }}');
 
-  function updateSubcategories() {
+  function updateSubcategories(targetSubId = null) {
     if (!catSelect || !subSelect) return;
     const selectedCatId = catSelect.value;
     const subs = categoryTree[selectedCatId] || [];
 
-    const previousValue = subSelect.value;
+    const previousValue = targetSubId !== null ? String(targetSubId) : subSelect.value;
     subSelect.innerHTML = '';
 
     if (subs.length === 0) {
@@ -353,37 +489,599 @@
     defaultOpt.textContent = 'Selecciona una subcategoria...';
     subSelect.appendChild(defaultOpt);
 
-    let hasMatchedPrevious = false;
+    let hasMatched = false;
     subs.forEach(sub => {
       const opt = document.createElement('option');
       opt.value = sub.id;
       opt.textContent = sub.name;
       if (previousValue && String(previousValue) === String(sub.id)) {
         opt.selected = true;
-        hasMatchedPrevious = true;
+        hasMatched = true;
       }
       subSelect.appendChild(opt);
     });
 
-    if (!hasMatchedPrevious) {
+    if (!hasMatched) {
       defaultOpt.selected = true;
     }
   }
 
   if (catSelect && subSelect) {
-    catSelect.addEventListener('change', updateSubcategories);
+    catSelect.addEventListener('change', () => updateSubcategories());
     updateSubcategories();
   }
 
-  // Feedback dinàmic en triar arxius
+  // Elements del formulari per a l'auto-omplert per IA
+  const nameInput = document.getElementById('{{ form.name.vars.id }}');
+  const brandInput = document.getElementById('{{ form.brand.vars.id }}');
+  const modelInput = document.getElementById('{{ form.model.vars.id }}');
+  const serialInput = document.getElementById('{{ form.serialNumber.vars.id }}');
+  const acquisitionDateInput = document.getElementById('{{ form.acquisitionDate.vars.id }}');
+  const acquisitionCircumstancesInput = document.getElementById('{{ form.acquisitionCircumstances.vars.id }}');
+
+  // Si l'usuari edita manualment qualsevol camp, retirem la marca d'auto-deducció d'IA per no buidar-lo en treure el fitxer
+  [nameInput, brandInput, modelInput, serialInput, catSelect, subSelect].forEach(el => {
+    if (!el) return;
+    const clearInferredPhoto = () => { delete el.dataset.inferredFromPhoto; };
+    el.addEventListener('input', clearInferredPhoto);
+    el.addEventListener('change', clearInferredPhoto);
+  });
+  if (acquisitionCircumstancesInput) {
+    const clearInferredInvoice = () => { delete acquisitionCircumstancesInput.dataset.inferredFromInvoice; };
+    acquisitionCircumstancesInput.addEventListener('input', clearInferredInvoice);
+    acquisitionCircumstancesInput.addEventListener('change', clearInferredInvoice);
+  }
+
+  // Estat reactiu de l'anàlisi de document
+  let lastInvoiceExtraction = null;
+  let isDiscrepancyAccepted = false;
+
+  // Variables d'estat per al Bloqueig Notarial del Botó Guardar (Subiteració 3.6)
+  let isPhotoRejected = false;
+  let isInvoiceRejected = false;
+  let isAnalyzingPhoto = false;
+  let isAnalyzingInvoice = false;
+
+  function updateSubmitButtonState() {
+    const desktopBtn = document.getElementById('btn-submit-item-desktop');
+    const mobileBtn = document.getElementById('btn-submit-item-mobile');
+    const guardBadge = document.getElementById('submit-guard-badge');
+
+    let isBlocked = false;
+    let blockReason = '';
+
+    if (isPhotoRejected) {
+      isBlocked = true;
+      blockReason = 'Fotografia rebutjada (origen sintètic d\'IA)';
+    } else if (isInvoiceRejected) {
+      isBlocked = true;
+      blockReason = 'Comprovant rebutjat (origen sintètic d\'IA)';
+    } else if (isAnalyzingPhoto || isAnalyzingInvoice) {
+      isBlocked = true;
+      blockReason = 'Validant integritat de proves...';
+    }
+
+    [desktopBtn, mobileBtn].forEach(btn => {
+      if (!btn) return;
+      if (isBlocked) {
+        btn.disabled = true;
+        btn.classList.add('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
+        btn.classList.remove('hover:bg-ink/90', 'active:scale-[0.99]');
+        btn.title = blockReason;
+      } else {
+        btn.disabled = false;
+        btn.classList.remove('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
+        btn.classList.add('hover:bg-ink/90', 'active:scale-[0.99]');
+        btn.title = '';
+      }
+    });
+
+    if (guardBadge) {
+      if (isBlocked) {
+        guardBadge.innerHTML = `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-red-50 border border-red-200 text-red-700 text-[10px] font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse"></span> ${escapeHtml(blockReason)}</span>`;
+      } else {
+        guardBadge.innerHTML = `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[10px] font-mono"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Proves Validades</span>`;
+      }
+    }
+  }
+
+  function showPhotoRejection(reason) {
+    const photoLabel = document.getElementById('photo-label');
+    const overlay = document.getElementById('photo-rejection-overlay');
+    const reasonEl = document.getElementById('photo-rejection-reason');
+    if (photoLabel) {
+      photoLabel.innerText = '⚠️ Fotografia Rebutjada';
+      photoLabel.classList.add('text-red-700');
+    }
+    if (reasonEl) reasonEl.innerText = reason;
+    if (overlay) overlay.classList.remove('hidden');
+  }
+
+  function showInvoiceRejection(reason) {
+    const feedbackContainer = document.getElementById('invoice-feedback-container');
+    const invoiceLabel = document.getElementById('invoice-label');
+    if (invoiceLabel) {
+      invoiceLabel.innerText = '⚠️ Comprovant Rebutjat';
+      invoiceLabel.classList.add('text-red-700');
+    }
+    if (feedbackContainer) {
+      feedbackContainer.classList.remove('hidden');
+      feedbackContainer.innerHTML = `
+        <div class="p-3 rounded-xl bg-red-50/95 border-l-[3.5px] border-red-600 text-xs text-red-900 leading-snug shadow-xs space-y-2">
+          <div class="flex items-center gap-2 font-bold text-red-800">
+            <span class="text-sm">⚠️</span>
+            <span>Document Rebutjat per Seguretat Notarial</span>
+          </div>
+          <div class="text-[10px] text-red-700 leading-tight">
+            ${escapeHtml(reason)}
+          </div>
+          <div class="pt-1">
+            <button type="button" onclick="removeInvoiceDocument(event)" class="px-3 py-1 rounded-lg bg-red-700 text-white text-[10px] font-bold hover:bg-red-800 transition-colors">
+              ✕ Desvincular comprovant sintètic
+            </button>
+          </div>
+        </div>`;
+    }
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>"']/g, function(m) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+    });
+  }
+
+  function markFieldWithAi(inputEl) {
+    if (!inputEl) return;
+    inputEl.classList.add('ring-2', 'ring-gold', 'bg-gold/10');
+    setTimeout(() => {
+      inputEl.classList.remove('ring-2', 'ring-gold');
+    }, 4500);
+  }
+
+  // Re-avaluació dinàmica de la concordança creuada entre bé i comprovant
+  function reevaluateInvoiceCongruence(fromPhotoUpdate = false, manualTrigger = false) {
+    const feedbackContainer = document.getElementById('invoice-feedback-container');
+    if (!feedbackContainer) return;
+
+    if (!lastInvoiceExtraction || !invoiceInput || !invoiceInput.files || !invoiceInput.files[0]) {
+      feedbackContainer.innerHTML = '';
+      feedbackContainer.classList.add('hidden');
+      return;
+    }
+
+    const d = lastInvoiceExtraction;
+    feedbackContainer.classList.remove('hidden');
+
+    const currentName = nameInput ? nameInput.value.trim().toLowerCase() : '';
+    const currentBrand = brandInput ? brandInput.value.trim().toLowerCase() : '';
+    const docBrand = (d && d.brand) ? d.brand.trim().toLowerCase() : '';
+    const docName = (d && d.name) ? d.name.trim().toLowerCase() : '';
+
+    // 1. Document no coincident o no fiscal (confiança nul·la o sense dades)
+    if (d && (d.confidence <= 0.2 || (!docBrand && !docName))) {
+      const noteText = d.notes ? escapeHtml(d.notes) : "No s'han pogut extreure dades fiscals ni de compra d'aquest document.";
+      feedbackContainer.innerHTML = `
+        <div class="guide-note py-2 px-2.5 text-[11px] leading-snug">
+          <div class="flex items-center gap-1.5 font-bold text-ink">
+            <span class="text-gold font-bold">⚠️</span>
+            <span>Document no coincident o no fiscal</span>
+          </div>
+          <div class="text-[10px] text-ink/80 mt-1 leading-tight">
+            ${noteText}
+          </div>
+          <div class="mt-2 pt-1.5 border-t border-gold/25 flex items-center justify-between gap-2">
+            <button type="button" onclick="removeInvoiceDocument(event)" class="inline-flex items-center gap-1 text-[10px] font-semibold text-red-700 hover:text-red-900 bg-red-50 hover:bg-red-100 py-1 px-2.5 rounded-lg border border-red-200 transition-colors">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              <span>Desvincular document</span>
+            </button>
+            <button type="button" onclick="acceptDocumentDiscrepancy()" class="text-[10px] font-semibold text-ink/70 hover:text-ink hover:underline">
+              Mantenir igualment
+            </button>
+          </div>
+        </div>`;
+      return;
+    }
+
+    // 2. Si el document s'ha adjuntat abans de tenir cap foto o dades al formulari
+    const hasPrimaryPhoto = (primaryInput && primaryInput.files && primaryInput.files[0]) || (document.getElementById('photo-preview-container') && !document.getElementById('photo-preview-container').classList.contains('hidden'));
+    if (!hasPrimaryPhoto && !currentBrand && !currentName) {
+      const details = [];
+      if (d.sellerName) details.push(`Venedor: <strong>${escapeHtml(d.sellerName)}</strong>`);
+      if (d.acquisitionDate) details.push(`Data: <strong>${escapeHtml(d.acquisitionDate)}</strong>`);
+      if (d.declaredValueEuros) details.push(`Import: <strong>${escapeHtml(String(d.declaredValueEuros))} €</strong>`);
+      const detailsHtml = details.length > 0 ? details.join(' · ') : '';
+
+      feedbackContainer.innerHTML = `
+        <div class="rounded-xl border border-steel/30 bg-steel/5 p-2.5 text-[11px] text-ink flex items-start justify-between gap-2 shadow-xs transition-all">
+          <div class="flex items-start gap-2">
+            <span class="text-steel font-bold text-sm leading-none mt-0.5">ℹ️</span>
+            <div class="space-y-0.5">
+              <div class="font-bold text-ink font-raleway">Comprovant fiscal adjuntat</div>
+              <div class="text-[10px] text-ink/75 leading-tight">Pendent de contrastar amb la fotografia del bé (Pas 1).</div>
+              ${detailsHtml ? `<div class="text-[10px] text-steel font-mono mt-0.5">${detailsHtml}</div>` : ''}
+            </div>
+          </div>
+          <button type="button" onclick="removeInvoiceDocument(event)" class="text-[10px] text-steel hover:text-red-700 hover:underline shrink-0 font-medium ml-1">✕ Treure</button>
+        </div>`;
+      return;
+    }
+
+    // 3. Discrepància entre la prova documental i el bé físic
+    // Hi ha discrepància si el document especifica una marca comercial i:
+    // a) El bé té una marca diferent, O
+    // b) El bé no té marca ni el títol del bé fa referència a aquesta marca comercial.
+    const isBrandMismatch = Boolean(docBrand && (
+      (currentBrand && currentBrand !== docBrand && !currentName.includes(docBrand)) ||
+      (!currentBrand && !currentName.includes(docBrand))
+    ));
+
+    // Contrast de categoria: si tant el document com el bé tenen categoria deduïda i no coincideixen
+    const currentCatId = catSelect ? String(catSelect.value) : '';
+    const docCatId = (d && d.categoryId) ? String(d.categoryId) : '';
+    const isCategoryMismatch = Boolean(currentCatId && docCatId && currentCatId !== docCatId);
+
+    const hasDiscrepancy = (isBrandMismatch || isCategoryMismatch) && !isDiscrepancyAccepted;
+
+    if (hasDiscrepancy) {
+      let discrepancyText = '';
+      if (isCategoryMismatch && isBrandMismatch) {
+        discrepancyText = `El document és de tipus <strong>${escapeHtml(d.brand || d.name)}</strong> i pertany a una categoria diferent a la del bé seleccionat.`;
+      } else if (isBrandMismatch) {
+        discrepancyText = `El document correspon a <strong>${escapeHtml(d.brand || d.name)}</strong>, mentre que el bé s'ha identificat com a <strong>${escapeHtml(brandInput.value || nameInput.value || 'bé sense marca')}</strong>.`;
+      } else {
+        discrepancyText = `La categoria del document no sembla correspondre a la categoria d'aquest bé.`;
+      }
+
+      feedbackContainer.innerHTML = `
+        <div class="guide-note py-2 px-2.5 text-[11px] leading-snug">
+          <div class="flex items-center gap-1.5 font-bold text-ink">
+            <span class="text-gold font-bold">⚠️</span>
+            <span>Discrepància detectada en la prova</span>
+          </div>
+          <div class="text-[10px] text-ink/80 mt-1 leading-tight">
+            ${discrepancyText} Revisa que sigui el comprovant correcte.
+          </div>
+          <div class="mt-2 pt-1.5 border-t border-gold/25 flex items-center justify-between gap-2">
+            <button type="button" onclick="removeInvoiceDocument(event)" class="inline-flex items-center gap-1 text-[10px] font-semibold text-red-700 hover:text-red-900 bg-red-50 hover:bg-red-100 py-1 px-2.5 rounded-lg border border-red-200 transition-colors">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              <span>Desvincular document</span>
+            </button>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="reevaluateInvoiceCongruence(false, true)" class="text-[10px] font-semibold text-ink/75 hover:text-ink hover:underline">
+                ↻ Reavaluar
+              </button>
+              <button type="button" onclick="acceptDocumentDiscrepancy()" class="text-[10px] font-semibold text-ink/70 hover:text-ink hover:underline">
+                Mantenir igualment
+              </button>
+            </div>
+          </div>
+        </div>`;
+      return;
+    }
+
+    // 4. Document congruent amb el bé (o discrepància superada gràcies a la nova foto)
+    isDiscrepancyAccepted = false; // Reset de discrepància perquè ara sí és congruent
+
+    // Si les dades ara coincideixen gràcies a la nova foto, aprofitem per omplir venedor si era buit
+    if (d.sellerName && acquisitionCircumstancesInput && (!acquisitionCircumstancesInput.value || acquisitionCircumstancesInput.value.trim() === '')) {
+      acquisitionCircumstancesInput.value = 'Comprat a ' + d.sellerName + (d.taxId ? ' (NIF/CIF: ' + d.taxId + ')' : '');
+      markFieldWithAi(acquisitionCircumstancesInput);
+    }
+
+    const details = [];
+    if (d.sellerName) details.push(`Venedor: <strong>${escapeHtml(d.sellerName)}</strong>`);
+    if (d.taxId) {
+      if (d.taxIdValid === true) {
+        details.push(`NIF: <strong>${escapeHtml(d.taxId)}</strong> <span class="text-emerald-700 font-mono text-[9px]">(Dígit control ✓)</span>`);
+      } else if (d.taxIdValid === false) {
+        details.push(`NIF: <strong>${escapeHtml(d.taxId)}</strong> <span class="text-red-700 font-mono text-[9px]">(Dígit invàlid ⚠️)</span>`);
+      } else {
+        details.push(`NIF: <strong>${escapeHtml(d.taxId)}</strong>`);
+      }
+    }
+    if (d.acquisitionDate) details.push(`Data: <strong>${escapeHtml(d.acquisitionDate)}</strong>`);
+    if (d.declaredValueEuros) details.push(`Import: <strong>${escapeHtml(String(d.declaredValueEuros))} €</strong>`);
+    if (d.arithmeticCheck && d.arithmeticCheck.explanation) {
+      if (d.arithmeticCheck.valid === true) {
+        details.push(`<span class="text-emerald-700 font-mono text-[9px]">✓ ${escapeHtml(d.arithmeticCheck.explanation)}</span>`);
+      } else {
+        details.push(`<span class="text-amber-800 font-mono text-[9px]">⚠️ ${escapeHtml(d.arithmeticCheck.explanation)}</span>`);
+      }
+    }
+
+    const detailsHtml = details.length > 0 ? details.join(' · ') : 'Dades de compra verificades.';
+
+    feedbackContainer.innerHTML = `
+      <div class="rounded-xl border border-emerald-500/30 bg-emerald-50/80 p-2.5 text-[11px] text-emerald-950 flex items-start justify-between gap-2 shadow-xs transition-all">
+        <div class="flex items-start gap-2">
+          <span class="text-emerald-600 font-bold text-sm leading-none mt-0.5">✓</span>
+          <div class="space-y-0.5">
+            <div class="font-bold text-emerald-900 font-raleway">Document congruent amb el bé</div>
+            <div class="text-[10px] text-emerald-800/90 leading-tight">${detailsHtml}</div>
+          </div>
+        </div>
+        <button type="button" onclick="removeInvoiceDocument(event)" class="text-[10px] text-steel hover:text-red-700 hover:underline shrink-0 font-medium ml-1">✕ Treure</button>
+      </div>`;
+
+    if (fromPhotoUpdate && window.RegistralsToast) {
+      window.RegistralsToast.show('✨ Comprovant validat', 'La nova fotografia concorda amb el comprovant fiscal adjunt.', 'success');
+    } else if (manualTrigger && window.RegistralsToast) {
+      window.RegistralsToast.show('✓ Comprovant congruent', 'Les dades del formulari coincideixen amb la prova.', 'success');
+    }
+  }
+
+  // Escolta reactiva de canvis als camps de text principals i categoria
+  if (brandInput) brandInput.addEventListener('input', () => { if (lastInvoiceExtraction) reevaluateInvoiceCongruence(); });
+  if (nameInput) nameInput.addEventListener('input', () => { if (lastInvoiceExtraction) reevaluateInvoiceCongruence(); });
+  if (catSelect) catSelect.addEventListener('change', () => { if (lastInvoiceExtraction) reevaluateInvoiceCongruence(); });
+
+  async function analyzeMediaWithAi(file, promptType) {
+    const loadingOverlay = document.getElementById(promptType === 'photo' ? 'photo-ai-loading' : 'invoice-ai-loading');
+    if (loadingOverlay) loadingOverlay.classList.remove('hidden');
+
+    if (promptType === 'photo') isAnalyzingPhoto = true;
+    else isAnalyzingInvoice = true;
+    updateSubmitButtonState();
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('promptType', promptType);
+
+    try {
+      const response = await fetch('{{ path('app_item_analyze_media') }}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      });
+
+      const res = await response.json().catch(() => null);
+
+      if (!response.ok || (res && res.success === false)) {
+        if (res && res.code === 'AI_SYNTHETIC_REJECTED') {
+          if (window.RegistralsToast) {
+            window.RegistralsToast.show('⚠️ Fitxer Rebutjat (IA Detectada)', res.error, 'error');
+          }
+          if (promptType === 'photo') {
+            isPhotoRejected = true;
+            showPhotoRejection(res.error);
+          } else {
+            isInvoiceRejected = true;
+            showInvoiceRejection(res.error);
+          }
+          updateSubmitButtonState();
+          return;
+        } else if (res && res.code === 'AI_QUOTA_EXCEEDED') {
+          if (window.RegistralsToast) {
+            window.RegistralsToast.show('Crèdits d\'IA exhaurits', res.error, 'warning');
+          }
+        } else if (res && res.code === 'AI_DISABLED') {
+          if (window.RegistralsToast) {
+            window.RegistralsToast.show('IA desactivada', res.error, 'info');
+          }
+        } else {
+          console.warn('Avís en anàlisi d\'IA:', res ? res.error : response.status);
+        }
+        if (promptType === 'photo' && lastInvoiceExtraction) {
+          reevaluateInvoiceCongruence(true);
+        }
+        updateSubmitButtonState();
+        return;
+      }
+
+      if (promptType === 'photo') isPhotoRejected = false;
+      else isInvoiceRejected = false;
+      updateSubmitButtonState();
+
+      if (res && res.data) {
+        const d = res.data;
+        let fieldsUpdated = 0;
+        const isPhoto = promptType === 'photo';
+
+        // 1. Camps d'Identitat del Bé Físic (Pas 3): NOMÉS la fotografia principal pot inferir-los!
+        // El document fiscal (Pas 2) mai no ha de sobreescriure la identitat del bé.
+        if (isPhoto) {
+          if (d.name && nameInput) {
+            nameInput.value = d.name;
+            nameInput.dataset.inferredFromPhoto = 'true';
+            markFieldWithAi(nameInput);
+            fieldsUpdated++;
+          }
+
+          if (brandInput) {
+            if (d.brand) {
+              brandInput.value = d.brand;
+              brandInput.dataset.inferredFromPhoto = 'true';
+              markFieldWithAi(brandInput);
+              fieldsUpdated++;
+            } else {
+              brandInput.value = '';
+              delete brandInput.dataset.inferredFromPhoto;
+            }
+          }
+
+          if (modelInput) {
+            if (d.model) {
+              modelInput.value = d.model;
+              modelInput.dataset.inferredFromPhoto = 'true';
+              markFieldWithAi(modelInput);
+              fieldsUpdated++;
+            } else {
+              modelInput.value = '';
+              delete modelInput.dataset.inferredFromPhoto;
+            }
+          }
+
+          if (serialInput) {
+            if (d.serialNumber) {
+              serialInput.value = d.serialNumber;
+              serialInput.dataset.inferredFromPhoto = 'true';
+              markFieldWithAi(serialInput);
+              fieldsUpdated++;
+            } else {
+              serialInput.value = '';
+              delete serialInput.dataset.inferredFromPhoto;
+            }
+          }
+
+          if (d.categoryId && catSelect) {
+            catSelect.value = d.categoryId;
+            catSelect.dataset.inferredFromPhoto = 'true';
+            updateSubcategories(d.subcategoryId || null);
+            markFieldWithAi(catSelect);
+            fieldsUpdated++;
+
+            if (d.subcategoryId && subSelect && String(subSelect.value) === String(d.subcategoryId)) {
+              subSelect.dataset.inferredFromPhoto = 'true';
+              markFieldWithAi(subSelect);
+              fieldsUpdated++;
+            }
+          } else if (d.subcategoryId && subSelect) {
+            subSelect.value = d.subcategoryId;
+            subSelect.dataset.inferredFromPhoto = 'true';
+            markFieldWithAi(subSelect);
+            fieldsUpdated++;
+          }
+        }
+
+        // 2. Camps de Compra i Origen (Pas 4): deduïts tant de prova com de tiquet
+        if (d.declaredValueEuros && declaredValueInput) {
+          if (declaredValueToggleWrapper) {
+            declaredValueToggleWrapper.dataset.suggestedValue = d.declaredValueEuros;
+            const btnText = document.getElementById('btn-toggle-declared-value-text');
+            if (btnText) {
+              btnText.innerText = `Vols entrar import? (Suggereix ${d.declaredValueEuros} €)`;
+            }
+          }
+          if (declaredValueContainer && !declaredValueContainer.classList.contains('hidden')) {
+            declaredValueInput.value = d.declaredValueEuros;
+            markFieldWithAi(declaredValueInput);
+            fieldsUpdated++;
+          }
+        }
+
+        if (d.acquisitionDate && acquisitionDateInput && (!acquisitionDateInput.value || acquisitionDateInput.value.trim() === '')) {
+          acquisitionDateInput.value = d.acquisitionDate;
+          if (!isPhoto) acquisitionDateInput.dataset.inferredFromInvoice = 'true';
+          markFieldWithAi(acquisitionDateInput);
+          fieldsUpdated++;
+        }
+
+        if (d.sellerName && acquisitionCircumstancesInput && (!acquisitionCircumstancesInput.value || acquisitionCircumstancesInput.value.trim() === '')) {
+          acquisitionCircumstancesInput.value = 'Comprat a ' + d.sellerName + (d.taxId ? ' (NIF/CIF: ' + d.taxId + ')' : '');
+          if (!isPhoto) acquisitionCircumstancesInput.dataset.inferredFromInvoice = 'true';
+          markFieldWithAi(acquisitionCircumstancesInput);
+          fieldsUpdated++;
+        }
+
+        // Avaluació de la prova i concordança creuada
+        if (promptType === 'invoice') {
+          lastInvoiceExtraction = d;
+          isDiscrepancyAccepted = false;
+          reevaluateInvoiceCongruence();
+        } else if (promptType === 'photo') {
+          // Si ja tenim una factura/prova carregada i la nova foto ha canviat les dades, re-avaluem automàticament!
+          if (lastInvoiceExtraction) {
+            reevaluateInvoiceCongruence(true);
+          }
+        }
+
+        if (window.RegistralsToast) {
+          const title = promptType === 'photo' ? '✨ Foto analitzada per IA' : '✨ Factura analitzada per IA';
+          const msg = fieldsUpdated > 0
+            ? `S'han deduït ${fieldsUpdated} camps automàticament. Revisa'ls al formulari.`
+            : 'Anàlisi completada. Pots completar o revisar els camps manualment.';
+          window.RegistralsToast.show(title, msg, 'success');
+        }
+      }
+    } catch (err) {
+      console.warn('Avís en anàlisi d\'IA:', err);
+      if (promptType === 'invoice') {
+        const feedbackContainer = document.getElementById('invoice-feedback-container');
+        if (feedbackContainer) {
+          feedbackContainer.classList.remove('hidden');
+          feedbackContainer.innerHTML = `
+            <div class="rounded-xl border border-steel/25 bg-steel/5 p-2 text-[11px] text-steel flex items-start gap-2">
+              <span class="text-steel font-bold text-sm leading-none mt-0.5">ℹ️</span>
+              <div class="text-[10px] text-steel/90 leading-tight">
+                No s'han pogut extreure dades fiscals automàtiques. El fitxer es custodiarà xifrat per a la fe notarial del registre.
+              </div>
+            </div>`;
+        }
+      }
+    } finally {
+      if (loadingOverlay) loadingOverlay.classList.add('hidden');
+      if (promptType === 'photo') isAnalyzingPhoto = false;
+      else isAnalyzingInvoice = false;
+      updateSubmitButtonState();
+    }
+  }
+
+  // Feedback dinàmic en triar arxius i disparador d'IA
   const primaryInput = document.getElementById('{{ form.primaryPhoto.vars.id }}');
+  const primaryCameraInput = document.getElementById('primary-photo-camera');
+  if (primaryCameraInput) {
+    primaryCameraInput.addEventListener('change', function() {
+      if (this.files && this.files[0] && primaryInput) {
+        primaryInput.files = this.files;
+        primaryInput.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+  }
+
+  const invoiceCameraInput = document.getElementById('invoice-file-camera');
+  if (invoiceCameraInput) {
+    invoiceCameraInput.addEventListener('change', function() {
+      if (this.files && this.files[0] && invoiceInput) {
+        invoiceInput.files = this.files;
+        invoiceInput.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+  }
+
   if (primaryInput) {
     primaryInput.addEventListener('change', function() {
       if (this.files && this.files[0]) {
+        const file = this.files[0];
+
+        // Netejar estat de rebuig previ i amagar overlay vermell
+        const overlay = document.getElementById('photo-rejection-overlay');
+        if (overlay) overlay.classList.add('hidden');
+        isPhotoRejected = false;
+        updateSubmitButtonState();
+
         const lbl = document.getElementById('photo-label');
         if (lbl) {
-          lbl.innerText = '✓ ' + this.files[0].name;
+          lbl.innerText = '✓ ' + file.name;
           lbl.classList.add('text-emerald-700');
+        }
+
+        // Mostrar previsualització de la imatge seleccionada
+        if (file.type.startsWith('image/')) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const previewContainer = document.getElementById('photo-preview-container');
+            const previewImg = document.getElementById('photo-preview-img');
+            const previewName = document.getElementById('photo-preview-name');
+            const emptyState = document.getElementById('photo-empty-state');
+            if (previewImg && previewContainer) {
+              previewImg.src = e.target.result;
+              if (previewName) previewName.innerText = file.name;
+              previewContainer.classList.remove('hidden');
+              if (emptyState) emptyState.classList.add('hidden');
+            }
+          };
+          reader.readAsDataURL(file);
+        }
+
+        // Disparar anàlisi d'IA de la fotografia
+        analyzeMediaWithAi(file, 'photo');
+
+        // Si ja hi ha un document fiscal carregat, reavaluem el contrast immediatament
+        if (lastInvoiceExtraction) {
+          reevaluateInvoiceCongruence(true);
         }
       }
     });
@@ -393,13 +1091,194 @@
   if (invoiceInput) {
     invoiceInput.addEventListener('change', function() {
       if (this.files && this.files[0]) {
+        const file = this.files[0];
+
+        // Netejar estat de rebuig previ de comprovant
+        isInvoiceRejected = false;
+        updateSubmitButtonState();
+
         const lbl = document.getElementById('invoice-label');
         if (lbl) {
-          lbl.innerText = '✓ ' + this.files[0].name;
+          lbl.innerText = '✓ ' + file.name;
           lbl.classList.add('text-emerald-700');
         }
+
+        const previewContainer = document.getElementById('invoice-preview-container');
+        const previewImg = document.getElementById('invoice-preview-img');
+        const previewPdf = document.getElementById('invoice-preview-pdf');
+        const pdfName = document.getElementById('invoice-pdf-name');
+        const previewName = document.getElementById('invoice-preview-name');
+        const emptyState = document.getElementById('invoice-empty-state');
+        const custodyNote = document.getElementById('custody-note');
+
+        if (previewName) previewName.innerText = file.name;
+
+        if (file.type.startsWith('image/')) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            if (previewImg && previewContainer) {
+              previewImg.src = e.target.result;
+              previewImg.classList.remove('hidden');
+              if (previewPdf) previewPdf.classList.add('hidden');
+              previewContainer.classList.remove('hidden');
+              if (emptyState) emptyState.classList.add('hidden');
+            }
+          };
+          reader.readAsDataURL(file);
+        } else if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+          if (previewImg) {
+            previewImg.src = '';
+            previewImg.classList.add('hidden');
+          }
+          if (previewPdf) {
+            if (pdfName) pdfName.innerText = file.name;
+            previewPdf.classList.remove('hidden');
+          }
+          if (previewContainer) previewContainer.classList.remove('hidden');
+          if (emptyState) emptyState.classList.add('hidden');
+        }
+
+        // Amaguem la nota estàtica de custòdia per optimitzar l'alçada visual en carregar la prova
+        if (custodyNote) custodyNote.classList.add('hidden');
+
+        // Disparar OCR d'IA del comprovant fiscal
+        analyzeMediaWithAi(file, 'invoice');
       }
     });
+  }
+
+  function removePrimaryPhoto(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    isPhotoRejected = false;
+    isAnalyzingPhoto = false;
+    updateSubmitButtonState();
+
+    const overlay = document.getElementById('photo-rejection-overlay');
+    if (overlay) overlay.classList.add('hidden');
+
+    if (primaryInput) primaryInput.value = '';
+    const previewContainer = document.getElementById('photo-preview-container');
+    const previewImg = document.getElementById('photo-preview-img');
+    const emptyState = document.getElementById('photo-empty-state');
+    const photoLabel = document.getElementById('photo-label');
+    if (previewImg) previewImg.src = '';
+    if (previewContainer) previewContainer.classList.add('hidden');
+    if (emptyState) emptyState.classList.remove('hidden');
+    if (photoLabel) {
+      photoLabel.innerText = "Fotografia Principal de l'Objecte";
+      photoLabel.classList.remove('text-emerald-700', 'text-red-700');
+    }
+
+    // Buidar camps deduïts exclusivament per la fotografia d'IA
+    let clearedFieldsCount = 0;
+    const photoFields = [nameInput, brandInput, modelInput, serialInput];
+    photoFields.forEach(el => {
+      if (el && el.dataset.inferredFromPhoto === 'true') {
+        el.value = '';
+        delete el.dataset.inferredFromPhoto;
+        el.classList.remove('bg-gold/10', 'ring-2', 'ring-gold');
+        clearedFieldsCount++;
+      }
+    });
+
+    if (catSelect && catSelect.dataset.inferredFromPhoto === 'true') {
+      catSelect.value = '';
+      delete catSelect.dataset.inferredFromPhoto;
+      catSelect.classList.remove('bg-gold/10', 'ring-2', 'ring-gold');
+      if (subSelect && subSelect.dataset.inferredFromPhoto === 'true') {
+        subSelect.value = '';
+        delete subSelect.dataset.inferredFromPhoto;
+        subSelect.classList.remove('bg-gold/10', 'ring-2', 'ring-gold');
+      }
+      updateSubcategories();
+      clearedFieldsCount++;
+    }
+
+    if (window.RegistralsToast) {
+      const msg = clearedFieldsCount > 0
+        ? `S'ha suprimit la foto i s'han buidat ${clearedFieldsCount} camps deduïts per IA.`
+        : 'S\'ha suprimit la fotografia principal del bé.';
+      window.RegistralsToast.show('Fotografia suprimida', msg, 'info');
+    }
+
+    if (lastInvoiceExtraction) {
+      reevaluateInvoiceCongruence();
+    }
+  }
+
+  function removeInvoiceDocument(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    isInvoiceRejected = false;
+    isAnalyzingInvoice = false;
+    updateSubmitButtonState();
+
+    lastInvoiceExtraction = null;
+    isDiscrepancyAccepted = false;
+    if (invoiceInput) invoiceInput.value = '';
+    const lbl = document.getElementById('invoice-label');
+    if (lbl) {
+      lbl.innerText = 'Factura, Tiquet o Garantia';
+      lbl.classList.remove('text-emerald-700', 'text-red-700');
+    }
+    const previewContainer = document.getElementById('invoice-preview-container');
+    const previewImg = document.getElementById('invoice-preview-img');
+    const previewPdf = document.getElementById('invoice-preview-pdf');
+    const emptyState = document.getElementById('invoice-empty-state');
+    const custodyNote = document.getElementById('custody-note');
+
+    if (previewContainer) previewContainer.classList.add('hidden');
+    if (previewImg) {
+      previewImg.src = '';
+      previewImg.classList.add('hidden');
+    }
+    if (previewPdf) previewPdf.classList.add('hidden');
+    if (emptyState) emptyState.classList.remove('hidden');
+    if (custodyNote) custodyNote.classList.remove('hidden');
+
+    // Buidar camps deduïts exclusivament pel comprovant d'IA
+    if (acquisitionCircumstancesInput && acquisitionCircumstancesInput.dataset.inferredFromInvoice === 'true') {
+      acquisitionCircumstancesInput.value = '';
+      delete acquisitionCircumstancesInput.dataset.inferredFromInvoice;
+      acquisitionCircumstancesInput.classList.remove('bg-gold/10', 'ring-2', 'ring-gold');
+    }
+    if (acquisitionDateInput && acquisitionDateInput.dataset.inferredFromInvoice === 'true') {
+      acquisitionDateInput.value = '';
+      delete acquisitionDateInput.dataset.inferredFromInvoice;
+      acquisitionDateInput.classList.remove('bg-gold/10', 'ring-2', 'ring-gold');
+    }
+
+    const feedbackContainer = document.getElementById('invoice-feedback-container');
+    if (feedbackContainer) {
+      feedbackContainer.innerHTML = '';
+      feedbackContainer.classList.add('hidden');
+    }
+    if (window.RegistralsToast) {
+      window.RegistralsToast.show('Document desvinculat', 'S\'ha suprimit el document seleccionat.', 'info');
+    }
+  }
+
+  function acceptDocumentDiscrepancy() {
+    isDiscrepancyAccepted = true;
+    const feedbackContainer = document.getElementById('invoice-feedback-container');
+    if (feedbackContainer) {
+      feedbackContainer.innerHTML = `
+        <div class="rounded-xl border border-gold/40 bg-cream/35 p-2 text-[11px] text-ink flex items-center justify-between gap-2 shadow-xs">
+          <div class="flex items-center gap-1.5">
+            <span class="text-gold font-bold text-xs">✓</span>
+            <span class="text-[10px] text-ink/80">Comprovant acceptat sota la declaració del titular.</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="reevaluateInvoiceCongruence(false, true)" class="text-[10px] text-steel hover:text-ink font-semibold">↻ Reavaluar</button>
+            <button type="button" onclick="removeInvoiceDocument(event)" class="text-[10px] text-red-700 hover:underline font-semibold ml-1 shrink-0">Desvincular</button>
+          </div>
+        </div>`;
+    }
   }
 
   // ==========================================
@@ -411,6 +1290,10 @@
 
   function showDeclaredValueField() {
     if (declaredValueContainer && declaredValueToggleWrapper) {
+      if (declaredValueInput && (!declaredValueInput.value || declaredValueInput.value.trim() === '') && declaredValueToggleWrapper.dataset.suggestedValue) {
+        declaredValueInput.value = declaredValueToggleWrapper.dataset.suggestedValue;
+        markFieldWithAi(declaredValueInput);
+      }
       declaredValueContainer.classList.remove('hidden');
       declaredValueToggleWrapper.classList.add('hidden');
       if (declaredValueInput) declaredValueInput.focus();
@@ -420,8 +1303,11 @@
   function hideDeclaredValueField() {
     if (declaredValueContainer && declaredValueToggleWrapper) {
       if (declaredValueInput) declaredValueInput.value = '';
+      delete declaredValueToggleWrapper.dataset.suggestedValue;
       declaredValueContainer.classList.add('hidden');
       declaredValueToggleWrapper.classList.remove('hidden');
+      const btnText = document.getElementById('btn-toggle-declared-value-text');
+      if (btnText) btnText.innerText = 'Vols entrar import? (opcional)';
     }
   }
 
@@ -434,7 +1320,6 @@
   // Navegació Wizard Pas a Pas en Mòbil (< lg)
   // ==========================================
   let currentStep = 1;
-  const nameInput = document.getElementById('{{ form.name.vars.id }}');
   const wizardTrack = document.getElementById('wizard-track');
 
   function goToStep(step) {
@@ -452,11 +1337,11 @@
       const nav = document.getElementById('step-nav-' + i);
       if (nav) {
         if (i === currentStep) {
-          nav.className = 'flex-1 py-1.5 px-1 rounded-xl text-center transition-all bg-ink text-gold border border-gold/40 font-mono text-[11px] font-bold shadow-xs';
+          nav.className = 'flex-1 py-1.5 px-0.5 sm:px-1 rounded-xl text-center transition-all bg-ink text-gold border border-gold/40 text-[10.5px] sm:text-xs font-bold shadow-xs whitespace-nowrap';
         } else if (i < currentStep) {
-          nav.className = 'flex-1 py-1.5 px-1 rounded-xl text-center transition-all bg-cream/70 text-ink/80 font-mono text-[11px]';
+          nav.className = 'flex-1 py-1.5 px-0.5 sm:px-1 rounded-xl text-center transition-all bg-cream/70 text-ink/80 text-[10.5px] sm:text-xs whitespace-nowrap';
         } else {
-          nav.className = 'flex-1 py-1.5 px-1 rounded-xl text-center transition-all text-ink/50 font-mono text-[11px]';
+          nav.className = 'flex-1 py-1.5 px-0.5 sm:px-1 rounded-xl text-center transition-all text-ink/50 text-[10.5px] sm:text-xs whitespace-nowrap';
         }
       }
     }
@@ -518,5 +1403,192 @@
       goToStep(currentStep);
     }
   });
+
+  // ==========================================
+  // Pont QR per a PC (Mobile Handoff)
+  // ==========================================
+  let handoffPollingInterval = null;
+  let handoffToken = null;
+  let handoffCurrentTarget = 'photo';
+
+  async function openMobileHandoffModal(target = 'photo') {
+    handoffCurrentTarget = target;
+    const modal = document.getElementById('modal-mobile-handoff');
+    const qrLoading = document.getElementById('qr-loading');
+    const qrImg = document.getElementById('qr-code-img');
+    const statusText = document.getElementById('qr-status-text');
+    const modalTitle = document.getElementById('modal-handoff-title');
+    const modalDesc = document.getElementById('modal-handoff-desc');
+
+    if (modalTitle) {
+      modalTitle.innerText = target === 'invoice'
+        ? 'Captura del Comprovant des del Mòbil'
+        : 'Captura de la Foto des del Mòbil';
+    }
+    if (modalDesc) {
+      modalDesc.innerText = target === 'invoice'
+        ? 'Escaneja aquest codi QR amb la càmera del teu telèfon per fotografiar la factura, tiquet o garantia. Es transmetrà en temps real a aquesta pantalla.'
+        : 'Escaneja aquest codi QR amb la càmera del teu telèfon per fer la foto de l\'objecte. La imatge es transmetrà en temps real a aquesta pantalla.';
+    }
+
+    if (modal) modal.classList.remove('hidden');
+    if (qrLoading) qrLoading.classList.remove('hidden');
+    if (qrImg) qrImg.classList.add('hidden');
+    if (statusText) statusText.innerText = 'Generant codi QR segur...';
+
+    try {
+      const response = await fetch('{{ path('app_mobile_handoff_init') }}', {
+        method: 'POST',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ target: target })
+      });
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok || !data || !data.success) {
+        if (statusText) statusText.innerText = 'Error iniciant la sessió de captura.';
+        return;
+      }
+
+      handoffToken = data.token;
+      if (qrImg) {
+        qrImg.src = data.qrDataUri;
+        qrImg.classList.remove('hidden');
+      }
+      if (qrLoading) qrLoading.classList.add('hidden');
+      if (statusText) statusText.innerText = 'Esperant captura des del telèfon...';
+
+      // Polling cada 2 segons
+      if (handoffPollingInterval) clearInterval(handoffPollingInterval);
+      handoffPollingInterval = setInterval(() => pollMobileHandoffStatus(), 2000);
+
+    } catch (err) {
+      if (statusText) statusText.innerText = 'Error de connexió al generar el codi QR.';
+    }
+  }
+
+  function closeMobileHandoffModal() {
+    const modal = document.getElementById('modal-mobile-handoff');
+    if (modal) modal.classList.add('hidden');
+    if (handoffPollingInterval) {
+      clearInterval(handoffPollingInterval);
+      handoffPollingInterval = null;
+    }
+  }
+
+  async function pollMobileHandoffStatus() {
+    if (!handoffToken) return;
+
+    try {
+      const statusUrl = '/app/items/mobile-handoff/status/' + encodeURIComponent(handoffToken);
+      const res = await fetch(statusUrl, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      });
+      const data = await res.json().catch(() => null);
+
+      if (data && data.status === 'completed') {
+        clearInterval(handoffPollingInterval);
+        handoffPollingInterval = null;
+
+        const statusText = document.getElementById('qr-status-text');
+        if (statusText) statusText.innerText = '✓ Fitxer rebut! Descarregant...';
+
+        // Descarregar la imatge com a blob per injectar-la a l'input corresponent
+        const downloadUrl = '/app/items/mobile-handoff/download/' + encodeURIComponent(handoffToken);
+        const fileRes = await fetch(downloadUrl);
+        const blob = await fileRes.blob();
+
+        const target = data.target || handoffCurrentTarget || 'photo';
+        const defaultFilename = target === 'invoice' ? 'comprovant_mobil.jpg' : 'foto_mobil.jpg';
+        const filename = data.photoOriginalName || defaultFilename;
+        const file = new File([blob], filename, { type: blob.type || 'image/jpeg' });
+
+        const dt = new DataTransfer();
+        dt.items.add(file);
+
+        if (target === 'invoice' && invoiceInput) {
+          invoiceInput.files = dt.files;
+          invoiceInput.dispatchEvent(new Event('change', { bubbles: true }));
+        } else if (primaryInput) {
+          primaryInput.files = dt.files;
+          primaryInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        closeMobileHandoffModal();
+
+        if (window.RegistralsToast) {
+          const title = target === 'invoice' ? '✨ Comprovant Sincronitzat' : '✨ Fotografia Sincronitzada';
+          const msg = target === 'invoice'
+            ? 'La foto del document feta des del telèfon s\'ha transferit amb èxit.'
+            : 'La foto del bé feta des del telèfon s\'ha transferit amb èxit.';
+          window.RegistralsToast.show(title, msg, 'success');
+        }
+      } else if (data && data.status === 'expired') {
+        clearInterval(handoffPollingInterval);
+        handoffPollingInterval = null;
+        const statusText = document.getElementById('qr-status-text');
+        if (statusText) statusText.innerText = '⚠️ La sessió ha caducat. Torna a obrir el QR.';
+      }
+    } catch (err) {
+      console.warn('Avís de polling de handoff:', err);
+    }
+  }
+
+  // Tancar modal amb tecla ESC
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeMobileHandoffModal();
+    }
+  });
 </script>
+
+{# Modal Notarial de Pont QR (Mobile Handoff) #}
+<div id="modal-mobile-handoff" class="hidden fixed inset-0 z-50 bg-ink/65 backdrop-blur-xs flex items-center justify-center p-4 transition-opacity" onclick="if (event.target === this) closeMobileHandoffModal();">
+  <div class="bg-white border border-gold/40 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-200" onclick="event.stopPropagation();">
+    <div class="h-1 bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+    <div class="p-5 sm:p-6 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-steel/15">
+        <div class="flex items-center gap-2">
+          <span class="text-gold text-lg">📱</span>
+          <h3 id="modal-handoff-title" class="font-marcellus text-lg text-ink font-bold">Captura en Directe des del Mòbil</h3>
+        </div>
+        <button type="button" onclick="closeMobileHandoffModal()" class="text-steel hover:text-ink text-sm p-1">✕</button>
+      </div>
+
+      <div class="text-center space-y-3">
+        <p id="modal-handoff-desc" class="text-xs text-ink/75 leading-relaxed">
+          Escaneja aquest codi QR amb la càmera del teu telèfon per fer la foto. La imatge es transmetrà en temps real a aquesta pantalla.
+        </p>
+
+        {# Contenidor del QR #}
+        <div id="qr-container" class="relative inline-flex items-center justify-center p-3 bg-white rounded-2xl border-2 border-gold/40 shadow-inner min-w-[200px] min-h-[200px]">
+          <div id="qr-loading" class="flex flex-col items-center justify-center gap-2 py-8">
+            <div class="w-7 h-7 rounded-full border-2 border-gold border-t-transparent animate-spin"></div>
+            <span class="text-[11px] text-ink/60">Generant codi QR segur...</span>
+          </div>
+          <img id="qr-code-img" src="" alt="Codi QR per a captura mòbil" class="hidden w-48 h-48 object-contain" />
+        </div>
+
+        {# Indicador d'espera activa #}
+        <div class="flex items-center justify-center gap-2 text-xs font-mono text-ink/75 pt-1">
+          <span class="w-2 h-2 rounded-full bg-gold animate-pulse"></span>
+          <span id="qr-status-text">Esperant captura des del telèfon...</span>
+        </div>
+      </div>
+
+      <div class="guide-note p-3 text-[11px] leading-snug">
+        <strong>Sense instal·lar cap app:</strong> La càmera del teu telèfon obrirà un formulari efímer xifrat amb 10 minuts de vigència.
+      </div>
+
+      <div class="pt-2 flex justify-end">
+        <button type="button" onclick="closeMobileHandoffModal()" class="px-4 py-2 rounded-xl bg-cream hover:bg-cream/80 text-ink text-xs font-semibold transition-colors">
+          Tancar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
+

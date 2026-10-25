@@ -17,6 +17,7 @@ security:
         main:
             lazy: true
             provider: app_user_provider
+            user_checker: App\Security\UserChecker
             entry_point: form_login
             form_login:
                 login_path: app_login
@@ -42,6 +43,7 @@ security:
         - { path: ^/api/track, roles: PUBLIC_ACCESS }
         - { path: ^/verify, roles: PUBLIC_ACCESS }
         - { path: ^/guia-destils, roles: PUBLIC_ACCESS }
+        - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/app, roles: ROLE_USER }
 
 when@test:

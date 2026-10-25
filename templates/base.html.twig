@@ -7,6 +7,11 @@
     <meta name="description" content="{% block meta_description %}{% endblock %}" />
     <meta name="robots" content="{% block meta_robots %}index, follow{% endblock %}" />
     <meta name="theme-color" content="#1D2F4B" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Registrals" />
+    <link rel="manifest" href="{{ asset('manifest.json') }}" />
     <link rel="canonical" href="{% block canonical_url %}{% endblock %}" />
     <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}" />

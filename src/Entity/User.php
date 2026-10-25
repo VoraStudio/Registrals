@@ -49,8 +49,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $taxId = null;
 
+    #[ORM\Column(type: 'string', length: 30, nullable: true)]
+    private ?string $phone = null;
+
     #[ORM\Column(type: 'string', length: 2, options: ['default' => 'ES'])]
     private string $countryCode = 'ES';
+
+    #[ORM\Column(type: 'boolean', options: ['default' => true])]
+    private bool $isActive = true;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $blockedAt = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $blockReason = null;
 
     #[ORM\Column(type: 'string', length: 20, options: ['default' => 'local'])]
     private string $authProvider = 'local';
@@ -203,6 +215,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setTaxId(?string $taxId): static
     {
         $this->taxId = $taxId;
+        return $this;
+    }
+
+    public function getPhone(): ?string
+    {
+        return $this->phone;
+    }
+
+    public function setPhone(?string $phone): static
+    {
+        $this->phone = $phone;
         return $this;
     }
 
@@ -369,6 +392,44 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->updatedAt = $updatedAt;
         return $this;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->isActive;
+    }
+
+    public function setIsActive(bool $isActive): static
+    {
+        $this->isActive = $isActive;
+        return $this;
+    }
+
+    public function getBlockedAt(): ?\DateTimeImmutable
+    {
+        return $this->blockedAt;
+    }
+
+    public function setBlockedAt(?\DateTimeImmutable $blockedAt): static
+    {
+        $this->blockedAt = $blockedAt;
+        return $this;
+    }
+
+    public function getBlockReason(): ?string
+    {
+        return $this->blockReason;
+    }
+
+    public function setBlockReason(?string $blockReason): static
+    {
+        $this->blockReason = $blockReason;
+        return $this;
+    }
+
+    public function isAdmin(): bool
+    {
+        return \in_array('ROLE_ADMIN', $this->roles, true);
     }
 
     /**

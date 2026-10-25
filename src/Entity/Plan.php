@@ -43,6 +43,9 @@ class Plan
     #[ORM\Column(type: 'integer', options: ['default' => 0])]
     private int $aiAssistanceQuota = 0;
 
+    #[ORM\Column(type: 'boolean', options: ['default' => true])]
+    private bool $aiAssistanceEnabled = true;
+
     #[ORM\Column(type: 'integer', options: ['default' => 0])]
     private int $transfersIncluded = 0;
 
@@ -173,6 +176,17 @@ class Plan
     public function setAiAssistanceQuota(int $aiAssistanceQuota): static
     {
         $this->aiAssistanceQuota = $aiAssistanceQuota;
+        return $this;
+    }
+
+    public function isAiAssistanceEnabled(): bool
+    {
+        return $this->aiAssistanceEnabled;
+    }
+
+    public function setAiAssistanceEnabled(bool $aiAssistanceEnabled): static
+    {
+        $this->aiAssistanceEnabled = $aiAssistanceEnabled;
         return $this;
     }
 

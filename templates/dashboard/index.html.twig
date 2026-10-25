@@ -60,9 +60,10 @@
     {% set itemsCount = items|length %}
     {% set maxAllowed = app.user.plan.maxActiveItems %}
     {% set pct = maxAllowed > 0 ? ((itemsCount / maxAllowed * 100)|round) : 10 %}
+    {% set aiUsed = app.user.aiUsageCount %}
+    {% set maxAi = app.user.plan.aiAssistanceQuota %}
+    {% set aiPct = maxAi > 0 ? ((aiUsed / maxAi * 100)|round) : 0 %}
 
-    {# Versió Mòbil: Franja Única d'Estat i Mètriques (< sm) d'una sola línia (~38px) #}
-    {% set aiCredits = app.user.plan.aiAssistanceQuota - app.user.aiUsageCount %}
     <div class="sm:hidden mb-4 bg-whitef border border-gold/40 rounded-2xl p-2 shadow-2xs flex items-center justify-between text-xs">
       {# Segment 1: Béns #}
       <div class="flex-1 flex items-center justify-center gap-1.5 px-1 border-r border-steel/20">
@@ -77,9 +78,9 @@
       <div class="flex-1 flex items-center justify-center gap-1.5 px-1 border-r border-steel/20">
         <svg class="w-3.5 h-3.5 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
         <span class="font-mono text-[11px] font-bold text-ink whitespace-nowrap">
-          {{ aiCredits > 0 ? aiCredits : '0' }}
+          {{ aiUsed }}<span class="text-ink/45 font-normal">/{{ maxAi > 0 ? maxAi : '∞' }}</span>
         </span>
-        <span class="text-[9px] text-ink/60 font-semibold uppercase tracking-tight whitespace-nowrap">Crèdits IA</span>
+        <span class="text-[9px] text-ink/60 font-semibold uppercase tracking-tight whitespace-nowrap">IA</span>
       </div>
 
       {# Segment 3: Pla Actiu #}
@@ -118,9 +119,12 @@
         <div class="min-w-0">
           <div class="text-[10px] uppercase tracking-wider text-ink/60 font-bold">Crèdits IA</div>
           <div class="flex items-baseline gap-1.5 mt-0.5">
-            <span class="font-marcellus text-lg font-bold text-ink">{{ aiCredits > 0 ? aiCredits : '0' }}</span>
-            <span class="text-xs text-ink/55">consultes</span>
+            <span class="font-marcellus text-lg font-bold text-ink">{{ aiUsed }}</span>
+            <span class="text-xs text-ink/55 font-mono">/ {{ maxAi > 0 ? maxAi : '∞' }} consultes</span>
           </div>
+        </div>
+        <div class="w-24 bg-cream/70 h-1.5 rounded-full overflow-hidden border border-gold/25 ml-auto hidden md:block">
+          <div class="bg-gold h-full rounded-full" style="width: {{ aiPct > 100 ? 100 : aiPct }}%"></div>
         </div>
       </div>
 

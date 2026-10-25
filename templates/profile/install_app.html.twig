@@ -1,0 +1,297 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Com Instal·lar l'App Mòbil — Registrals{% endblock %}
+{% block meta_description %}Guia pas a pas per instal·lar Registrals com a aplicació nativa al teu mòbil (iOS o Android) o al teu ordinador.{% endblock %}
+
+{% block body_class %}bg-cream text-ink min-h-screen flex flex-col justify-between selection:bg-gold selection:text-ink font-raleway{% endblock %}
+
+{% block body %}
+<div class="min-h-screen flex flex-col justify-between bg-cream">
+
+  {# Barra Superior Privada Unificada #}
+  {% include 'partials/_private_header.html.twig' %}
+
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-5 w-full flex-1 space-y-4">
+
+    {# Capçalera de Retorn & Títol #}
+    <div class="pb-3 border-b border-gold/20 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <a href="{{ path('app_profile') }}" class="w-8 h-8 rounded-lg bg-white border border-steel/25 text-steel hover:text-ink hover:border-gold flex items-center justify-center transition-all shadow-2xs" aria-label="Tornar al Perfil">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        </a>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-mono text-gold font-bold uppercase tracking-wider">PWA & Mòbil</span>
+            <span class="w-1 h-1 rounded-full bg-steel/40"></span>
+            <span class="text-[11px] text-ink/60">Experiència Nativa</span>
+          </div>
+          <h1 class="text-xl sm:text-2xl font-marcellus text-ink tracking-wide leading-tight">Com Instal·lar Registrals com a App</h1>
+        </div>
+      </div>
+
+      <div class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-gold/30 text-xs text-ink/80 shadow-2xs font-raleway">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span>Sense descàrregues pesades d'App Store</span>
+      </div>
+    </div>
+
+    {# Targeta Gran Notarial: Guia Dual #}
+    <div class="bg-white rounded-2xl border border-gold/40 shadow-xl p-5 sm:p-7 relative overflow-hidden">
+      {# Lluentor daurada superior #}
+      <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent opacity-90"></div>
+
+      {# ============================================================== #}
+      {# BLOC 1: SI ETS AL PC (DESKTOP)                                 #}
+      {# ============================================================== #}
+      <div class="hidden lg:block space-y-6">
+        <div class="flex items-center gap-2 pb-2 border-b border-steel/15">
+          <span class="text-gold text-base">💻</span>
+          <h2 class="font-marcellus text-lg text-ink font-bold">Estàs connectat des d'un ordinador?</h2>
+          <span class="ml-auto text-[11px] text-ink/60 bg-cream/70 border border-steel/20 px-2.5 py-0.5 rounded-full font-mono">Pas 1: Escaneja amb el mòbil</span>
+        </div>
+
+        <div class="grid grid-cols-12 gap-6 items-center">
+          {# Requadre QR Notarial #}
+          <div class="col-span-5 flex flex-col items-center justify-center p-4 bg-cream/30 rounded-2xl border-2 border-dashed border-gold/40 text-center space-y-3">
+            <div class="bg-white p-3 rounded-xl border border-gold/40 shadow-md">
+              <img src="{{ qrDataUri }}" alt="Codi QR per obrir Registrals al mòbil" class="w-48 h-48 object-contain" />
+            </div>
+            <div class="space-y-0.5">
+              <div class="text-xs font-bold text-ink">Apunta amb la càmera del teu telèfon</div>
+              <div class="text-[10px] text-ink/70 font-mono break-all">{{ appUrl }}</div>
+            </div>
+          </div>
+
+          {# Explicació dels passos al mòbil #}
+          <div class="col-span-7 space-y-4">
+            <p class="text-xs text-ink/80 leading-relaxed font-raleway">
+              Escaneja el codi QR amb la càmera del teu <strong>iPhone</strong> o <strong>Android</strong> per obrir la teva sessió directament al telèfon. Un cop obert:
+            </p>
+
+            <div class="space-y-2.5 text-xs">
+              <div class="p-3 rounded-xl bg-cream/40 border border-gold/30 flex items-start gap-3">
+                <span class="w-6 h-6 rounded-full bg-ink text-gold flex items-center justify-center font-bold text-xs shrink-0 font-mono">1</span>
+                <div>
+                  <strong class="text-ink font-bold block">Afegeix a la pantalla d'inici</strong>
+                  <span class="text-[11px] text-ink/70 leading-snug block mt-0.5">
+                    A <strong>Safari (iPhone)</strong> toca el botó de Compartir (⎋) i tria <em>«Afegeix a la pantalla d'inici»</em>. A <strong>Chrome (Android)</strong> obre el menú (⋮) i toca <em>«Instal·lar aplicació»</em>.
+                  </span>
+                </div>
+              </div>
+
+              <div class="p-3 rounded-xl bg-cream/40 border border-gold/30 flex items-start gap-3">
+                <span class="w-6 h-6 rounded-full bg-ink text-gold flex items-center justify-center font-bold text-xs shrink-0 font-mono">2</span>
+                <div>
+                  <strong class="text-ink font-bold block">Gaudeix d'accés instantani i càmera en directe</strong>
+                  <span class="text-[11px] text-ink/70 leading-snug block mt-0.5">
+                    La icona de Registrals quedarà desada com una app autònoma, sense barres de navegador i amb accés immediat per fotografiar nous béns.
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="guide-note p-3 text-[11px] leading-snug">
+              <strong>També al teu PC:</strong> Pots instal·lar Registrals com a aplicació d'escriptori fent clic a la icona d'instal·lació que apareix a la part dreta de la barra d'adreces de Chrome, Edge o Brave.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# ============================================================== #}
+      {# BLOC 2: SI ETS AL MÒBIL (SMARTPHONE / TABLET)                  #}
+      {# ============================================================== #}
+      <div class="lg:hidden space-y-4">
+        <div class="flex items-center gap-2 pb-2 border-b border-steel/15">
+          <span class="text-gold text-lg">📲</span>
+          <div>
+            <h2 class="font-marcellus text-base text-ink font-bold">Instal·la Registrals al teu telèfon</h2>
+            <p class="text-[11px] text-ink/70">Afegeix-la a la pantalla d'inici per utilitzar-la com una app nativa.</p>
+          </div>
+        </div>
+
+        {# Botó Interactiu Natiu per a Android/Chrome si l'API beforeinstallprompt respon #}
+        <div id="pwa-install-banner" class="hidden p-3.5 rounded-xl bg-ink text-cream border border-gold/50 shadow-md space-y-2.5">
+          <div class="flex items-center gap-2">
+            <span class="text-gold text-base">✨</span>
+            <span class="font-marcellus text-xs font-bold text-gold">Instal·lació directa disponible</span>
+          </div>
+          <p class="text-[11px] text-cream/85 leading-snug">
+            El teu navegador permet instal·lar Registrals directament amb un sol toc.
+          </p>
+          <button type="button" id="btn-pwa-install-native" class="w-full py-2.5 px-4 bg-gold text-ink font-bold text-xs rounded-xl shadow-xs hover:bg-gold/90 transition-transform active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2 font-raleway">
+            <svg class="w-4 h-4 text-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            <span>Instal·lar Registrals Ara</span>
+          </button>
+        </div>
+
+        {# Selector de Pestanyes Mòbil (iOS vs Android) #}
+        <div class="bg-cream/50 p-1 rounded-xl flex items-center justify-between gap-1 border border-steel/20 text-xs font-semibold">
+          <button type="button" onclick="switchOsTab('ios')" id="tab-btn-ios" class="flex-1 py-1.5 px-2 rounded-lg text-center transition-all bg-ink text-gold border border-gold/40 shadow-2xs font-bold">
+            🍏 iPhone / iPad (Safari)
+          </button>
+          <button type="button" onclick="switchOsTab('android')" id="tab-btn-android" class="flex-1 py-1.5 px-2 rounded-lg text-center transition-all text-ink/65 hover:text-ink">
+            🤖 Android (Chrome)
+          </button>
+        </div>
+
+        {# Contingut Pas a Pas iOS (Safari) #}
+        <div id="tab-content-ios" class="space-y-3 pt-1">
+          <div class="p-3 rounded-xl bg-white border border-steel/20 shadow-2xs flex items-start gap-3">
+            <span class="w-6 h-6 rounded-full bg-ink text-gold flex items-center justify-center font-bold text-xs shrink-0 font-mono">1</span>
+            <div class="space-y-1">
+              <strong class="text-xs text-ink font-bold block">Toca el botó de Compartir</strong>
+              <p class="text-[11px] text-ink/75 leading-relaxed">
+                Assegura't d'estar fent servir <strong>Safari</strong>. A la barra inferior, toca la icona de compartir:
+              </p>
+              <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-cream/70 border border-steel/25 text-ink text-xs font-mono font-bold mt-1">
+                <svg class="w-3.5 h-3.5 text-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+                <span>Icona de quadrat amb fletxa cap amunt (⎋)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-white border border-steel/20 shadow-2xs flex items-start gap-3">
+            <span class="w-6 h-6 rounded-full bg-ink text-gold flex items-center justify-center font-bold text-xs shrink-0 font-mono">2</span>
+            <div class="space-y-1">
+              <strong class="text-xs text-ink font-bold block">Selecciona «Afegeix a la pantalla d'inici»</strong>
+              <p class="text-[11px] text-ink/75 leading-relaxed">
+                Baixa una mica pel menú d'accions fins a trobar l'opció amb el símbol de sumar:
+              </p>
+              <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-cream/70 border border-steel/25 text-ink text-xs font-mono font-bold mt-1">
+                <span class="text-gold font-bold text-sm">[+]</span>
+                <span>Afegeix a la pantalla d'inici</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-white border border-steel/20 shadow-2xs flex items-start gap-3">
+            <span class="w-6 h-6 rounded-full bg-ink text-gold flex items-center justify-center font-bold text-xs shrink-0 font-mono">3</span>
+            <div class="space-y-1">
+              <strong class="text-xs text-ink font-bold block">Confirma tocant «Afegeix»</strong>
+              <p class="text-[11px] text-ink/75 leading-relaxed">
+                A la cantonada superior dreta, toca <strong>«Afegeix»</strong>. La icona daurada de Registrals apareixerà al teu escriptori.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {# Contingut Pas a Pas Android (Chrome) #}
+        <div id="tab-content-android" class="hidden space-y-3 pt-1">
+          <div class="p-3 rounded-xl bg-white border border-steel/20 shadow-2xs flex items-start gap-3">
+            <span class="w-6 h-6 rounded-full bg-ink text-gold flex items-center justify-center font-bold text-xs shrink-0 font-mono">1</span>
+            <div class="space-y-1">
+              <strong class="text-xs text-ink font-bold block">Toca el menú d'opcions de Chrome</strong>
+              <p class="text-[11px] text-ink/75 leading-relaxed">
+                A la cantonada superior dreta del navegador, toca la icona dels <strong>tres punts verticals (⋮)</strong>.
+              </p>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-white border border-steel/20 shadow-2xs flex items-start gap-3">
+            <span class="w-6 h-6 rounded-full bg-ink text-gold flex items-center justify-center font-bold text-xs shrink-0 font-mono">2</span>
+            <div class="space-y-1">
+              <strong class="text-xs text-ink font-bold block">Tria «Instal·lar aplicació»</strong>
+              <p class="text-[11px] text-ink/75 leading-relaxed">
+                Al desplegable de Chrome, selecciona l'opció:
+              </p>
+              <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-cream/70 border border-steel/25 text-ink text-xs font-mono font-bold mt-1">
+                <span>📲</span>
+                <span>Instal·lar aplicació (o «Afegeix a la pantalla d'inici»)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-white border border-steel/20 shadow-2xs flex items-start gap-3">
+            <span class="w-6 h-6 rounded-full bg-ink text-gold flex items-center justify-center font-bold text-xs shrink-0 font-mono">3</span>
+            <div class="space-y-1">
+              <strong class="text-xs text-ink font-bold block">Confirma la instal·lació</strong>
+              <p class="text-[11px] text-ink/75 leading-relaxed">
+                Toca <strong>«Instal·lar»</strong>. El sistema crearà l'accés directe protegit a la teva pantalla d'aplicacions.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {# Caixa Notarial de Beneficis #}
+        <div class="guide-note p-3 text-[11px] leading-snug">
+          <strong>Per què instal·lar-la?</strong> Obertura instantània en pantalla completa, accés directe a la càmera de maquinari per a fotos notarials i estalvi d'espai al telèfon.
+        </div>
+      </div>
+
+    </div>
+
+    {# Targeta Notarial Inferior: Garantia de Seguretat PWA #}
+    <div class="bg-ink text-cream border border-gold/40 rounded-xl p-4 shadow-md relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+      <div class="space-y-1">
+        <h3 class="font-marcellus text-xs sm:text-sm text-gold font-bold">Privadesa i Seguretat Notarial Garantida</h3>
+        <p class="text-[11px] text-cream/80 font-raleway leading-snug max-w-xl">
+          L'aplicació mòbil s'executa sempre sota connexió xifrada d'extrem a extrem (HTTPS), sense rastrejadors de tercers i protegida per les mateixes credencials que el teu compte principal.
+        </p>
+      </div>
+      <a href="{{ path('app_profile') }}" class="px-4 py-2 rounded-xl bg-cream hover:bg-cream/90 text-ink font-bold text-xs uppercase tracking-wider shrink-0 transition-colors shadow-2xs">
+        Tornar al Perfil
+      </a>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // Detecció inicial d'OS per preseleccionar la pestanya
+  document.addEventListener('DOMContentLoaded', function() {
+    const ua = navigator.userAgent || navigator.vendor || window.opera;
+    const isIos = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+    const isAndroid = /android/i.test(ua);
+
+    if (isAndroid) {
+      switchOsTab('android');
+    } else {
+      switchOsTab('ios');
+    }
+  });
+
+  function switchOsTab(os) {
+    const tabIos = document.getElementById('tab-btn-ios');
+    const tabAndroid = document.getElementById('tab-btn-android');
+    const contentIos = document.getElementById('tab-content-ios');
+    const contentAndroid = document.getElementById('tab-content-android');
+
+    if (!tabIos || !tabAndroid || !contentIos || !contentAndroid) return;
+
+    if (os === 'android') {
+      tabAndroid.className = 'flex-1 py-1.5 px-2 rounded-lg text-center transition-all bg-ink text-gold border border-gold/40 shadow-2xs font-bold';
+      tabIos.className = 'flex-1 py-1.5 px-2 rounded-lg text-center transition-all text-ink/65 hover:text-ink';
+      contentAndroid.classList.remove('hidden');
+      contentIos.classList.add('hidden');
+    } else {
+      tabIos.className = 'flex-1 py-1.5 px-2 rounded-lg text-center transition-all bg-ink text-gold border border-gold/40 shadow-2xs font-bold';
+      tabAndroid.className = 'flex-1 py-1.5 px-2 rounded-lg text-center transition-all text-ink/65 hover:text-ink';
+      contentIos.classList.remove('hidden');
+      contentAndroid.classList.add('hidden');
+    }
+  }
+
+  // Gestió de l'esdeveniment PWA beforeinstallprompt (Chrome / Android)
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const banner = document.getElementById('pwa-install-banner');
+    if (banner) banner.classList.remove('hidden');
+  });
+
+  const installBtn = document.getElementById('btn-pwa-install-native');
+  if (installBtn) {
+    installBtn.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        const banner = document.getElementById('pwa-install-banner');
+        if (banner) banner.classList.add('hidden');
+      }
+      deferredPrompt = null;
+    });
+  }
+</script>
+{% endblock %}

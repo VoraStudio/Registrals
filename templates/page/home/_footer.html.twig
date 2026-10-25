@@ -5,74 +5,105 @@
       REGISTRALS
     </p>
     <div class="relative z-10 -mt-[3vw] rounded-3xl bg-cream p-8 md:-mt-10 md:p-12">
-      <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
-        <div class="md:col-span-1">
+      <div class="grid grid-cols-1 gap-8 md:grid-cols-12 items-start">
+        <div class="md:col-span-4 lg:col-span-4">
           <img data-reveal="item" src="{{ asset('img/logos/Isotip/1-transparent.svg') }}" width="80" height="80" alt="Registrals" class="size-20" />
           <p data-reveal="item" class="mt-6 font-bold">Mantén-te al dia de l'evolució de la propietat digital</p>
           <a data-reveal="item" href="#contacte" class="mt-4 inline-block rounded-full bg-ink px-6 py-2.5 font-bold text-cream hover:bg-ink/90"
             >Subscriure'm</a
           >
         </div>
-        <div class="md:col-span-2">
-          <nav aria-label="Peu de pàgina" class="flex flex-wrap items-start gap-8 text-sm md:flex-nowrap md:gap-16">
-            <ul data-reveal="item" class="md:space-y-1">
-              <li><a href="#s1" class="block py-1.5 font-bold hover:underline md:py-0">Home</a></li>
-              <li><a href="#s4" class="block py-1.5 text-ink/75 hover:underline md:py-0">Solucions</a></li>
-              <li><a href="#s7" class="block py-1.5 text-ink/75 hover:underline md:py-0">Tarifes</a></li>
-              <li><a href="#s8" class="block py-1.5 text-ink/75 hover:underline md:py-0">FAQS</a></li>
-              <li><a href="#contacte" class="block py-1.5 text-ink/75 hover:underline md:py-0">Contacte</a></li>
-            </ul>
-            <ul data-reveal="item" class="md:space-y-1">
-              <li><p class="font-bold">Contacte</p></li>
-              <li><a href="mailto:info@registrals.com" class="block py-1.5 text-ink/75 hover:underline md:py-0">info@registrals.com</a></li>
-            </ul>
-            <ul data-reveal="item" class="flex gap-3 md:ml-auto" aria-label="Xarxes socials">
-              <!-- TODO: replace href="#" with the real LinkedIn and Instagram URLs -->
-              <li>
-                <a
-                  href="#"
-                  aria-label="LinkedIn"
-                  class="grid size-11 place-items-center rounded-full bg-ink text-cream transition-colors hover:bg-ink/85"
-                >
-                  <svg
-                    class="size-5"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    aria-hidden="true"
+        <div class="md:col-span-8 lg:col-span-8">
+          <nav aria-label="Peu de pàgina" class="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-4 md:gap-6 text-sm items-start">
+
+            {# Columna 1: Producte #}
+            <div data-reveal="item" class="space-y-2">
+              <p class="font-bold text-ink font-marcellus text-base tracking-wide">Producte</p>
+              <ul class="space-y-1.5 text-xs font-raleway">
+                <li><a href="{{ path('app_producte') }}#que-es" class="block text-ink/75 hover:text-ink hover:underline">Què és Registrals?</a></li>
+                <li><a href="{{ path('app_producte') }}#proposit" class="block text-ink/75 hover:text-ink hover:underline">Propòsit</a></li>
+                <li><a href="{{ path('app_producte') }}#diferencia" class="block text-ink/75 hover:text-ink hover:underline">Què ens diferencia?</a></li>
+                <li><a href="{{ path('app_producte') }}#plataformes" class="block text-ink/75 hover:text-ink hover:underline">Plataformes</a></li>
+              </ul>
+            </div>
+
+            {# Columna 2: Aplicació (Sense Home) #}
+            <div data-reveal="item" class="space-y-2">
+              <p class="font-bold text-ink font-marcellus text-base tracking-wide">Aplicació</p>
+              <ul class="space-y-1.5 text-xs font-raleway">
+                <li><a href="{{ path('app_home') }}#s4" class="block text-ink/75 hover:text-ink hover:underline">Solucions</a></li>
+                <li><a href="{{ path('app_home') }}#s7" class="block text-ink/75 hover:text-ink hover:underline">Tarifes</a></li>
+                <li><a href="{{ path('app_home') }}#s8" class="block text-ink/75 hover:text-ink hover:underline">FAQS</a></li>
+                <li><a href="{{ path('app_contact') }}" class="block text-ink/75 hover:text-ink hover:underline">Contacte</a></li>
+              </ul>
+            </div>
+
+            {# Columna 3: Sobre nosaltres #}
+            <div data-reveal="item" class="space-y-2">
+              <p class="font-bold text-ink font-marcellus text-base tracking-wide">Sobre nosaltres</p>
+              <ul class="space-y-1.5 text-xs font-raleway">
+                <li><a href="{{ path('app_about') }}" class="block text-ink/75 hover:text-ink hover:underline">Qui som?</a></li>
+                <li><a href="{{ path('app_press') }}" class="block text-ink/75 hover:text-ink hover:underline">Premsa</a></li>
+                <li><a href="{{ path('app_histories') }}" class="block text-ink/75 hover:text-ink hover:underline">Històries</a></li>
+                <li><a href="{{ path('app_blog') }}" class="block text-ink/75 hover:text-ink hover:underline">Blog</a></li>
+                <li><a href="{{ path('app_contact') }}" class="block text-ink/75 hover:text-ink hover:underline">Contacte</a></li>
+              </ul>
+            </div>
+
+            {# Columna 4: Comunitat #}
+            <div data-reveal="item" class="space-y-2">
+              <p class="font-bold text-ink font-marcellus text-base tracking-wide">Comunitat</p>
+              <ul class="space-y-2 text-xs font-raleway">
+                <li class="flex items-center gap-2 pt-0.5">
+                  <a
+                    href="https://www.linkedin.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="LinkedIn"
+                    class="grid size-9 place-items-center rounded-full bg-ink text-cream transition-colors hover:bg-ink/85 shadow-2xs"
                   >
-                    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-                    <rect x="2" y="9" width="4" height="12" />
-                    <circle cx="4" cy="4" r="2" />
-                  </svg>
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  aria-label="Instagram"
-                  class="grid size-11 place-items-center rounded-full bg-ink text-cream transition-colors hover:bg-ink/85"
-                >
-                  <svg
-                    class="size-5"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    aria-hidden="true"
+                    <svg
+                      class="size-4"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+                      <rect x="2" y="9" width="4" height="12" />
+                      <circle cx="4" cy="4" r="2" />
+                    </svg>
+                  </a>
+                  <a
+                    href="https://www.instagram.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Instagram"
+                    class="grid size-9 place-items-center rounded-full bg-ink text-cream transition-colors hover:bg-ink/85 shadow-2xs"
                   >
-                    <rect x="2" y="2" width="20" height="20" rx="5" />
-                    <circle cx="12" cy="12" r="4" />
-                    <path d="M17.5 6.5h.01" />
-                  </svg>
-                </a>
-              </li>
-            </ul>
+                    <svg
+                      class="size-4"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <rect x="2" y="2" width="20" height="20" rx="5" />
+                      <circle cx="12" cy="12" r="4" />
+                      <path d="M17.5 6.5h.01" />
+                    </svg>
+                  </a>
+                </li>
+                <li><a href="mailto:info@registrals.com" class="block text-ink/75 hover:text-ink hover:underline text-[11px]">info@registrals.com</a></li>
+              </ul>
+            </div>
+
           </nav>
         </div>
       </div>

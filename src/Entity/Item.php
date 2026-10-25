@@ -101,6 +101,13 @@ class Item
     #[ORM\Column(type: 'json', nullable: true)]
     private ?array $customAttributes = null;
 
+    /**
+     * Dades deduïdes/extretes per l'assistent d'IA SGLang (Qwen VL)
+     * @var array<string, mixed>|null
+     */
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $aiExtractedData = null;
+
     #[ORM\Column(type: 'string', length: 30, enumType: ItemStatus::class, options: ['default' => 'active'])]
     private ItemStatus $status = ItemStatus::ACTIVE;
 
@@ -345,6 +352,24 @@ class Item
     public function setCustomAttributes(?array $customAttributes): self
     {
         $this->customAttributes = $customAttributes;
+        return $this;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function getAiExtractedData(): ?array
+    {
+        return $this->aiExtractedData;
+    }
+
+    /**
+     * @param array<string, mixed>|null $aiExtractedData
+     */
+    public function setAiExtractedData(?array $aiExtractedData): self
+    {
+        $this->aiExtractedData = $aiExtractedData;
+        $this->updatedAt = new \DateTimeImmutable();
         return $this;
     }
 
