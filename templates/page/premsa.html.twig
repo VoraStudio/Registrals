@@ -1,0 +1,242 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Sala de Premsa & Mitjans de Comunicació — Registrals{% endblock %}
+{% block meta_description %}Recursos oficials per a periodistes, notes de premsa, kit de marca i contacte de comunicació de Registrals.{% endblock %}
+
+{% block body_class %}bg-cream text-ink min-h-screen flex flex-col justify-between selection:bg-gold selection:text-ink font-raleway{% endblock %}
+
+{% block body %}
+<div class="min-h-screen flex flex-col justify-between bg-cream">
+
+  {# Header Institucional per a Subpàgines #}
+  {% include 'partials/_public_subpage_header.html.twig' %}
+
+  <main class="w-full flex-1">
+
+    {# Hero Premsa #}
+    <section class="bg-ink text-cream py-16 sm:py-20 px-4 sm:px-6 lg:px-8 text-center relative overflow-hidden">
+      <div class="absolute inset-0 bg-radial-at-t from-gold/15 via-transparent to-transparent pointer-events-none"></div>
+      <div class="max-w-4xl mx-auto space-y-4 relative z-10">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cream/10 border border-gold/30 text-gold text-xs font-mono">
+          <span>📰 Sala de Comunicació</span>
+        </div>
+        <h1 class="text-3xl sm:text-5xl font-marcellus text-cream tracking-wide leading-tight">
+          Premsa & Recursos per a Mitjans
+        </h1>
+        <p class="text-sm sm:text-base text-cream/80 max-w-2xl mx-auto font-raleway leading-relaxed">
+          Actualitat corporativa, comunicats oficials, recursos gràfics i atenció directa per a periodistes i divulgadors.
+        </p>
+      </div>
+    </section>
+
+    {# Contingut de Premsa en Caixes Blaves Notarials #}
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-14 space-y-16">
+
+      {# Secció 1: Contacte per a Premsa (Albert) en Caixa Blava #}
+      <section class="bg-ink text-cream rounded-3xl border border-gold/40 shadow-2xl p-8 sm:p-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 relative overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+        <div class="absolute -right-20 -bottom-20 w-80 h-80 rounded-full bg-gold/10 blur-3xl pointer-events-none"></div>
+
+        <div class="space-y-3 relative z-10 max-w-2xl">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cream/10 border border-gold/30 text-gold text-xs font-mono">
+            <span>01 · Atenció a Periodistes</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-marcellus text-cream leading-tight">Oficina de Comunicació</h2>
+          <p class="text-xs sm:text-sm text-cream/75 font-raleway leading-relaxed">
+            Per a peticions d'entrevistes, dades d'adopció tecnològica de béns mobles, assessorament en dret probatori eIDAS o declaracions oficials del nostre equip tècnic.
+          </p>
+          <div class="pt-2 text-xs font-mono text-cream/90 flex flex-wrap items-center gap-x-4 gap-y-1">
+            <span><strong>Email:</strong> <a href="mailto:premsa@registrals.com" class="text-gold font-bold hover:underline">premsa@registrals.com</a></span>
+            <span class="text-gold/40">&middot;</span>
+            <span><strong>Responsable:</strong> Albert (Departament de Premsa & Comunicació)</span>
+          </div>
+        </div>
+
+        <a href="mailto:premsa@registrals.com?subject=Petició%20de%20Premsa%20—%20Registrals" class="px-6 py-3 rounded-xl bg-gold text-ink font-raleway font-bold text-xs uppercase tracking-wider shadow-md hover:bg-gold/90 transition-all shrink-0 relative z-10 flex items-center gap-2">
+          <span>Contactar amb Premsa</span>
+          <span>→</span>
+        </a>
+      </section>
+
+      {# Secció 2: Articles & Aparicions als Mitjans (Estructura amb enllaços) #}
+      <section class="space-y-8">
+        <div class="text-center max-w-2xl mx-auto space-y-2">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-ink text-gold border border-gold/30 text-xs font-mono">
+            <span>02 · Cobertura Informativa</span>
+          </div>
+          <h2 class="text-2xl sm:text-4xl font-marcellus text-ink leading-tight">Aparicions als Mitjans</h2>
+          <p class="text-xs sm:text-sm text-ink/75 font-raleway">
+            Articles, entrevistes i anàlisis publicades a la premsa generalista i tecnològica sobre Registrals.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          {# Targeta d'article 1 #}
+          <article class="bg-ink text-cream rounded-3xl border border-gold/40 p-7 sm:p-8 space-y-4 shadow-xl flex flex-col justify-between relative overflow-hidden transition-all hover:scale-[1.01] hover:border-gold/60">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+            <div class="space-y-3">
+              <div class="flex items-center justify-between text-[11px] font-mono text-gold">
+                <span class="px-2 py-0.5 rounded-full bg-gold/15 border border-gold/30 font-bold">Tecnologia & Societat</span>
+                <span class="text-cream/60">Properament</span>
+              </div>
+              <h3 class="font-marcellus text-xl text-cream leading-tight">
+                Com el segellat eIDAS i Polygon resolen el buit legal dels béns mobles a Catalunya
+              </h3>
+              <p class="text-xs sm:text-sm text-cream/75 font-raleway leading-relaxed">
+                Anàlisi sobre com la fe pública digital de Registrals està canviant la relació entre col·leccionistes, cossos policials i companyies d'assegurances.
+              </p>
+            </div>
+            <div class="pt-4 border-t border-gold/20 flex items-center justify-between text-xs">
+              <span class="text-cream/60 font-mono text-[11px]">En curs de publicació</span>
+              <span class="text-gold font-bold flex items-center gap-1 opacity-70">
+                <span>Enllaç pendent</span>
+                <span>↗</span>
+              </span>
+            </div>
+          </article>
+
+          {# Targeta d'article 2 #}
+          <article class="bg-ink text-cream rounded-3xl border border-gold/40 p-7 sm:p-8 space-y-4 shadow-xl flex flex-col justify-between relative overflow-hidden transition-all hover:scale-[1.01] hover:border-gold/60">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+            <div class="space-y-3">
+              <div class="flex items-center justify-between text-[11px] font-mono text-gold">
+                <span class="px-2 py-0.5 rounded-full bg-gold/15 border border-gold/30 font-bold">Economia & Innovació</span>
+                <span class="text-cream/60">Properament</span>
+              </div>
+              <h3 class="font-marcellus text-xl text-cream leading-tight">
+                Vora Data & Studio impulsa la sobirania tecnològica aplicada al registre patrimonial
+              </h3>
+              <p class="text-xs sm:text-sm text-cream/75 font-raleway leading-relaxed">
+                Reportatge sobre el compromís de Registrals amb l'execució local de models d'IA sense transferències de dades a servidors estrangers.
+              </p>
+            </div>
+            <div class="pt-4 border-t border-gold/20 flex items-center justify-between text-xs">
+              <span class="text-cream/60 font-mono text-[11px]">En curs de publicació</span>
+              <span class="text-gold font-bold flex items-center gap-1 opacity-70">
+                <span>Enllaç pendent</span>
+                <span>↗</span>
+              </span>
+            </div>
+          </article>
+
+        </div>
+
+        <div class="p-4 rounded-2xl bg-ink/5 border border-gold/30 text-xs text-ink/75 text-center font-raleway max-w-xl mx-auto">
+          💡 <em>Els enllaços directes a les publicacions s'activaran automàticament a mesura que surtin les peces als mitjans.</em>
+        </div>
+      </section>
+
+      {# Secció 3: Kit Oficial de Marca (Press Kit) en Caixes Blaves #}
+      <section class="space-y-8">
+        <div class="text-center max-w-2xl mx-auto space-y-2">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-ink text-gold border border-gold/30 text-xs font-mono">
+            <span>03 · Recursos Multimèdia</span>
+          </div>
+          <h2 class="text-2xl sm:text-4xl font-marcellus text-ink leading-tight">Kit Oficial de Marca (Press Kit)</h2>
+          <p class="text-xs sm:text-sm text-ink/75 font-raleway">
+            Descarrega els actius oficials en alta resolució per a publicacions impreses, portals digitals o televisió.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+          <div class="bg-ink text-cream rounded-3xl border border-gold/40 p-7 sm:p-8 space-y-4 shadow-xl flex flex-col justify-between relative overflow-hidden transition-all hover:scale-[1.01] hover:border-gold/60">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+            <div class="space-y-3">
+              <span class="w-12 h-12 rounded-2xl bg-gold/15 text-gold border border-gold/30 flex items-center justify-center font-bold text-xl shadow-inner">
+                🎨
+              </span>
+              <h3 class="font-marcellus text-xl text-cream leading-tight">Logotips & Isotips Vectors</h3>
+              <p class="text-xs sm:text-sm text-cream/75 font-raleway leading-relaxed">
+                Versions en Ink (`#1D2F4B`), Gold (`#CAA36C`) i fons transparent en formats vectorials SVG i PNG d'alta resolució.
+              </p>
+            </div>
+            <div class="pt-4 border-t border-gold/20">
+              <a href="{{ asset('img/logos/Isotip/1-transparent.svg') }}" download class="px-4 py-2 rounded-xl bg-gold text-ink font-raleway font-bold text-xs uppercase tracking-wider shadow-sm hover:bg-gold/90 transition-all inline-flex items-center gap-1.5">
+                <span>Descarregar SVG</span>
+                <span>↓</span>
+              </a>
+            </div>
+          </div>
+
+          <div class="bg-ink text-cream rounded-3xl border border-gold/40 p-7 sm:p-8 space-y-4 shadow-xl flex flex-col justify-between relative overflow-hidden transition-all hover:scale-[1.01] hover:border-gold/60">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+            <div class="space-y-3">
+              <span class="w-12 h-12 rounded-2xl bg-gold/15 text-gold border border-gold/30 flex items-center justify-center font-bold text-xl shadow-inner">
+                📜
+              </span>
+              <h3 class="font-marcellus text-xl text-cream leading-tight">Dossier Institucional (PDF)</h3>
+              <p class="text-xs sm:text-sm text-cream/75 font-raleway leading-relaxed">
+                Document executiu resum amb la missió, marc legal eIDAS, arquitectura Polygon L2 i dades d'impacte.
+              </p>
+            </div>
+            <div class="pt-4 border-t border-gold/20 flex items-center justify-between text-xs text-cream/60 font-mono">
+              <span>Disponible properament</span>
+              <span class="text-gold">Albert (Premsa)</span>
+            </div>
+          </div>
+
+          <div class="bg-ink text-cream rounded-3xl border border-gold/40 p-7 sm:p-8 space-y-4 shadow-xl flex flex-col justify-between relative overflow-hidden transition-all hover:scale-[1.01] hover:border-gold/60">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+            <div class="space-y-3">
+              <span class="w-12 h-12 rounded-2xl bg-gold/15 text-gold border border-gold/30 flex items-center justify-center font-bold text-xl shadow-inner">
+                📸
+              </span>
+              <h3 class="font-marcellus text-xl text-cream leading-tight">Captures d'Interfície d'Usuari</h3>
+              <p class="text-xs sm:text-sm text-cream/75 font-raleway leading-relaxed">
+                Maquetes oficials d'alta fidelitat de la PWA mòbil, el panell de patrimoni i els certificats digitals.
+              </p>
+            </div>
+            <div class="pt-4 border-t border-gold/20 flex items-center justify-between text-xs text-cream/60 font-mono">
+              <span>Disponible properament</span>
+              <span class="text-gold">Kit UI</span>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {# Secció 4: Comunicats Oficials de Premsa en Caixa Blava #}
+      <section class="space-y-8">
+        <div class="text-center max-w-2xl mx-auto space-y-2">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-ink text-gold border border-gold/30 text-xs font-mono">
+            <span>04 · Notes de Premsa</span>
+          </div>
+          <h2 class="text-2xl sm:text-4xl font-marcellus text-ink leading-tight">Comunicats Oficials</h2>
+        </div>
+
+        <article class="bg-ink text-cream rounded-3xl border border-gold/40 p-8 sm:p-10 shadow-2xl space-y-4 relative overflow-hidden">
+          <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+          
+          <div class="flex items-center justify-between text-xs font-mono text-gold pb-3 border-b border-gold/20">
+            <span>Girona &middot; 25 d'octubre de 2026</span>
+            <span class="px-2.5 py-1 rounded-full bg-gold/15 border border-gold/30 font-bold uppercase tracking-wider text-[10px]">
+              Llançament Oficial
+            </span>
+          </div>
+
+          <h3 class="text-xl sm:text-2xl font-marcellus text-cream leading-snug">
+            Registrals estrena la primera plataforma de fe pública per a béns mobles amb segell eIDAS i Polygon Blockchain
+          </h3>
+
+          <p class="text-xs sm:text-sm text-cream/80 font-raleway leading-relaxed">
+            La iniciativa impulsada per <strong>Vora Data & Studio</strong> permet a particulars i col·leccionistes blindar la titularitat de joies, rellotges, bicicletes i tecnologia amb un certificat digital vinculant davant tercers, tribunals i asseguradores.
+          </p>
+
+          <div class="pt-4 border-t border-gold/20 flex flex-wrap items-center justify-between gap-4 text-xs font-mono text-cream/70">
+            <span>Contacte per a notes completes: <a href="mailto:premsa@registrals.com" class="text-gold underline">premsa@registrals.com</a></span>
+            <span class="text-gold">Ref: NP-2026-01</span>
+          </div>
+        </article>
+      </section>
+
+    </div>
+
+  </main>
+
+  {# Peu de pàgina institucional #}
+  {{ include('page/home/_footer.html.twig') }}
+
+</div>
+{% endblock %}
