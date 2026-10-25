@@ -1,0 +1,175 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Sobre nosaltres — Qui som, Missió i Valors — Registrals{% endblock %}
+{% block meta_description %}Coneix l'equip i la missió darrere de Registrals: fe pública digital, sobirania tecnològica i custòdia honesta de béns mobles.{% endblock %}
+
+{% block body_class %}bg-cream text-ink min-h-screen flex flex-col justify-between selection:bg-gold selection:text-ink font-raleway{% endblock %}
+
+{% block body %}
+<div class="min-h-screen flex flex-col justify-between bg-cream">
+
+  {# Header Institucional per a Subpàgines #}
+  {% include 'partials/_public_subpage_header.html.twig' %}
+
+  <main class="w-full flex-1">
+
+    {# Hero Sobre nosaltres #}
+    <section class="bg-ink text-cream py-16 sm:py-20 px-4 sm:px-6 lg:px-8 text-center relative overflow-hidden">
+      <div class="absolute inset-0 bg-radial-at-t from-gold/15 via-transparent to-transparent pointer-events-none"></div>
+      <div class="max-w-4xl mx-auto space-y-4 relative z-10">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cream/10 border border-gold/30 text-gold text-xs font-mono">
+          <span>🏛️ Vora Data & Studio</span>
+        </div>
+        <h1 class="text-3xl sm:text-5xl font-marcellus text-cream tracking-wide leading-tight">
+          La Fe Pública Digital al Servei de les Persones
+        </h1>
+        <p class="text-sm sm:text-base text-cream/80 max-w-2xl mx-auto font-raleway leading-relaxed">
+          Creiem en una tecnologia transparent, sobirana i que protegeix el patrimoni de qui se l'ha guanyat amb el seu esforç.
+        </p>
+      </div>
+    </section>
+
+    {# Contingut Institucional en Caixes Blaves Notarials #}
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-14 space-y-16">
+
+      {# Secció 1: Qui som? Manifest en Caixa Blava #}
+      <section class="bg-ink text-cream rounded-3xl border border-gold/40 p-8 sm:p-12 shadow-2xl space-y-6 relative overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+        <div class="absolute -right-20 -bottom-20 w-80 h-80 rounded-full bg-gold/10 blur-3xl pointer-events-none"></div>
+
+        <div class="space-y-3 relative z-10">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cream/10 border border-gold/30 text-gold text-xs font-mono">
+            <span>01 · Manifest Fundacional</span>
+          </div>
+          <h2 class="text-2xl sm:text-4xl font-marcellus text-cream leading-tight">Qui som?</h2>
+        </div>
+
+        <div class="space-y-4 text-xs sm:text-base text-cream/85 font-raleway leading-relaxed relative z-10 max-w-4xl">
+          <p>
+            Registrals neix de la col·laboració entre enginyers de sistemes, especialistes en dret digital i l'equip d'innovació de <strong>Vora Data & Studio</strong>. Vam detectar una mancança flagrant en la nostra societat: mentre qualsevol immoble o vehicle de motor disposa d'un registre oficial, els béns que representen bona part dels estalvis i l'afecte de les famílies (tecnologia, joies, eines professionals, bicicletes o peces d'art) viuen en una absoluta intempèrie jurídica.
+          </p>
+          <p>
+            Vam decidir construir una solució que no fos una simple base de dades privada més, sinó un ecosistema solemne amb doble garantia: <strong>validesa legal europea eIDAS</strong> mitjançant segellat de temps qualificat, i <strong>immutabilitat pública perpètua</strong> ancorada a la blockchain.
+          </p>
+        </div>
+
+        <div class="pt-2 relative z-10">
+          <div class="p-4 rounded-2xl bg-cream/5 border border-gold/20 text-xs text-cream/80 font-raleway flex items-start gap-3">
+            <span class="text-gold text-base shrink-0">🏛️</span>
+            <span><strong>Independència Notarial:</strong> No som una empresa de subscripcions comercials. Som custodis digitals independents compromesos amb la fe pública, la neutralitat criptogràfica i la preservació probatòria.</span>
+          </div>
+        </div>
+      </section>
+
+      {# Secció 2: Els 4 Compromisos Innegociables en Caixes Blaves #}
+      <section class="space-y-8">
+        <div class="text-center max-w-2xl mx-auto space-y-2">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-ink text-gold border border-gold/30 text-xs font-mono">
+            <span>02 · Principis Ètics & Tècnics</span>
+          </div>
+          <h2 class="text-2xl sm:text-4xl font-marcellus text-ink leading-tight">Els 4 Compromisos Innegociables</h2>
+          <p class="text-xs sm:text-sm text-ink/75 font-raleway">
+            Els pilars que guien cadascuna de les nostres decisions d'arquitectura, seguretat i privadesa.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          <div class="bg-ink text-cream rounded-3xl border border-gold/40 p-7 sm:p-8 space-y-4 shadow-xl flex flex-col justify-between relative overflow-hidden transition-all hover:scale-[1.01] hover:border-gold/60">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+            <div class="space-y-3">
+              <span class="w-12 h-12 rounded-2xl bg-gold/15 text-gold border border-gold/30 flex items-center justify-center font-bold font-mono text-base shadow-inner">
+                01
+              </span>
+              <h3 class="font-marcellus text-xl text-cream leading-tight">Sobirania Tecnològica</h3>
+              <p class="text-xs sm:text-sm text-cream/75 font-raleway leading-relaxed">
+                No depenem de gegants tecnològics per al processament de les teves dades. La nostra intel·ligència artificial s'executa en infraestructura privada pròpia, sense transferències internacionals ni núvols aliens.
+              </p>
+            </div>
+            <div class="pt-4 border-t border-gold/20 text-[11px] font-mono text-gold flex items-center justify-between">
+              <span>Infraestructura Pròpia</span>
+              <span>Zero Big Tech</span>
+            </div>
+          </div>
+
+          <div class="bg-ink text-cream rounded-3xl border border-gold/40 p-7 sm:p-8 space-y-4 shadow-xl flex flex-col justify-between relative overflow-hidden transition-all hover:scale-[1.01] hover:border-gold/60">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+            <div class="space-y-3">
+              <span class="w-12 h-12 rounded-2xl bg-gold/15 text-gold border border-gold/30 flex items-center justify-center font-bold font-mono text-base shadow-inner">
+                02
+              </span>
+              <h3 class="font-marcellus text-xl text-cream leading-tight">Human-in-the-Loop</h3>
+              <p class="text-xs sm:text-sm text-cream/75 font-raleway leading-relaxed">
+                La màquina assisteix en la lectura documental, però mai no decideix. El valor jurídic i la declaració pertanyen sempre a la persona humana acreditada com a titular del bé.
+              </p>
+            </div>
+            <div class="pt-4 border-t border-gold/20 text-[11px] font-mono text-gold flex items-center justify-between">
+              <span>Art. 22 RGPD</span>
+              <span>Decisió Humana</span>
+            </div>
+          </div>
+
+          <div class="bg-ink text-cream rounded-3xl border border-gold/40 p-7 sm:p-8 space-y-4 shadow-xl flex flex-col justify-between relative overflow-hidden transition-all hover:scale-[1.01] hover:border-gold/60">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+            <div class="space-y-3">
+              <span class="w-12 h-12 rounded-2xl bg-gold/15 text-gold border border-gold/30 flex items-center justify-center font-bold font-mono text-base shadow-inner">
+                03
+              </span>
+              <h3 class="font-marcellus text-xl text-cream leading-tight">Custòdia d'Arxius Aïllada</h3>
+              <p class="text-xs sm:text-sm text-cream/75 font-raleway leading-relaxed">
+                Les teves factures i fotografies no estan mai exposades públicament a la web. S'emmagatzemen xifrades fora de l'arrel pública sota Flysystem i només tu o qui autoritzis en té accés.
+              </p>
+            </div>
+            <div class="pt-4 border-t border-gold/20 text-[11px] font-mono text-gold flex items-center justify-between">
+              <span>Xifrat Flysystem</span>
+              <span>Aïllament de l'Arrel</span>
+            </div>
+          </div>
+
+          <div class="bg-ink text-cream rounded-3xl border border-gold/40 p-7 sm:p-8 space-y-4 shadow-xl flex flex-col justify-between relative overflow-hidden transition-all hover:scale-[1.01] hover:border-gold/60">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+            <div class="space-y-3">
+              <span class="w-12 h-12 rounded-2xl bg-gold/15 text-gold border border-gold/30 flex items-center justify-center font-bold font-mono text-base shadow-inner">
+                04
+              </span>
+              <h3 class="font-marcellus text-xl text-cream leading-tight">Accés Universal & Pla Free</h3>
+              <p class="text-xs sm:text-sm text-cream/75 font-raleway leading-relaxed">
+                La protecció de la propietat no ha de ser un privilegi de pocs. El pla gratuït per defecte cobreix les necessitats fonamentals de qualsevol ciutadà fins a 20 béns registrats de per vida.
+              </p>
+            </div>
+            <div class="pt-4 border-t border-gold/20 text-[11px] font-mono text-gold flex items-center justify-between">
+              <span>Pla Free Per Defecte</span>
+              <span>20 Béns Gratuïts</span>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {# Secció 3: Caixa Blava de Col·laboració Institucional & Contacte #}
+      <section class="bg-ink text-cream p-8 sm:p-12 rounded-3xl border border-gold/40 shadow-2xl relative overflow-hidden flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+        <div class="space-y-2 relative z-10 max-w-xl">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cream/10 border border-gold/30 text-gold text-xs font-mono mb-1">
+            <span>03 · Aliances</span>
+          </div>
+          <h4 class="font-marcellus text-2xl text-cream font-bold leading-tight">Vols col·laborar amb Registrals?</h4>
+          <p class="text-xs sm:text-sm text-cream/75 font-raleway leading-relaxed">
+            Tenim canals oberts per a col·legis professionals, notaries, companyies asseguradores, pèrits taxadors i forces de seguretat.
+          </p>
+        </div>
+        <a href="{{ path('app_contact') }}" class="px-6 py-3 rounded-xl bg-gold text-ink font-raleway font-bold text-xs uppercase tracking-wider shadow-md hover:bg-gold/90 transition-all shrink-0 relative z-10 flex items-center gap-2">
+          <span>Contactar amb l'equip</span>
+          <span>→</span>
+        </a>
+      </section>
+
+    </div>
+
+  </main>
+
+  {# Peu de pàgina institucional #}
+  {{ include('page/home/_footer.html.twig') }}
+
+</div>
+{% endblock %}
