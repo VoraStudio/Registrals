@@ -1,0 +1,240 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Producte — Què és Registrals, Propòsit i Plataformes{% endblock %}
+{% block meta_description %}Descobreix la tecnologia i el propòsit darrere de Registrals: certificació eIDAS, Blockchain Polygon i custòdia digital de béns mobles.{% endblock %}
+
+{% block body_class %}bg-cream text-ink min-h-screen flex flex-col justify-between selection:bg-gold selection:text-ink font-raleway{% endblock %}
+
+{% block body %}
+<div class="min-h-screen flex flex-col justify-between bg-cream">
+
+  {# Header Institucional per a Subpàgines #}
+  {% include 'partials/_public_subpage_header.html.twig' %}
+
+  <main class="w-full flex-1">
+
+    {# Hero de la Pàgina de Producte #}
+    <section class="bg-ink text-cream py-16 sm:py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden text-center">
+      <div class="absolute inset-0 bg-radial-at-t from-gold/15 via-transparent to-transparent pointer-events-none"></div>
+      <div class="max-w-4xl mx-auto space-y-4 relative z-10">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cream/10 border border-gold/30 text-gold text-xs font-mono">
+          <span class="w-2 h-2 rounded-full bg-gold animate-pulse"></span>
+          <span>Arquitectura & Tecnologia</span>
+        </div>
+        <h1 class="text-3xl sm:text-5xl font-marcellus text-cream tracking-wide leading-tight">
+          La Nova Era de la Custòdia i Fe Pública Digital
+        </h1>
+        <p class="text-sm sm:text-base text-cream/80 max-w-2xl mx-auto font-raleway leading-relaxed">
+          Com funciona Registrals, quin és el nostre compromís jurídic i com protegim el valor dels teus béns mobles a qualsevol dispositiu.
+        </p>
+      </div>
+    </section>
+
+    {# Contingut Estructurat del Producte #}
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-14 space-y-16">
+
+      {# Secció 1: Què és Registrals? #}
+      <section id="que-es" class="scroll-mt-24 grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+        <div class="md:col-span-5 space-y-4">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-ink text-gold border border-gold/30 text-xs font-mono">
+            <span>01 · Definició</span>
+          </div>
+          <h2 class="text-2xl sm:text-4xl font-marcellus text-ink leading-tight">Què és Registrals?</h2>
+          <p class="text-xs sm:text-sm text-ink/80 leading-relaxed font-raleway">
+            Registrals és una plataforma privada de fe pública digital dissenyada per a <strong>béns mobles d'alt valor</strong> (joies, rellotgeria, tecnologia, bicicletes, obres d'art i patrimoni personal).
+          </p>
+          <p class="text-xs sm:text-sm text-ink/80 leading-relaxed font-raleway">
+            Assigna a cada objecte un codi únic universal (<strong>CUI</strong>), custòdia de forma xifrada les seves factures i fotografies, i n'emet un certificat de titularitat jurídicament vinculant davant tercers, asseguradores i forces de seguretat.
+          </p>
+        </div>
+
+        {# Caixa Blava Notarial de Definició #}
+        <div class="md:col-span-7 bg-ink text-cream rounded-3xl border border-gold/40 shadow-2xl p-6 sm:p-8 space-y-5 relative overflow-hidden">
+          <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+          
+          <div class="flex items-center justify-between pb-3 border-b border-gold/20">
+            <span class="font-marcellus text-lg text-cream">Arquitectura Notarial</span>
+            <span class="text-[11px] font-mono text-gold">4 Garanties Clau</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-raleway">
+            <div class="p-4 rounded-2xl bg-cream/5 border border-gold/20 hover:border-gold/40 transition-all space-y-1.5">
+              <span class="text-xl">🏛️</span>
+              <strong class="text-cream font-bold block text-sm font-marcellus">Fe Notarial Digital</strong>
+              <span class="text-cream/70 text-xs leading-relaxed block">Segellat de temps qualificat eIDAS vàlid a tota la Unió Europea.</span>
+            </div>
+            <div class="p-4 rounded-2xl bg-cream/5 border border-gold/20 hover:border-gold/40 transition-all space-y-1.5">
+              <span class="text-xl">⛓️</span>
+              <strong class="text-cream font-bold block text-sm font-marcellus">Immutabilitat Blockchain</strong>
+              <span class="text-cream/70 text-xs leading-relaxed block">Empremta determinista SHA-256 ancorada perpètuament a Polygon L2.</span>
+            </div>
+            <div class="p-4 rounded-2xl bg-cream/5 border border-gold/20 hover:border-gold/40 transition-all space-y-1.5">
+              <span class="text-xl">🔒</span>
+              <strong class="text-cream font-bold block text-sm font-marcellus">Custòdia Aïllada</strong>
+              <span class="text-cream/70 text-xs leading-relaxed block">Arxius privats fora de l'arrel web amb lliurament estricte per Voter.</span>
+            </div>
+            <div class="p-4 rounded-2xl bg-cream/5 border border-gold/20 hover:border-gold/40 transition-all space-y-1.5">
+              <span class="text-xl">🤝</span>
+              <strong class="text-cream font-bold block text-sm font-marcellus">Traspassos C2C</strong>
+              <span class="text-cream/70 text-xs leading-relaxed block">Canvi de titularitat entre particulars amb traçabilitat forense completa.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {# Secció 2: Propòsit #}
+      <section id="proposit" class="scroll-mt-24 p-8 sm:p-12 rounded-3xl bg-ink text-cream relative overflow-hidden shadow-2xl border border-gold/40">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+        <div class="absolute -right-20 -bottom-20 w-80 h-80 rounded-full bg-gold/10 blur-3xl pointer-events-none"></div>
+        
+        <div class="max-w-3xl space-y-5 relative z-10">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cream/10 border border-gold/30 text-gold text-xs font-mono">
+            <span>02 · Missió & Valors</span>
+          </div>
+          <h2 class="text-2xl sm:text-4xl font-marcellus text-cream leading-tight">El nostre Propòsit</h2>
+          <p class="text-xs sm:text-base text-cream/85 leading-relaxed font-raleway">
+            Històricament, els béns mobles han estat desprotegits: les factures de paper es perden, les compres de segona mà generen desconfiança i, davant d'un robatori o una herència, és gairebé impossible demostrar la legítima propietat.
+          </p>
+          <p class="text-xs sm:text-base text-cream/85 leading-relaxed font-raleway">
+            El propòsit de Registrals és <strong>democratitzar la fe pública</strong>: proporcionar a qualsevol ciutadà o col·leccionista la mateixa certesa jurídica que té un registre de la propietat immobiliària, però a un sol clic des del seu telèfon mòbil.
+          </p>
+          
+          <div class="pt-2">
+            <div class="p-4 rounded-2xl bg-cream/5 border border-gold/20 text-xs text-cream/80 font-raleway flex items-start gap-3">
+              <span class="text-gold text-base shrink-0">⚖️</span>
+              <span><strong>Principi de Sobirania:</strong> Les teves dades i fotografies et pertanyen exclusivament a tu. Mai compartim dades amb tercers ni fem servir continguts privats per entrenar models.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {# Secció 3: Què ens diferencia? #}
+      <section id="diferencia" class="scroll-mt-24 space-y-8">
+        <div class="text-center max-w-2xl mx-auto space-y-2">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-ink text-gold border border-gold/30 text-xs font-mono">
+            <span>03 · Els 3 Pilars Tecnològics</span>
+          </div>
+          <h2 class="text-2xl sm:text-4xl font-marcellus text-ink leading-tight">Què ens diferencia?</h2>
+          <p class="text-xs sm:text-sm text-ink/75 font-raleway">
+            No som una simple carpeta al núvol. Combinem legalitat europea, criptografia pública i sobirania tecnològica en tres caixes d'alta seguretat.
+          </p>
+        </div>
+
+        {# Caixes Blaves de Diferenciació #}
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
+          <div class="bg-ink text-cream rounded-3xl border border-gold/40 p-7 sm:p-8 space-y-5 shadow-2xl flex flex-col justify-between relative overflow-hidden transition-all hover:scale-[1.01] hover:border-gold/60">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+            <div class="space-y-3">
+              <span class="w-12 h-12 rounded-2xl bg-gold/15 text-gold border border-gold/30 flex items-center justify-center font-bold font-mono text-sm shadow-inner">
+                eIDAS
+              </span>
+              <h3 class="font-marcellus text-xl text-cream leading-tight">Validesa Jurídica Qualified</h3>
+              <p class="text-xs sm:text-sm text-cream/75 leading-relaxed font-raleway">
+                Treballem amb prestadors de serveis de confiança qualificats (Signaturit) per emetre segells de temps eIDAS amb plena càrrega de prova davant tribunals de justícia.
+              </p>
+            </div>
+            <div class="pt-4 border-t border-gold/20 text-[11px] font-mono text-gold flex items-center justify-between">
+              <span>Normativa Europea</span>
+              <span>Reglament 910/2014</span>
+            </div>
+          </div>
+
+          <div class="bg-ink text-cream rounded-3xl border border-gold/40 p-7 sm:p-8 space-y-5 shadow-2xl flex flex-col justify-between relative overflow-hidden transition-all hover:scale-[1.01] hover:border-gold/60">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+            <div class="space-y-3">
+              <span class="w-12 h-12 rounded-2xl bg-gold/15 text-gold border border-gold/30 flex items-center justify-center font-bold font-mono text-sm shadow-inner">
+                SHA
+              </span>
+              <h3 class="font-marcellus text-xl text-cream leading-tight">Immutabilitat Blockchain</h3>
+              <p class="text-xs sm:text-sm text-cream/75 leading-relaxed font-raleway">
+                Calcularem una empremta matemàtica determinista SHA-256 de les teves fotos i dades, ancorant-la a la xarxa descentralitzada Polygon Layer 2. Ningú pot alterar el registre.
+              </p>
+            </div>
+            <div class="pt-4 border-t border-gold/20 text-[11px] font-mono text-gold flex items-center justify-between">
+              <span>Polygon PoS</span>
+              <span>L2 Ethereum</span>
+            </div>
+          </div>
+
+          <div class="bg-ink text-cream rounded-3xl border border-gold/40 p-7 sm:p-8 space-y-5 shadow-2xl flex flex-col justify-between relative overflow-hidden transition-all hover:scale-[1.01] hover:border-gold/60">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+            <div class="space-y-3">
+              <span class="w-12 h-12 rounded-2xl bg-gold/15 text-gold border border-gold/30 flex items-center justify-center font-bold font-mono text-sm shadow-inner">
+                IA
+              </span>
+              <h3 class="font-marcellus text-xl text-cream leading-tight">IA Sobirana Privada</h3>
+              <p class="text-xs sm:text-sm text-cream/75 leading-relaxed font-raleway">
+                El nostre assistent de visió i lectura OCR s'executa exclusivament en servidors privats propis (SGLang). Zero tercers, zero entrenament extern i màxima privadesa RGPD.
+              </p>
+            </div>
+            <div class="pt-4 border-t border-gold/20 text-[11px] font-mono text-gold flex items-center justify-between">
+              <span>Art. 22 RGPD</span>
+              <span>Human-in-the-Loop</span>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {# Secció 4: Plataformes #}
+      <section id="plataformes" class="scroll-mt-24 bg-ink text-cream rounded-3xl border border-gold/40 p-8 sm:p-12 shadow-2xl space-y-8 relative overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-gold/20">
+          <div class="space-y-1">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cream/10 border border-gold/30 text-gold text-xs font-mono mb-2">
+              <span>04 · Ecosistema Multiplataforma</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-marcellus text-cream leading-tight">Registrals a qualsevol dispositiu</h2>
+          </div>
+          <a href="{{ path('app_profile_install_app') }}" class="px-5 py-2.5 rounded-xl bg-gold text-ink font-raleway font-bold text-xs uppercase tracking-wider shadow-md hover:bg-gold/90 transition-all flex items-center gap-2">
+            <span>Guia d'Instal·lació PWA</span>
+            <span>→</span>
+          </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs font-raleway">
+          <div class="p-6 rounded-2xl bg-cream/5 border border-gold/20 hover:border-gold/40 transition-all space-y-3">
+            <div class="flex items-center gap-3">
+              <span class="text-2xl">📱</span>
+              <strong class="text-base font-marcellus text-cream">App Mòbil Nativa (PWA per a iOS & Android)</strong>
+            </div>
+            <p class="text-cream/75 leading-relaxed text-xs sm:text-sm">
+              Instal·la Registrals directament des del navegador Safari o Chrome amb un sol toc. Obertura a pantalla completa, accés immediat al sensor fotogràfic del mòbil i sincronització en temps real.
+            </p>
+          </div>
+
+          <div class="p-6 rounded-2xl bg-cream/5 border border-gold/20 hover:border-gold/40 transition-all space-y-3">
+            <div class="flex items-center gap-3">
+              <span class="text-2xl">💻</span>
+              <strong class="text-base font-marcellus text-cream">Escriptori & Pont QR Notarial</strong>
+            </div>
+            <p class="text-cream/75 leading-relaxed text-xs sm:text-sm">
+              Treballa còmodament des del teu portàtil o ordinador de sobretaula. Si necessites fotografiar un objecte o una factura, genera un codi QR efímer per disparar la foto des del mòbil i rebre-la al PC a l'instant.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {# Crida a l'acció final #}
+      <div class="max-w-4xl mx-auto px-4 pb-8 text-center space-y-4">
+        <h3 class="text-2xl font-marcellus text-ink font-bold">Comença a protegir el teu patrimoni avui mateix</h3>
+        <p class="text-xs sm:text-sm text-ink/70 font-raleway max-w-xl mx-auto">
+          El pla gratuït inclou fins a 20 béns registrats amb certificat i custòdia documental de per vida.
+        </p>
+        <div class="pt-2">
+          <a href="{{ path('app_register') }}" class="px-6 py-3 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-raleway font-bold text-xs uppercase tracking-wider shadow-md transition-all inline-block">
+            Registrar el meu primer bé de franc →
+          </a>
+      </div>
+
+    </div>
+
+  </main>
+
+  {# Peu de pàgina institucional #}
+  {{ include('page/home/_footer.html.twig') }}
+
+</div>
+{% endblock %}

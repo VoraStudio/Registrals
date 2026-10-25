@@ -1,0 +1,54 @@
+{# Header Públic per a Subpàgines Institucionals (Producte, Sobre nosaltres, Històries, etc.) #}
+<header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-steel/20 shadow-xs">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+
+    {# Logo i Retorn a Home #}
+    <div class="flex items-center gap-3">
+      <a href="{{ path('app_home') }}" class="flex items-center gap-2 group">
+        <img src="{{ asset('img/logos/Isotip/1-transparent.svg') }}" alt="Registrals" class="w-8 h-8 group-hover:scale-105 transition-transform" />
+        <span class="font-marcellus text-xl sm:text-2xl text-ink tracking-wider font-bold">REGISTRALS</span>
+      </a>
+    </div>
+
+    {# Navegació Institucional Desktop #}
+    <nav class="hidden md:flex items-center gap-6 text-xs font-semibold text-ink/80 font-raleway">
+      <a href="{{ path('app_producte') }}" class="hover:text-gold transition-colors {{ app.request.attributes.get('_route') == 'app_producte' ? 'text-gold font-bold' : '' }}">
+        Producte
+      </a>
+      <a href="{{ path('app_home') }}#s4" class="hover:text-gold transition-colors">
+        Solucions
+      </a>
+      <a href="{{ path('app_histories') }}" class="hover:text-gold transition-colors {{ app.request.attributes.get('_route') == 'app_histories' ? 'text-gold font-bold' : '' }}">
+        Històries
+      </a>
+      <a href="{{ path('app_home') }}#s7" class="hover:text-gold transition-colors">
+        Tarifes
+      </a>
+      <a href="{{ path('app_about') }}" class="hover:text-gold transition-colors {{ app.request.attributes.get('_route') == 'app_about' ? 'text-gold font-bold' : '' }}">
+        Sobre nosaltres
+      </a>
+    </nav>
+
+    {# Botons d'Acció / Accés d'Usuari #}
+    <div class="flex items-center gap-2 sm:gap-3">
+      {% if app.user %}
+        <a href="{{ path('app_dashboard') }}" class="px-4 py-2 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-raleway font-bold text-xs uppercase tracking-wider shadow-2xs transition-all flex items-center gap-2">
+          <span>El meu Patrimoni</span>
+          <span class="text-gold">→</span>
+        </a>
+      {% else %}
+        <a
+          href="{{ path('app_login') }}"
+          aria-label="Accedeix"
+          title="Accedeix"
+          class="size-11 flex items-center justify-center rounded-full text-ink hover:text-gold hover:bg-cream/60 transition-all hover:scale-105"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+          </svg>
+        </a>
+      {% endif %}
+    </div>
+
+  </div>
+</header>
