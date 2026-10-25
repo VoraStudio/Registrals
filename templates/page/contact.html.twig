@@ -1,0 +1,117 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Contacte & Atenció Institucional — Registrals{% endblock %}
+{% block meta_description %}Posa't en contacte amb l'equip de Registrals per a consultes sobre el servei, integracions professionals o suport tècnic.{% endblock %}
+
+{% block body_class %}bg-cream text-ink min-h-screen flex flex-col justify-between selection:bg-gold selection:text-ink font-raleway{% endblock %}
+
+{% block body %}
+<div class="min-h-screen flex flex-col justify-between bg-cream">
+
+  {# Header Institucional per a Subpàgines #}
+  {% include 'partials/_public_subpage_header.html.twig' %}
+
+  <main class="w-full flex-1">
+
+    {# Hero Contacte #}
+    <section class="bg-ink text-cream py-14 sm:py-18 px-4 sm:px-6 lg:px-8 text-center relative overflow-hidden">
+      <div class="max-w-4xl mx-auto space-y-3 relative z-10">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cream/10 border border-gold/30 text-gold text-xs font-mono">
+          <span>📬 Parlem</span>
+        </div>
+        <h1 class="text-3xl sm:text-5xl font-marcellus text-cream tracking-wide leading-tight">
+          Estem a la Teva Disposició
+        </h1>
+        <p class="text-sm sm:text-base text-cream/80 max-w-2xl mx-auto font-raleway leading-relaxed">
+          Posa't en contacte amb el nostre equip d'atenció, legal o suport d'enginyeria.
+        </p>
+      </div>
+    </section>
+
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+
+        {# Columna Esquerra: Dades de Contacte en Caixes Blau Cel (#E0ECF8) #}
+        <div class="md:col-span-5 space-y-6 text-xs font-raleway">
+          <div class="space-y-2">
+            <h2 class="text-2xl font-marcellus text-ink font-bold">Oficines & Suport</h2>
+            <p class="text-ink/75 leading-relaxed">
+              Desenvolupat amb passió per l'equip de Vora Data & Studio.
+            </p>
+          </div>
+
+          <div class="space-y-4">
+            {# Caixa 1: Atenció General (Blau Cel) #}
+            <div class="p-6 bg-[#E0ECF8] text-ink rounded-2xl border border-[#B3CCE5] shadow-md space-y-2 transition-all hover:border-gold/50">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/80 border border-steel/25 text-ink text-[11px] font-mono font-bold uppercase tracking-wider">
+                <span>✉️ Atenció General</span>
+              </span>
+              <a href="mailto:info@registrals.com" class="text-base font-bold text-ink hover:text-gold-dark transition-colors block font-mono">
+                info@registrals.com
+              </a>
+              <span class="text-xs text-ink/70 block leading-relaxed">
+                Respostes personals en menys de 24 hores feineres.
+              </span>
+            </div>
+
+            {# Caixa 2: Premsa & Comunicació (Blau Cel) #}
+            <div class="p-6 bg-[#E0ECF8] text-ink rounded-2xl border border-[#B3CCE5] shadow-md space-y-2 transition-all hover:border-gold/50">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/80 border border-steel/25 text-ink text-[11px] font-mono font-bold uppercase tracking-wider">
+                <span>📰 Premsa & Mitjans</span>
+              </span>
+              <a href="mailto:premsa@registrals.com" class="text-base font-bold text-ink hover:text-gold-dark transition-colors block font-mono">
+                premsa@registrals.com
+              </a>
+              <span class="text-xs text-ink/70 block leading-relaxed">
+                Atenció directa per a periodistes i comunicadors.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {# Columna Dreta: Formulari en Caixa Blava Notarial (bg-ink text-cream) #}
+        <div class="md:col-span-7 bg-ink text-cream rounded-3xl border border-gold/40 shadow-2xl p-7 sm:p-9 space-y-5 relative overflow-hidden">
+          <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+          <div class="absolute -right-16 -bottom-16 w-60 h-60 rounded-full bg-gold/10 blur-3xl pointer-events-none"></div>
+
+          <div class="space-y-1.5 relative z-10">
+            <h3 class="text-xl sm:text-2xl font-marcellus text-cream font-bold">Envia'ns una consulta</h3>
+            <p class="text-xs sm:text-sm text-cream/75 font-raleway leading-relaxed">
+              Tens algun dubte sobre com registrar el teu patrimoni o sobre el nostre funcionament?
+            </p>
+          </div>
+
+          <form action="mailto:info@registrals.com" method="get" enctype="text/plain" class="space-y-4 text-xs font-raleway relative z-10">
+            <div>
+              <label class="block text-xs font-semibold text-cream/90 mb-1.5">El teu nom</label>
+              <input type="text" name="name" required placeholder="Ex. Maria Garcia" class="w-full px-4 py-2.5 rounded-xl bg-ink-light/70 border border-gold/30 text-cream placeholder:text-cream/40 text-xs focus:outline-none focus:ring-2 focus:ring-gold/50 transition-all" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-cream/90 mb-1.5">Correu electrònic</label>
+              <input type="email" name="email" required placeholder="maria@exemple.cat" class="w-full px-4 py-2.5 rounded-xl bg-ink-light/70 border border-gold/30 text-cream placeholder:text-cream/40 text-xs focus:outline-none focus:ring-2 focus:ring-gold/50 transition-all" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-cream/90 mb-1.5">Missatge o consulta</label>
+              <textarea name="body" rows="4" required placeholder="Explica'ns com et podem ajudar..." class="w-full px-4 py-2.5 rounded-xl bg-ink-light/70 border border-gold/30 text-cream placeholder:text-cream/40 text-xs focus:outline-none focus:ring-2 focus:ring-gold/50 transition-all"></textarea>
+            </div>
+
+            <button type="submit" class="w-full py-3 px-4 rounded-xl bg-gold text-ink border border-gold-dark/30 hover:bg-gold/90 font-raleway font-bold text-xs uppercase tracking-wider shadow-md transition-all cursor-pointer hover:shadow-lg">
+              Enviar missatge
+            </button>
+          </form>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  {# Peu de pàgina institucional #}
+  {{ include('page/home/_footer.html.twig') }}
+
+</div>
+{% endblock %}
