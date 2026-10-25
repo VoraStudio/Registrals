@@ -200,21 +200,23 @@
 
       </div>
 
-      {# Caixa de Subscripció al Butlletí en Blau Menys Intens #}
-      <section class="bg-ink-light text-cream p-8 sm:p-12 rounded-3xl border border-gold/40 shadow-2xl relative overflow-hidden flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+      {# Caixa de Subscripció al Butlletí en Color Daurat Oficial (Gold #CAA36C) #}
+      <section class="bg-gold text-ink p-8 sm:p-12 rounded-3xl border border-gold-dark/30 shadow-2xl relative overflow-hidden flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white/40 to-transparent"></div>
+        <div class="absolute -right-10 -bottom-10 w-60 h-60 rounded-full bg-white/10 blur-2xl pointer-events-none"></div>
+
         <div class="space-y-2 relative z-10 max-w-xl">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cream/10 border border-gold/30 text-gold text-xs font-mono mb-1">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-ink/10 border border-ink/20 text-ink text-xs font-mono mb-1 font-semibold">
             <span>📬 Butlletí Notarial</span>
           </div>
-          <h4 class="font-marcellus text-2xl text-cream font-bold leading-tight">Rep les anàlisis i novetats legals</h4>
-          <p class="text-xs sm:text-sm text-cream/75 font-raleway leading-relaxed">
+          <h4 class="font-marcellus text-2xl text-ink font-bold leading-tight">Rep les anàlisis i novetats legals</h4>
+          <p class="text-xs sm:text-sm text-ink/85 font-raleway leading-relaxed">
             Una publicació mensual amb novetats normatives de la UE, jurisprudència sobre béns mobles i consells de custòdia forense.
           </p>
         </div>
         <div class="w-full sm:w-auto relative z-10 flex flex-col sm:flex-row gap-3">
-          <input type="email" placeholder="el-teu@correu.com" class="px-4 py-3 rounded-xl bg-ink/50 border border-gold/30 text-cream placeholder:text-cream/40 text-xs font-raleway focus:outline-gold w-full sm:w-64">
-          <button type="button" onclick="if (window.RegistralsToast) { window.RegistralsToast.show('Subscripció', 'Gràcies pel teu interès! T\'hem afegit a la llista del butlletí mensual.', 'success', 4000); }" class="px-5 py-3 rounded-xl bg-gold text-ink font-raleway font-bold text-xs uppercase tracking-wider shadow-md hover:bg-gold/90 transition-all shrink-0">
+          <input type="email" placeholder="el-teu@correu.com" class="px-4 py-3 rounded-xl bg-white/80 border border-ink/20 text-ink placeholder:text-ink/50 text-xs font-raleway focus:outline-none focus:ring-2 focus:ring-ink w-full sm:w-64">
+          <button type="button" onclick="if (window.RegistralsToast) { window.RegistralsToast.show('Subscripció', 'Gràcies pel teu interès! T\'hem afegit a la llista del butlletí mensual.', 'success', 4000); }" class="px-5 py-3 rounded-xl bg-ink text-gold font-raleway font-bold text-xs uppercase tracking-wider shadow-md hover:bg-ink/90 transition-all shrink-0 border border-gold/30">
             Subscriure'm
           </button>
         </div>
