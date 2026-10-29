@@ -11,8 +11,8 @@
   {# Barra Superior Privada Unificada (Fons Blanc + Línia Tènue + Avatar amb Micro-Badge) #}
   {% include 'partials/_private_header.html.twig' with { back_to_dashboard: true } %}
 
-  {# Contingut Principal #}
-  <main class="w-full max-w-5xl mx-auto py-2 sm:py-3 px-3 sm:px-6 lg:px-8 space-y-2 sm:space-y-2.5">
+  {# Contingut Principal en Format Panoràmic 16:9 #}
+  <main class="w-full max-w-7xl mx-auto py-3 px-3 sm:px-6 lg:px-8 space-y-3">
 
     {# Capçalera del Bé i CUI Preassignat (Compacta a mòbil) #}
     <div class="flex items-center justify-between sm:justify-center gap-4 pb-1">
@@ -78,14 +78,11 @@
                 <h2 class="font-marcellus text-sm sm:text-base text-ink">Fotografia Principal</h2>
               </div>
 
-              {# Marc Càrrega Foto Principal (Contenidor DIV per complir W3C i evitar col·lisions de clicks a mòbil) #}
-              <div class="relative overflow-hidden border-2 border-dashed border-gold/50 hover:border-gold rounded-xl p-3 text-center bg-cream/25 hover:bg-cream/45 transition-all flex flex-col justify-center items-center group focus-within:ring-2 focus-within:ring-gold w-full min-h-[175px] sm:min-h-[195px]">
+              {# Marc Càrrega Foto Principal 16:9 (Contenidor DIV interactiu amb suport natiu de Drag & Drop i Clic) #}
+              <div id="photo-drop-zone" class="relative overflow-hidden border-2 border-dashed border-gold/50 hover:border-gold rounded-xl p-3 text-center bg-cream/25 hover:bg-cream/45 transition-all flex flex-col justify-center items-center group focus-within:ring-2 focus-within:ring-gold w-full aspect-[16/9] min-h-[175px] cursor-pointer">
                 {{ form_widget(form.primaryPhoto) }}
                 {# Input Ocult amb Càmera en Directe per a Mòbil #}
                 <input type="file" id="primary-photo-camera" accept="image/*" capture="environment" class="hidden" />
-
-                {# Label invisible per a Desktop (permet arrossegar o fer clic a tot el marc a PC) #}
-                <label for="{{ form.primaryPhoto.vars.id }}" class="absolute inset-0 cursor-pointer hidden lg:block z-0"></label>
 
                 {# Previsualització de la imatge carregada #}
                 <div id="photo-preview-container" class="hidden absolute inset-0 w-full h-full bg-cream/30 z-10 pointer-events-none">
@@ -94,8 +91,8 @@
                     <div class="w-full bg-ink/90 backdrop-blur-xs text-cream py-1 px-2.5 rounded-lg flex items-center justify-between text-[11px] border border-gold/30">
                       <span id="photo-preview-name" class="truncate font-sans font-medium text-cream max-w-[130px] sm:max-w-[160px]">foto.jpg</span>
                       <div class="flex items-center gap-2 shrink-0">
-                        <span class="text-gold text-[10px] font-bold uppercase tracking-wider hover:underline cursor-pointer" onclick="document.getElementById('{{ form.primaryPhoto.vars.id }}').click()">Canviar</span>
-                        <button type="button" onclick="removePrimaryPhoto(event)" class="text-red-400 hover:text-red-300 text-[10px] font-bold uppercase tracking-wider ml-1 hover:underline cursor-pointer">✕ Treure</button>
+                        <button type="button" class="text-gold text-[10px] font-bold uppercase tracking-wider hover:underline cursor-pointer bg-transparent border-0 p-0" onclick="document.getElementById('{{ form.primaryPhoto.vars.id }}').click()">Canviar</button>
+                        <button type="button" onclick="removePrimaryPhoto(event)" class="text-red-400 hover:text-red-300 text-[10px] font-bold uppercase tracking-wider ml-1 hover:underline cursor-pointer bg-transparent border-0 p-0">✕ Treure</button>
                       </div>
                     </div>
                   </div>
@@ -118,8 +115,8 @@
                   </button>
                 </div>
 
-                <div id="photo-empty-state" class="relative z-1 flex flex-col justify-center items-center w-full h-full py-2 gap-2">
-                  <div onclick="if(window.innerWidth < 1024) document.getElementById('primary-photo-camera').click();" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-cream border border-gold/40 text-gold flex items-center justify-center group-hover:scale-105 transition-transform cursor-pointer">
+                <div id="photo-empty-state" class="relative z-1 flex flex-col justify-center items-center w-full h-full py-2 gap-2 pointer-events-auto">
+                  <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-cream border border-gold/40 text-gold flex items-center justify-center group-hover:scale-105 transition-transform cursor-pointer">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                   </div>
                   <div class="space-y-0.5 text-center">
@@ -131,7 +128,7 @@
                   </div>
 
                   {# Botoier Mòbil: Càmera directa o Galeria #}
-                  <div class="lg:hidden flex flex-col sm:flex-row items-center gap-1.5 w-full max-w-xs mt-1">
+                  <div class="lg:hidden flex flex-col sm:flex-row items-center gap-1.5 w-full max-w-xs mt-1" onclick="event.stopPropagation();">
                     <button type="button" onclick="document.getElementById('primary-photo-camera').click();" class="w-full py-2 px-3 bg-ink text-gold border border-gold/40 rounded-xl text-xs font-bold font-raleway flex items-center justify-center gap-1.5 shadow-xs active:scale-[0.98] transition-transform cursor-pointer">
                       <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                       <span>Obrir Càmera del Mòbil</span>
@@ -141,9 +138,9 @@
                     </button>
                   </div>
 
-                  <span class="hidden lg:inline-block mt-0.5 px-3 py-1 bg-ink text-cream text-[10px] font-semibold rounded-lg uppercase tracking-wider group-hover:bg-ink/90 transition-colors shadow-2xs pointer-events-none">
+                  <button type="button" onclick="document.getElementById('{{ form.primaryPhoto.vars.id }}').click();" class="hidden lg:inline-block mt-0.5 px-3 py-1 bg-ink text-cream text-[10px] font-semibold rounded-lg uppercase tracking-wider hover:bg-ink/90 transition-colors shadow-2xs cursor-pointer">
                     Seleccionar Imatge
-                  </span>
+                  </button>
                 </div>
                 {{ form_errors(form.primaryPhoto, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
               </div>
@@ -177,14 +174,11 @@
                 <h2 class="font-marcellus text-sm sm:text-base text-ink">Proves & Comprovants</h2>
               </div>
 
-              {# Marc Càrrega Factura o Comprovant (Contenidor DIV per complir W3C) #}
-              <div class="relative overflow-hidden border-2 border-dashed border-steel/30 hover:border-gold/60 rounded-xl p-2.5 text-center bg-white/50 hover:bg-cream/35 transition-all flex flex-col justify-center items-center group focus-within:ring-2 focus-within:ring-gold w-full min-h-[125px] sm:min-h-[135px]">
+              {# Marc Càrrega Factura o Comprovant (Contenidor DIV interactiu amb suport natiu de Drag & Drop i Clic) #}
+              <div id="invoice-drop-zone" class="relative overflow-hidden border-2 border-dashed border-steel/30 hover:border-gold/60 rounded-xl p-2.5 text-center bg-white/50 hover:bg-cream/35 transition-all flex flex-col justify-center items-center group focus-within:ring-2 focus-within:ring-gold w-full min-h-[125px] sm:min-h-[135px] cursor-pointer">
                 {{ form_widget(form.invoiceFile) }}
                 {# Input Ocult amb Càmera en Directe per al comprovant a Mòbil #}
                 <input type="file" id="invoice-file-camera" accept="image/*" capture="environment" class="hidden" />
-
-                {# Label invisible per a Desktop #}
-                <label for="{{ form.invoiceFile.vars.id }}" class="absolute inset-0 cursor-pointer hidden lg:block z-0"></label>
 
                 {# Previsualització del comprovant carregat (Imatge o PDF) #}
                 <div id="invoice-preview-container" class="hidden absolute inset-0 w-full h-full bg-cream/30 z-10 pointer-events-none">
@@ -206,8 +200,8 @@
                     <div class="w-full bg-ink/90 backdrop-blur-xs text-cream py-1 px-2.5 rounded-lg flex items-center justify-between text-[11px] border border-gold/30">
                       <span id="invoice-preview-name" class="truncate font-sans font-medium text-cream max-w-[130px] sm:max-w-[160px]">tiquet.jpg</span>
                       <div class="flex items-center gap-2 shrink-0">
-                        <span class="text-gold text-[10px] font-bold uppercase tracking-wider hover:underline cursor-pointer" onclick="document.getElementById('{{ form.invoiceFile.vars.id }}').click()">Canviar</span>
-                        <button type="button" onclick="removeInvoiceDocument(event)" class="text-red-400 hover:text-red-300 text-[10px] font-bold uppercase tracking-wider ml-1 hover:underline cursor-pointer">✕ Treure</button>
+                        <button type="button" class="text-gold text-[10px] font-bold uppercase tracking-wider hover:underline cursor-pointer bg-transparent border-0 p-0" onclick="document.getElementById('{{ form.invoiceFile.vars.id }}').click()">Canviar</button>
+                        <button type="button" onclick="removeInvoiceDocument(event)" class="text-red-400 hover:text-red-300 text-[10px] font-bold uppercase tracking-wider ml-1 hover:underline cursor-pointer bg-transparent border-0 p-0">✕ Treure</button>
                       </div>
                     </div>
                   </div>
@@ -220,8 +214,8 @@
                   <div class="text-[10px] text-cream/80 mt-0.5">Extraient import fiscal, comerç i dades de compra...</div>
                 </div>
 
-                <div id="invoice-empty-state" class="relative z-1 flex flex-col justify-center items-center w-full h-full py-2 gap-1.5">
-                  <div onclick="if(window.innerWidth < 1024) document.getElementById('invoice-file-camera').click();" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-cream border border-steel/40 text-steel flex items-center justify-center mb-0.5 group-hover:scale-105 transition-transform cursor-pointer">
+                <div id="invoice-empty-state" class="relative z-1 flex flex-col justify-center items-center w-full h-full py-2 gap-1.5 pointer-events-auto">
+                  <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-cream border border-steel/40 text-steel flex items-center justify-center mb-0.5 group-hover:scale-105 transition-transform cursor-pointer">
                     <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                   </div>
                   <div class="space-y-0.5 text-center">
@@ -233,7 +227,7 @@
                   </div>
 
                   {# Botoier Mòbil per al comprovant #}
-                  <div class="lg:hidden flex flex-col sm:flex-row items-center gap-1.5 w-full max-w-xs mt-1">
+                  <div class="lg:hidden flex flex-col sm:flex-row items-center gap-1.5 w-full max-w-xs mt-1" onclick="event.stopPropagation();">
                     <button type="button" onclick="document.getElementById('invoice-file-camera').click();" class="w-full py-2 px-3 bg-ink text-gold border border-gold/40 rounded-xl text-xs font-bold font-raleway flex items-center justify-center gap-1.5 shadow-xs active:scale-[0.98] transition-transform cursor-pointer">
                       <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                       <span>Fotografiar Tiquet</span>
@@ -243,9 +237,9 @@
                     </button>
                   </div>
 
-                  <span class="hidden lg:inline-block mt-0.5 px-2.5 py-0.5 bg-cream border border-steel/30 text-ink text-[10px] font-semibold rounded-lg uppercase tracking-wider group-hover:bg-cream/80 transition-colors pointer-events-none">
+                  <button type="button" onclick="document.getElementById('{{ form.invoiceFile.vars.id }}').click();" class="hidden lg:inline-block mt-0.5 px-2.5 py-1 bg-cream border border-steel/30 text-ink text-[10px] font-semibold rounded-lg uppercase tracking-wider hover:bg-cream/80 transition-colors shadow-2xs cursor-pointer">
                     Adjuntar Comprovant
-                  </span>
+                  </button>
                 </div>
                 {{ form_errors(form.invoiceFile, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
               </div>
@@ -451,7 +445,13 @@
 
 </div>
 
+<script src="/vendor/pdfjs/pdf.min.js"></script>
 <script>
+  // Configuració de PDF.js sobirà i local (Privadesa per Disseny - RGPD)
+  if (window.pdfjsLib) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = '/vendor/pdfjs/pdf.worker.min.js';
+  }
+
   // Dades estructurades de categories i subcategories des de la base de dades
   const categoryTree = {
     {% for cat in categories %}
@@ -816,6 +816,105 @@
   if (nameInput) nameInput.addEventListener('input', () => { if (lastInvoiceExtraction) reevaluateInvoiceCongruence(); });
   if (catSelect) catSelect.addEventListener('change', () => { if (lastInvoiceExtraction) reevaluateInvoiceCongruence(); });
 
+  // Funció per a renderitzar fins a 2 pàgines d'un PDF com a imatge JPEG composta (memòria local al navegador - RGPD)
+  async function convertPdfToImageFile(pdfFile) {
+    if (!window.pdfjsLib) {
+      console.warn('PDF.js no està disponible, s\'enviarà el fitxer directament.');
+      return pdfFile;
+    }
+    try {
+      const arrayBuffer = await pdfFile.arrayBuffer();
+      const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+      const pdf = await loadingTask.promise;
+
+      // Si el contracte té més d'1 pàgina (com ASNEF o préstecs), renderitzem les 2 primeres pàgines
+      // perquè les condicions del bé i preu solen ser a la pàgina 2
+      const numPagesToRender = Math.min(pdf.numPages, 2);
+      const renderedPages = [];
+      let totalHeight = 0;
+      let maxWidth = 0;
+
+      for (let p = 1; p <= numPagesToRender; p++) {
+        const page = await pdf.getPage(p);
+        const viewport = page.getViewport({ scale: 1.5 });
+        renderedPages.push({ page, viewport });
+        totalHeight += viewport.height;
+        if (viewport.width > maxWidth) maxWidth = viewport.width;
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = maxWidth;
+      canvas.height = totalHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      let currentY = 0;
+      for (const { page, viewport } of renderedPages) {
+        const pageCanvas = document.createElement('canvas');
+        pageCanvas.width = viewport.width;
+        pageCanvas.height = viewport.height;
+        const pageCtx = pageCanvas.getContext('2d');
+        await page.render({ canvasContext: pageCtx, viewport: viewport }).promise;
+        ctx.drawImage(pageCanvas, 0, currentY);
+        currentY += viewport.height;
+      }
+
+      const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.88));
+      if (!blob) return pdfFile;
+
+      const convertedFileName = pdfFile.name.replace(/\.pdf$/i, '') + '_pages.jpg';
+      return new File([blob], convertedFileName, { type: 'image/jpeg' });
+    } catch (err) {
+      console.warn('Avís en convertir PDF a imatge amb PDF.js:', err);
+      return pdfFile;
+    }
+  }
+
+  // Accions públiques de gestió de comprovants al formulari
+  window.removeInvoiceDocument = function(event) {
+    if (event) event.preventDefault();
+    if (invoiceInput) invoiceInput.value = '';
+    const previewContainer = document.getElementById('invoice-preview-container');
+    const emptyState = document.getElementById('invoice-empty-state');
+    const previewImg = document.getElementById('invoice-preview-img');
+    const previewPdf = document.getElementById('invoice-preview-pdf');
+    const lbl = document.getElementById('invoice-label');
+    const feedbackContainer = document.getElementById('invoice-feedback-container');
+    const custodyNote = document.getElementById('custody-note');
+
+    if (previewImg) { previewImg.src = ''; previewImg.classList.add('hidden'); }
+    if (previewPdf) previewPdf.classList.add('hidden');
+    if (previewContainer) previewContainer.classList.add('hidden');
+    if (emptyState) emptyState.classList.remove('hidden');
+    if (lbl) { lbl.innerText = 'Tria o arrossega la factura / comprovant'; lbl.classList.remove('text-emerald-700', 'text-red-700'); }
+    if (feedbackContainer) { feedbackContainer.innerHTML = ''; feedbackContainer.classList.add('hidden'); }
+    if (custodyNote) custodyNote.classList.remove('hidden');
+
+    lastInvoiceExtraction = null;
+    isDiscrepancyAccepted = false;
+    isInvoiceRejected = false;
+    updateSubmitButtonState();
+  };
+
+  window.acceptDocumentDiscrepancy = function() {
+    isDiscrepancyAccepted = true;
+    const feedbackContainer = document.getElementById('invoice-feedback-container');
+    if (feedbackContainer) {
+      feedbackContainer.innerHTML = `
+        <div class="rounded-xl border border-gold/40 bg-gold/10 p-2.5 text-[11px] text-ink flex items-start justify-between gap-2 shadow-xs transition-all">
+          <div class="flex items-start gap-2">
+            <span class="text-gold font-bold text-sm leading-none mt-0.5">ℹ️</span>
+            <div class="space-y-0.5">
+              <div class="font-bold text-ink font-raleway">Discrepància acceptada pel titular</div>
+              <div class="text-[10px] text-ink/75 leading-tight">El document es custodiarà tal com s'ha adjuntat, vinculat al CUI d'aquest bé.</div>
+            </div>
+          </div>
+          <button type="button" onclick="removeInvoiceDocument(event)" class="text-[10px] text-steel hover:text-red-700 hover:underline shrink-0 font-medium ml-1">✕ Treure</button>
+        </div>`;
+    }
+  };
+
   async function analyzeMediaWithAi(file, promptType) {
     const loadingOverlay = document.getElementById(promptType === 'photo' ? 'photo-ai-loading' : 'invoice-ai-loading');
     if (loadingOverlay) loadingOverlay.classList.remove('hidden');
@@ -824,8 +923,14 @@
     else isAnalyzingInvoice = true;
     updateSubmitButtonState();
 
+    // Si el document és un PDF, renderitzem la primera pàgina com a imatge per al model de visió (Qwen-VL)
+    let fileToSend = file;
+    if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+      fileToSend = await convertPdfToImageFile(file);
+    }
+
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', fileToSend);
     formData.append('promptType', promptType);
 
     try {
@@ -989,11 +1094,16 @@
         }
 
         if (window.RegistralsToast) {
-          const title = promptType === 'photo' ? '✨ Foto analitzada per IA' : '✨ Factura analitzada per IA';
-          const msg = fieldsUpdated > 0
-            ? `S'han deduït ${fieldsUpdated} camps automàticament. Revisa'ls al formulari.`
-            : 'Anàlisi completada. Pots completar o revisar els camps manualment.';
-          window.RegistralsToast.show(title, msg, 'success');
+          const isTimeoutOrUnavailable = d && d.confidence <= 0 && d.notes && (d.notes.includes('no disponible') || d.notes.includes('timeout'));
+          if (isTimeoutOrUnavailable) {
+            window.RegistralsToast.show('⚠️ Temps d\'espera d\'IA esgotat', 'El model local ha trigat massa a processar la imatge. Pots introduir les dades manualment.', 'warning');
+          } else {
+            const title = promptType === 'photo' ? '✨ Foto analitzada per IA' : '✨ Factura analitzada per IA';
+            const msg = fieldsUpdated > 0
+              ? `S'han deduït ${fieldsUpdated} camps automàticament. Revisa'ls al formulari.`
+              : 'Anàlisi completada. Pots completar o revisar els camps manualment.';
+            window.RegistralsToast.show(title, msg, 'success');
+          }
         }
       }
     } catch (err) {
@@ -1126,16 +1236,51 @@
           };
           reader.readAsDataURL(file);
         } else if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
-          if (previewImg) {
-            previewImg.src = '';
-            previewImg.classList.add('hidden');
+          // Previsualització visual de la pàgina 1 del PDF mitjançant PDF.js
+          if (window.pdfjsLib) {
+            file.arrayBuffer().then(buf => {
+              return pdfjsLib.getDocument({ data: buf }).promise;
+            }).then(pdf => {
+              return pdf.getPage(1);
+            }).then(page => {
+              const viewport = page.getViewport({ scale: 1.0 });
+              const canvas = document.createElement('canvas');
+              canvas.width = viewport.width;
+              canvas.height = viewport.height;
+              const ctx = canvas.getContext('2d');
+              return page.render({ canvasContext: ctx, viewport: viewport }).promise.then(() => {
+                if (previewImg && previewContainer) {
+                  previewImg.src = canvas.toDataURL('image/jpeg', 0.85);
+                  previewImg.classList.remove('hidden');
+                  if (previewPdf) previewPdf.classList.add('hidden');
+                  previewContainer.classList.remove('hidden');
+                  if (emptyState) emptyState.classList.add('hidden');
+                }
+              });
+            }).catch(e => {
+              if (previewImg) {
+                previewImg.src = '';
+                previewImg.classList.add('hidden');
+              }
+              if (previewPdf) {
+                if (pdfName) pdfName.innerText = file.name;
+                previewPdf.classList.remove('hidden');
+              }
+              if (previewContainer) previewContainer.classList.remove('hidden');
+              if (emptyState) emptyState.classList.add('hidden');
+            });
+          } else {
+            if (previewImg) {
+              previewImg.src = '';
+              previewImg.classList.add('hidden');
+            }
+            if (previewPdf) {
+              if (pdfName) pdfName.innerText = file.name;
+              previewPdf.classList.remove('hidden');
+            }
+            if (previewContainer) previewContainer.classList.remove('hidden');
+            if (emptyState) emptyState.classList.add('hidden');
           }
-          if (previewPdf) {
-            if (pdfName) pdfName.innerText = file.name;
-            previewPdf.classList.remove('hidden');
-          }
-          if (previewContainer) previewContainer.classList.remove('hidden');
-          if (emptyState) emptyState.classList.add('hidden');
         }
 
         // Amaguem la nota estàtica de custòdia per optimitzar l'alçada visual en carregar la prova
@@ -1146,6 +1291,93 @@
       }
     });
   }
+
+  // ==============================================================
+  // Suport Natiu de Drag & Drop i Clics (Foto Principal & Factura)
+  // ==============================================================
+  const photoDropZone = document.getElementById('photo-drop-zone');
+  if (photoDropZone && primaryInput) {
+    photoDropZone.addEventListener('click', function(e) {
+      if (e.target.closest('button') || e.target.closest('a') || e.target.closest('#photo-preview-container') || e.target.closest('#photo-rejection-overlay')) {
+        return;
+      }
+      primaryInput.click();
+    });
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+      photoDropZone.addEventListener(eventName, function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        photoDropZone.classList.add('border-gold', 'bg-cream/60', 'ring-2', 'ring-gold/50');
+      });
+    });
+
+    ['dragleave', 'dragend'].forEach(eventName => {
+      photoDropZone.addEventListener(eventName, function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        photoDropZone.classList.remove('border-gold', 'bg-cream/60', 'ring-2', 'ring-gold/50');
+      });
+    });
+
+    photoDropZone.addEventListener('drop', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      photoDropZone.classList.remove('border-gold', 'bg-cream/60', 'ring-2', 'ring-gold/50');
+
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        const file = e.dataTransfer.files[0];
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        primaryInput.files = dt.files;
+        primaryInput.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+  }
+
+  const invoiceDropZone = document.getElementById('invoice-drop-zone');
+  if (invoiceDropZone && invoiceInput) {
+    invoiceDropZone.addEventListener('click', function(e) {
+      if (e.target.closest('button') || e.target.closest('a') || e.target.closest('#invoice-preview-container')) {
+        return;
+      }
+      invoiceInput.click();
+    });
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+      invoiceDropZone.addEventListener(eventName, function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        invoiceDropZone.classList.add('border-gold', 'bg-cream/60', 'ring-2', 'ring-gold/50');
+      });
+    });
+
+    ['dragleave', 'dragend'].forEach(eventName => {
+      invoiceDropZone.addEventListener(eventName, function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        invoiceDropZone.classList.remove('border-gold', 'bg-cream/60', 'ring-2', 'ring-gold/50');
+      });
+    });
+
+    invoiceDropZone.addEventListener('drop', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      invoiceDropZone.classList.remove('border-gold', 'bg-cream/60', 'ring-2', 'ring-gold/50');
+
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        const file = e.dataTransfer.files[0];
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        invoiceInput.files = dt.files;
+        invoiceInput.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+  }
+
+  // Prevenir que el navegador obri el fitxer si es deixa anar fora dels contenidors
+  window.addEventListener('dragover', function(e) { e.preventDefault(); }, false);
+  window.addEventListener('drop', function(e) { e.preventDefault(); }, false);
 
   function removePrimaryPhoto(event) {
     if (event) {

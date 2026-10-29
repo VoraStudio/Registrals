@@ -5,6 +5,13 @@
 {% block admin_content %}
 <div class="space-y-6">
 
+  {# Fil d'Ariadna de Ruta Canònic #}
+  <nav class="flex items-center gap-2 text-xs font-semibold font-raleway text-ink/65 flex-wrap">
+    <a href="{{ path('app_admin_dashboard') }}" class="hover:text-ink transition-colors">Inici</a>
+    <span>/</span>
+    <span class="text-ink font-bold">Usuaris</span>
+  </nav>
+
   {# Capçalera de Pàgina #}
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div>
@@ -21,24 +28,25 @@
     </div>
   </div>
 
-  {# Formulari de Filtres i Cerca #}
+  {# Formulari de Filtres i Cerca (Format Horitzontal Canònic) #}
   <div class="bg-white rounded-2xl border border-steel/20 p-4 sm:p-5 shadow-xs">
     <form method="get" action="{{ path('app_admin_users') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4 items-end">
+      <input type="hidden" name="limit" value="{{ currentLimit }}" />
       
       {# Cercador de Text #}
       <div class="sm:col-span-5">
         <label for="search-input" class="block text-xs font-semibold text-ink/80 mb-1.5 font-raleway">Cerca per Nom, Email o DNI</label>
         <div class="relative">
           <input type="text" id="search-input" name="q" value="{{ query }}" placeholder="Ex: Carles, carles@example.com, 12345678Z..."
-                 class="w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white transition-all pl-9" />
-          <svg class="w-4 h-4 text-steel absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                 class="w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white transition-all pl-9 font-raleway" />
+          <svg class="w-4 h-4 text-steel absolute left-3 top-3 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
         </div>
       </div>
 
       {# Filtre per Pla #}
       <div class="sm:col-span-3">
         <label for="filter-plan" class="block text-xs font-semibold text-ink/80 mb-1.5 font-raleway">Subscripció / Pla</label>
-        <select id="filter-plan" name="pla" class="w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3 py-2 text-xs sm:text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white transition-all">
+        <select id="filter-plan" name="pla" class="w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3 py-2.5 text-xs sm:text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white transition-all font-raleway">
           <option value="">Tots els plans</option>
           {% for p in plans %}
             <option value="{{ p.code }}" {{ selectedPlan == p.code ? 'selected' : '' }}>{{ p.name }}</option>
@@ -49,7 +57,7 @@
       {# Filtre per Estat #}
       <div class="sm:col-span-2">
         <label for="filter-status" class="block text-xs font-semibold text-ink/80 mb-1.5 font-raleway">Estat del Compte</label>
-        <select id="filter-status" name="estat" class="w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3 py-2 text-xs sm:text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white transition-all">
+        <select id="filter-status" name="estat" class="w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3 py-2.5 text-xs sm:text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white transition-all font-raleway">
           <option value="">Tots</option>
           <option value="active" {{ selectedStatus == 'active' ? 'selected' : '' }}>Actius</option>
           <option value="blocked" {{ selectedStatus == 'blocked' ? 'selected' : '' }}>Suspesos</option>
@@ -58,11 +66,12 @@
 
       {# Botó d'Acció de Filtrar #}
       <div class="sm:col-span-2 flex items-center gap-2">
-        <button type="submit" class="w-full bg-ink hover:bg-ink/90 text-gold font-semibold text-xs sm:text-sm py-2 px-4 rounded-xl border border-gold/40 transition-colors shadow-2xs">
-          Filtrar
+        <button type="submit" class="w-full bg-ink hover:bg-ink/90 text-gold font-semibold text-xs sm:text-sm py-2.5 px-4 rounded-xl border border-gold/40 transition-colors shadow-2xs cursor-pointer flex items-center justify-center gap-2">
+          <svg class="w-4 h-4 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+          <span>Filtrar</span>
         </button>
         {% if query or selectedPlan or selectedStatus %}
-          <a href="{{ path('app_admin_users') }}" class="p-2 text-steel hover:text-ink hover:bg-cream rounded-xl transition-colors" title="Netejar filtres">
+          <a href="{{ path('app_admin_users') }}" class="p-2.5 text-steel hover:text-ink hover:bg-cream rounded-xl transition-colors shrink-0" title="Netejar filtres">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
           </a>
         {% endif %}
@@ -114,9 +123,15 @@
 
               {# Pla #}
               <td class="py-3.5 px-4">
-                <span class="inline-block px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider {{ u.plan.code == 'plus' ? 'bg-ink text-gold' : (u.plan.code == 'unlimited' ? 'bg-gold text-ink' : 'bg-cream text-steel border border-steel/20') }}">
-                  {{ u.plan.name }}
-                </span>
+                {% if u.isAdmin or u.plan is null %}
+                  <span class="inline-block px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-ink text-gold border border-gold/40">
+                    SISTEMA / ADMIN
+                  </span>
+                {% else %}
+                  <span class="inline-block px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider {{ u.plan.code == 'plus' ? 'bg-ink text-gold' : (u.plan.code == 'unlimited' ? 'bg-gold text-ink' : 'bg-cream text-steel border border-steel/20') }}">
+                    {{ u.plan.name }}
+                  </span>
+                {% endif %}
                 <div class="text-[10px] text-ink/50 mt-0.5">
                   {{ u.authProvider == 'google' ? 'Google OAuth' : 'Email/Password' }}
                 </div>
@@ -124,12 +139,21 @@
 
               {# Béns & Consums #}
               <td class="py-3.5 px-4">
-                <div class="text-xs font-semibold text-ink">
-                  {{ u.items|length }} béns
-                </div>
-                <div class="text-[10px] text-ink/60 font-mono">
-                  IA: {{ u.aiUsageCount }} / {{ u.plan.aiAssistanceQuota == -1 ? '∞' : u.plan.aiAssistanceQuota }}
-                </div>
+                {% if u.isAdmin or u.plan is null %}
+                  <div class="text-xs font-semibold text-steel italic">
+                    Sense béns
+                  </div>
+                  <div class="text-[10px] text-ink/60 font-mono">
+                    IA: Operador
+                  </div>
+                {% else %}
+                  <div class="text-xs font-semibold text-ink">
+                    {{ u.items|length }} béns
+                  </div>
+                  <div class="text-[10px] text-ink/60 font-mono">
+                    IA: {{ u.aiUsageCount }} / {{ u.plan.aiAssistanceQuota == -1 ? '∞' : u.plan.aiAssistanceQuota }}
+                  </div>
+                {% endif %}
               </td>
 
               {# Data #}
@@ -157,24 +181,30 @@
               </td>
 
               {# Accions #}
-              <td class="py-3.5 px-4 sm:px-6 text-right space-x-2">
-                <a href="{{ path('app_admin_user_detail', {id: u.id}) }}" class="inline-block p-1.5 text-steel hover:text-ink hover:bg-cream rounded-lg transition-colors" title="Veure Fitxa & Auditoria">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                </a>
+              <td class="py-3.5 px-4 sm:px-6 text-right">
+                <div class="inline-flex items-center justify-end gap-2">
+                  <a href="{{ path('app_admin_user_detail', {id: u.id}) }}" 
+                     class="w-8 h-8 rounded-xl flex items-center justify-center text-steel hover:text-ink bg-cream-50/80 hover:bg-cream border border-steel/20 hover:border-gold/50 shadow-2xs transition-all" 
+                     title="Veure Fitxa & Auditoria">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                  </a>
 
-                {% if u != app.user %}
-                  <button type="button" 
-                          data-csrf="{{ csrf_token('toggle_user_status_' ~ u.id) }}"
-                          onclick="openStatusModal({{ u.id }}, '{{ u.fullName|escape('js') }}', '{{ u.email|escape('js') }}', {{ u.isActive ? 'true' : 'false' }}, this.dataset.csrf)"
-                          class="inline-block p-1.5 rounded-lg transition-colors cursor-pointer {{ u.isActive ? 'text-amber-700 hover:bg-amber-50 hover:text-amber-900' : 'text-emerald-700 hover:bg-emerald-50 hover:text-emerald-900' }}" 
-                          title="{{ u.isActive ? 'Suspendre compte d\'usuari' : 'Reactivar compte d\'usuari' }}">
-                    {% if u.isActive %}
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
-                    {% else %}
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    {% endif %}
-                  </button>
-                {% endif %}
+                  {% if u != app.user %}
+                    <button type="button" 
+                            data-csrf="{{ csrf_token('toggle_user_status_' ~ u.id) }}"
+                            onclick="openStatusModal({{ u.id }}, '{{ u.fullName|escape('js') }}', '{{ u.email|escape('js') }}', {{ u.isActive ? 'true' : 'false' }}, this.dataset.csrf)"
+                            class="w-8 h-8 rounded-xl flex items-center justify-center shadow-2xs border transition-all cursor-pointer {{ u.isActive ? 'bg-red-50/70 hover:bg-red-100 text-red-700 border-red-200/70 hover:border-red-300' : 'bg-emerald-50/70 hover:bg-emerald-100 text-emerald-800 border-emerald-200/70 hover:border-emerald-300' }}" 
+                            title="{{ u.isActive ? 'Suspendre compte d\'usuari' : 'Reactivar compte d\'usuari' }}">
+                      {% if u.isActive %}
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                      {% else %}
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                      {% endif %}
+                    </button>
+                  {% else %}
+                    <span class="w-8 h-8 inline-block" aria-hidden="true"></span>
+                  {% endif %}
+                </div>
               </td>
 
             </tr>
@@ -191,27 +221,44 @@
     </div>
 
     {# Paginació Notarial #}
-    {% if totalPages > 1 %}
-      <div class="px-4 sm:px-6 py-4 border-t border-steel/15 bg-cream-50/50 flex items-center justify-between text-xs font-raleway">
-        <div class="text-ink/65">
-          Pàgina <span class="font-bold text-ink">{{ currentPage }}</span> de <span class="font-bold text-ink">{{ totalPages }}</span>
+    <div class="px-4 sm:px-6 py-4 border-t border-steel/15 bg-cream-50/50 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-raleway">
+      <div class="flex items-center gap-3 flex-wrap">
+        <span class="text-ink/65">
+          Mostrant <span class="font-bold text-ink">{{ users|length }}</span> de <span class="font-bold text-ink">{{ totalMatches }}</span> usuaris
+          {% if totalPages > 1 %}
+            &middot; Pàgina <span class="font-bold text-ink">{{ currentPage }}</span> de <span class="font-bold text-ink">{{ totalPages }}</span>
+          {% endif %}
+        </span>
+
+        {# Selector de Quantitat per Pàgina #}
+        <div class="flex items-center gap-1.5 pl-3 border-l border-steel/20">
+          <span class="text-ink/50 text-[11px]">Per pàgina:</span>
+          {% for l in [10, 25, 50] %}
+            <a href="{{ path('app_admin_users', {q: query, pla: selectedPlan, estat: selectedStatus, limit: l, page: 1}) }}" 
+               class="px-2 py-0.5 rounded-md text-[11px] font-mono font-bold transition-colors {{ currentLimit == l ? 'bg-ink text-gold border border-gold/40 shadow-2xs' : 'bg-white hover:bg-cream border border-steel/25 text-ink/70' }}">
+              {{ l }}
+            </a>
+          {% endfor %}
         </div>
+      </div>
+
+      {% if totalPages > 1 %}
         <div class="flex items-center gap-1.5">
           {% if currentPage > 1 %}
-            <a href="{{ path('app_admin_users', {q: query, pla: selectedPlan, estat: selectedStatus, page: currentPage - 1}) }}" 
+            <a href="{{ path('app_admin_users', {q: query, pla: selectedPlan, estat: selectedStatus, limit: currentLimit, page: currentPage - 1}) }}" 
                class="px-3 py-1.5 rounded-lg border border-steel/30 bg-white hover:bg-cream text-ink font-semibold transition-colors">
               &larr; Anterior
             </a>
           {% endif %}
           {% if currentPage < totalPages %}
-            <a href="{{ path('app_admin_users', {q: query, pla: selectedPlan, estat: selectedStatus, page: currentPage + 1}) }}" 
+            <a href="{{ path('app_admin_users', {q: query, pla: selectedPlan, estat: selectedStatus, limit: currentLimit, page: currentPage + 1}) }}" 
                class="px-3 py-1.5 rounded-lg border border-steel/30 bg-white hover:bg-cream text-ink font-semibold transition-colors">
               Següent &rarr;
             </a>
           {% endif %}
         </div>
-      </div>
-    {% endif %}
+      {% endif %}
+    </div>
 
   </div>
 

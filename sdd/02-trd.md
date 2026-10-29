@@ -80,12 +80,16 @@ L'aplicació es dissenya com un **monòlit modular basat en Symfony 7**, allotja
 ### 3.3. Notarització Pública (Blockchain Layer 2)
 
 - **Finalitat:** Prova d'existència (*proof-of-existence*) i integritat temporal sense manipulació possible.
-- **Xarxa:** Polygon PoS o Base (Layer 2 d'Ethereum) per minimitzar comissions de gas (< 0,005 € per registre).
+- **Xarxa:** Polygon PoS o Base (Layer 2 d'Ethereum) per minimitzar comissions de gas (< 0,005 € per registre individual).
 - **Mètode d'execució:**
-- El sistema no requereix moneder (wallet) per part de l'usuari final.
-- El backend disposa d'una *Hot Wallet* del sistema finançada prèviament per a transaccions de gas.
-- Invocació d'un contracte intel·ligent mínim de registre mitjançant crida RPC JSON-RPC (eth_sendRawTransaction) o transacció d'escriptura directa emetent l'esdeveniment ItemAnchored(bytes32 cuiHash, bytes32 metadataHash, uint256 timestamp).
-- La resposta retorna el tx_hash de la transacció pública, que s'emmagatzema a MySQL i s'afegeix al certificat en format enllaç i codi QR.
+  - El sistema no requereix moneder (wallet) per part de l'usuari final.
+  - El backend disposa d'una *Hot Wallet* del sistema finançada prèviament per a transaccions de gas (< 20 € cobreixen milers d'operacions).
+  - Invocació d'un contracte intel·ligent mínim de registre mitjançant crida RPC JSON-RPC (`eth_sendRawTransaction`) o transacció d'escriptura directa emetent l'esdeveniment `ItemAnchored(bytes32 cuiHash, bytes32 metadataHash, uint256 timestamp)`.
+  - La resposta retorna el `tx_hash` de la transacció pública, que s'emmagatzema a MySQL i s'afegeix al certificat en format enllaç i codi QR.
+- **Escalabilitat a Gran Escala (Arbres de Merkle / Batching per a > 100.000 béns):**
+  - Per optimitzar costos i evitar transaccions massives soltes, el backend implementa agrupació per lots (*Batching*): s'agrupen els béns del període (ex. diari) en un Arbre de Merkle (*Merkle Tree*) generant un únic *Merkle Root* de 32 bytes que s'ancora en 1 sola transacció a Polygon (cost anual < 1,50 € per a centenars de milers de béns).
+  - Cada certificat conté la seva *Merkle Proof*, que permet a qualsevol tercer validar a `/verify/{uuid}` que el seu hash individual pertany matemàticament a aquell bloc sense cap mena de dubte.
+
 
 ### 3.4. Autenticació Social (Google & Apple)
 

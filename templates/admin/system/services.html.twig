@@ -1,0 +1,211 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Salut dels Serveis & Infraestructura — Administració Registrals{% endblock %}
+
+{% block admin_content %}
+<div class="space-y-6">
+
+  {# Fil d'Ariadna Canònic #}
+  <nav class="flex items-center gap-2 text-xs font-semibold font-raleway text-ink/65 flex-wrap">
+    <a href="{{ path('app_admin_dashboard') }}" class="hover:text-gold transition-colors">Inici</a>
+    <span>/</span>
+    <span class="text-ink/50">Vigilància</span>
+    <span>/</span>
+    <span class="text-ink font-bold">Salut dels Serveis</span>
+  </nav>
+
+  {# Capçalera Solemne #}
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <div class="flex items-center gap-3">
+        <h1 class="font-marcellus text-2xl sm:text-3xl text-ink tracking-tight font-medium">Salut dels Serveis & Infraestructura</h1>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold bg-cream border border-gold/40 text-ink">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          Supervisió en Viu
+        </span>
+      </div>
+      <p class="font-raleway text-xs sm:text-sm text-ink/70 mt-1">
+        Monitorització dels runtimes, bases de dades, node d'IA local i custòdia documental.
+      </p>
+    </div>
+  </div>
+
+  {# Graella de Serveis Principals #}
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+    {# Servei 1: Servidor Web & PHP #}
+    <div class="bg-white rounded-2xl border border-steel/20 p-6 shadow-xs">
+      <div class="flex items-center justify-between pb-3 border-b border-steel/15 mb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-ink text-gold flex items-center justify-center font-bold text-sm">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/></svg>
+          </div>
+          <div>
+            <h2 class="font-marcellus text-base text-ink font-bold">Servidor Web & Runtime</h2>
+            <p class="text-xs text-ink/65 font-raleway">Entorn d'execució d'alt rendiment</p>
+          </div>
+        </div>
+        <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+          OPERATIU
+        </span>
+      </div>
+
+      <dl class="space-y-3 text-xs font-raleway">
+        <div class="flex items-center justify-between">
+          <dt class="text-ink/70">Versió de PHP:</dt>
+          <dd class="font-mono font-bold text-ink">{{ phpVersion }}</dd>
+        </div>
+        <div class="flex items-center justify-between">
+          <dt class="text-ink/70">Framework de Backend:</dt>
+          <dd class="font-mono font-bold text-ink">Symfony {{ symfonyVersion }}</dd>
+        </div>
+        <div class="flex items-center justify-between">
+          <dt class="text-ink/70">Tipat Estricte:</dt>
+          <dd class="font-semibold text-emerald-700">declare(strict_types=1)</dd>
+        </div>
+        <div class="flex items-center justify-between pt-2 border-t border-steel/10">
+          <dt class="text-ink/70">Cues Asíncrones:</dt>
+          <dd class="font-mono text-ink">Symfony Messenger (Doctrine transport)</dd>
+        </div>
+      </dl>
+    </div>
+
+    {# Servei 2: Bases de Dades MySQL 8.4 #}
+    <div class="bg-white rounded-2xl border border-steel/20 p-6 shadow-xs">
+      <div class="flex items-center justify-between pb-3 border-b border-steel/15 mb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gold/20 text-ink flex items-center justify-center font-bold text-sm">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+          </div>
+          <div>
+            <h2 class="font-marcellus text-base text-ink font-bold">Motor MySQL 8.4 (Docker)</h2>
+            <p class="text-xs text-ink/65 font-raleway">Doble instància relacional aïllada</p>
+          </div>
+        </div>
+        {% if defaultDbStatus and auditDbStatus %}
+          <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+            CONNECTAT
+          </span>
+        {% else %}
+          <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-rose-50 text-rose-800 border border-rose-200">
+            INCIDÈNCIA
+          </span>
+        {% endif %}
+      </div>
+
+      <dl class="space-y-3 text-xs font-raleway">
+        <div class="flex items-center justify-between">
+          <dt class="text-ink/70">BD Transaccional (<code class="bg-cream px-1.5 py-0.5 rounded text-[10px]">registrals</code>):</dt>
+          <dd class="font-semibold flex items-center gap-1.5 {{ defaultDbStatus ? 'text-emerald-700' : 'text-rose-700' }}">
+            <span class="w-2 h-2 rounded-full {{ defaultDbStatus ? 'bg-emerald-500' : 'bg-rose-500' }}"></span>
+            {{ defaultDbStatus ? 'Connexió Activa (InnoDB)' : 'Error de connexió' }}
+          </dd>
+        </div>
+        <div class="flex items-center justify-between">
+          <dt class="text-ink/70">BD Auditoria (<code class="bg-cream px-1.5 py-0.5 rounded text-[10px]">registrals_audit</code>):</dt>
+          <dd class="font-semibold flex items-center gap-1.5 {{ auditDbStatus ? 'text-emerald-700' : 'text-rose-700' }}">
+            <span class="w-2 h-2 rounded-full {{ auditDbStatus ? 'bg-emerald-500' : 'bg-rose-500' }}"></span>
+            {{ auditDbStatus ? 'Aïllada & Activa' : 'Error de connexió' }}
+          </dd>
+        </div>
+        <div class="flex items-center justify-between pt-2 border-t border-steel/10">
+          <dt class="text-ink/70">Port Local:</dt>
+          <dd class="font-mono text-ink">127.0.0.1:3306 (utf8mb4_unicode_ci)</dd>
+        </div>
+      </dl>
+    </div>
+
+    {# Servei 3: Node d'IA Local SGLang (Qwen-VL) #}
+    <div class="bg-white rounded-2xl border border-steel/20 p-6 shadow-xs">
+      <div class="flex items-center justify-between pb-3 border-b border-steel/15 mb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-ink text-gold flex items-center justify-center font-bold text-sm">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+          <div>
+            <h2 class="font-marcellus text-base text-ink font-bold">Assistent IA Sobirana (Qwen-VL)</h2>
+            <p class="text-xs text-ink/65 font-raleway">Extracció OCR i visió local protegida</p>
+          </div>
+        </div>
+        {% if sglangStatus and aiGlobalEnabled %}
+          <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+            DISPONIBLE
+          </span>
+        {% elseif not aiGlobalEnabled %}
+          <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-amber-50 text-amber-800 border border-amber-200">
+            PAUSADA GLOBAL
+          </span>
+        {% else %}
+          <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-rose-50 text-rose-800 border border-rose-200">
+            OFFLINE
+          </span>
+        {% endif %}
+      </div>
+
+      <dl class="space-y-3 text-xs font-raleway">
+        <div class="flex items-center justify-between">
+          <dt class="text-ink/70">Endpoint del Node:</dt>
+          <dd class="font-mono text-ink">http://127.0.0.1:30000/v1</dd>
+        </div>
+        <div class="flex items-center justify-between">
+          <dt class="text-ink/70">Latència de resposta:</dt>
+          <dd class="font-mono font-semibold {{ sglangStatus ? 'text-emerald-700' : 'text-steel' }}">
+            {{ sglangLatency ? sglangLatency ~ ' ms' : '—' }}
+          </dd>
+        </div>
+        <div class="flex items-center justify-between">
+          <dt class="text-ink/70">Privadesa RGPD / AI Act:</dt>
+          <dd class="font-semibold text-emerald-700">100% On-Premise (Zero fuita de dades)</dd>
+        </div>
+        <div class="flex items-center justify-between pt-2 border-t border-steel/10">
+          <dt class="text-ink/70">Estat de Configuració:</dt>
+          <dd class="font-bold {{ aiGlobalEnabled ? 'text-emerald-700' : 'text-amber-700' }}">
+            {{ aiGlobalEnabled ? 'Habilitada a Backoffice' : 'Desactivada per l\'Administrador' }}
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    {# Servei 4: Custòdia Flysystem & Disc Privat #}
+    <div class="bg-white rounded-2xl border border-steel/20 p-6 shadow-xs">
+      <div class="flex items-center justify-between pb-3 border-b border-steel/15 mb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gold text-ink flex items-center justify-center font-bold text-sm shadow-2xs">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          </div>
+          <div>
+            <h2 class="font-marcellus text-base text-ink font-bold">Custòdia d'Arxius (Flysystem)</h2>
+            <p class="text-xs text-ink/65 font-raleway">Arxius privats fora de l'arrel web pública</p>
+          </div>
+        </div>
+        <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+          SEGURA
+        </span>
+      </div>
+
+      <dl class="space-y-3 text-xs font-raleway">
+        <div class="flex items-center justify-between">
+          <dt class="text-ink/70">Ubicació Física:</dt>
+          <dd class="font-mono text-ink text-[11px]">var/storage/ (Aïllat de /public)</dd>
+        </div>
+        <div class="flex items-center justify-between">
+          <dt class="text-ink/70">Espai de Disc Lliure:</dt>
+          <dd class="font-mono font-bold text-emerald-700">
+            {{ (diskFree / (1024*1024*1024))|number_format(1, ',', '.') }} GB lliures
+          </dd>
+        </div>
+        <div class="flex items-center justify-between">
+          <dt class="text-ink/70">Control d'Accés:</dt>
+          <dd class="font-semibold text-emerald-700">Symfony Voter + MediaController</dd>
+        </div>
+        <div class="flex items-center justify-between pt-2 border-t border-steel/10">
+          <dt class="text-ink/70">Format Optimitzat:</dt>
+          <dd class="font-mono text-ink">WebP per a imatges / PDF xifrat per a proves</dd>
+        </div>
+      </dl>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

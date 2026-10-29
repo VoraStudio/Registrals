@@ -123,6 +123,20 @@ class Item
     #[ORM\OneToMany(mappedBy: 'item', targetEntity: ItemDocument::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $documents;
 
+    /**
+     * @var Collection<int, BlockchainReceipt>
+     */
+    #[ORM\OneToMany(mappedBy: 'item', targetEntity: BlockchainReceipt::class, cascade: ['persist', 'remove'])]
+    #[ORM\OrderBy(['anchoredAt' => 'DESC'])]
+    private Collection $blockchainReceipts;
+
+    /**
+     * @var Collection<int, Certificate>
+     */
+    #[ORM\OneToMany(mappedBy: 'item', targetEntity: Certificate::class, cascade: ['persist', 'remove'])]
+    #[ORM\OrderBy(['createdAt' => 'DESC'])]
+    private Collection $certificates;
+
     public function __construct(User $owner, string $cui, string $name, Category $category)
     {
         $this->uuid = Uuid::v7();
@@ -132,6 +146,8 @@ class Item
         $this->category = $category;
         $this->children = new ArrayCollection();
         $this->documents = new ArrayCollection();
+        $this->blockchainReceipts = new ArrayCollection();
+        $this->certificates = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
     }
@@ -339,6 +355,14 @@ class Item
     }
 
     /**
+     * Àlies de conveniència per a circumstàncies/descripció
+     */
+    public function getDescription(): ?string
+    {
+        return $this->acquisitionCircumstances;
+    }
+
+    /**
      * @return array<string, mixed>|null
      */
     public function getCustomAttributes(): ?array
@@ -464,4 +488,76 @@ class Item
     {
         return $this->documents->filter(fn(ItemDocument $doc) => $doc->getType()->isEvidence());
     }
+
+    /**
+     * Àlies de conveniència per a getEvidenceDocuments()
+     *
+     * @return Collection<int, ItemDocument>
+     */
+    public function getEvidences(): Collection
+    {
+        return $this->getEvidenceDocuments();
+    }
+
+    /**
+     * @return Collection<int, BlockchainReceipt>
+     */
+    public function getBlockchainReceipts(): Collection
+    {
+        return $this->blockchainReceipts;
+    }
+
+    public function addBlockchainReceipt(BlockchainReceipt $receipt): static
+    {
+        if (!$this->blockchainReceipts->contains($receipt)) {
+            $this->blockchainReceipts->add($receipt);
+            $receipt->setItem($this);
+        }
+
+        return $this;
+    }
+
+    public function getLatestBlockchainReceipt(): ?BlockchainReceipt
+    {
+        return $this->blockchainReceipts->first() ?: null;
+    }
+
+    public function isBlockchainAnchored(): bool
+    {
+        return !$this->blockchainReceipts->isEmpty();
+    }
+
+    /**
+     * @return Collection<int, Certificate>
+     */
+    public function getCertificates(): Collection
+    {
+        return $this->certificates;
+    }
+
+    public function addCertificate(Certificate $certificate): static
+    {
+        if (!$this->certificates->contains($certificate)) {
+            $this->certificates->add($certificate);
+            $certificate->setItem($this);
+        }
+
+        return $this;
+    }
+
+    public function getLatestCertificate(?\App\Enum\CertificateMode $mode = null): ?Certificate
+    {
+        if ($mode === null) {
+            return $this->certificates->first() ?: null;
+        }
+
+        foreach ($this->certificates as $cert) {
+            if ($cert->getMode() === $mode) {
+                return $cert;
+            }
+        }
+
+        return null;
+    }
 }
+

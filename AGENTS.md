@@ -77,6 +77,7 @@ Aquest document estableix les regles d'arquitectura, el stack tecnològic, el si
     - **Botoier d'Acció:** Footer alineat a la dreta amb botó secundari `[ Cancel·lar ]` (`bg-cream hover:bg-cream/80 text-ink`) i botó d'acció primari `[ Confirmar ]` (`bg-ink text-gold border border-gold/40`) o destructiu `[ Desvincular / Eliminar ]` (`bg-red-700 text-white`).
     - **Accessibilitat:** Gestió de tancament amb tecla `ESC`, clic a l'àrea exterior del backdrop i restabliment del focus.
 - **Actius:** Logotips i isotips SVG ubicats a `web/img/logos/`. No utilitzar mai imatges genèriques o placeholders temporals.
+- **Backoffice a Mòbil (Mode de Supervisió Mòbil vs Escriptori):** El Panell d'Administració (`/admin`) és una cabina d'alta densitat d'informació dissenyada per a pantalla d'escriptori (PC). Quan un administrador accedeix des de dispositiu mòbil, la interfície adopta un **mode de seguiment compacte** (dashboard de KPIs essencials i comprovació de serveis), amb el menú lateral plegat per defecte per no envair el viewport, i adverteix solemnement que la gestió densa (taules d'auditoria, filtres complexos i parametrització) s'ha de dur a terme a la versió web d'escriptori (PC).
 
 ---
 

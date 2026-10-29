@@ -5,26 +5,33 @@
 {% block admin_content %}
 <div class="space-y-6">
 
-  {# Fil d'Ariadna & Tornar #}
-  <div class="flex items-center justify-between">
-    <nav class="flex items-center gap-2 text-xs font-semibold font-raleway text-ink/65">
-      <a href="{{ path('app_admin_users') }}" class="hover:text-ink transition-colors flex items-center gap-1">
-        <svg class="w-3.5 h-3.5 text-steel" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-        <span>Llistat d'Usuaris</span>
-      </a>
-      <span>/</span>
-      <span class="text-ink font-bold">{{ user.fullName }}</span>
-    </nav>
+  {# Fil d'Ariadna de Ruta Canònic (Sense botó de tornar) #}
+  <nav class="flex items-center gap-2 text-xs font-semibold font-raleway text-ink/65 flex-wrap">
+    <a href="{{ path('app_admin_dashboard') }}" class="hover:text-ink transition-colors">Inici</a>
+    <span>/</span>
+    <a href="{{ path('app_admin_users') }}" class="hover:text-ink transition-colors">Usuaris</a>
+    <span>/</span>
+    <span class="text-ink font-bold">{{ user.fullName }}</span>
+  </nav>
 
-    {# Estat del compte #}
+  {# Capçalera de Secció Solemne #}
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="font-marcellus text-2xl sm:text-3xl text-ink tracking-tight font-medium">Fitxa d'Usuari</h1>
+      <p class="font-raleway text-xs sm:text-sm text-ink/70 mt-1">
+        Auditoria d'identitat, subscripció contractada, quotes de servei i patrimoni custodiat.
+      </p>
+    </div>
+
+    {# Estat del compte a la dreta superior #}
     <div>
       {% if user.isActive %}
-        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs font-mono">
           <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
           Compte Actiu
         </span>
       {% else %}
-        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800 border border-red-300 shadow-2xs">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-red-100 text-red-800 border border-red-300 shadow-2xs font-mono">
           <span class="w-2 h-2 rounded-full bg-red-600"></span>
           Compte Suspès
         </span>
@@ -135,32 +142,51 @@
         Pla & Condicions
       </h2>
       <dl class="space-y-2.5 text-xs font-raleway">
-        <div class="flex items-center justify-between">
-          <dt class="text-ink/65">Pla contractat:</dt>
-          <dd class="font-bold text-ink uppercase font-mono">{{ user.plan.name }}</dd>
-        </div>
-        <div class="flex items-center justify-between">
-          <dt class="text-ink/65">Tarifa vigent:</dt>
-          <dd class="font-bold text-ink">{{ (user.plan.priceCents / 100)|number_format(2, ',', '.') }} € / any</dd>
-        </div>
-        <div class="flex items-center justify-between">
-          <dt class="text-ink/65">Inici del pla:</dt>
-          <dd class="text-ink font-semibold">{{ user.planStartedAt|date('d/m/Y') }}</dd>
-        </div>
-        <div class="flex items-center justify-between">
-          <dt class="text-ink/65">Límit de béns actius:</dt>
-          <dd class="font-bold text-ink">{{ user.plan.maxActiveItems == -1 ? 'Il·limitat' : user.plan.maxActiveItems }}</dd>
-        </div>
-        <div class="flex items-center justify-between">
-          <dt class="text-ink/65">Fotos / Proves per bé:</dt>
-          <dd class="font-bold text-ink">{{ user.plan.maxPhotosPerItem }} fotos / {{ user.plan.maxEvidencesPerItem }} proves</dd>
-        </div>
-        <div class="flex items-center justify-between pt-2 border-t border-steel/10">
-          <dt class="text-ink/65">Assistència IA Sobirana:</dt>
-          <dd class="font-bold {{ user.plan.aiAssistanceEnabled ? 'text-emerald-700' : 'text-amber-700' }}">
-            {{ user.plan.aiAssistanceEnabled ? 'Habilitada' : 'Deshabilitada' }}
-          </dd>
-        </div>
+        {% if user.isAdmin or user.plan is null %}
+          <div class="flex items-center justify-between">
+            <dt class="text-ink/65">Tipus de compte:</dt>
+            <dd class="font-bold text-gold bg-ink px-2 py-0.5 rounded text-[10px] uppercase font-mono">SISTEMA / ADMIN</dd>
+          </div>
+          <div class="flex items-center justify-between">
+            <dt class="text-ink/65">Tarifa comercial:</dt>
+            <dd class="font-bold text-emerald-700">0,00 € (Sense cost)</dd>
+          </div>
+          <div class="flex items-center justify-between">
+            <dt class="text-ink/65">Límits de custòdia:</dt>
+            <dd class="font-bold text-ink">Compte d'Administració</dd>
+          </div>
+          <div class="flex items-center justify-between pt-2 border-t border-steel/10">
+            <dt class="text-ink/65">Accés Administrador:</dt>
+            <dd class="font-bold text-emerald-700">Complet</dd>
+          </div>
+        {% else %}
+          <div class="flex items-center justify-between">
+            <dt class="text-ink/65">Pla contractat:</dt>
+            <dd class="font-bold text-ink uppercase font-mono">{{ user.plan.name }}</dd>
+          </div>
+          <div class="flex items-center justify-between">
+            <dt class="text-ink/65">Tarifa vigent:</dt>
+            <dd class="font-bold text-ink">{{ (user.plan.priceCents / 100)|number_format(2, ',', '.') }} € / any</dd>
+          </div>
+          <div class="flex items-center justify-between">
+            <dt class="text-ink/65">Inici del pla:</dt>
+            <dd class="text-ink font-semibold">{{ user.planStartedAt ? user.planStartedAt|date('d/m/Y') : user.createdAt|date('d/m/Y') }}</dd>
+          </div>
+          <div class="flex items-center justify-between">
+            <dt class="text-ink/65">Límit de béns actius:</dt>
+            <dd class="font-bold text-ink">{{ user.plan.maxActiveItems == -1 ? 'Il·limitat' : user.plan.maxActiveItems }}</dd>
+          </div>
+          <div class="flex items-center justify-between">
+            <dt class="text-ink/65">Fotos / Proves per bé:</dt>
+            <dd class="font-bold text-ink">{{ user.plan.maxPhotosPerItem }} fotos / {{ user.plan.maxEvidencesPerItem }} proves</dd>
+          </div>
+          <div class="flex items-center justify-between pt-2 border-t border-steel/10">
+            <dt class="text-ink/65">Assistència IA Sobirana:</dt>
+            <dd class="font-bold {{ user.plan.aiAssistanceEnabled ? 'text-emerald-700' : 'text-amber-700' }}">
+              {{ user.plan.aiAssistanceEnabled ? 'Habilitada' : 'Deshabilitada' }}
+            </dd>
+          </div>
+        {% endif %}
       </dl>
     </div>
 
@@ -175,9 +201,9 @@
         <div>
           <div class="flex items-center justify-between text-xs mb-1 font-raleway">
             <span class="text-ink/70">Béns en custòdia:</span>
-            <span class="font-bold text-ink">{{ user.items|length }} {% if user.plan.maxActiveItems != -1 %} / {{ user.plan.maxActiveItems }}{% endif %}</span>
+            <span class="font-bold text-ink">{{ user.items|length }} {% if user.plan and user.plan.maxActiveItems != -1 %} / {{ user.plan.maxActiveItems }}{% endif %}</span>
           </div>
-          {% set itemPercent = user.plan.maxActiveItems > 0 ? ((user.items|length / user.plan.maxActiveItems) * 100)|round : 0 %}
+          {% set itemPercent = (user.plan and user.plan.maxActiveItems > 0) ? ((user.items|length / user.plan.maxActiveItems) * 100)|round : 0 %}
           <div class="w-full bg-steel/15 rounded-full h-1.5 overflow-hidden">
             <div class="bg-ink h-1.5 rounded-full" style="width: {{ min(itemPercent, 100) }}%"></div>
           </div>
@@ -187,9 +213,9 @@
         <div>
           <div class="flex items-center justify-between text-xs mb-1 font-raleway">
             <span class="text-ink/70">Consultes d'IA (OCR/Visió):</span>
-            <span class="font-bold text-ink">{{ user.aiUsageCount }} {% if user.plan.aiAssistanceQuota != -1 %} / {{ user.plan.aiAssistanceQuota }}{% endif %}</span>
+            <span class="font-bold text-ink">{{ user.aiUsageCount }} {% if user.plan and user.plan.aiAssistanceQuota != -1 %} / {{ user.plan.aiAssistanceQuota }}{% endif %}</span>
           </div>
-          {% set aiPercent = user.plan.aiAssistanceQuota > 0 ? ((user.aiUsageCount / user.plan.aiAssistanceQuota) * 100)|round : 0 %}
+          {% set aiPercent = (user.plan and user.plan.aiAssistanceQuota > 0) ? ((user.aiUsageCount / user.plan.aiAssistanceQuota) * 100)|round : 0 %}
           <div class="w-full bg-steel/15 rounded-full h-1.5 overflow-hidden">
             <div class="bg-gold h-1.5 rounded-full" style="width: {{ min(aiPercent, 100) }}%"></div>
           </div>
@@ -212,15 +238,68 @@
 
   </div>
 
-  {# Llistat de Béns de l'Usuari #}
+  {# Llistat de Béns de l'Usuari amb Filtres & Paginació #}
   <div class="bg-white rounded-2xl border border-steel/20 shadow-xs overflow-hidden">
-    <div class="p-5 border-b border-steel/15 flex items-center justify-between">
+    
+    {# Capçalera de la Secció de Béns #}
+    <div class="p-5 border-b border-steel/15 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
-        <h2 class="font-marcellus text-base text-ink font-bold">Béns Custodiats d'aquest Usuari ({{ user.items|length }})</h2>
-        <p class="text-xs text-ink/70 font-raleway">Traçabilitat documental i estat de cadascun dels ítems.</p>
+        <h2 class="font-marcellus text-base sm:text-lg text-ink font-bold">
+          Béns Custodiats d'aquest Usuari ({{ totalItems }})
+        </h2>
+        <p class="text-xs text-ink/70 font-raleway mt-0.5">Traçabilitat documental, custòdia probatòria i estat de cadascun dels ítems.</p>
       </div>
+
+      <span class="text-xs text-ink/70 font-mono bg-cream-50 px-3 py-1.5 rounded-xl border border-steel/20 self-start sm:self-auto">
+        Total: <strong>{{ totalItems }}</strong> béns
+      </span>
     </div>
 
+    {# Barra de Filtres dels Béns de l'Usuari #}
+    <div class="p-4 sm:p-5 bg-cream-50/40 border-b border-steel/15">
+      <form method="get" action="{{ path('app_admin_user_detail', {id: user.id}) }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4 items-end">
+        <input type="hidden" name="limit" value="{{ currentLimit }}" />
+
+        {# Cercador #}
+        <div class="sm:col-span-6">
+          <label for="item-search" class="block text-[11px] font-bold text-ink/75 mb-1.5 font-raleway uppercase tracking-wider">Cerca per Nom, CUI, Marca o Model</label>
+          <div class="relative">
+            <input type="text" id="item-search" name="q" value="{{ currentSearch }}" placeholder="Ex: Bicicleta, REG-2026-..., Nikon..."
+                   class="w-full bg-white border border-steel/30 rounded-xl px-3.5 py-2 pl-9 text-xs sm:text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold transition-all font-raleway shadow-2xs" />
+            <svg class="w-4 h-4 text-steel absolute left-3 top-2.5 sm:top-3 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          </div>
+        </div>
+
+        {# Filtre d'Estat #}
+        <div class="sm:col-span-4">
+          <label for="item-status" class="block text-[11px] font-bold text-ink/75 mb-1.5 font-raleway uppercase tracking-wider">Estat Notarial</label>
+          <select id="item-status" name="status" class="w-full bg-white border border-steel/30 rounded-xl px-3 py-2 text-xs sm:text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold transition-all font-raleway shadow-2xs">
+            <option value="">Tots els estats</option>
+            {% for st in statuses %}
+              <option value="{{ st.value }}" {{ currentStatus == st.value ? 'selected' : '' }}>
+                {{ st.label }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        {# Botó Filtrar & Netejar #}
+        <div class="sm:col-span-2 flex items-center gap-2">
+          <button type="submit" class="w-full bg-ink hover:bg-ink/90 text-gold font-bold text-xs py-2.5 px-4 rounded-xl border border-gold/40 transition-colors shadow-2xs cursor-pointer flex items-center justify-center gap-2">
+            <svg class="w-3.5 h-3.5 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+            <span>Filtrar</span>
+          </button>
+          {% if currentSearch or currentStatus %}
+            <a href="{{ path('app_admin_user_detail', {id: user.id}) }}" class="p-2 text-steel hover:text-ink hover:bg-cream-50 rounded-xl border border-steel/25 transition-colors shrink-0 shadow-2xs" title="Netejar filtres">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </a>
+          {% endif %}
+        </div>
+
+      </form>
+    </div>
+
+    {# Taula de Béns #}
     <div class="overflow-x-auto">
       <table class="w-full text-left border-collapse text-xs sm:text-sm font-raleway">
         <thead>
@@ -230,45 +309,156 @@
             <th class="py-3 px-4">Estat</th>
             <th class="py-3 px-4">Custòdia Proves</th>
             <th class="py-3 px-4">Data d'Alta</th>
-            <th class="py-3 px-4 text-right">Fitxa</th>
+            <th class="py-3 px-4 text-right">Accions</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-steel/10">
-          {% for item in user.items %}
+          {% for item in items %}
             <tr class="hover:bg-cream/20 transition-colors">
               <td class="py-3 px-4 sm:px-6">
-                <a href="{{ path('app_item_show', {cui: item.cui}) }}" target="_blank" class="font-bold text-ink hover:text-gold transition-colors block">
+                <a href="{{ path('app_admin_item_show', {cui: item.cui}) }}" class="font-bold text-ink hover:text-gold transition-colors block">
                   {{ item.name }}
                 </a>
                 <span class="font-mono text-[10px] text-steel">{{ item.cui }}</span>
               </td>
               <td class="py-3 px-4 text-ink/80">{{ item.category.name|default('Sense categoria') }}</td>
               <td class="py-3 px-4">
-                <span class="inline-block px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-emerald-50 text-emerald-800 border border-emerald-200">
-                  {{ item.status.value }}
+                <span class="inline-block px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase border {{ item.status.badgeClasses }}">
+                  {{ item.status.label }}
                 </span>
               </td>
-              <td class="py-3 px-4 text-ink/70">
-                {{ item.documents|length }} arxius ({{ item.photos|length }} fotos, {{ item.evidences|length }} proves)
+              <td class="py-3.5 px-4 text-ink/70">
+                {{ item.documents|length }} arxius ({{ item.photos|length }} fotos, {{ item.evidenceDocuments|length }} proves)
               </td>
-              <td class="py-3 px-4 text-ink/60 text-xs">{{ item.createdAt|date('d/m/Y') }}</td>
-              <td class="py-3 px-4 text-right">
-                <a href="{{ path('app_item_show', {cui: item.cui}) }}" target="_blank" class="text-xs font-bold text-ink hover:text-gold inline-flex items-center gap-1">
-                  <span>Obrir</span>
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              <td class="py-3.5 px-4 text-ink/60 text-xs">{{ item.createdAt|date('d/m/Y') }}</td>
+              <td class="py-3.5 px-4 text-right">
+                <a href="{{ path('app_admin_item_show', {cui: item.cui}) }}" 
+                   class="w-8 h-8 rounded-xl inline-flex items-center justify-center text-steel hover:text-ink bg-cream-50/80 hover:bg-cream border border-steel/20 hover:border-gold/50 shadow-2xs transition-all" 
+                   title="Inspeccionar Bé">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                 </a>
               </td>
             </tr>
           {% else %}
             <tr>
-              <td colspan="6" class="py-6 text-center text-xs text-ink/60 italic">
-                Aquest usuari encara no té béns registrats al sistema.
+              <td colspan="6" class="py-8 text-center text-xs text-ink/60 italic">
+                No s'han trobat béns que coincideixin amb els criteris especificats.
               </td>
             </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
+
+    {# Paginació Notarial de Béns de l'Usuari #}
+    <div class="px-4 sm:px-6 py-4 border-t border-steel/15 bg-cream-50/50 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-raleway">
+      <div class="flex items-center gap-3 flex-wrap">
+        <span class="text-ink/65">
+          Mostrant <span class="font-bold text-ink">{{ items|length }}</span> de <span class="font-bold text-ink">{{ totalItems }}</span> béns
+          {% if totalPages > 1 %}
+            &middot; Pàgina <span class="font-bold text-ink">{{ currentPage }}</span> de <span class="font-bold text-ink">{{ totalPages }}</span>
+          {% endif %}
+        </span>
+
+        {# Selector de Quantitat per Pàgina #}
+        <div class="flex items-center gap-1.5 pl-3 border-l border-steel/20">
+          <span class="text-ink/50 text-[11px]">Per pàgina:</span>
+          {% for l in [10, 25, 50] %}
+            <a href="{{ path('app_admin_user_detail', {id: user.id, q: currentSearch, status: currentStatus, limit: l, page: 1}) }}" 
+               class="px-2 py-0.5 rounded-md text-[11px] font-mono font-bold transition-colors {{ currentLimit == l ? 'bg-ink text-gold border border-gold/40 shadow-2xs' : 'bg-white hover:bg-cream border border-steel/25 text-ink/70' }}">
+              {{ l }}
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+
+      {% if totalPages > 1 %}
+        <div class="flex items-center gap-1.5">
+          {% if currentPage > 1 %}
+            <a href="{{ path('app_admin_user_detail', {id: user.id, q: currentSearch, status: currentStatus, limit: currentLimit, page: currentPage - 1}) }}" 
+               class="px-3 py-1.5 rounded-lg border border-steel/30 bg-white hover:bg-cream text-ink font-semibold transition-colors">
+              &larr; Anterior
+            </a>
+          {% endif %}
+          {% if currentPage < totalPages %}
+            <a href="{{ path('app_admin_user_detail', {id: user.id, q: currentSearch, status: currentStatus, limit: currentLimit, page: currentPage + 1}) }}" 
+               class="px-3 py-1.5 rounded-lg border border-steel/30 bg-white hover:bg-cream text-ink font-semibold transition-colors">
+              Següent &rarr;
+            </a>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+
+  {# Històric d'Activitat & Auditoria (registrals_audit) #}
+  <div class="bg-white rounded-2xl border border-steel/20 shadow-xs overflow-hidden">
+    
+    <div class="p-5 border-b border-steel/15 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2.5">
+          <h2 class="font-marcellus text-base sm:text-lg text-ink font-bold">
+            Històric d'Activitat & Auditoria
+          </h2>
+          <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-cream border border-gold/30 text-ink">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            registrals_audit (Últimes {{ recentLogs|length }})
+          </span>
+        </div>
+        <p class="text-xs text-ink/70 font-raleway mt-0.5">Registre forense immutable d'esdeveniments d'aquest compte aïllat en la base de dades d'auditoria.</p>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse text-xs sm:text-sm font-raleway">
+        <thead>
+          <tr class="bg-cream-50/80 border-b border-steel/20 text-ink/75 font-semibold text-[11px] uppercase tracking-wider">
+            <th class="py-3 px-4 sm:px-6">Data & Hora</th>
+            <th class="py-3 px-4">Acció</th>
+            <th class="py-3 px-4">Descripció & Detalls</th>
+            <th class="py-3 px-4">Adreça IP</th>
+            <th class="py-3 px-4">Agent de Navegació</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-steel/10">
+          {% for log in recentLogs %}
+            <tr class="hover:bg-cream/20 transition-colors">
+              <td class="py-3 px-4 sm:px-6 whitespace-nowrap font-mono text-xs text-ink/80">
+                {{ log.createdAt|date('d/m/Y H:i:s') }}
+              </td>
+              <td class="py-3 px-4 whitespace-nowrap">
+                <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold border {{ log.action.badgeClasses }}">
+                  {{ log.action.label }}
+                </span>
+              </td>
+              <td class="py-3 px-4">
+                <span class="font-medium text-ink block">{{ log.description }}</span>
+                {% if log.details %}
+                  <span class="text-[11px] text-steel font-mono block mt-0.5">
+                    {{ log.details|json_encode }}
+                  </span>
+                {% endif %}
+              </td>
+              <td class="py-3 px-4 whitespace-nowrap font-mono text-xs text-ink/70">
+                {{ log.ipAddress ?? '—' }}
+              </td>
+              <td class="py-3 px-4 text-xs text-steel max-w-xs truncate" title="{{ log.userAgent }}">
+                {{ log.userAgent ? (log.userAgent|slice(0, 45) ~ (log.userAgent|length > 45 ? '...' : '')) : '—' }}
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="5" class="py-8 text-center text-ink/60 font-raleway">
+                <p class="font-medium">Sense registres d'activitat recents a la base de dades d'auditoria.</p>
+                <p class="text-xs text-steel mt-1">Els inicis de sessió, canvis d'estat i operacions crítiques s'enregistraran aquí de forma forense.</p>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
   </div>
 
 </div>

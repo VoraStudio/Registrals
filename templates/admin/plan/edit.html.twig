@@ -1,0 +1,191 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Editar Pla: {{ plan.name }} — Administració Registrals{% endblock %}
+
+{% block admin_content %}
+<div class="space-y-6">
+
+  {# Fil d'Ariadna de Ruta Canònic (Sense botó de tornar) #}
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <nav class="flex items-center gap-2 text-xs font-semibold font-raleway text-ink/65 flex-wrap">
+      <a href="{{ path('app_admin_dashboard') }}" class="hover:text-ink transition-colors">Inici</a>
+      <span>/</span>
+      <a href="{{ path('app_admin_plans') }}" class="hover:text-ink transition-colors">Plans & Tarifes</a>
+      <span>/</span>
+      <span class="text-ink font-bold">{{ plan.name }}</span>
+    </nav>
+
+    {# Opcions Superiors a la Dreta #}
+    <div class="flex items-center gap-3">
+      <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-steel/25 text-xs text-ink/80 shadow-2xs font-mono">
+        <span class="w-2 h-2 rounded-full {{ plan.isActive ? 'bg-emerald-500' : 'bg-red-500' }}"></span>
+        <span>Codi: <strong>{{ plan.code|upper }}</strong></span>
+      </span>
+    </div>
+  </div>
+
+  {# Capçalera de Pàgina #}
+  <div>
+    <h1 class="font-marcellus text-2xl sm:text-3xl text-ink tracking-tight font-medium">Modificació en Calent: {{ plan.name }}</h1>
+    <p class="font-raleway text-xs sm:text-sm text-ink/70 mt-1">
+      Ajust de tarifes, límits de custòdia probatòria i interruptors d'IA sobirana amb efecte immediat.
+    </p>
+  </div>
+
+  {{ form_start(form) }}
+
+  {# Graella Panoràmica 16:9 (3 Columnes Harmonitzades en Widescreen) #}
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+    
+    {# Columna 1: Identificació & Tarifació Comercial #}
+    <div class="bg-white rounded-2xl border border-steel/20 p-6 shadow-xs flex flex-col justify-between space-y-6">
+      <div>
+        <div class="flex items-center justify-between pb-4 border-b border-steel/15 mb-5">
+          <h2 class="font-marcellus text-base font-bold text-ink flex items-center gap-2">
+            <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>Dades Comercials & Preu</span>
+          </h2>
+          <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-cream text-steel uppercase">{{ plan.code }}</span>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            {{ form_label(form.name, null, {'label_attr': {'class': 'block text-xs font-bold text-ink mb-1.5 font-raleway'}}) }}
+            {{ form_widget(form.name, {'attr': {'class': 'w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white font-raleway'}}) }}
+            {{ form_errors(form.name) }}
+          </div>
+
+          <div>
+            {{ form_label(form.priceCents, null, {'label_attr': {'class': 'block text-xs font-bold text-ink mb-1.5 font-raleway'}}) }}
+            <div class="relative">
+              {{ form_widget(form.priceCents, {'attr': {'class': 'w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white font-mono'}}) }}
+            </div>
+            {{ form_help(form.priceCents, {'help_attr': {'class': 'text-[11px] text-ink/60 mt-1 block font-raleway'}}) }}
+            {{ form_errors(form.priceCents) }}
+          </div>
+
+          <div>
+            {{ form_label(form.billingPeriod, null, {'label_attr': {'class': 'block text-xs font-bold text-ink mb-1.5 font-raleway'}}) }}
+            {{ form_widget(form.billingPeriod, {'attr': {'class': 'w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white font-raleway'}}) }}
+            {{ form_errors(form.billingPeriod) }}
+          </div>
+        </div>
+      </div>
+
+      {# Targeta Notarial de Resum #}
+      <div class="border-l-[3.5px] border-gold bg-gold/10 p-3.5 rounded-r-xl font-raleway text-xs text-ink/80 leading-relaxed">
+        <strong>Tarifació Dinàmica:</strong> En cas de plans de pagament, la modificació del preu s'actualitza al catàleg immediatament. Els subscriptors amb pagament recurrent mantenen la seva tarifa fins a la renovació.
+      </div>
+    </div>
+
+    {# Columna 2: Límits de Custòdia Probatòria #}
+    <div class="bg-white rounded-2xl border border-steel/20 p-6 shadow-xs flex flex-col justify-between space-y-6">
+      <div>
+        <div class="flex items-center justify-between pb-4 border-b border-steel/15 mb-5">
+          <h2 class="font-marcellus text-base font-bold text-ink flex items-center gap-2">
+            <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            <span>Límits de Custòdia</span>
+          </h2>
+          <span class="text-[11px] font-mono text-steel">Quotes d'Usuari</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="col-span-2 sm:col-span-1">
+            {{ form_label(form.maxActiveItems, null, {'label_attr': {'class': 'block text-xs font-bold text-ink mb-1.5 font-raleway'}}) }}
+            {{ form_widget(form.maxActiveItems, {'attr': {'class': 'w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3 py-2 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white font-mono'}}) }}
+            {{ form_help(form.maxActiveItems, {'help_attr': {'class': 'text-[10px] text-ink/60 mt-1 block font-raleway'}}) }}
+            {{ form_errors(form.maxActiveItems) }}
+          </div>
+
+          <div class="col-span-2 sm:col-span-1">
+            {{ form_label(form.aiAssistanceQuota, null, {'label_attr': {'class': 'block text-xs font-bold text-ink mb-1.5 font-raleway'}}) }}
+            {{ form_widget(form.aiAssistanceQuota, {'attr': {'class': 'w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3 py-2 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white font-mono'}}) }}
+            {{ form_help(form.aiAssistanceQuota, {'help_attr': {'class': 'text-[10px] text-ink/60 mt-1 block font-raleway'}}) }}
+            {{ form_errors(form.aiAssistanceQuota) }}
+          </div>
+
+          <div class="col-span-2 sm:col-span-1">
+            {{ form_label(form.maxPhotosPerItem, null, {'label_attr': {'class': 'block text-xs font-bold text-ink mb-1.5 font-raleway'}}) }}
+            {{ form_widget(form.maxPhotosPerItem, {'attr': {'class': 'w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3 py-2 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white font-mono'}}) }}
+            {{ form_help(form.maxPhotosPerItem, {'help_attr': {'class': 'text-[10px] text-ink/60 mt-1 block font-raleway'}}) }}
+            {{ form_errors(form.maxPhotosPerItem) }}
+          </div>
+
+          <div class="col-span-2 sm:col-span-1">
+            {{ form_label(form.maxEvidencesPerItem, null, {'label_attr': {'class': 'block text-xs font-bold text-ink mb-1.5 font-raleway'}}) }}
+            {{ form_widget(form.maxEvidencesPerItem, {'attr': {'class': 'w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3 py-2 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white font-mono'}}) }}
+            {{ form_help(form.maxEvidencesPerItem, {'help_attr': {'class': 'text-[10px] text-ink/60 mt-1 block font-raleway'}}) }}
+            {{ form_errors(form.maxEvidencesPerItem) }}
+          </div>
+
+          <div class="col-span-2">
+            {{ form_label(form.monthlyCertificatesQuota, null, {'label_attr': {'class': 'block text-xs font-bold text-ink mb-1.5 font-raleway'}}) }}
+            {{ form_widget(form.monthlyCertificatesQuota, {'attr': {'class': 'w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3 py-2 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white font-mono'}}) }}
+            <span class="text-[10px] text-ink/60 mt-1 block font-raleway">Certificats oficials eIDAS/Blockchain gratuïts inclosos al període.</span>
+            {{ form_errors(form.monthlyCertificatesQuota) }}
+          </div>
+        </div>
+      </div>
+
+      <div class="p-3 bg-cream-50 rounded-xl border border-steel/15 text-[11px] text-ink/75 font-raleway">
+        💡 <strong>Valor il·limitat:</strong> Per a configurar recursos infinits, assigna el valor <code>9999</code> o superior segons el TRD.
+      </div>
+    </div>
+
+    {# Columna 3: Seguretat, Interruptors & Acció #}
+    <div class="bg-white rounded-2xl border border-steel/20 p-6 shadow-xs flex flex-col justify-between space-y-6">
+      <div>
+        <div class="flex items-center justify-between pb-4 border-b border-steel/15 mb-5">
+          <h2 class="font-marcellus text-base font-bold text-ink flex items-center gap-2">
+            <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            <span>Interruptors & Estat</span>
+          </h2>
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        </div>
+
+        <div class="space-y-3.5">
+          <label class="flex items-start gap-3 p-3 rounded-xl bg-cream-50/70 border border-steel/20 hover:border-gold/50 transition-colors cursor-pointer">
+            {{ form_widget(form.aiAssistanceEnabled, {'attr': {'class': 'mt-0.5 w-4 h-4 text-ink rounded border-steel/30 focus:ring-gold'}}) }}
+            <div>
+              <span class="text-xs font-bold text-ink block font-raleway">Assistència IA Sobirana</span>
+              <span class="text-[11px] text-ink/65 leading-tight block mt-0.5">Permet a l'usuari d'aquest pla usar el model OCR/visió Qwen-VL.</span>
+            </div>
+          </label>
+
+          <label class="flex items-start gap-3 p-3 rounded-xl bg-cream-50/70 border border-steel/20 hover:border-gold/50 transition-colors cursor-pointer">
+            {{ form_widget(form.allowOfficialCertificates, {'attr': {'class': 'mt-0.5 w-4 h-4 text-ink rounded border-steel/30 focus:ring-gold'}}) }}
+            <div>
+              <span class="text-xs font-bold text-ink block font-raleway">Certificats Oficials eIDAS</span>
+              <span class="text-[11px] text-ink/65 leading-tight block mt-0.5">Segellat de temps qualificat eIDAS (Signaturit) i Polygon L2.</span>
+            </div>
+          </label>
+
+          <label class="flex items-start gap-3 p-3 rounded-xl bg-cream-50/70 border border-steel/20 hover:border-gold/50 transition-colors cursor-pointer">
+            {{ form_widget(form.isActive, {'attr': {'class': 'mt-0.5 w-4 h-4 text-ink rounded border-steel/30 focus:ring-gold'}}) }}
+            <div>
+              <span class="text-xs font-bold text-ink block font-raleway">Pla Actiu al Sistema</span>
+              <span class="text-[11px] text-ink/65 leading-tight block mt-0.5">Visible i disponible per a contractacions.</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  {# Barra Inferior d'Acció (Botó de Desar a sota a la dreta en blau fosc) #}
+  <div class="flex items-center justify-end gap-3 pt-4 border-t border-steel/15">
+    <a href="{{ path('app_admin_plans') }}" class="px-4 py-2.5 rounded-xl text-xs font-semibold text-ink/70 hover:text-ink hover:bg-cream-50 transition-colors">
+      Cancel·lar
+    </a>
+    <button type="submit" class="px-6 py-2.5 rounded-xl text-xs font-bold text-gold bg-ink hover:bg-ink/90 border border-gold/40 transition-all shadow-md active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2">
+      <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+      <span>Desar Modificacions en Calent</span>
+    </button>
+  </div>
+
+  {{ form_end(form) }}
+
+</div>
+{% endblock %}

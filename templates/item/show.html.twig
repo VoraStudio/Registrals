@@ -42,8 +42,8 @@
           {% endif %}
         </div>
 
-        {# Píndoles CUI + Estat Notarial #}
-        <div class="flex items-center gap-2 pt-1 border-t border-cream">
+        {# Píndoles CUI + Estat Notarial + Segellat L2 #}
+        <div class="flex flex-wrap items-center gap-2 pt-1 border-t border-cream">
           <span class="bg-ink text-cream text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-lg shadow-2xs border border-gold/40">
             {{ item.cui }}
           </span>
@@ -55,6 +55,18 @@
               <span>{{ item.status.label }}</span>
             {% endif %}
           </span>
+          {% set latestReceipt = item.latestBlockchainReceipt %}
+          {% if latestReceipt %}
+            <a href="{{ latestReceipt.explorerUrl }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full border bg-emerald-50 text-emerald-700 border-emerald-300 shadow-2xs hover:bg-emerald-100 transition-colors" title="Segellat a Polygon PoS (Bloc #{{ latestReceipt.blockNumber }})">
+              <svg class="w-2.5 h-2.5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+              <span>Polygon L2</span>
+            </a>
+          {% else %}
+            <span class="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded-full border bg-amber-50 text-amber-700 border-amber-200 shadow-2xs" title="Notarització en cua asíncrona de segon pla">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+              <span>Cua L2</span>
+            </span>
+          {% endif %}
         </div>
       </div>
 
@@ -94,7 +106,7 @@
         {# Barra d'Acció Ràpida Foto Mòbil (Nova Foto) #}
         <div class="flex items-center justify-between px-1">
           <span class="text-[11px] font-mono text-ink/70">
-            Fotos: <strong class="text-ink">{{ item.photos|length }}</strong>/{{ app.user.plan.maxPhotosPerItem }} (Free)
+            Fotos: <strong class="text-ink">{{ item.photos|length }}</strong>/{{ app.user.plan ? app.user.plan.maxPhotosPerItem : '∞' }} ({{ app.user.plan ? app.user.plan.code|upper : 'ADMIN' }})
           </span>
           <button type="button"
             onclick="if (window.RegistralsToast) window.RegistralsToast.show('Funció del Pla PLUS', 'La custòdia de fins a 5 fotografies de detall (números de sèrie, contrastos) requereix el Pla PLUS o UNLIMITED.', 'info');"
@@ -157,7 +169,7 @@
           <h2 class="font-marcellus text-base text-ink flex items-center gap-1.5">
             <span>Proves Documentals</span>
             <span class="text-[10px] font-mono font-bold bg-cream px-2 py-0.5 rounded-full text-ink border border-gold/30">
-              {{ item.evidenceDocuments|length }}/{{ app.user.plan.maxEvidencesPerItem }}
+              {{ item.evidenceDocuments|length }}/{{ app.user.plan ? app.user.plan.maxEvidencesPerItem : '∞' }}
             </span>
           </h2>
           <button type="button"
@@ -214,6 +226,19 @@
           <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-cream/15 border border-cream/20 text-cream text-[10px] font-medium">
             Custòdia Legal eIDAS
           </span>
+          {% set latestReceipt = item.latestBlockchainReceipt %}
+          {% if latestReceipt %}
+            <a href="{{ latestReceipt.explorerUrl }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/40 text-emerald-300 font-mono font-bold text-[10px] tracking-wider transition-colors" title="Transacció: {{ latestReceipt.txHash }}">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>POLYGON #{{ latestReceipt.blockNumber }}</span>
+              <svg class="w-3 h-3 text-emerald-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+            </a>
+          {% else %}
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 font-mono text-[10px]">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+              <span>Ancoratge L2 en curs</span>
+            </span>
+          {% endif %}
         </div>
 
         {# Avís Notarial d'Immutabilitat (1 línia) #}
@@ -290,6 +315,19 @@
               <span>{{ item.status.label }}</span>
             {% endif %}
           </span>
+
+          {% set latestReceipt = item.latestBlockchainReceipt %}
+          {% if latestReceipt %}
+            <a href="{{ latestReceipt.explorerUrl }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full border bg-emerald-50 text-emerald-700 border-emerald-300 shadow-2xs hover:bg-emerald-100 transition-colors" title="Segellat a Polygon L2 (Bloc #{{ latestReceipt.blockNumber }} | Tx: {{ latestReceipt.txHash }})">
+              <svg class="w-3 h-3 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+              <span>Polygon L2 #{{ latestReceipt.blockNumber }}</span>
+            </a>
+          {% else %}
+            <span class="inline-flex items-center gap-1.5 text-[11px] font-mono px-2 py-0.5 rounded-full border bg-amber-50 text-amber-700 border-amber-200 shadow-2xs" title="Notarització a blockchain en segon pla">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+              <span>Ancoratge L2 en curs</span>
+            </span>
+          {% endif %}
 
           {% if item.mainPhoto %}
             <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-white border border-steel/25 text-[11px] font-mono text-ink/75 shadow-2xs" title="SHA-256: {{ item.mainPhoto.sha256Hash }}">
@@ -402,7 +440,7 @@
 
               <div class="flex items-center gap-2 shrink-0">
                 <span class="text-[10px] font-mono font-bold text-ink/75 bg-cream/60 px-2 py-0.5 rounded-md border border-steel/20 whitespace-nowrap">
-                  {{ item.photos|length }}/{{ app.user.plan.maxPhotosPerItem }} foto (Free)
+                  {{ item.photos|length }}/{{ app.user.plan ? app.user.plan.maxPhotosPerItem : '∞' }} foto ({{ app.user.plan ? app.user.plan.code|upper : 'ADMIN' }})
                 </span>
                 <button type="button"
                   onclick="if (window.RegistralsToast) window.RegistralsToast.show('Funció del Pla PLUS', 'La custòdia de fins a 5 fotografies de detall (números de sèrie, contrastos) requereix el Pla PLUS o UNLIMITED.', 'info');"
@@ -478,7 +516,7 @@
               Titularitat de <strong class="text-whitef font-bold">{{ item.owner.fullName }}</strong> &middot; Custòdia legal eIDAS i segellat SHA-256.
             </p>
 
-            {# Píndoles de Segellat #}
+            {# Píndoles de Segellat i Detall Blockchain #}
             <div class="pt-1 flex flex-wrap gap-1.5 items-center">
               <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-gold/15 border border-gold/40 text-gold font-mono font-bold text-[10px] tracking-wider whitespace-nowrap">
                 <span class="w-1.5 h-1.5 rounded-full bg-gold animate-pulse"></span>
@@ -487,9 +525,19 @@
               <span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-cream/10 border border-cream/20 text-cream/90 text-[10px] whitespace-nowrap">
                 Data Certa eIDAS
               </span>
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-cream/10 border border-cream/20 text-cream/90 text-[10px] whitespace-nowrap">
-                Polygon L2 Ready
-              </span>
+              {% set latestReceipt = item.latestBlockchainReceipt %}
+              {% if latestReceipt %}
+                <a href="{{ latestReceipt.explorerUrl }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/40 text-emerald-300 font-mono font-bold text-[10px] tracking-wider whitespace-nowrap transition-colors" title="Veure transacció a l'explorador públic Polygonscan">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span>POLYGON #{{ latestReceipt.blockNumber }} ({{ latestReceipt.shortTxHash }})</span>
+                  <svg class="w-3 h-3 text-emerald-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                </a>
+              {% else %}
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 font-mono text-[10px] whitespace-nowrap">
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                  <span>Ancoratge L2 en curs</span>
+                </span>
+              {% endif %}
             </div>
 
             {# Avís d'Immutabilitat i Cost de Re-segellat complet sense tallar #}
@@ -522,7 +570,7 @@
 
               <div class="flex items-center gap-2 shrink-0">
                 <span class="text-[10px] font-mono font-bold text-ink/75 bg-cream/60 px-2 py-0.5 rounded-md border border-steel/20 whitespace-nowrap">
-                  {{ item.evidenceDocuments|length }}/{{ app.user.plan.maxEvidencesPerItem }} prova (Free)
+                  {{ item.evidenceDocuments|length }}/{{ app.user.plan ? app.user.plan.maxEvidencesPerItem : '∞' }} prova ({{ app.user.plan ? app.user.plan.code|upper : 'ADMIN' }})
                 </span>
                 <button type="button"
                   onclick="if (window.RegistralsToast) window.RegistralsToast.show('Funció del Pla PLUS', 'La custòdia de fins a 5 proves documentals addicionals (factures, tiquets, garanties) requereix el Pla PLUS o UNLIMITED.', 'info');"

@@ -1,0 +1,133 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}IA Sobirana & Àmbit Geogràfic — Administració Registrals{% endblock %}
+
+{% block admin_content %}
+<div class="space-y-6">
+
+  {# Fil d'Ariadna de Ruta Canònic #}
+  <nav class="flex items-center gap-2 text-xs font-semibold font-raleway text-ink/65 flex-wrap">
+    <a href="{{ path('app_admin_dashboard') }}" class="hover:text-ink transition-colors">Inici</a>
+    <span>/</span>
+    <span class="text-ink font-bold">IA & Àmbit Geogràfic</span>
+  </nav>
+
+  {# Capçalera de Pàgina Panoràmica 16:9 #}
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="font-marcellus text-2xl sm:text-3xl text-ink tracking-tight font-medium">IA Sobirana & Configuració de Sistema</h1>
+      <p class="font-raleway text-xs sm:text-sm text-ink/70 mt-1">
+        Interruptor mestre d'IA local, control de concurrència i abast geogràfic/monetari.
+      </p>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white border border-steel/25 text-xs text-ink/80 shadow-2xs font-mono">
+        <span class="w-2 h-2 rounded-full {{ aiGlobalEnabled ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500' }}"></span>
+        <span>{{ aiGlobalEnabled ? 'IA Global ACTIVA' : 'IA Global PAUSADA' }}</span>
+      </span>
+    </div>
+  </div>
+
+  {# Formulari de Paràmetres Globals en Format Panoràmic 16:9 #}
+  <form method="post" action="{{ path('app_admin_settings') }}" class="space-y-6">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token('admin_settings_update') }}" />
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      
+      {# Bloc 1: Feature Toggle Mestre d'IA Sobirana (Columna Principal 16:9) #}
+      <div class="lg:col-span-7 bg-white rounded-2xl border border-steel/20 p-6 sm:p-7 shadow-xs space-y-5">
+        
+        <div class="flex items-start justify-between gap-4 pb-4 border-b border-steel/15">
+          <div>
+            <h2 class="font-marcellus text-base sm:text-lg text-ink font-bold flex items-center gap-2">
+              <svg class="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              <span>Interruptor Mestre d'Assistència d'IA (Kill-Switch)</span>
+            </h2>
+            <p class="font-raleway text-xs text-ink/70 mt-1">
+              Apagat o encesa instantània a tota la plataforma en cas de sobrecàrrega o allau massiu d'altes.
+            </p>
+          </div>
+        </div>
+
+        {# Avís Notarial Canònic sobre Sobirania i Concurrència #}
+        <div class="border-l-[3.5px] border-gold bg-gold/10 p-4 rounded-r-xl font-raleway text-xs text-ink/80 leading-relaxed">
+          <strong>Protecció del Node Local SGLang:</strong> Registrals executa el model de visió Qwen-VL de forma 100% sobirana en maquinari dedicat privat (sense transferir dades a tercers). En cas de pics de trànsit massius (com previsions de 100.000 altes Free), aquest interruptor desactiva temporalment l'assistència d'extracció sense afectar el registre manual ni la custòdia.
+        </div>
+
+        <div class="p-4 rounded-xl border {{ aiGlobalEnabled ? 'bg-emerald-50/60 border-emerald-300' : 'bg-amber-50/60 border-amber-300' }} flex items-center justify-between gap-4">
+          <label class="flex items-center gap-3.5 cursor-pointer">
+            <input type="checkbox" name="ai_global_enabled" value="1" {{ aiGlobalEnabled ? 'checked' : '' }}
+                   class="w-5 h-5 text-ink rounded border-steel/30 focus:ring-gold" />
+            <div>
+              <span class="text-xs sm:text-sm font-bold text-ink block font-raleway">
+                {{ aiGlobalEnabled ? 'Assistència d\'IA Sobirana Globalment Habilitada' : 'Assistència d\'IA Sobirana Globalment Desactivada' }}
+              </span>
+              <span class="text-[11px] text-ink/65 block font-raleway">
+                Controla si el formulari d'alta d'objectes i l'anàlisi de fotos permet la crida al node SGLang.
+              </span>
+            </div>
+          </label>
+        </div>
+
+        {# Endpoint del Servidor Local SGLang #}
+        <div>
+          <label for="ai-endpoint" class="block text-xs font-bold text-ink mb-1.5 font-raleway">Endpoint del Servei Local SGLang (Format OpenAI API)</label>
+          <input type="text" id="ai-endpoint" name="ai_sglang_endpoint" value="{{ sglangEndpoint }}"
+                 class="w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white font-mono" />
+          <span class="text-[11px] text-ink/60 mt-1.5 block font-raleway">Per defecte: <code>http://127.0.0.1:30000/v1</code> en xarxa interna privada.</span>
+        </div>
+
+      </div>
+
+      {# Bloc 2: Àmbit Geogràfic, Moneda i Acció (Columna Dreta 16:9) #}
+      <div class="lg:col-span-5 bg-white rounded-2xl border border-steel/20 p-6 sm:p-7 shadow-xs space-y-6 flex flex-col justify-between">
+        
+        <div class="space-y-5">
+          <div class="pb-4 border-b border-steel/15">
+            <h2 class="font-marcellus text-base sm:text-lg text-ink font-bold flex items-center gap-2">
+              <svg class="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <span>Àmbit Geogràfic & Moneda ISO</span>
+            </h2>
+            <p class="font-raleway text-xs text-ink/70 mt-1">
+              Països admesos per a contractacions i moneda oficial.
+            </p>
+          </div>
+
+          {# Països Admesos #}
+          <div>
+            <label for="allowed-countries" class="block text-xs font-bold text-ink mb-1.5 font-raleway">Països Admesos (ISO 3166-1 alpha-2)</label>
+            <input type="text" id="allowed-countries" name="allowed_countries" value="{{ allowedCountries }}"
+                   class="w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white font-mono uppercase" />
+            <span class="text-[11px] text-ink/60 mt-1.5 block font-raleway">Exemple: <code>ES,AD,FR,IT,PT,DE</code>.</span>
+          </div>
+
+          {# Moneda ISO #}
+          <div>
+            <label for="default-currency" class="block text-xs font-bold text-ink mb-1.5 font-raleway">Moneda Oficial de Liquidació</label>
+            <input type="text" id="default-currency" name="default_currency" value="{{ defaultCurrency }}" readonly
+                   class="w-full bg-cream-50/40 border border-steel/20 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-ink font-mono uppercase cursor-not-allowed" />
+            <span class="text-[11px] text-ink/60 mt-1.5 block font-raleway">Moneda única inicial: Euro (<code>EUR</code>).</span>
+          </div>
+
+          <div class="p-3 bg-cream-50 rounded-xl border border-steel/15 text-[11px] text-ink/75 font-raleway leading-relaxed">
+            🛡️ <strong>Marc Legal Europeu:</strong> Conforme al RGPD i l'AI Act europeu, la informació no creua fronteres extracomunitàries i s'ancora a Polygon PoS amb temps qualificat eIDAS.
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    {# Barra Inferior d'Acció (Botó de Desar a sota a la dreta en blau fosc) #}
+    <div class="flex items-center justify-end gap-3 pt-4 border-t border-steel/15">
+      <button type="submit" class="px-6 py-2.5 rounded-xl text-xs font-bold text-gold bg-ink hover:bg-ink/90 border border-gold/40 transition-all shadow-md active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2">
+        <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        <span>Desar Configuració Global</span>
+      </button>
+    </div>
+
+  </form>
+
+</div>
+{% endblock %}

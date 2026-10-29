@@ -3,72 +3,189 @@
 {% block body_class %}bg-cream-50 min-h-screen font-raleway text-ink antialiased flex flex-col{% endblock %}
 
 {% block body %}
-  {# Capçalera Privada Unificada #}
-  {% include 'partials/_private_header.html.twig' %}
+  {# Capçalera Privada Unificada a amplada completa amb Fons Blau Marí Ink corporatiu #}
+  {% include 'partials/_private_header.html.twig' with { full_width: true, dark_theme: true } %}
 
-  {# Sub-barra de Navegació Backoffice Solemne #}
-  <nav class="bg-white border-b border-steel/20 shadow-2xs sticky top-16 sm:top-20 z-40" aria-label="Navegació Backoffice">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-13 overflow-x-auto no-scrollbar gap-2 sm:gap-6">
+  {# Estructura de Dashboard: Barra Lateral Blava a l'Esquerra + Contingut Principal #}
+  {# Estructura de Dashboard: Barra Lateral Blava a l'Esquerra + Contingut Principal #}
+  <div class="flex-1 flex flex-col md:flex-row w-full">
+    
+    {# Barra de Control Mòbil per a Backoffice (Només visible en pantalles petites) #}
+    <div class="md:hidden bg-ink p-3 border-b border-white/10 flex items-center justify-between text-white shrink-0 sticky top-16 z-40">
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 rounded-lg bg-gold text-ink flex items-center justify-center font-bold text-xs shadow-2xs">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        </div>
+        <span class="font-mono text-xs font-bold text-white tracking-wider">BACKOFFICE</span>
+        <span class="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold bg-gold/20 text-gold border border-gold/40">SEGUIMENT</span>
+      </div>
+      <button type="button" onclick="toggleAdminMobileNav()" class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-semibold text-gold border border-white/15 flex items-center gap-1.5 transition-colors cursor-pointer" aria-label="Obrir menú d'administració">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        <span>Menú</span>
+      </button>
+    </div>
+
+    {# Barra Lateral (Sidebar) a l'Esquerra en Blau Marí Ink (#1D2F4B) #}
+    <aside id="admin-sidebar" class="hidden md:flex w-full md:w-64 lg:w-72 shrink-0 bg-ink border-b md:border-b-0 md:border-r border-white/10 shadow-lg md:sticky md:top-16 sm:md:top-20 md:h-[calc(100vh-4rem)] sm:md:h-[calc(100vh-5rem)] flex-col justify-between z-30 text-white" aria-label="Navegació d'Administració">
+      
+      <div class="p-4 sm:p-5 flex-1 overflow-y-auto no-scrollbar">
         
-        <div class="flex items-center gap-1 sm:gap-2">
-          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-ink text-gold font-mono text-[11px] font-bold uppercase tracking-wider mr-2">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            ADMIN
-          </span>
-
-          {# Pestanya 1: KPIs & Mètriques #}
-          <a href="{{ path('app_admin_dashboard') }}" 
-             class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap {{ app.current_route == 'app_admin_dashboard' ? 'bg-ink text-gold shadow-xs' : 'text-ink/70 hover:text-ink hover:bg-cream/40' }}">
-            <svg class="w-4 h-4 {{ app.current_route == 'app_admin_dashboard' ? 'text-gold' : 'text-steel' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-            <span>Dashboard & KPIs</span>
-          </a>
-
-          {# Pestanya 2: Gestió d'Usuaris #}
-          <a href="{{ path('app_admin_users') }}" 
-             class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap {{ app.current_route starts with 'app_admin_user' ? 'bg-ink text-gold shadow-xs' : 'text-ink/70 hover:text-ink hover:bg-cream/40' }}">
-            <svg class="w-4 h-4 {{ app.current_route starts with 'app_admin_user' ? 'text-gold' : 'text-steel' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-            <span>Usuaris & Comptes</span>
-          </a>
-
-          {# Pestanya 3: Plans & Tarifes (Subiteració 7.2) #}
-          <a href="{{ path('app_admin_dashboard') }}#plans" 
-             class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap text-ink/70 hover:text-ink hover:bg-cream/40">
-            <svg class="w-4 h-4 text-steel" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <span>Plans & Tarifes</span>
-          </a>
+        {# Indicador de Rol i Estat del Sistema #}
+        <div class="p-3 mb-6 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-xl bg-gold text-ink flex items-center justify-center font-bold text-xs shadow-2xs">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            </div>
+            <div>
+              <span class="font-mono text-[11px] font-bold text-white uppercase tracking-wider block">PANEL BACKOFFICE</span>
+              <span class="text-[10px] text-emerald-400 font-semibold flex items-center gap-1.5 font-raleway">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                Sessió Protegida
+              </span>
+            </div>
+          </div>
+          <span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-gold text-ink">ADMIN</span>
         </div>
 
-        {# Retorn ràpid a l'Àrea d'Usuari #}
-        <div class="flex items-center">
-          <a href="{{ path('app_dashboard') }}" class="inline-flex items-center gap-1.5 text-xs text-ink/65 hover:text-ink font-semibold transition-colors py-1 px-2.5 rounded-lg hover:bg-cream/40">
-            <svg class="w-3.5 h-3.5 text-steel" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-            <span class="hidden sm:inline">Tornar al meu Patrimoni</span>
-            <span class="sm:hidden">Sortir</span>
-          </a>
-        </div>
+        {# Menú de Navegació de la Barra Lateral Blava #}
+        <nav class="space-y-6 text-xs font-raleway">
+          
+          {# Grup 1: Supervisió Global #}
+          <div>
+            <div class="px-3 mb-2 text-[10px] font-bold uppercase tracking-wider text-gold font-mono">
+              SUPERVISIÓ & KPIS
+            </div>
+            <div class="space-y-1">
+              <a href="{{ path('app_admin_dashboard') }}" 
+                 class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold transition-all {{ app.current_route == 'app_admin_dashboard' ? 'bg-gold text-ink shadow-xs font-bold' : 'text-white/80 hover:text-white hover:bg-white/10' }}">
+                <svg class="w-4 h-4 {{ app.current_route == 'app_admin_dashboard' ? 'text-ink' : 'text-gold' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                <span>Dashboard & KPIs</span>
+              </a>
+            </div>
+          </div>
+
+          {# Grup 2: Gestió d'Usuaris & Patrimoni #}
+          <div>
+            <div class="px-3 mb-2 text-[10px] font-bold uppercase tracking-wider text-gold font-mono">
+              GESTIÓ & CUSTÒDIA
+            </div>
+            <div class="space-y-1">
+              <a href="{{ path('app_admin_users') }}" 
+                 class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold transition-all {{ app.current_route starts with 'app_admin_user' ? 'bg-gold text-ink shadow-xs font-bold' : 'text-white/80 hover:text-white hover:bg-white/10' }}">
+                <svg class="w-4 h-4 {{ app.current_route starts with 'app_admin_user' ? 'text-ink' : 'text-gold' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                <span>Usuaris & Comptes</span>
+              </a>
+
+              <a href="{{ path('app_admin_items') }}" 
+                 class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold transition-all {{ app.current_route starts with 'app_admin_item' ? 'bg-gold text-ink shadow-xs font-bold' : 'text-white/80 hover:text-white hover:bg-white/10' }}">
+                <svg class="w-4 h-4 {{ app.current_route starts with 'app_admin_item' ? 'text-ink' : 'text-gold' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                <span>Béns & Patrimoni</span>
+              </a>
+            </div>
+          </div>
+
+          {# Grup 3: Negoci, Tarifes & Costos #}
+          <div>
+            <div class="px-3 mb-2 text-[10px] font-bold uppercase tracking-wider text-gold font-mono">
+              PARAMETRITZACIÓ
+            </div>
+            <div class="space-y-1">
+              <a href="{{ path('app_admin_plans') }}" 
+                 class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold transition-all {{ app.current_route starts with 'app_admin_plan' ? 'bg-gold text-ink shadow-xs font-bold' : 'text-white/80 hover:text-white hover:bg-white/10' }}">
+                <svg class="w-4 h-4 {{ app.current_route starts with 'app_admin_plan' ? 'text-ink' : 'text-gold' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>Plans, Tarifes & Costos</span>
+              </a>
+              
+              <a href="{{ path('app_admin_settings') }}" 
+                 class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold transition-all {{ app.current_route == 'app_admin_settings' ? 'bg-gold text-ink shadow-xs font-bold' : 'text-white/80 hover:text-white hover:bg-white/10' }}">
+                <svg class="w-4 h-4 {{ app.current_route == 'app_admin_settings' ? 'text-ink' : 'text-gold' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <span>IA & Àmbit Geogràfic</span>
+              </a>
+            </div>
+          </div>
+
+          {# Grup 4: Vigilància & Sistema #}
+          <div>
+            <div class="px-3 mb-2 text-[10px] font-bold uppercase tracking-wider text-gold font-mono">
+              VIGILÀNCIA & SISTEMA
+            </div>
+            <div class="space-y-1">
+              <a href="{{ path('app_admin_services') }}" 
+                 class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold transition-all {{ app.current_route == 'app_admin_services' ? 'bg-gold text-ink shadow-xs font-bold' : 'text-white/80 hover:text-white hover:bg-white/10' }}">
+                <svg class="w-4 h-4 {{ app.current_route == 'app_admin_services' ? 'text-ink' : 'text-gold' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/></svg>
+                <span>Salut dels Serveis</span>
+              </a>
+
+              <a href="{{ path('app_admin_audit_logs') }}" 
+                 class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold transition-all {{ app.current_route == 'app_admin_audit_logs' ? 'bg-gold text-ink shadow-xs font-bold' : 'text-white/80 hover:text-white hover:bg-white/10' }}">
+                <svg class="w-4 h-4 {{ app.current_route == 'app_admin_audit_logs' ? 'text-ink' : 'text-gold' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                <span>Logs d'Auditoria</span>
+              </a>
+            </div>
+          </div>
+
+        </nav>
 
       </div>
-    </div>
-  </nav>
 
-  {# Missatges Flash Notarials #}
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-    {% for label, messages in app.flashes %}
-      {% for message in messages %}
-        <div class="mb-6 p-4 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between gap-3 shadow-xs {{ label == 'success' ? 'bg-emerald-50 text-emerald-900 border border-emerald-200' : 'bg-red-50 text-red-900 border border-red-200' }}">
-          <div class="flex items-center gap-2.5">
-            {% if label == 'success' %}
-              <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-            {% else %}
-              <svg class="w-5 h-5 text-red-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-            {% endif %}
-            <span>{{ message }}</span>
-          </div>
+      {# Peu de la Barra Lateral: Estat de la Plataforma #}
+      <div class="p-4 border-t border-white/10 bg-black/20 flex items-center justify-between text-[11px] font-mono text-white/60">
+        <span>Registrals Admin</span>
+        <span class="text-emerald-400 font-semibold flex items-center gap-1.5 font-raleway text-[10px]">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+          Node Operatiu
+        </span>
+      </div>
+
+    </aside>
+
+    {# Àrea de Contingut Principal #}
+    <main class="flex-1 min-w-0 p-4 sm:p-6 lg:p-8">
+      
+      {# Avís Solemne de Mode Guardià Mòbil (Només en pantalles petites) #}
+      <div class="md:hidden mb-5 border-l-[3.5px] border-gold bg-ink p-3.5 rounded-r-2xl shadow-xs text-xs font-raleway text-white flex items-start gap-3">
+        <div class="w-7 h-7 rounded-lg bg-gold/20 text-gold flex items-center justify-center shrink-0 mt-0.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
         </div>
-      {% endfor %}
-    {% endfor %}
+        <div class="flex-1">
+          <div class="flex items-center justify-between">
+            <span class="font-mono text-[10px] font-bold text-gold uppercase tracking-wider">Mode Seguiment Mòbil</span>
+            <span class="text-[9px] bg-white/10 text-white/80 px-2 py-0.5 rounded font-mono">Cabina PC</span>
+          </div>
+          <p class="text-[11px] text-white/80 mt-1 leading-relaxed">
+            Aquesta vista mòbil està pensada per al seguiment de KPIs. Per a la gestió intensiva d'usuaris, auditories forenses i configuració, accedeix des d'un ordinador (PC).
+          </p>
+        </div>
+      </div>
 
-    {% block admin_content %}{% endblock %}
-  </main>
+      {# Missatges Flash Notarials #}
+      {% for label, messages in app.flashes %}
+        {% for message in messages %}
+          <div class="mb-6 p-4 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between gap-3 shadow-xs {{ label == 'success' ? 'bg-emerald-50 text-emerald-900 border border-emerald-200' : 'bg-red-50 text-red-900 border border-red-200' }}">
+            <div class="flex items-center gap-2.5">
+              {% if label == 'success' %}
+                <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              {% else %}
+                <svg class="w-5 h-5 text-red-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              {% endif %}
+              <span>{{ message }}</span>
+            </div>
+          </div>
+        {% endfor %}
+      {% endfor %}
+
+      {% block admin_content %}{% endblock %}
+
+    </main>
+
+  </div>
+
+  <script>
+    function toggleAdminMobileNav() {
+      const sidebar = document.getElementById('admin-sidebar');
+      if (sidebar) {
+        sidebar.classList.toggle('hidden');
+      }
+    }
+  </script>
 {% endblock %}

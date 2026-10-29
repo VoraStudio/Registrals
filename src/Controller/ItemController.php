@@ -6,8 +6,10 @@ namespace App\Controller;
 
 use App\Entity\Item;
 use App\Entity\User;
+use App\Enum\BlockchainActionType;
 use App\Enum\DocumentType;
 use App\Form\ItemType;
+use App\Message\AnchorBlockchainMessage;
 use App\Repository\CategoryRepository;
 use App\Repository\ItemRepository;
 use App\Security\Voter\ItemVoter;
@@ -39,22 +41,25 @@ class ItemController extends AbstractController
         CuiGeneratorService $cuiGenerator,
         SecureDocumentStorageService $storageService,
         MediaIntegrityValidator $integrityValidator,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        \Symfony\Component\Messenger\MessageBusInterface $messageBus
     ): Response {
         /** @var User $user */
         $user = $this->getUser();
 
-        // Comprovació de quota del pla actiu
-        $activeItemsCount = $user->getLifetimeItemsRegistered();
-        $maxAllowed = $user->getPlan()->getMaxActiveItems();
+        // Comprovació de quota del pla actiu (els administradors no tenen límit de pla)
+        if ($user->getPlan() !== null) {
+            $activeItemsCount = $user->getLifetimeItemsRegistered();
+            $maxAllowed = $user->getPlan()->getMaxActiveItems();
 
-        if ($activeItemsCount >= $maxAllowed) {
-            $this->addFlash('error', sprintf(
-                'Has assolit el límit màxim de %d béns del teu pla %s. Passa a un pla superior per continuar protegint el teu patrimoni.',
-                $maxAllowed,
-                $user->getPlan()->getName()
-            ));
-            return $this->redirectToRoute('app_dashboard');
+            if ($maxAllowed !== -1 && $activeItemsCount >= $maxAllowed) {
+                $this->addFlash('error', sprintf(
+                    'Has assolit el límit màxim de %d béns del teu pla %s. Passa a un pla superior per continuar protegint el teu patrimoni.',
+                    $maxAllowed,
+                    $user->getPlan()->getName()
+                ));
+                return $this->redirectToRoute('app_dashboard');
+            }
         }
 
         $defaultCategory = $categoryRepository->findOneBy(['slug' => 'altres-bens'])
@@ -113,8 +118,11 @@ class ItemController extends AbstractController
 
                 $entityManager->flush();
 
+                // Notarització asíncrona a Polygon Blockchain (Layer 2)
+                $messageBus->dispatch(new AnchorBlockchainMessage($item->getId(), BlockchainActionType::ITEM_REGISTRATION));
+
                 $this->addFlash('success', sprintf(
-                    'Bé registrat amb èxit! S\'ha generat el codi notarial únic %s.',
+                    'Bé registrat amb èxit! S\'ha generat el codi notarial únic %s i s\'ha enviat a notaritzar a Polygon Blockchain.',
                     $item->getCui()
                 ));
 
@@ -161,6 +169,7 @@ class ItemController extends AbstractController
         CategoryRepository $categoryRepository,
         MediaIntegrityValidator $integrityValidator,
         EntityManagerInterface $entityManager,
+        \App\Repository\SystemSettingRepository $settingRepository,
     ): JsonResponse {
         /** @var User $user */
         $user = $this->getUser();
@@ -197,14 +206,14 @@ class ItemController extends AbstractController
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        // 2. Guard de Feature Toggle (activació/desactivació global des de configuració o backoffice)
-        $aiEnabled = (bool) $this->getParameter('app.ai_assistance_enabled');
-        if (!$aiEnabled) {
+        // 2. Guard de Feature Toggle Global en calent des de Backoffice (SystemSetting)
+        $aiGlobalEnabled = $settingRepository->getBool('ai_global_enabled', (bool) $this->getParameter('app.ai_assistance_enabled'));
+        if (!$aiGlobalEnabled) {
             return $this->json([
                 'success' => true,
                 'aiEnabled' => false,
                 'integrityVerified' => true,
-                'message' => 'L\'arxiu ha superat les validacions d\'autenticitat. L\'assistència d\'IA està desactivada; pots omplir les dades manualment.',
+                'message' => 'L\'arxiu ha superat les validacions d\'autenticitat. L\'assistència d\'IA està temporalment pausada des de l\'administració per protecció del node local SGLang; pots omplir les dades manualment.',
                 'data' => [
                     'exif' => $integrity->metadata['exif'] ?? [],
                     'warnings' => $integrity->warnings,
@@ -212,12 +221,28 @@ class ItemController extends AbstractController
             ]);
         }
 
-        // 3. Guard de Quota de Crèdits IA segons el Pla de l'usuari
-        $planQuota = $user->getPlan()->getAiAssistanceQuota();
-        $usage = $user->getAiUsageCount();
-        $remainingCredits = max(0, $planQuota - $usage);
+        // 3. Guard d'Assistència d'IA per Pla de l'usuari
+        $plan = $user->getPlan();
+        if ($plan !== null && !$plan->isAiAssistanceEnabled()) {
+            return $this->json([
+                'success' => true,
+                'aiEnabled' => false,
+                'integrityVerified' => true,
+                'message' => sprintf('L\'arxiu és autèntic. L\'assistència d\'IA no està habilitada per al pla "%s"; pots omplir les dades manualment.', $plan->getName()),
+                'data' => [
+                    'exif' => $integrity->metadata['exif'] ?? [],
+                    'warnings' => $integrity->warnings,
+                ],
+            ]);
+        }
 
-        if ($remainingCredits <= 0) {
+        // 4. Guard de Quota de Crèdits IA segons el Pla
+        $planQuota = $plan ? $plan->getAiAssistanceQuota() : -1;
+        $usage = $user->getAiUsageCount();
+        $isUnlimited = ($planQuota === -1);
+        $remainingCredits = $isUnlimited ? 999999 : max(0, $planQuota - $usage);
+
+        if (!$isUnlimited && $remainingCredits <= 0) {
             return $this->json([
                 'success' => false,
                 'code' => 'AI_QUOTA_EXCEEDED',
@@ -241,12 +266,15 @@ class ItemController extends AbstractController
         $mimeType = $file->getMimeType() ?? 'image/jpeg';
 
         $extraction = $aiAnalyzer->analyzeMedia($fileContent, $mimeType, $promptType);
+        $isSuccessful = !($extraction->confidence <= 0.0 && str_contains($extraction->notes ?? '', 'no disponible'));
 
-        // 4. Incrementem el comptador de consultes d'IA consumides i persistim
-        $user->incrementAiUsage();
-        $entityManager->flush();
+        // 4. Incrementem el comptador de consultes d'IA consumides només si el servei ha respost amb èxit
+        if ($isSuccessful) {
+            $user->incrementAiUsage();
+            $entityManager->flush();
+        }
 
-        $remainingAfter = max(0, $planQuota - $user->getAiUsageCount());
+        $remainingAfter = $isUnlimited ? -1 : max(0, $planQuota - $user->getAiUsageCount());
 
         $categoryId = null;
         if ($extraction->categorySlug) {

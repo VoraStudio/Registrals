@@ -21,6 +21,11 @@ class OnboardingController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
+        // Els administradors no requereixen onboarding i van directament al panell d'administració
+        if ($this->isGranted('ROLE_ADMIN')) {
+            return $this->redirectToRoute('app_admin_dashboard');
+        }
+
         // Si ja ha superat l'onboarding, va directament al Dashboard
         if ($user->isOnboardingCompleted()) {
             return $this->redirectToRoute('app_dashboard');

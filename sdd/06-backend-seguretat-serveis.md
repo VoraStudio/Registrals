@@ -263,3 +263,20 @@ Aquest disseny completa l'apartat 6 i 7 de l'arquitectura SSD, deixant l'estruct
 ---
 
 A nivell de modelatge a **Symfony**, això és exactament el que reflecteix l'enum `CertificateMode` (`draft` vs `official`) i el camp `allow_official_certificates` a l'entitat `Plan`, permetent a l'administrador decidir si els certificats oficials s'inclouen de sèrie o es cobren a part.
+
+---
+
+## 4. Subsistema d'Auditoria Forense & Activitat (`registrals_audit`)
+
+Per garantir la traçabilitat completa i complir amb el RGPD i l'AI Act sense degradar el rendiment transaccional del negoci:
+
+1. **Servei `UserActivityLogger` (`src/Audit/Service/UserActivityLogger.php`):**
+   - Injecta directament el segon gestor d'entitats `doctrine.orm.audit_entity_manager` i `RequestStack`.
+   - Enregistra esdeveniments amb IP (`getClientIp()`), User-Agent i metadades JSON estructurades de context.
+2. **Subscriptor de Seguretat `UserActivitySubscriber` (`src/EventSubscriber/UserActivitySubscriber.php`):**
+   - Escolta `LoginSuccessEvent` per registrar automàticament cada inici de sessió d'usuari a la base de dades d'auditoria.
+3. **Traçabilitat d'Accions Administratives:**
+   - La suspensió o reactivació de comptes a `/admin/usuaris/{id}/toggle-status` enregistra de manera transparent l'acció amb motiu i identificador de l'administrador actuant.
+4. **Consulta i Rendiment a l'Àrea d'Administració:**
+   - La fitxa d'usuari (`/admin/usuaris/{id}`) consulta directament els darrers 5 registres (`findRecentByUserUuid`) sense duplicar dades a la base de dades operacional de gestió.
+

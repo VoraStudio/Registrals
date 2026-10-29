@@ -14,6 +14,11 @@ framework:
                 retry_strategy:
                     max_retries: 2
                     multiplier: 2
+            async_chain:
+                dsn: 'doctrine://default?queue_name=async_chain'
+                retry_strategy:
+                    max_retries: 3
+                    multiplier: 2
             failed: 'doctrine://default?queue_name=failed'
             sync: 'sync://'
 
@@ -24,3 +29,4 @@ framework:
 
         routing:
             'App\Message\AnalyzeItemMediaMessage': async_ai
+            'App\Message\AnchorBlockchainMessage': async_chain

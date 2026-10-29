@@ -1,0 +1,171 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Logs d'Auditoria Forense — Administració Registrals{% endblock %}
+
+{% block admin_content %}
+<div class="space-y-6">
+
+  {# Fil d'Ariadna Canònic #}
+  <nav class="flex items-center gap-2 text-xs font-semibold font-raleway text-ink/65 flex-wrap">
+    <a href="{{ path('app_admin_dashboard') }}" class="hover:text-gold transition-colors">Inici</a>
+    <span>/</span>
+    <span class="text-ink/50">Vigilància</span>
+    <span>/</span>
+    <span class="text-ink font-bold">Logs d'Auditoria</span>
+  </nav>
+
+  {# Capçalera Solemne #}
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <div class="flex items-center gap-3">
+        <h1 class="font-marcellus text-2xl sm:text-3xl text-ink tracking-tight font-medium">Registre d'Auditoria Forense</h1>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold bg-cream border border-gold/40 text-ink">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          {{ totalLogs }} Esdeveniments
+        </span>
+      </div>
+      <p class="font-raleway text-xs sm:text-sm text-ink/70 mt-1">
+        Traçabilitat immutable i independent d'esdeveniments del sistema emmagatzemada a <code class="bg-cream px-1.5 py-0.5 rounded text-xs font-mono">registrals_audit</code>.
+      </p>
+    </div>
+  </div>
+
+  {# Quadre de Filtres #}
+  <div class="bg-white rounded-2xl border border-steel/20 p-4 shadow-xs">
+    <form method="get" action="{{ path('app_admin_audit_logs') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4 items-end">
+      <input type="hidden" name="limit" value="{{ currentLimit }}" />
+
+      {# Cerca Textual #}
+      <div class="sm:col-span-6">
+        <label for="audit-search" class="block text-[11px] font-bold text-ink/75 mb-1.5 font-raleway uppercase tracking-wider">Cerca per Usuari, Email, IP o Detall</label>
+        <div class="relative">
+          <input type="text" id="audit-search" name="q" value="{{ currentSearch }}" placeholder="Ex. admin@registrals.cat, 127.0.0.1, inici..."
+                 class="w-full bg-white border border-steel/30 rounded-xl pl-9 pr-3 py-2 text-xs sm:text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold transition-all font-raleway shadow-2xs" />
+          <svg class="w-4 h-4 text-steel absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        </div>
+      </div>
+
+      {# Filtre d'Acció #}
+      <div class="sm:col-span-4">
+        <label for="audit-action" class="block text-[11px] font-bold text-ink/75 mb-1.5 font-raleway uppercase tracking-wider">Tipus d'Acció</label>
+        <select id="audit-action" name="accio" class="w-full bg-white border border-steel/30 rounded-xl px-3 py-2 text-xs sm:text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold transition-all font-raleway shadow-2xs">
+          <option value="">Totes les accions</option>
+          {% for act in actions %}
+            <option value="{{ act.value }}" {{ currentAction == act.value ? 'selected' : '' }}>
+              {{ act.label }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      {# Botó Filtrar & Netejar #}
+      <div class="sm:col-span-2 flex items-center gap-2">
+        <button type="submit" class="w-full bg-ink hover:bg-ink/90 text-gold font-bold text-xs py-2.5 px-4 rounded-xl border border-gold/40 transition-colors shadow-2xs cursor-pointer flex items-center justify-center gap-2">
+          <svg class="w-3.5 h-3.5 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+          <span>Filtrar</span>
+        </button>
+        {% if currentSearch or currentAction %}
+          <a href="{{ path('app_admin_audit_logs') }}" class="p-2 text-steel hover:text-ink hover:bg-cream-50 rounded-xl border border-steel/25 transition-colors shrink-0 shadow-2xs" title="Netejar filtres">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </a>
+        {% endif %}
+      </div>
+
+    </form>
+  </div>
+
+  {# Taula de Logs d'Auditoria #}
+  <div class="bg-white rounded-2xl border border-steel/20 shadow-xs overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse text-xs sm:text-sm font-raleway">
+        <thead>
+          <tr class="bg-cream-50/80 border-b border-steel/20 text-ink/75 font-semibold text-[11px] uppercase tracking-wider">
+            <th class="py-3 px-4 sm:px-6">Data & Hora</th>
+            <th class="py-3 px-4">Acció</th>
+            <th class="py-3 px-4">Usuari Afectat</th>
+            <th class="py-3 px-4">Descripció & Detalls</th>
+            <th class="py-3 px-4">IP & Navegador</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-steel/10">
+          {% for log in logs %}
+            <tr class="hover:bg-cream/20 transition-colors">
+              <td class="py-3 px-4 sm:px-6 whitespace-nowrap font-mono text-xs text-ink/80">
+                {{ log.createdAt|date('d/m/Y H:i:s') }}
+              </td>
+              <td class="py-3 px-4 whitespace-nowrap">
+                <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold border {{ log.action.badgeClasses }}">
+                  {{ log.action.label }}
+                </span>
+              </td>
+              <td class="py-3 px-4">
+                <span class="font-bold text-ink block">{{ log.userName }}</span>
+                <span class="text-xs text-ink/65 font-mono block">{{ log.userEmail }}</span>
+              </td>
+              <td class="py-3 px-4 max-w-md">
+                <span class="font-medium text-ink block">{{ log.description }}</span>
+                {% if log.details %}
+                  <code class="text-[10px] text-steel font-mono block mt-0.5 truncate max-w-sm" title="{{ log.details|json_encode }}">
+                    {{ log.details|json_encode }}
+                  </code>
+                {% endif %}
+              </td>
+              <td class="py-3 px-4 whitespace-nowrap">
+                <span class="font-mono text-xs text-ink/80 block">{{ log.ipAddress ?? '—' }}</span>
+                <span class="text-[10px] text-steel truncate max-w-xs block" title="{{ log.userAgent }}">
+                  {{ log.userAgent ? (log.userAgent|slice(0, 35) ~ '...') : '—' }}
+                </span>
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="5" class="py-12 text-center text-ink/60 font-raleway">
+                <svg class="w-8 h-8 text-steel/40 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                <p class="font-medium">No s'han trobat esdeveniments d'auditoria amb aquests criteris.</p>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {# Peu de Paginació & Selector de Límit #}
+    <div class="p-4 border-t border-steel/15 bg-cream-50/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-xs font-raleway">
+      
+      {# Selector de registres per pàgina #}
+      <div class="flex items-center gap-2 text-ink/70">
+        <span>Mostrar per pàgina:</span>
+        <div class="inline-flex rounded-lg border border-steel/25 bg-white p-0.5 shadow-2xs">
+          {% for opt in [10, 25, 50] %}
+            <a href="{{ path('app_admin_audit_logs', {q: currentSearch, accio: currentAction, limit: opt, page: 1}) }}"
+               class="px-2.5 py-1 rounded-md text-xs font-semibold transition-colors {{ currentLimit == opt ? 'bg-ink text-gold font-bold shadow-xs' : 'text-ink/75 hover:text-ink hover:bg-cream-50' }}">
+              {{ opt }}
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+
+      {# Controls de Pàgina #}
+      {% if totalPages > 1 %}
+        <div class="flex items-center gap-2">
+          <span class="text-ink/65 font-medium mr-2">Pàgina {{ currentPage }} de {{ totalPages }}</span>
+          {% if currentPage > 1 %}
+            <a href="{{ path('app_admin_audit_logs', {q: currentSearch, accio: currentAction, limit: currentLimit, page: currentPage - 1}) }}" 
+               class="px-3 py-1.5 rounded-lg border border-steel/30 bg-white hover:bg-cream text-ink font-semibold transition-colors">
+              &larr; Anterior
+            </a>
+          {% endif %}
+          {% if currentPage < totalPages %}
+            <a href="{{ path('app_admin_audit_logs', {q: currentSearch, accio: currentAction, limit: currentLimit, page: currentPage + 1}) }}" 
+               class="px-3 py-1.5 rounded-lg border border-steel/30 bg-white hover:bg-cream text-ink font-semibold transition-colors">
+              Següent &rarr;
+            </a>
+          {% endif %}
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

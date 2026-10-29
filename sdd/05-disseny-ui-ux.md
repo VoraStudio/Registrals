@@ -185,8 +185,46 @@ Dissenyat per eliminar la mandra d'omplir formularis manuals i optimitzat per a 
 - **Acceptació:** Un sol clic a *"Acceptar i afegir al meu patrimoni"*. Si no té compte, s'activa el flux de registre ràpid amb Google o Apple mantenint l'objecte en reserva durant 72 hores.
 Aquesta especificació tradueix de manera coherent tota la identitat visual de la guia d'estils cap a una aplicació de gestió patrimonial i de seguretat.
 
-- Preferiu que la pantalla d'alta de bé al mòbil funcioni en un únic formulari amb scroll o en un format de passos (Wizard 1, 2, 3)?
-- Voleu afegir un mode fosc complet per a l'àrea privada o mantenim la combinació de fons clar (`Cream 50`) amb elements `Ink` i detalls `Gold`?
-No farem mode fosc / clar
+---
 
-la pregunta del mòbil, si wizard 1 2 3, pot estar bé
+## 5. Estàndards de Disseny i Interfícies per a Gestió i Backoffice (`/admin`)
+
+Per garantir la màxima coherència visual, ergonomia d'auditoria i solemnitat institucional al Panell d'Administració (`/admin`), totes les pantalles de gestió segueixen estrictament les regles següents:
+
+### 5.1. Capçaleres de Secció (Portades i Llistats Principals)
+- **1a línia:** Títol de la secció en `font-marcellus text-2xl sm:text-3xl text-ink font-medium` a l'esquerra + píndola / comptador informatiu (*badge*) a la dreta amb vores fines daurades/acer (`border border-steel/25 bg-white shadow-2xs font-mono`).
+- **2a línia:** Breu descripció de context en `font-raleway text-xs sm:text-sm text-ink/70 mt-1`.
+
+### 5.2. Quadre de Cerca i Filtres Dinàmics
+- **Estructura:** Caixa de cerca `bg-white rounded-2xl border border-steel/20 p-4 shadow-xs`.
+- **Distribució:** Etiquetes (*labels*) a la part superior i camps d'entrada (*inputs / selects*) a sota.
+- **Acció:** Botó d'acció `"Filtrar"` de color blau marí corporatiu Ink (`bg-ink text-gold font-bold hover:bg-ink/90`) alineat a la dreta.
+- **Paginació & Quantitat per Pàgina:** Selector de registres per pàgina amb les opcions canòniques `10`, `25`, `50` i paginador net amb indicació `"Pàgina X de Y"` i controls `"← Anterior"` / `"Següent →"`.
+
+### 5.3. Botons d'Acció a les Taules (Iconografia Estricta)
+A les columnes d'accions de les taules notarials, mai s'utilitzen textos llargs sinó **exclusivament una icona simple i precisa** amb atribut `title` d'accessibilitat:
+- **Ull (`👁️` / SVG eye):** Veure / Inspeccionar el registre.
+- **Llàpis (`✏️` / SVG pencil):** Editar paràmetres o dades.
+- **Prohibit (`🚫` / SVG ban):** Desactivar, suspendre o bloquejar administrativament.
+- **Paperera (`🗑️` / SVG trash):** Esborrar o desvincular.
+- **Impressora (`🖨️` / SVG printer):** Imprimir certificat o extracte.
+- **Fulla / Document (`📄` / SVG document):** Certificat oficial o comprovant probatori.
+
+### 5.4. Pantalles de Detall, Inspecció i Formularis (Navegació Interna)
+- **1a línia (Fil d'Ariadna / Breadcrumb pur):** Ruta contextual jeràrquica (`Inici / Secció / Element Actiu`). **Sense cap botó aïllat de tornar** (s'eliminen botons redundants *"← Tornar a l'usuari"* o *"← Tornar"*): la navegació cap enrere s'executa clicant directament sobre el nivell desitjat del fil d'Ariadna.
+- **Opcions addicionals de pantalla:** Si la vista requereix accions complementàries (ex. *"Modificar Estat Notarial"*, *"Editar Pla"*), se situen exclusivament en botons a la **part superior dreta**, alineades amb la capçalera.
+- **Botó de Desar:** Als formularis, el botó primari de confirmació o desat se situa **sempre a la part inferior dreta** en color blau marí fosc Ink (`bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold`).
+
+### 5.5. Coherència Global de Documents Justificatius i Custòdia
+- **Aïllament de Context Administratiu:** L'administrador mai abandona el context `/admin` en auditar usuaris, inspeccionar béns o descarregar proves documentals. Mai s'enllaça a rutes de client `/app/*`.
+- **Documents Justificatius & Evidències:** Les targetes d'evidència (factures en PDF, tiquets de compra, comprovants de garantia) mostren sempre la mida, format, data de custòdia sota Flysystem xifrat i icona d'acció simple (`👁️` o `📥`).
+- **Harmonització 16:9:** Les fitxes de detall i inspecció mantenen una graella panoràmica d'alta densitat d'informació organitzada en blocs d'alçada equilibrada per a monitors widescreen.
+
+### 5.6. Mode Guardià Mòbil & Restricció d'Escriptori per a Backoffice
+- **Principi d'Arquitectura:** El Panell d'Administració és una eina d'operador d'alta densitat (taules de múltiples columnes, filtres combinats, payloads JSON d'auditoria forense i parametrització crítica) concebuda exclusivament per a pantalla d'escriptori (PC).
+- **Comportament en Mòbil:**
+  1. **Dashboard de Guàrdia:** En accedir des de mòbil, la portada mostra únicament un seguiment compacte de salut i KPIs principals (estat dels nodes, usuaris actius, béns registrats i certificats).
+  2. **Menú Lateral Plegat:** La barra lateral blava (`<aside>`) es plega darrere un control superior desplegable per no ocupar ni desplaçar el contingut del viewport.
+  3. **Avís Notarial de Gestió Completa en PC:** A les seccions d'alta densitat (gestió d'usuaris, auditoria, edició de plans i configuració), s'informa solemnement a l'administrador mitjançant un patró `.guide-note` que cal acudir a la interfície d'escriptori (PC) per a la gestió avançada i presa de decisions operatives.
+
+

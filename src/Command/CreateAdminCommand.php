@@ -54,25 +54,20 @@ class CreateAdminCommand extends Command
             return Command::FAILURE;
         }
 
-        $plan = $this->planRepository->findOneBy(['code' => 'unlimited']) ?? $this->planRepository->findDefaultFreePlan();
-        if (!$plan) {
-            $io->error('No s\'ha trobat cap pla configurat a la base de dades.');
-            return Command::FAILURE;
-        }
-
         $user = new User();
         $user->setEmail($email);
         $user->setFirstName($firstName);
         $user->setLastName($lastName);
-        $user->setPlan($plan);
+        $user->setPlan(null);
         $user->setRoles(['ROLE_USER', 'ROLE_ADMIN']);
         $user->setIsActive(true);
+        $user->setOnboardingCompleted(true);
         $user->setPassword($this->passwordHasher->hashPassword($user, $password));
 
         $this->em->persist($user);
         $this->em->flush();
 
-        $io->success(sprintf('Usuari administrador creat correctament: %s (amb ROLE_ADMIN i pla %s).', $email, $plan->getName()));
+        $io->success(sprintf('Usuari administrador creat correctament: %s (amb ROLE_ADMIN, sense pla comercial associat).', $email));
 
         return Command::SUCCESS;
     }

@@ -15,11 +15,17 @@ class DashboardController extends AbstractController
 {
     #[Route('/dashboard', name: 'dashboard')]
     public function index(
+        \Symfony\Component\HttpFoundation\Request $request,
         \App\Repository\ItemRepository $itemRepository,
         \App\Repository\CategoryRepository $categoryRepository
     ): Response {
         /** @var \App\Entity\User $user */
         $user = $this->getUser();
+
+        // Els administradors van directament a la cabina de gestió Notarial / Admin
+        if ($this->isGranted('ROLE_ADMIN') && !$request->query->has('client_view')) {
+            return $this->redirectToRoute('app_admin_dashboard');
+        }
 
         if ($user && !$user->isOnboardingCompleted()) {
             return $this->redirectToRoute('app_onboarding_welcome');

@@ -134,26 +134,34 @@ Cada subiteració segueix un flux d'enginyeria estricte:
 ### Iteració 4: Immutabilitat a Blockchain i Notarització Automàtica
 **Objectiu:** Prova d'existència criptogràfica i data certa inalterable des del registre.
 
-- [ ] **Subiteració 4.1: Model de Dades `BlockchainReceipt` i Enums**
-  - [ ] Entitat `BlockchainReceipt` vinculada a `Item` i enum `BlockchainActionType` (`item_registration`, `transfer`, `stolen_flag`, `certificate_issued`).
-  - [ ] Migració Doctrine a MySQL 8.4.
-- [ ] **Subiteració 4.2: Servei de Càlcul de Fingerprint i Client RPC**
-  - [ ] Càlcul de SHA-256 determinista: `hash(cui | owner_uuid | doc_hashes | timestamp)`.
-  - [ ] Client `PolygonAnchorClient` per a l'enviament de la transacció de notarització a xarxa Layer 2.
-- [ ] **Subiteració 4.3: Dispatcher de Fons i Insígnia d'Estat a la Fitxa**
-  - [ ] Missatge `AnchorBlockchainMessage` a la cua `async_chain`.
-  - [ ] Insígnia visual d'estat a la fitxa de l'ítem (Pendent -> Segellat a Blockchain amb enllaç a l'explorador de blocs).
-- [ ] **Subiteració 4.4: Verificació & Validació HITL**
-  - [ ] Validació del càlcul de hash i recepció del comprovant de bloc al dashboard.
+- [x] **Subiteració 4.1: Model de Dades `BlockchainReceipt` i Enums**
+  - [x] Entitat `BlockchainReceipt` vinculada a `Item` i enum `BlockchainActionType` (`item_registration`, `transfer`, `stolen_flag`, `certificate_issued`).
+  - [x] Migració Doctrine a MySQL 8.4 executada amb èxit (`Version20261029113055`).
+- [x] **Subiteració 4.2: Servei de Càlcul de Fingerprint i Client RPC**
+  - [x] Càlcul de SHA-256 determinista: `hash(cui | owner_uuid | doc_hashes | timestamp)` a [`ItemFingerprintCalculator`](file:///d:/webs/Registrals/Registrals/src/Service/ItemFingerprintCalculator.php).
+  - [x] Client [`PolygonAnchorClient`](file:///d:/webs/Registrals/Registrals/src/Infrastructure/Adapter/Blockchain/PolygonAnchorClient.php) per a l'enviament de la transacció de notarització a xarxa Layer 2 amb DTO [`BlockchainReceiptDto`](file:///d:/webs/Registrals/Registrals/src/DTO/BlockchainReceiptDto.php).
+  - [x] Proves unitàries executades amb èxit (10 assertions OK).
+- [x] **Subiteració 4.3: Dispatcher de Fons i Insígnia d'Estat a la Fitxa**
+  - [x] Missatge [`AnchorBlockchainMessage`](file:///d:/webs/Registrals/Registrals/src/Message/AnchorBlockchainMessage.php) a la cua `async_chain` de Symfony Messenger amb handler [`AnchorBlockchainMessageHandler`](file:///d:/webs/Registrals/Registrals/src/MessageHandler/AnchorBlockchainMessageHandler.php).
+  - [x] Dispatch automàtic en segon pla en crear un bé a [`ItemController::new`](file:///d:/webs/Registrals/Registrals/src/Controller/ItemController.php).
+  - [x] Insígnia visual notarial d'estat a la fitxa del bé ([`templates/item/show.html.twig`](file:///d:/webs/Registrals/Registrals/templates/item/show.html.twig)) per a PC i mòbil: indicador "Cua L2 / Ancoratge en curs" vs "POLYGON #Bloc" amb enllaç directe a l'explorador de blocs (Polygonscan / Amoy).
+  - [x] Prova unitària del handler [`AnchorBlockchainMessageHandlerTest`](file:///d:/webs/Registrals/Registrals/tests/MessageHandler/AnchorBlockchainMessageHandlerTest.php) amb 10 assertions OK.
+- [x] **Subiteració 4.4: Verificació & Validació HITL**
+  - [x] Validació del càlcul de hash determinista i recepció del comprovant de bloc persistit a MySQL (`blockchain_receipts`).
+  - [x] Processament provat en viu mitjançant la cua asíncrona `async_chain` de Symfony Messenger (`messenger:consume async_chain --limit=1`).
+  - [x] Comanda CLI d'auditoria i notarització manual/síncrona implementada a [`AnchorItemBlockchainCommand`](file:///d:/webs/Registrals/Registrals/src/Command/AnchorItemBlockchainCommand.php) (`app:item:anchor-blockchain`).
+  - [ ] **Pendent per al Desplegament a Producció (Go-Live):** Configurar a `.env.local` el node RPC dedicat (ex: Alchemy o Infura) i la clau privada de la Hot Wallet finançada amb fons de gas MATIC/POL (~25 € de saldo segons l'estudi de costos a [`sdd/08-annexes.md`](file:///d:/webs/Registrals/Registrals/sdd/08-annexes.md#L367)).
 
 ---
 
 ### Iteració 5: Emissió de Certificats (Esborrany vs. Oficial) i Consulta Pública (QR)
 **Objectiu:** Generació de certificats PDF solemnes, segellat legal eIDAS i consulta pública transparent.
 
-- [ ] **Subiteració 5.1: Model de Dades `Certificate` i Enums**
-  - [ ] Entitat `Certificate` amb enum `CertificateMode` (`draft`, `official`) i estat de validesa.
-  - [ ] Migració Doctrine a MySQL 8.4.
+- [x] **Subiteració 5.1: Model de Dades `Certificate` i Enums**
+  - [x] Entitat [`Certificate`](file:///d:/webs/Registrals/Registrals/src/Entity/Certificate.php) amb Enums [`CertificateMode`](file:///d:/webs/Registrals/Registrals/src/Enum/CertificateMode.php) (`draft`, `official`) i [`CertificateStatus`](file:///d:/webs/Registrals/Registrals/src/Enum/CertificateStatus.php) (`valid`, `superseded`, `revoked`).
+  - [x] Repositori [`CertificateRepository`](file:///d:/webs/Registrals/Registrals/src/Repository/CertificateRepository.php) amb generador de números correlatius oficials (`CERT-YYYY-XXXXXX`).
+  - [x] Migració Doctrine a MySQL 8.4 executada amb èxit (`Version20261029160647`).
+  - [x] Bateria de tests unitaris a [`CertificateTest`](file:///d:/webs/Registrals/Registrals/tests/Entity/CertificateTest.php) (13 assertions OK).
 - [ ] **Subiteració 5.2: Motor de Generació PDF Vectorial**
   - [ ] Maquetació Twig amb la Guia d'Estils oficial (Isologo daurat, tipografia Outfit/Inter, dades del bé i QR encastat).
   - [ ] Renderitzat de l'esborrany amb marca d'aigua diagonal per al Pla Free.
@@ -190,14 +198,20 @@ Cada subiteració segueix un flux d'enginyeria estricte:
   - [x] Dashboard de control amb KPIs globals (usuaris actius, béns registrats, certificats emesos).
   - [x] Gestió d'usuaris (activació, bloqueig i auditoria).
 - [ ] **Subiteració 7.2: Mòdul de Parametrització de Plans, Tarifes i Àmbit Geogràfic**
-  - [ ] Formulari d'edició en calent dels paràmetres de cada pla des de Backoffice: màxim de béns actius (Free: 20, Plus: 100, Unlimited: -1 il·limitat), límit de fotografies per bé (Free: 1, Plus: 5, Unlimited: -1 il·limitat), límit de proves/evidències per bé (Free: 1, Plus: 5, Unlimited: -1 il·limitat), quotes de certificats oficials i assistència d'IA (Free: 20, Plus: 100, Unlimited: 9.999).
-  - [ ] Interruptor global i per pla per activar o desactivar l'ús d'Assistència d'IA en calent (Feature Toggle d'IA des de Backoffice), amb gestió de quotes i consums per usuari.
-  - [ ] Parametrització geogràfica i monetària: abast operatiu inicial centrat a la Unió Europea (EUR); selecció i acotament de països admesos al registre de plans Plus i Unlimited amb moneda ISO associada gestionable des de Backoffice.
+  - [x] Formulari d'edició en calent dels paràmetres de cada pla des de Backoffice: màxim de béns actius (Free: 20, Plus: 100, Unlimited: -1 il·limitat), límit de fotografies per bé (Free: 1, Plus: 5, Unlimited: -1 il·limitat), límit de proves/evidències per bé (Free: 1, Plus: 5, Unlimited: -1 il·limitat), quotes de certificats oficials i assistència d'IA (Free: 20, Plus: 100, Unlimited: 9.999).
+  - [x] Interruptor global i per pla per activar o desactivar l'ús d'Assistència d'IA en calent (Feature Toggle d'IA des de Backoffice), amb gestió de quotes i consums per usuari.
+  - [x] Parametrització geogràfica i monetària: abast operatiu inicial centrat a la Unió Europea (EUR); selecció i acotament de països admesos al registre de plans Plus i Unlimited amb moneda ISO associada gestionable des de Backoffice.
+  - [ ] Verificació final del 7.2: revisió de contingut, textos notarials i ajust final dels últims paràmetres.
 - [ ] **Subiteració 7.3: Passarel·la de Pagament (Stripe)**
   - [ ] Checkout per a subscripcions anuals (Pla Plus i Unlimited).
   - [ ] Microtransaccions de pagament per ús (certificat oficial puntual de 6 € o traspàs de 2,90 €).
 - [ ] **Subiteració 7.4: Verificació & Validació HITL Final de l'MVP**
   - [ ] Test complet E2E des del registre, pagament, alta de bé amb IA, certificat oficial fins al traspàs.
+- [ ] **Subiteració 7.5: Validació Final Integral de tot el Backend & Arquitectura**
+  - [ ] Auditoria completa d'endpoints, voters i control d'accés (seguretat de rols i aïllament de l'administració).
+  - [ ] Proves d'estrès, concurrència i integritat de la base de dades (MySQL 8.4) i custòdia documental privada (Flysystem).
+  - [ ] Verificació de coherència de màquines d'estats (Symfony Workflow), transport asíncron (Messenger), sincronització de quotes i auditoria forense.
+  - [ ] Checklist de credencials i claus reals de producció (`.env.local`): Hot Wallet de Polygon amb fons de gas, API Token de Signaturit i claus públiques/privades de Stripe.
 
 ---
 
@@ -231,8 +245,8 @@ Cada subiteració segueix un flux d'enginyeria estricte:
 | **Iteració 1** | 1.1 Model & Persistència <br> 1.2 Auth Nativa <br> 1.3 OAuth2 & Cookie <br> 1.4 Onboarding <br> 1.5 Perfil d'Usuari & El meu Pla <br> 1.6 PWA & Instal·lació App Mòbil | Symfony Security, MySQL 8.4, Docker | **100% Completada** |
 | **Iteració 2** | 2.1 Model Ítems <br> 2.2 CUI & Flysystem <br> 2.3 Wizard & Dashboard <br> 2.4 Validació HITL | Flysystem, Symfony Voters, Twig | **100% Completada** |
 | **Iteració 3** | 3.1 Messenger Cues <br> 3.2 SGLang Client <br> 3.3 UI Assistència IA <br> 3.4 Validació HITL <br> 3.5 Transparència IA Sobirana <br> 3.6 Anti-Frau C2PA, EXIF & QR | SGLang, Qwen VL local, Messenger | **Subiteracions 3.1, 3.2, 3.3, 3.5 i 3.6 Fetes (90%)** |
-| **Iteració 4** | 4.1 Model Blockchain <br> 4.2 Càlcul Hash & RPC <br> 4.3 Cua & UI Insígnia <br> 4.4 Validació HITL | Polygon/Base RPC, SHA-256 | Pendent |
+| **Iteració 4** | 4.1 Model Blockchain <br> 4.2 Càlcul Hash & RPC <br> 4.3 Cua & UI Insígnia <br> 4.4 Validació HITL | Polygon/Base RPC, SHA-256 | **100% Completada** |
 | **Iteració 5** | 5.1 Model Certificats <br> 5.2 Motor PDF Vectorial <br> 5.3 eIDAS Signaturit & QR <br> 5.4 Validació HITL | KnpSnappy/Chromium, Signaturit API | Pendent |
 | **Iteració 6** | 6.1 Model Traspassos <br> 6.2 Symfony Workflow <br> 6.3 UI Traspàs Notarial <br> 6.4 Validació HITL | Symfony Workflow, Mailer | Pendent |
-| **Iteració 7** | 7.1 Backoffice Admin <br> 7.2 Editor de Plans <br> 7.3 Passarel·la Stripe <br> 7.4 Validació HITL MVP | EasyAdmin/Custom, Stripe API | Pendent |
+| **Iteració 7** | 7.1 Backoffice Admin <br> 7.2 Editor de Plans <br> 7.3 Passarel·la Stripe <br> 7.4 Validació HITL MVP <br> 7.5 Validació Backend | Symfony Admin, Stripe API, Messenger | En curs (7.1 feta, 7.2 pendent de revisió final) |
 | **Iteració 8** | 8.1 Condicions Legals <br> 8.2 Privadesa RGPD <br> 8.3 Guia d'Ús i Manual <br> 8.4 Validació HITL | Twig, Guia d'Estils, Marc Normatiu | Pendent |

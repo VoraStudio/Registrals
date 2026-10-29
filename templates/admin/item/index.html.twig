@@ -1,0 +1,176 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Béns Custodiats & Patrimoni — Administració Registrals{% endblock %}
+
+{% block admin_content %}
+<div class="space-y-6">
+
+  {# Fil d'Ariadna de Ruta Canònic #}
+  <nav class="flex items-center gap-2 text-xs font-semibold font-raleway text-ink/65 flex-wrap">
+    <a href="{{ path('app_admin_dashboard') }}" class="hover:text-ink transition-colors">Inici</a>
+    <span>/</span>
+    <span class="text-ink font-bold">Béns</span>
+  </nav>
+
+  {# Capçalera de Pàgina #}
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="font-marcellus text-2xl sm:text-3xl text-ink tracking-tight font-medium">Béns Custodiats & Patrimoni</h1>
+      <p class="font-raleway text-xs sm:text-sm text-ink/70 mt-1">
+        Inspecció notarial, integritat probatòria i cerca global de béns registrats a la plataforma.
+      </p>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-steel/25 text-xs text-ink/80 shadow-2xs font-mono">
+        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        <span><strong>{{ totalItems }}</strong> béns registrats</span>
+      </span>
+    </div>
+  </div>
+
+  {# Barra de Cerca i Filtres (Format Horitzontal Canònic) #}
+  <div class="bg-white rounded-2xl border border-steel/20 p-4 sm:p-5 shadow-xs">
+    <form method="get" action="{{ path('app_admin_items') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4 items-end">
+      <input type="hidden" name="limit" value="{{ currentLimit }}" />
+      
+      {# Cercador #}
+      <div class="sm:col-span-6">
+        <label for="search-input" class="block text-xs font-semibold text-ink/80 mb-1.5 font-raleway">Cerca per Nom, CUI, Marca, Model o Titular</label>
+        <div class="relative">
+          <input type="text" id="search-input" name="q" value="{{ currentSearch }}" placeholder="Ex: Bicicleta, REG-2026-..., Carles..." 
+                 class="w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3.5 py-2.5 pl-9 text-xs sm:text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white font-raleway transition-all shadow-2xs" />
+          <svg class="w-4 h-4 text-steel absolute left-3 top-3 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        </div>
+      </div>
+
+      {# Filtre d'Estat #}
+      <div class="sm:col-span-4">
+        <label for="filter-status" class="block text-xs font-semibold text-ink/80 mb-1.5 font-raleway">Estat Notarial</label>
+        <select id="filter-status" name="status" class="w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3 py-2.5 text-xs sm:text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white font-raleway transition-all shadow-2xs">
+          <option value="">Tots els estats</option>
+          {% for st in statuses %}
+            <option value="{{ st.value }}" {{ currentStatus == st.value ? 'selected' : '' }}>
+              {{ st.label }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      {# Botó d'Acció de Filtrar #}
+      <div class="sm:col-span-2 flex items-center gap-2">
+        <button type="submit" class="w-full bg-ink hover:bg-ink/90 text-gold font-semibold text-xs sm:text-sm py-2.5 px-4 rounded-xl border border-gold/40 transition-colors shadow-2xs cursor-pointer flex items-center justify-center gap-2">
+          <svg class="w-4 h-4 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+          <span>Filtrar</span>
+        </button>
+        {% if currentSearch or currentStatus %}
+          <a href="{{ path('app_admin_items') }}" class="p-2.5 text-steel hover:text-ink hover:bg-cream rounded-xl transition-colors shrink-0" title="Netejar filtres">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </a>
+        {% endif %}
+      </div>
+
+    </form>
+  </div>
+
+  {# Taula Notarial de Béns #}
+  <div class="bg-white rounded-2xl border border-steel/20 overflow-hidden shadow-xs">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs font-raleway">
+        <thead class="bg-cream-50/80 border-b border-steel/15 text-[11px] font-bold text-ink uppercase tracking-wider font-mono">
+          <tr>
+            <th class="py-3 px-4">Bé Moble & CUI</th>
+            <th class="py-3 px-4">Titular</th>
+            <th class="py-3 px-4">Categoria</th>
+            <th class="py-3 px-4">Estat</th>
+            <th class="py-3 px-4">Custòdia Proves</th>
+            <th class="py-3 px-4">Data d'Alta</th>
+            <th class="py-3 px-4 text-right">Accions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-steel/10">
+          {% for item in items %}
+            <tr class="hover:bg-cream-50/50 transition-colors">
+              <td class="py-3.5 px-4">
+                <a href="{{ path('app_admin_item_show', {cui: item.cui}) }}" class="font-bold text-ink hover:text-gold block">
+                  {{ item.name }}
+                </a>
+                <span class="font-mono text-[10px] text-steel">{{ item.cui }}</span>
+              </td>
+              <td class="py-3.5 px-4">
+                <a href="{{ path('app_admin_user_detail', {id: item.owner.id}) }}" class="font-semibold text-ink hover:underline block truncate max-w-[150px]">
+                  {{ item.owner.fullName }}
+                </a>
+                <span class="text-[10px] text-ink/60 truncate block">{{ item.owner.email }}</span>
+              </td>
+              <td class="py-3.5 px-4 text-ink/80">{{ item.category.name|default('Sense categoria') }}</td>
+              <td class="py-3.5 px-4">
+                <span class="inline-block px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase border {{ item.status.badgeClasses }}">
+                  {{ item.status.label }}
+                </span>
+              </td>
+              <td class="py-3.5 px-4 text-ink/70">
+                {{ item.documents|length }} arxius ({{ item.photos|length }} fotos, {{ item.evidenceDocuments|length }} proves)
+              </td>
+              <td class="py-3.5 px-4 text-ink/60 text-xs">{{ item.createdAt|date('d/m/Y') }}</td>
+              <td class="py-3.5 px-4 text-right">
+                <a href="{{ path('app_admin_item_show', {cui: item.cui}) }}" 
+                   class="w-8 h-8 rounded-xl inline-flex items-center justify-center text-steel hover:text-ink bg-cream-50/80 hover:bg-cream border border-steel/20 hover:border-gold/50 shadow-2xs transition-all" 
+                   title="Inspeccionar Bé">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                </a>
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="7" class="py-8 text-center text-xs text-ink/60 italic">
+                No s'han trobat béns que coincideixin amb els filtres aplicats.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {# Paginació #}
+    <div class="px-4 sm:px-6 py-4 border-t border-steel/15 bg-cream-50/50 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-raleway">
+      <div class="flex items-center gap-3 flex-wrap">
+        <span class="text-ink/65">
+          Mostrant <span class="font-bold text-ink">{{ items|length }}</span> de <span class="font-bold text-ink">{{ totalItems }}</span> béns
+          {% if totalPages > 1 %}
+            &middot; Pàgina <span class="font-bold text-ink">{{ currentPage }}</span> de <span class="font-bold text-ink">{{ totalPages }}</span>
+          {% endif %}
+        </span>
+
+        {# Selector de Quantitat per Pàgina #}
+        <div class="flex items-center gap-1.5 pl-3 border-l border-steel/20">
+          <span class="text-ink/50 text-[11px]">Per pàgina:</span>
+          {% for l in [10, 25, 50] %}
+            <a href="{{ path('app_admin_items', {page: 1, q: currentSearch, status: currentStatus, limit: l}) }}" 
+               class="px-2 py-0.5 rounded-md text-[11px] font-mono font-bold transition-colors {{ currentLimit == l ? 'bg-ink text-gold border border-gold/40 shadow-2xs' : 'bg-white hover:bg-cream border border-steel/25 text-ink/70' }}">
+              {{ l }}
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+
+      {% if totalPages > 1 %}
+        <div class="flex items-center gap-1.5">
+          {% if currentPage > 1 %}
+            <a href="{{ path('app_admin_items', {page: currentPage - 1, q: currentSearch, status: currentStatus, limit: currentLimit}) }}" class="px-3 py-1.5 rounded-lg border border-steel/25 bg-white text-ink font-semibold hover:bg-cream-50 transition-colors">
+              &larr; Anterior
+            </a>
+          {% endif %}
+          {% if currentPage < totalPages %}
+            <a href="{{ path('app_admin_items', {page: currentPage + 1, q: currentSearch, status: currentStatus, limit: currentLimit}) }}" class="px-3 py-1.5 rounded-lg border border-steel/25 bg-white text-ink font-semibold hover:bg-cream-50 transition-colors">
+              Següent &rarr;
+            </a>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

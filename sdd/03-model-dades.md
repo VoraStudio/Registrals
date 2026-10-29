@@ -676,8 +676,27 @@ private \DateTimeImmutable $createdAt;
 - `maxEvidencesPerItem`: FREE: 1 | PLUS: 5 | UNLIMITED: -1 (il·limitat).
 - Totes les quotes han de ser modificables en calent pels administradors des de `/admin/plans` (EasyAdmin / Symfony Form).
 
+---
+
+## 8. Model d'Auditoria & Activitat (Base de Dades Aïllada `registrals_audit`)
+
+Per garantir la immutabilitat forense, protegir el rendiment transaccional del negoci i simplificar les còpies de seguretat independents, el registre d'activitat dels usuaris s'emmagatzema en una base de dades completament independent (`registrals_audit`), gestionada per un segon Entity Manager (`audit`) a Symfony / Doctrine:
+
+- **Connexió Doctrine:** `audit` (`AUDIT_DATABASE_URL`).
+- **Entity Manager:** `doctrine.orm.audit_entity_manager` mapejat a `src/Audit/Entity`.
+- **Sense claus foranes creuades:** Per evitar dependències entre bases de dades i permetre restauracions independents, s'emmagatzemen com a valors desnormalitzats `user_uuid` (string 36, indexat), `user_email` i `user_name`.
+
+### Entitat `UserActivityLog` (`src/Audit/Entity/UserActivityLog.php`)
+- `id`: INTEGER (PK, Auto-increment).
+- `user_uuid`: VARCHAR(36) INDEXAT (UUID v7 del compte de l'usuari).
+- `user_email`: VARCHAR(180).
+- `user_name`: VARCHAR(180).
+- `action`: VARCHAR(50) — Enum `UserActivityAction` (`login`, `logout`, `register`, `password_changed`, `item_created`, `item_updated`, `item_deleted`, `status_changed`, `certificate_issued`, `transfer_initiated`, `transfer_accepted`).
+- `description`: VARCHAR(255).
+- `ip_address`: VARCHAR(45) NULLABLE (IPv4 o IPv6 de la sol·licitud).
+- `user_agent`: VARCHAR(255) NULLABLE.
+- `details`: JSON NULLABLE (metadades estructurades com firewall, motiu de suspensió, etc.).
+- `created_at`: DATETIME INDEXAT (segell de temps immutable UTC).
+
 Aquest model connecta directament l'estat de l'ítem amb el seu cicle de vida i la blockchain.
 
-Confirmem el model per redactar el Punt 4 (Fluxos de l'aplicació i màquines d'estats)?
-
-```

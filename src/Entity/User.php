@@ -80,11 +80,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?\DateTimeImmutable $identityVerifiedAt = null;
 
     #[ORM\ManyToOne(targetEntity: Plan::class)]
-    #[ORM\JoinColumn(name: 'plan_id', referencedColumnName: 'id', nullable: false)]
-    private Plan $plan;
+    #[ORM\JoinColumn(name: 'plan_id', referencedColumnName: 'id', nullable: true)]
+    private ?Plan $plan = null;
 
-    #[ORM\Column(type: 'datetime_immutable')]
-    private \DateTimeImmutable $planStartedAt;
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $planStartedAt = null;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $planExpiresAt = null;
@@ -119,7 +119,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->items = new \Doctrine\Common\Collections\ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
-        $this->planStartedAt = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -295,23 +294,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getPlan(): Plan
+    public function getPlan(): ?Plan
     {
         return $this->plan;
     }
 
-    public function setPlan(Plan $plan): static
+    public function setPlan(?Plan $plan): static
     {
         $this->plan = $plan;
         return $this;
     }
 
-    public function getPlanStartedAt(): \DateTimeImmutable
+    public function getPlanStartedAt(): ?\DateTimeImmutable
     {
         return $this->planStartedAt;
     }
 
-    public function setPlanStartedAt(\DateTimeImmutable $planStartedAt): static
+    public function setPlanStartedAt(?\DateTimeImmutable $planStartedAt): static
     {
         $this->planStartedAt = $planStartedAt;
         return $this;
@@ -369,6 +368,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function isOnboardingCompleted(): bool
     {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
         return $this->onboardingCompleted;
     }
 

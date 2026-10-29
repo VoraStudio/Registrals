@@ -115,6 +115,10 @@ class GoogleAuthenticator extends AbstractAuthenticator implements Authenticatio
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
         $user = $token->getUser();
+        if ($user instanceof User && in_array('ROLE_ADMIN', $user->getRoles(), true)) {
+            return new RedirectResponse($this->urlGenerator->generate('app_admin_dashboard'));
+        }
+
         if ($user instanceof User && !$user->isOnboardingCompleted()) {
             return new RedirectResponse($this->urlGenerator->generate('app_onboarding_welcome'));
         }

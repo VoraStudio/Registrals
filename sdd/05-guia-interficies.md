@@ -169,3 +169,33 @@ D'acord amb la Guia d'Estils oficial (`web/guia-destils.html` Secció `05 FORMS`
 - **Codi i hashes inline:** Termes tècnics (`SHA-256`, `v1`, `PLUS`, etc.) tancats en etiquetes `<code>` amb fons daurat suau (`rgba(202, 163, 108, 0.2)`).
 - **Prohibició de caixes genèriques:** Queden excloses les alertes amb vora completa fina, fons vermellosos/groguencs no corporatius o icones soltes desalineades.
 
+---
+
+## 10. Estàndards d'Interfície Exclusius per al Panell de Gestió (/admin - Backoffice)
+
+Per preservar el rigor d'auditoria i la productivitat de l'administrador:
+
+1. **Capçaleres de Secció (Portades / Llistats):**
+   - 1a línia: Títol en Marcellus a l'esquerra + badge informatiu de recompte a la dreta.
+   - 2a línia: Breu descripció contextual en Raleway text-xs/sm.
+2. **Cerca, Filtres i Paginació:**
+   - Labels a dalt, inputs a sota, i botó de filtre blau Ink (`#1D2F4B`) a la dreta.
+   - Selector de quantitat per pàgina (`10`, `25`, `50`) integrat amb la paginació.
+3. **Botons d'Acció a les Taules (1 Sola Icona Neta amb Tooltip):**
+   - 👁️ **Ull:** Veure / Inspeccionar el registre.
+   - ✏️ **Llàpis:** Editar registre o paràmetres.
+   - 🚫 **Prohibit:** Desactivar / Suspendre compte o registre.
+   - 🗑️ **Paperera:** Esborrar o desvincular.
+   - 🖨️ **Impressora:** Imprimir informe o extracte.
+   - 📄 **Fulla:** Certificat o comprovant.
+4. **Pantalles de Detall i Accions (Inspecció / Formularis):**
+   - 1a línia: Fil d'Ariadna (*Breadcrumb*) pur (`Inici / Secció / Element`), clicable nivell a nivell, **sense botons de tornar aïllats**.
+   - Opcions addicionals de pantalla en botons a la dreta superior de la capçalera.
+   - Botó de desar o confirmar **sempre a la part inferior dreta i de color blau marí fosc Ink (`bg-ink`)**.
+5. **Mode Guardià Mòbil (Seguiment Mòbil vs Gestió Completa PC):**
+   - El Backoffice a mòbil només mostra un dashboard condensat de seguiment (KPIs de salut, usuaris, béns i certificats).
+   - Menú lateral plegat per defecte mitjançant acordió/botó per mantenir la netedat visual.
+   - Prescripció d'ús: les operacions complexes d'auditoria, taules amples i parametrització indiquen amb `.guide-note` la necessitat de connectar-se des de la interfície d'escriptori (PC).
+
+
+

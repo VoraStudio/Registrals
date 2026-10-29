@@ -3,234 +3,523 @@
 {% block title %}Panell de Control & KPIs — Administració Registrals{% endblock %}
 
 {% block admin_content %}
-<div class="space-y-8">
+<div class="space-y-6">
+
+  {# Fil d'Ariadna de Ruta Canònic #}
+  <nav class="flex items-center gap-2 text-xs font-semibold font-raleway text-ink/65 flex-wrap">
+    <span class="text-ink font-bold">Inici</span>
+  </nav>
 
   {# Capçalera Solemne #}
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div>
       <h1 class="font-marcellus text-2xl sm:text-3xl text-ink tracking-tight font-medium">Panell de Control & Supervisió</h1>
       <p class="font-raleway text-xs sm:text-sm text-ink/70 mt-1">
-        Mètriques globals, custòdia probatòria i administració d'usuaris en temps real.
+        Supervisió de tracció de negoci, salut del sistema, conversions i rendiment econòmic en temps real.
       </p>
     </div>
     
     <div class="flex items-center gap-3">
-      <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-steel/25 text-xs text-ink/80 shadow-2xs">
+      <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-steel/25 text-xs text-ink/80 shadow-2xs font-raleway">
         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-        <span>MySQL 8.4 & Node SGLang Operatius</span>
+        <span>Node SGLang & MySQL Operatius</span>
       </span>
     </div>
   </div>
 
-  {# Graella de KPIs Principals (4 Targetes Solemnes) #}
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-    
-    {# KPI 1: Usuaris Totals #}
-    <div class="bg-white rounded-2xl border border-steel/20 p-5 shadow-xs hover:border-gold/50 transition-all">
-      <div class="flex items-center justify-between text-steel mb-3">
-        <span class="text-xs uppercase tracking-wider font-semibold text-ink/65 font-raleway">Comptes d'Usuari</span>
-        <div class="w-8 h-8 rounded-xl bg-cream flex items-center justify-center text-ink">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-        </div>
-      </div>
-      <div class="font-marcellus text-3xl font-bold text-ink">{{ totalUsers|number_format(0, ',', '.') }}</div>
-      <div class="mt-3 pt-3 border-t border-steel/15 flex items-center justify-between text-xs text-ink/75 font-raleway">
-        <span class="text-emerald-700 font-semibold">{{ activeUsers }} actius</span>
-        {% if blockedUsers > 0 %}
-          <span class="text-red-700 font-bold bg-red-50 px-2 py-0.5 rounded-md">{{ blockedUsers }} suspesos</span>
-        {% else %}
-          <span class="text-ink/60">0 suspesos</span>
-        {% endif %}
-      </div>
-    </div>
+  {# ========================================================================= #}
+  {# 1A LÍNIA: BLOC 1 (Negoci / Activitat) + BLOC 2 (Tècnic / Salut Sistema)   #}
+  {# ========================================================================= #}
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-    {# KPI 2: Béns Registrats #}
-    <div class="bg-white rounded-2xl border border-steel/20 p-5 shadow-xs hover:border-gold/50 transition-all">
-      <div class="flex items-center justify-between text-steel mb-3">
-        <span class="text-xs uppercase tracking-wider font-semibold text-ink/65 font-raleway">Béns Custodiats</span>
-        <div class="w-8 h-8 rounded-xl bg-ink text-gold flex items-center justify-center">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-        </div>
-      </div>
-      <div class="font-marcellus text-3xl font-bold text-ink">{{ totalItems|number_format(0, ',', '.') }}</div>
-      <div class="mt-3 pt-3 border-t border-steel/15 flex items-center justify-between text-xs text-ink/75 font-raleway">
-        <span class="text-emerald-700 font-semibold">{{ activeItems }} actius</span>
-        <span class="text-ink/60">{{ (totalItems - activeItems) }} en procés</span>
-      </div>
-    </div>
-
-    {# KPI 3: Proves & Arxius Custodiats #}
-    <div class="bg-white rounded-2xl border border-steel/20 p-5 shadow-xs hover:border-gold/50 transition-all">
-      <div class="flex items-center justify-between text-steel mb-3">
-        <span class="text-xs uppercase tracking-wider font-semibold text-ink/65 font-raleway">Custòdia Flysystem</span>
-        <div class="w-8 h-8 rounded-xl bg-gold/20 text-ink flex items-center justify-center">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-        </div>
-      </div>
-      <div class="font-marcellus text-3xl font-bold text-ink">{{ totalDocuments|number_format(0, ',', '.') }} <span class="text-sm font-raleway font-normal text-ink/70">arxius</span></div>
-      <div class="mt-3 pt-3 border-t border-steel/15 flex items-center justify-between text-xs text-ink/75 font-raleway">
-        <span class="text-ink/65 font-mono">
-          {% if totalBytes > 1073741824 %}
-            {{ (totalBytes / 1073741824)|number_format(2, ',', '.') }} GB
-          {% elseif totalBytes > 1048576 %}
-            {{ (totalBytes / 1048576)|number_format(1, ',', '.') }} MB
-          {% else %}
-            {{ (totalBytes / 1024)|number_format(0, ',', '.') }} KB
-          {% endif %}
-        </span>
-        <span class="text-emerald-700 font-semibold">WebP aïllat</span>
-      </div>
-    </div>
-
-    {# KPI 4: Assistència IA Sobirana #}
-    <div class="bg-white rounded-2xl border border-steel/20 p-5 shadow-xs hover:border-gold/50 transition-all">
-      <div class="flex items-center justify-between text-steel mb-3">
-        <span class="text-xs uppercase tracking-wider font-semibold text-ink/65 font-raleway">IA Sobirana Qwen-VL</span>
-        <div class="w-8 h-8 rounded-xl bg-ink text-gold flex items-center justify-center">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-        </div>
-      </div>
-      <div class="font-marcellus text-2xl font-bold text-ink flex items-center gap-2">
-        {% if aiGlobalEnabled %}
-          <span class="text-emerald-600">Activa</span>
-          <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-        {% else %}
-          <span class="text-amber-600">Pausada</span>
-          <span class="inline-block w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-        {% endif %}
-      </div>
-      <div class="mt-3 pt-3 border-t border-steel/15 flex items-center justify-between text-xs text-ink/75 font-raleway">
-        <span class="text-ink/60">Node SGLang</span>
-        <span class="font-mono text-emerald-700 font-semibold">127.0.0.1:30000</span>
-      </div>
-    </div>
-
-  </div>
-
-  {# Resum de Subscripcions / Ràtio de Plans Freemium #}
-  <div class="bg-white rounded-2xl border border-steel/20 p-6 shadow-xs">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+    {# 1r Bloc (Superior Esquerra - 7 Cols): KPIs de Negoci & Patrimoni #}
+    <div class="lg:col-span-7 bg-white rounded-2xl border border-steel/20 p-5 sm:p-6 shadow-xs flex flex-col justify-between">
       <div>
-        <h2 class="font-marcellus text-lg text-ink font-bold">Distribució de Plans & Conversió Freemium</h2>
-        <p class="text-xs text-ink/70 font-raleway">Supervisió de la cartera d'usuaris per nivell de servei.</p>
-      </div>
-      <a href="{{ path('app_admin_users') }}" class="text-xs font-bold text-ink hover:text-gold transition-colors inline-flex items-center gap-1">
-        <span>Veure tots els usuaris</span>
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-      </a>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      {% for plan in plans %}
-        {% set planCount = usersByPlan[plan.code]|default(0) %}
-        {% set planPercent = totalUsers > 0 ? ((planCount / totalUsers) * 100)|round(1) : 0 %}
-        
-        <div class="p-4 rounded-xl border {{ plan.code == 'plus' ? 'border-ink bg-ink/5' : (plan.code == 'unlimited' ? 'border-gold/60 bg-gold/5' : 'border-steel/20 bg-cream/20') }}">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold font-mono uppercase tracking-wider {{ plan.code == 'plus' ? 'text-ink' : (plan.code == 'unlimited' ? 'text-gold' : 'text-steel') }}">
-              {{ plan.name }}
-            </span>
-            <span class="text-xs font-bold font-mono text-ink">{{ planPercent }}%</span>
-          </div>
-          <div class="mt-2 flex items-baseline gap-2">
-            <span class="font-marcellus text-2xl font-bold text-ink">{{ planCount }}</span>
-            <span class="text-xs text-ink/65 font-raleway">usuaris</span>
-          </div>
-          <div class="w-full bg-steel/15 rounded-full h-1.5 mt-3 overflow-hidden">
-            <div class="h-1.5 rounded-full {{ plan.code == 'plus' ? 'bg-ink' : (plan.code == 'unlimited' ? 'bg-gold' : 'bg-steel') }}" style="width: {{ planPercent }}%"></div>
-          </div>
-          <div class="mt-2.5 text-[11px] text-ink/60 font-raleway flex items-center justify-between">
-            <span>Preu: {{ (plan.priceCents / 100)|number_format(2, ',', '.') }} €/any</span>
-            <span>Màx: {{ plan.maxActiveItems == -1 ? 'Il·limitat' : plan.maxActiveItems ~ ' béns' }}</span>
-          </div>
-        </div>
-      {% endfor %}
-    </div>
-  </div>
-
-  {# Dues Columnes: Darrers Usuaris Registrats vs Darrers Béns #}
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-    {# Columna 1: Darrers Usuaris Registrats #}
-    <div class="bg-white rounded-2xl border border-steel/20 p-6 shadow-xs flex flex-col justify-between">
-      <div>
-        <div class="flex items-center justify-between pb-4 border-b border-steel/15 mb-4">
-          <h2 class="font-marcellus text-base text-ink font-bold flex items-center gap-2">
-            <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-            <span>Darreres Altes d'Usuaris</span>
-          </h2>
-          <a href="{{ path('app_admin_users') }}" class="text-xs font-semibold text-ink/70 hover:text-ink">Gestionar &rarr;</a>
-        </div>
-
-        <div class="divide-y divide-steel/10">
-          {% for u in recentUsers %}
-            <div class="py-3 flex items-center justify-between gap-3 text-xs">
-              <div class="min-w-0">
-                <a href="{{ path('app_admin_user_detail', {id: u.id}) }}" class="font-bold text-ink hover:text-gold transition-colors block truncate">
-                  {{ u.fullName }}
-                </a>
-                <div class="text-[11px] text-ink/60 truncate font-raleway">{{ u.email }}</div>
-              </div>
-              <div class="flex items-center gap-2 shrink-0">
-                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase {{ u.plan.code == 'plus' ? 'bg-ink text-gold' : (u.plan.code == 'unlimited' ? 'bg-gold text-ink' : 'bg-cream text-steel') }}">
-                  {{ u.plan.code }}
-                </span>
-                {% if u.isActive %}
-                  <span class="w-2 h-2 rounded-full bg-emerald-500" title="Compte Actiu"></span>
-                {% else %}
-                  <span class="w-2 h-2 rounded-full bg-red-600" title="Compte Suspès"></span>
-                {% endif %}
-              </div>
+        <div class="flex items-center justify-between pb-3 border-b border-steel/15 mb-4">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-xl bg-ink text-gold flex items-center justify-center font-bold text-xs shadow-2xs">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
             </div>
-          {% else %}
-            <p class="text-xs text-ink/60 py-4 italic">No hi ha usuaris registrats.</p>
-          {% endfor %}
+            <div>
+              <h2 class="font-marcellus text-base text-ink font-bold">Activitat de Negoci & Patrimoni</h2>
+              <p class="text-[11px] text-ink/65 font-raleway">Comptes, custòdia probatòria i volum d'arxius</p>
+            </div>
+          </div>
+          <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-cream text-ink border border-gold/30">
+            TOTAL PATRIMONI
+          </span>
+        </div>
+
+        {# Graella interna de 3 mètriques #}
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          
+          {# Usuaris #}
+          <div class="p-3.5 rounded-xl border border-steel/20 bg-cream-50/40">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-ink/65 font-raleway block">Comptes Usuari</span>
+            <div class="font-marcellus text-2xl font-bold text-ink mt-1">{{ totalUsers }}</div>
+            <div class="mt-2 pt-2 border-t border-steel/10 flex items-center justify-between text-[11px] font-raleway">
+              <span class="text-emerald-700 font-semibold">{{ activeUsers }} actius</span>
+              <span class="{{ blockedUsers > 0 ? 'text-red-700 font-bold' : 'text-ink/50' }}">{{ blockedUsers }} bloq.</span>
+            </div>
+          </div>
+
+          {# Béns #}
+          <div class="p-3.5 rounded-xl border border-steel/20 bg-cream-50/40">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-ink/65 font-raleway block">Béns Custodiats</span>
+            <div class="font-marcellus text-2xl font-bold text-ink mt-1">{{ totalItems }}</div>
+            <div class="mt-2 pt-2 border-t border-steel/10 flex items-center justify-between text-[11px] font-raleway">
+              <span class="text-emerald-700 font-semibold">{{ activeItems }} certificables</span>
+              <span class="text-ink/50">{{ totalItems - activeItems }} pend.</span>
+            </div>
+          </div>
+
+          {# Arxius Flysystem #}
+          <div class="p-3.5 rounded-xl border border-steel/20 bg-cream-50/40">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-ink/65 font-raleway block">Arxius & Proves</span>
+            <div class="font-marcellus text-2xl font-bold text-ink mt-1">{{ totalDocuments }}</div>
+            <div class="mt-2 pt-2 border-t border-steel/10 flex items-center justify-between text-[11px] font-raleway">
+              <span class="font-mono text-ink/70">
+                {% if totalBytes > 1073741824 %}
+                  {{ (totalBytes / 1073741824)|number_format(2, ',', '.') }} GB
+                {% else %}
+                  {{ (totalBytes / 1048576)|number_format(1, ',', '.') }} MB
+                {% endif %}
+              </span>
+              <span class="text-emerald-700 font-semibold text-[10px]">WebP</span>
+            </div>
+          </div>
+
         </div>
       </div>
 
-      <div class="mt-4 pt-3 border-t border-steel/15 text-right">
-        <a href="{{ path('app_admin_users') }}" class="text-xs font-bold text-ink hover:text-gold transition-colors">
-          Veure tots els {{ totalUsers }} usuaris &rarr;
+      <div class="mt-4 pt-3 border-t border-steel/10 flex items-center justify-between text-xs font-raleway">
+        <span class="text-ink/60">Custòdia sota Flysystem xifrat fora de l'arrel web pública</span>
+        <a href="{{ path('app_admin_users') }}" class="font-bold text-ink hover:text-gold transition-colors inline-flex items-center gap-1">
+          <span>Gestionar usuaris</span>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </a>
       </div>
     </div>
 
-    {# Columna 2: Darrers Béns Registrats #}
-    <div class="bg-white rounded-2xl border border-steel/20 p-6 shadow-xs flex flex-col justify-between">
+    {# 2n Bloc (Superior Dreta - 5 Cols): Tècnic del Sistema & Salut #}
+    <div class="lg:col-span-5 bg-white rounded-2xl border border-steel/20 p-5 sm:p-6 shadow-xs flex flex-col justify-between">
       <div>
-        <div class="flex items-center justify-between pb-4 border-b border-steel/15 mb-4">
+        <div class="flex items-center justify-between pb-3 border-b border-steel/15 mb-4">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-xl bg-gold/20 text-ink flex items-center justify-center font-bold text-xs shadow-2xs">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/></svg>
+            </div>
+            <div>
+              <h2 class="font-marcellus text-base text-ink font-bold">Salut Tècnica del Sistema</h2>
+              <p class="text-[11px] text-ink/65 font-raleway">Runtimes, bases de dades i nodes locals</p>
+            </div>
+          </div>
+          <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+            OPERATIU
+          </span>
+        </div>
+
+        {# Llista d'Estat de Serveis #}
+        <div class="space-y-2.5 text-xs font-raleway">
+          
+          {# Servei Web #}
+          <div class="flex items-center justify-between p-2 rounded-xl bg-cream-50/50">
+            <span class="text-ink/75 font-semibold">Servidor Web & PHP</span>
+            <div class="flex items-center gap-2 font-mono text-[11px]">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span class="text-ink font-bold">PHP 8.4 + Symfony 7.4</span>
+            </div>
+          </div>
+
+          {# Base de Dades #}
+          <div class="flex items-center justify-between p-2 rounded-xl bg-cream-50/50">
+            <span class="text-ink/75 font-semibold">Bases de Dades (MySQL 8.4)</span>
+            <div class="flex items-center gap-2 font-mono text-[11px]">
+              <span class="w-2 h-2 rounded-full {{ mysqlOk and auditDbOk ? 'bg-emerald-500' : 'bg-rose-500' }}"></span>
+              <span class="{{ mysqlOk and auditDbOk ? 'text-emerald-700 font-bold' : 'text-rose-700 font-bold' }}">
+                {{ mysqlOk and auditDbOk ? 'Doble BD Activa' : 'Atenció DB' }}
+              </span>
+            </div>
+          </div>
+
+          {# IA Local #}
+          <div class="flex items-center justify-between p-2 rounded-xl bg-cream-50/50">
+            <span class="text-ink/75 font-semibold">IA Local (SGLang Qwen-VL)</span>
+            <div class="flex items-center gap-2 font-mono text-[11px]">
+              {% if sglangOk and aiGlobalEnabled %}
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span class="text-emerald-700 font-bold">Activa (127.0.0.1:30000)</span>
+              {% elseif not aiGlobalEnabled %}
+                <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                <span class="text-amber-700 font-bold">Pausada (Admin)</span>
+              {% else %}
+                <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                <span class="text-rose-700 font-bold">Offline</span>
+              {% endif %}
+            </div>
+          </div>
+
+          {# Blockchain #}
+          <div class="flex items-center justify-between p-2 rounded-xl bg-cream-50/50">
+            <span class="text-ink/75 font-semibold">Ancoratge Blockchain L2</span>
+            <div class="flex items-center gap-2 font-mono text-[11px]">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span class="text-ink font-bold">Polygon PoS (Layer 2)</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="mt-4 pt-3 border-t border-steel/10 flex items-center justify-between text-xs font-raleway">
+        <span class="text-ink/60">Verificació en temps real</span>
+        <a href="{{ path('app_admin_services') }}" class="font-bold text-ink hover:text-gold transition-colors inline-flex items-center gap-1">
+          <span>Veure diagnòstic complet</span>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  {# ========================================================================= #}
+  {# 2A LÍNIA: BLOC 3 - DISTRIBUCIÓ PER PLANS & CONVERSIONS UPGRADE            #}
+  {# ========================================================================= #}
+  <div class="bg-white rounded-2xl border border-steel/20 p-5 sm:p-6 shadow-xs">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+      <div>
+        <div class="flex items-center gap-2.5">
+          <h2 class="font-marcellus text-lg text-ink font-bold">Distribució per Plans & Conversió de Clients (Upgrades)</h2>
+          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-cream text-ink border border-gold/40">
+            Funnel Freemium
+          </span>
+        </div>
+        <p class="text-xs text-ink/70 font-raleway mt-0.5">Evolució dels comptes gratuïts cap a subscripcions anuals de pagament.</p>
+      </div>
+      <a href="{{ path('app_admin_users') }}" class="text-xs font-bold text-ink hover:text-gold transition-colors inline-flex items-center gap-1">
+        <span>Veure llistat d'usuaris</span>
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+
+    {# Fila de 3 Plans + 2 Indicadors de Conversió Upgrade #}
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+      
+      {# Targeta Pla Free (3 Cols) #}
+      <div class="md:col-span-3 p-4 rounded-xl border border-steel/20 bg-cream-50/40 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between text-steel mb-1">
+            <span class="text-xs font-bold font-mono uppercase tracking-wider text-steel">Pla Free</span>
+            <span class="text-xs font-bold font-mono text-ink">
+              {{ totalUsers > 0 ? ((freeUsers / totalUsers) * 100)|round(1) : 0 }}%
+            </span>
+          </div>
+          <div class="font-marcellus text-2xl font-bold text-ink">{{ freeUsers }} <span class="text-xs font-raleway font-normal text-ink/65">usuaris</span></div>
+          <div class="w-full bg-steel/15 rounded-full h-1.5 mt-2.5 overflow-hidden">
+            <div class="h-1.5 rounded-full bg-steel" style="width: {{ totalUsers > 0 ? ((freeUsers / totalUsers) * 100) : 0 }}%"></div>
+          </div>
+        </div>
+        <div class="mt-3 pt-2 border-t border-steel/10 text-[11px] text-ink/60 font-raleway flex items-center justify-between">
+          <span>0,00 € / any</span>
+          <span>Fins a 20 béns</span>
+        </div>
+      </div>
+
+      {# Indicador Upgrade Free -> Plus (2 Cols) #}
+      <div class="md:col-span-2 p-4 rounded-xl border border-dashed border-ink/30 bg-ink/5 flex flex-col justify-center items-center text-center">
+        <span class="text-[10px] font-mono uppercase font-bold text-ink/70">Upgrade Free &rarr; Plus</span>
+        <div class="font-marcellus text-2xl font-bold text-ink mt-1">{{ rateFreeToPlus }}%</div>
+        <span class="text-[10px] text-emerald-700 font-semibold mt-1">Taxa de conversió</span>
+      </div>
+
+      {# Targeta Pla Plus (3 Cols) #}
+      <div class="md:col-span-3 p-4 rounded-xl border border-ink bg-ink/5 flex flex-col justify-between shadow-2xs">
+        <div>
+          <div class="flex items-center justify-between text-ink mb-1">
+            <span class="text-xs font-bold font-mono uppercase tracking-wider text-ink">Pla Plus</span>
+            <span class="text-xs font-bold font-mono text-ink">
+              {{ totalUsers > 0 ? ((plusUsers / totalUsers) * 100)|round(1) : 0 }}%
+            </span>
+          </div>
+          <div class="font-marcellus text-2xl font-bold text-ink">{{ plusUsers }} <span class="text-xs font-raleway font-normal text-ink/65">usuaris</span></div>
+          <div class="w-full bg-steel/15 rounded-full h-1.5 mt-2.5 overflow-hidden">
+            <div class="h-1.5 rounded-full bg-ink" style="width: {{ totalUsers > 0 ? ((plusUsers / totalUsers) * 100) : 0 }}%"></div>
+          </div>
+        </div>
+        <div class="mt-3 pt-2 border-t border-steel/10 text-[11px] text-ink/75 font-raleway flex items-center justify-between">
+          <span>22,00 € / any</span>
+          <span>100 béns</span>
+        </div>
+      </div>
+
+      {# Indicador Upgrade Plus -> Unlimited (1 Col) #}
+      <div class="md:col-span-1 p-3 rounded-xl border border-dashed border-gold/40 bg-gold/5 flex flex-col justify-center items-center text-center">
+        <span class="text-[9px] font-mono uppercase font-bold text-gold">Plus &rarr; Unl.</span>
+        <div class="font-marcellus text-lg font-bold text-ink mt-1">{{ ratePlusToUnlimited }}%</div>
+      </div>
+
+      {# Targeta Pla Unlimited (3 Cols) #}
+      <div class="md:col-span-3 p-4 rounded-xl border border-gold/60 bg-gold/5 flex flex-col justify-between shadow-2xs">
+        <div>
+          <div class="flex items-center justify-between text-gold mb-1">
+            <span class="text-xs font-bold font-mono uppercase tracking-wider text-gold">Pla Unlimited</span>
+            <span class="text-xs font-bold font-mono text-ink">
+              {{ totalUsers > 0 ? ((unlimitedUsers / totalUsers) * 100)|round(1) : 0 }}%
+            </span>
+          </div>
+          <div class="font-marcellus text-2xl font-bold text-ink">{{ unlimitedUsers }} <span class="text-xs font-raleway font-normal text-ink/65">usuaris</span></div>
+          <div class="w-full bg-steel/15 rounded-full h-1.5 mt-2.5 overflow-hidden">
+            <div class="h-1.5 rounded-full bg-gold" style="width: {{ totalUsers > 0 ? ((unlimitedUsers / totalUsers) * 100) : 0 }}%"></div>
+          </div>
+        </div>
+        <div class="mt-3 pt-2 border-t border-steel/10 text-[11px] text-ink/75 font-raleway flex items-center justify-between">
+          <span>59,00 € / any</span>
+          <span>Il·limitat</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  {# ========================================================================= #}
+  {# 3A LÍNIA: BLOC 4 - ECONÒMIC & MODEL PAY-PER-VALUE (4 Tarifes + 3 KPIs)   #}
+  {# ========================================================================= #}
+  <div class="bg-white rounded-2xl border border-steel/20 p-5 sm:p-6 shadow-xs">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+      <div>
+        <div class="flex items-center gap-2.5">
+          <h2 class="font-marcellus text-lg text-ink font-bold">Model Econòmic & Tarifes Pay-per-Value</h2>
+          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-gold/15 text-ink border border-gold/40">
+            Tarifes Client Free & Negoci
+          </span>
+        </div>
+        <p class="text-xs text-ink/70 font-raleway mt-0.5">Operacions amb cost puntual per a usuaris gratuïts i mètriques financeres consolidades.</p>
+      </div>
+      <a href="{{ path('app_admin_plans') }}" class="text-xs font-bold text-ink hover:text-gold transition-colors inline-flex items-center gap-1">
+        <span>Gestionar a Plans, Tarifes & Costos</span>
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+
+    {# 4 Tarifes d'operació per al client FREE #}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs font-raleway mb-5">
+      
+      {# Tarifa 1: Certificat Oficial eIDAS #}
+      <div class="p-4 rounded-xl border border-steel/20 bg-cream-50/50 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between text-steel mb-1.5">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-ink font-mono">Certificat Oficial</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">Signaturit eIDAS</span>
+          </div>
+          <div class="font-marcellus text-2xl font-bold text-ink mb-1">6,00 € <span class="text-xs font-normal text-ink/60 font-raleway">/ unitat</span></div>
+          <p class="text-[11px] text-ink/70 leading-relaxed">Taxa de segellat legal eIDAS per a usuaris Free.</p>
+        </div>
+        <div class="mt-3 pt-2.5 border-t border-steel/15 text-[11px] space-y-0.5">
+          <div class="flex items-center justify-between text-ink/80">
+            <span>Pla Plus:</span>
+            <span class="font-semibold text-emerald-700">10 inclosos / any</span>
+          </div>
+          <div class="flex items-center justify-between text-ink/80">
+            <span>Unlimited:</span>
+            <span class="font-semibold text-emerald-700">Il·limitats</span>
+          </div>
+        </div>
+      </div>
+
+      {# Tarifa 2: Traspàs C2C Notaritzat #}
+      <div class="p-4 rounded-xl border border-steel/20 bg-cream-50/50 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between text-steel mb-1.5">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-ink font-mono">Traspàs C2C</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-50 text-blue-800 border border-blue-200">Canvi Titular</span>
+          </div>
+          <div class="font-marcellus text-2xl font-bold text-ink mb-1">2,90 € <span class="text-xs font-normal text-ink/60 font-raleway">/ traspàs</span></div>
+          <p class="text-[11px] text-ink/70 leading-relaxed">Cessió de titularitat i actualització de custòdia.</p>
+        </div>
+        <div class="mt-3 pt-2.5 border-t border-steel/15 text-[11px] space-y-0.5">
+          <div class="flex items-center justify-between text-ink/80">
+            <span>Pla Plus:</span>
+            <span class="font-semibold text-emerald-700">5 inclosos / any</span>
+          </div>
+          <div class="flex items-center justify-between text-ink/80">
+            <span>Unlimited:</span>
+            <span class="font-semibold text-emerald-700">Il·limitats</span>
+          </div>
+        </div>
+      </div>
+
+      {# Tarifa 3: Verificació KYC #}
+      <div class="p-4 rounded-xl border border-steel/20 bg-cream-50/50 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between text-steel mb-1.5">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-ink font-mono">Verificació KYC</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-50 text-purple-800 border border-purple-200">DNI + Biometria</span>
+          </div>
+          <div class="font-marcellus text-2xl font-bold text-ink mb-1">3,50 € <span class="text-xs font-normal text-ink/60 font-raleway">/ tràmit</span></div>
+          <p class="text-[11px] text-ink/70 leading-relaxed">Validació documental d'identitat per a compte verificat.</p>
+        </div>
+        <div class="mt-3 pt-2.5 border-t border-steel/15 text-[11px] space-y-0.5">
+          <div class="flex items-center justify-between text-ink/80">
+            <span>Pla Plus:</span>
+            <span class="font-semibold text-emerald-700">1 inclosa a l'alta</span>
+          </div>
+          <div class="flex items-center justify-between text-ink/80">
+            <span>Unlimited:</span>
+            <span class="font-semibold text-emerald-700">Inclosa</span>
+          </div>
+        </div>
+      </div>
+
+      {# Tarifa 4: Blockchain L2 #}
+      <div class="p-4 rounded-xl border border-steel/20 bg-cream-50/50 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between text-steel mb-1.5">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-ink font-mono">Blockchain L2</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">Polygon PoS</span>
+          </div>
+          <div class="font-marcellus text-2xl font-bold text-emerald-700 mb-1">Gratuït <span class="text-xs font-normal text-ink/60 font-raleway">(Ham)</span></div>
+          <p class="text-[11px] text-ink/70 leading-relaxed">Segellat inicial del fingerprint en alta bàsica.</p>
+        </div>
+        <div class="mt-3 pt-2.5 border-t border-steel/15 text-[11px] space-y-0.5">
+          <div class="flex items-center justify-between text-ink/80">
+            <span>Pla Free:</span>
+            <span class="font-semibold text-ink">1 foto + 1 prova</span>
+          </div>
+          <div class="flex items-center justify-between text-ink/80">
+            <span>Plus / Unl.:</span>
+            <span class="font-semibold text-emerald-700">Re-segellats lliures</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    {# 3 KPIs Econòmics Addicionals de Negoci #}
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-steel/15">
+      
+      {# KPI Econòmic 1: Facturació Anual Estimada (ARR) #}
+      <div class="p-4 rounded-xl bg-ink text-white flex items-center justify-between shadow-2xs">
+        <div>
+          <span class="text-[10px] font-mono uppercase tracking-wider text-gold font-bold block">Facturació Subscripcions (ARR)</span>
+          <div class="font-marcellus text-2xl font-bold text-white mt-0.5">{{ estimatedArr|number_format(2, ',', '.') }} € <span class="text-xs font-raleway font-normal text-white/60">/ any</span></div>
+          <span class="text-[10px] text-white/70 font-raleway mt-1 block">Calculada sobre comptes Plus i Unlimited actius</span>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-gold/20 text-gold flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+      </div>
+
+      {# KPI Econòmic 2: Marge Brut Estimat #}
+      <div class="p-4 rounded-xl border border-steel/20 bg-cream-50/70 flex items-center justify-between">
+        <div>
+          <span class="text-[10px] font-mono uppercase tracking-wider text-ink/65 font-bold block">Marge Brut Estimat</span>
+          <div class="font-marcellus text-2xl font-bold text-emerald-700 mt-0.5">{{ estimatedMarginPercent }}%</div>
+          <span class="text-[10px] text-ink/70 font-raleway mt-1 block">Gràcies a l'execució d'IA 100% On-Premise</span>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+        </div>
+      </div>
+
+      {# KPI Econòmic 3: Cost Operatiu per Bé #}
+      <div class="p-4 rounded-xl border border-steel/20 bg-cream-50/70 flex items-center justify-between">
+        <div>
+          <span class="text-[10px] font-mono uppercase tracking-wider text-ink/65 font-bold block">Cost Unitari Ancoratge</span>
+          <div class="font-marcellus text-2xl font-bold text-ink mt-0.5">&lt; 0,005 €</div>
+          <span class="text-[10px] text-ink/70 font-raleway mt-1 block">Gas Polygon L2 optimitzat amb Merkle Trees</span>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-cream flex items-center justify-center text-ink shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  {# ========================================================================= #}
+  {# 4A LÍNIA: BLOC 5 (Darreres Altes) + BLOC 6 (Darrers Béns Custodiats)      #}
+  {# ========================================================================= #}
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    {# 5è Bloc (Inferior Esquerra): Darrers Usuaris Registrats #}
+    <div class="bg-white rounded-2xl border border-steel/20 p-5 sm:p-6 shadow-xs flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between pb-3.5 border-b border-steel/15 mb-4">
+          <h2 class="font-marcellus text-base text-ink font-bold flex items-center gap-2">
+            <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            <span>Darreres Altes d'Usuaris</span>
+          </h2>
+          <a href="{{ path('app_admin_users') }}" class="text-xs font-semibold text-steel hover:text-ink transition-colors">
+            Tots els usuaris &rarr;
+          </a>
+        </div>
+
+        <div class="divide-y divide-steel/10">
+          {% for u in recentUsers %}
+            <div class="py-2.5 flex items-center justify-between gap-3 text-xs font-raleway">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-8 h-8 rounded-full bg-cream flex items-center justify-center font-bold text-ink shrink-0 uppercase text-[11px]">
+                  {{ u.firstName|slice(0, 1) }}{{ u.lastName|slice(0, 1) }}
+                </div>
+                <div class="min-w-0">
+                  <a href="{{ path('app_admin_user_detail', {id: u.id}) }}" class="font-bold text-ink hover:text-gold transition-colors block truncate">
+                    {{ u.fullName }}
+                  </a>
+                  <span class="text-[11px] text-ink/65 truncate block">{{ u.email }}</span>
+                </div>
+              </div>
+              <div class="text-right shrink-0">
+                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase {{ u.plan and u.plan.code == 'plus' ? 'bg-ink text-gold' : (u.plan and u.plan.code == 'unlimited' ? 'bg-gold text-ink' : 'bg-steel/20 text-ink') }}">
+                  {{ u.plan ? u.plan.name : 'SENSE PLA' }}
+                </span>
+                <span class="text-[10px] text-steel block mt-0.5">{{ u.createdAt|date('d/m/Y') }}</span>
+              </div>
+            </div>
+          {% else %}
+            <p class="py-6 text-center text-xs text-ink/60 font-raleway">Sense usuaris registrats.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    {# 6è Bloc (Inferior Dreta): Darrers Béns Ingressats #}
+    <div class="bg-white rounded-2xl border border-steel/20 p-5 sm:p-6 shadow-xs flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between pb-3.5 border-b border-steel/15 mb-4">
           <h2 class="font-marcellus text-base text-ink font-bold flex items-center gap-2">
             <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-            <span>Darrers Béns Ingressats</span>
+            <span>Darrers Béns Custodiats</span>
           </h2>
-          <span class="text-xs text-ink/60 font-raleway">{{ activeItems }} béns actius</span>
+          <a href="{{ path('app_admin_items') }}" class="text-xs font-semibold text-steel hover:text-ink transition-colors">
+            Tots els béns &rarr;
+          </a>
         </div>
 
         <div class="divide-y divide-steel/10">
           {% for item in recentItems %}
-            <div class="py-3 flex items-center justify-between gap-3 text-xs">
-              <div class="min-w-0">
-                <a href="{{ path('app_item_show', {cui: item.cui}) }}" class="font-bold text-ink hover:text-gold transition-colors block truncate" target="_blank">
-                  {{ item.name }}
-                </a>
-                <div class="text-[11px] font-mono text-steel truncate">{{ item.cui }} &middot; {{ item.owner.fullName }}</div>
+            <div class="py-2.5 flex items-center justify-between gap-3 text-xs font-raleway">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-8 h-8 rounded-lg bg-ink/10 flex items-center justify-center font-bold text-ink shrink-0">
+                  <svg class="w-4 h-4 text-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                </div>
+                <div class="min-w-0">
+                  <a href="{{ path('app_admin_item_show', {cui: item.cui}) }}" class="font-bold text-ink hover:text-gold transition-colors block truncate">
+                    {{ item.name }}
+                  </a>
+                  <span class="text-[10px] text-ink/65 font-mono block">CUI: {{ item.cui }}</span>
+                </div>
               </div>
-              <div class="shrink-0 text-right">
-                <span class="inline-block px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-emerald-50 text-emerald-800 border border-emerald-200">
-                  {{ item.status.value }}
+              <div class="text-right shrink-0">
+                <span class="px-2 py-0.5 rounded text-[10px] font-semibold {{ item.status.badgeClasses }}">
+                  {{ item.status.label }}
                 </span>
-                <div class="text-[10px] text-ink/50 mt-0.5">{{ item.createdAt|date('d/m/Y H:i') }}</div>
+                <span class="text-[10px] text-steel block mt-0.5">{{ item.createdAt|date('d/m/Y') }}</span>
               </div>
             </div>
           {% else %}
-            <p class="text-xs text-ink/60 py-4 italic">No hi ha béns registrats encara.</p>
+            <p class="py-6 text-center text-xs text-ink/60 font-raleway">Sense béns custodiats.</p>
           {% endfor %}
         </div>
-      </div>
-
-      <div class="mt-4 pt-3 border-t border-steel/15 text-xs text-ink/70 flex items-center justify-between">
-        <span>Model determinista de hash SHA-256</span>
-        <span class="text-emerald-700 font-semibold font-mono">Integritat OK</span>
       </div>
     </div>
 

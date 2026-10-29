@@ -28,3 +28,12 @@ services:
         arguments:
             $clientId: '%env(string:OAUTH_GOOGLE_CLIENT_ID)%'
             $clientSecret: '%env(string:OAUTH_GOOGLE_CLIENT_SECRET)%'
+
+    App\Infrastructure\Adapter\Blockchain\BlockchainAnchorInterface: '@App\Infrastructure\Adapter\Blockchain\PolygonAnchorClient'
+
+    App\Infrastructure\Adapter\Blockchain\PolygonAnchorClient:
+        arguments:
+            $rpcUrl: '%env(string:BLOCKCHAIN_RPC_URL)%'
+            $contractAddress: '%env(string:BLOCKCHAIN_CONTRACT_ADDRESS)%'
+            $walletPrivateKey: '%env(string:default::BLOCKCHAIN_HOT_WALLET_PRIVATE_KEY)%'
+            $network: '%env(string:BLOCKCHAIN_NETWORK)%'

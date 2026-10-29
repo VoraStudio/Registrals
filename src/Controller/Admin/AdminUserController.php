@@ -4,7 +4,12 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
+use App\Audit\Enum\UserActivityAction;
+use App\Audit\Repository\UserActivityLogRepository;
+use App\Audit\Service\UserActivityLogger;
 use App\Entity\User;
+use App\Enum\ItemStatus;
+use App\Repository\ItemRepository;
 use App\Repository\PlanRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -32,11 +37,15 @@ class AdminUserController extends AbstractController
         $planCode = $request->query->get('pla');
         $status = $request->query->get('estat');
         $page = max(1, (int) $request->query->get('page', 1));
+        $limit = $request->query->getInt('limit', 10);
+        if (!in_array($limit, [10, 25, 50], true)) {
+            $limit = 10;
+        }
 
-        $offset = ($page - 1) * self::USERS_PER_PAGE;
-        $users = $userRepository->searchAndFilter($query, $planCode, $status, self::USERS_PER_PAGE, $offset);
+        $offset = ($page - 1) * $limit;
+        $users = $userRepository->searchAndFilter($query, $planCode, $status, $limit, $offset);
         $totalMatches = $userRepository->countSearchAndFilter($query, $planCode, $status);
-        $totalPages = max(1, (int) ceil($totalMatches / self::USERS_PER_PAGE));
+        $totalPages = max(1, (int) ceil($totalMatches / $limit));
 
         $plans = $planRepository->findAll();
 
@@ -49,6 +58,7 @@ class AdminUserController extends AbstractController
             'currentPage' => $page,
             'totalPages' => $totalPages,
             'totalMatches' => $totalMatches,
+            'currentLimit' => $limit,
         ]);
     }
 
@@ -57,7 +67,8 @@ class AdminUserController extends AbstractController
         User $user,
         Request $request,
         EntityManagerInterface $em,
-        CsrfTokenManagerInterface $csrfTokenManager
+        CsrfTokenManagerInterface $csrfTokenManager,
+        UserActivityLogger $activityLogger
     ): Response {
         $token = new CsrfToken('toggle_user_status_' . $user->getId(), (string) $request->request->get('_csrf_token'));
         if (!$csrfTokenManager->isTokenValid($token)) {
@@ -77,11 +88,25 @@ class AdminUserController extends AbstractController
             $user->setBlockedAt(new \DateTimeImmutable());
             $user->setBlockReason($reason !== '' ? $reason : 'Suspensió preventiva per administració.');
             $this->addFlash('success', sprintf('El compte de %s ha estat suspès.', $user->getEmail()));
+
+            $activityLogger->log(
+                user: $user,
+                action: UserActivityAction::STATUS_CHANGED,
+                description: 'Compte suspès per l\'administració',
+                details: ['reason' => $user->getBlockReason(), 'admin' => $this->getUser()?->getUserIdentifier()]
+            );
         } else {
             $user->setIsActive(true);
             $user->setBlockedAt(null);
             $user->setBlockReason(null);
             $this->addFlash('success', sprintf('El compte de %s ha estat reactivat amb èxit.', $user->getEmail()));
+
+            $activityLogger->log(
+                user: $user,
+                action: UserActivityAction::STATUS_CHANGED,
+                description: 'Compte reactivat per l\'administració',
+                details: ['admin' => $this->getUser()?->getUserIdentifier()]
+            );
         }
 
         $em->flush();
@@ -95,10 +120,37 @@ class AdminUserController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_admin_user_detail', methods: ['GET'])]
-    public function detail(User $user): Response
-    {
+    public function detail(
+        User $user,
+        Request $request,
+        ItemRepository $itemRepository,
+        UserActivityLogRepository $activityLogRepository
+    ): Response {
+        $search = $request->query->get('q');
+        $status = $request->query->get('status');
+        $page = max(1, $request->query->getInt('page', 1));
+        $limit = $request->query->getInt('limit', 10);
+        if (!in_array($limit, [10, 25, 50], true)) {
+            $limit = 10;
+        }
+
+        $items = $itemRepository->findPaginatedForAdmin($search, $status, $page, $limit, $user);
+        $totalItems = $itemRepository->countForAdmin($search, $status, $user);
+        $totalPages = max(1, (int) ceil($totalItems / $limit));
+
+        $recentLogs = $activityLogRepository->findRecentByUserUuid($user->getUuid()->toRfc4122(), 5);
+
         return $this->render('admin/user/detail.html.twig', [
             'user' => $user,
+            'items' => $items,
+            'totalItems' => $totalItems,
+            'currentSearch' => $search,
+            'currentStatus' => $status,
+            'currentLimit' => $limit,
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'statuses' => ItemStatus::cases(),
+            'recentLogs' => $recentLogs,
         ]);
     }
 }

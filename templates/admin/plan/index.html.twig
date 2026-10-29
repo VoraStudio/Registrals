@@ -1,0 +1,287 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Plans, Tarifes & Costos — Administració Registrals{% endblock %}
+
+{% block admin_content %}
+<div class="space-y-8">
+
+  {# Fil d'Ariadna de Ruta Canònic #}
+  <nav class="flex items-center gap-2 text-xs font-semibold font-raleway text-ink/65 flex-wrap">
+    <a href="{{ path('app_admin_dashboard') }}" class="hover:text-ink transition-colors">Inici</a>
+    <span>/</span>
+    <span class="text-ink font-bold">Plans, Tarifes & Costos</span>
+  </nav>
+
+  {# Capçalera de Pàgina #}
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="font-marcellus text-2xl sm:text-3xl text-ink tracking-tight font-medium">Plans, Tarifes & Costos d'Operació</h1>
+      <p class="font-raleway text-xs sm:text-sm text-ink/70 mt-1">
+        Ajust en calent de quotes, límits de custòdia, tarifes puntuals pay-per-value i supervisió dels costos reals de proveïdors.
+      </p>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-steel/25 text-xs text-ink/80 shadow-2xs font-mono">
+        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        <span>Parametrització en calent activa</span>
+      </span>
+    </div>
+  </div>
+
+  {# Avís Notarial Canònic #}
+  <div class="border-l-[3.5px] border-gold bg-gold/10 p-4 rounded-r-xl font-raleway text-xs text-ink/80 leading-relaxed shadow-2xs">
+    <strong>Regla d'Arquitectura Backoffice:</strong> Cap quota o límit de pla està "hardcodejat" al codi font. Les modificacions que desis aquí s'apliquen instantàniament a les noves altes i validacions de quotes d'usuaris sense necessitat de reiniciar el servidor.
+  </div>
+
+  {# Graella de Plans (3 Targetes Notarials) #}
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    {% for plan in plans %}
+      <div class="bg-white rounded-2xl border {{ plan.code == 'plus' ? 'border-ink shadow-md' : (plan.code == 'unlimited' ? 'border-gold shadow-md' : 'border-steel/25 shadow-xs') }} overflow-hidden flex flex-col justify-between">
+        
+        <div>
+          {# Capçalera de la Targeta del Pla #}
+          <div class="p-5 border-b border-steel/15 {{ plan.code == 'plus' ? 'bg-ink text-gold' : (plan.code == 'unlimited' ? 'bg-gold/15 text-ink' : 'bg-cream-50 text-ink') }}">
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold uppercase tracking-wider {{ plan.code == 'plus' ? 'text-gold' : 'text-ink' }}">
+                Codi: {{ plan.code }}
+              </span>
+              {% if plan.isActive %}
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-emerald-100 text-emerald-800">ACTIU</span>
+              {% else %}
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-red-100 text-red-800">INACTIU</span>
+              {% endif %}
+            </div>
+            
+            <h2 class="font-marcellus text-2xl font-bold mt-2 {{ plan.code == 'plus' ? 'text-white' : 'text-ink' }}">{{ plan.name }}</h2>
+            
+            <div class="mt-3 flex items-baseline gap-1.5 font-raleway">
+              <span class="font-marcellus text-3xl font-bold {{ plan.code == 'plus' ? 'text-gold' : 'text-ink' }}">
+                {{ (plan.priceCents / 100)|number_format(2, ',', '.') }} €
+              </span>
+              <span class="text-xs opacity-75">/ {{ plan.billingPeriod }}</span>
+            </div>
+          </div>
+
+          {# Paràmetres i Límits del Pla #}
+          <div class="p-5 space-y-3 text-xs font-raleway">
+            
+            <div class="flex items-center justify-between pb-2 border-b border-steel/10">
+              <span class="text-ink/65">Béns actius màxims:</span>
+              <span class="font-bold font-mono text-ink text-sm">
+                {{ plan.maxActiveItems == -1 ? 'Il·limitats (∞)' : plan.maxActiveItems }}
+              </span>
+            </div>
+
+            <div class="flex items-center justify-between pb-2 border-b border-steel/10">
+              <span class="text-ink/65">Fotos per bé:</span>
+              <span class="font-bold font-mono text-ink">
+                {{ plan.maxPhotosPerItem == -1 ? 'Il·limitades' : plan.maxPhotosPerItem }}
+              </span>
+            </div>
+
+            <div class="flex items-center justify-between pb-2 border-b border-steel/10">
+              <span class="text-ink/65">Proves / Factures per bé:</span>
+              <span class="font-bold font-mono text-ink">
+                {{ plan.maxEvidencesPerItem == -1 ? 'Il·limitades' : plan.maxEvidencesPerItem }}
+              </span>
+            </div>
+
+            <div class="flex items-center justify-between pb-2 border-b border-steel/10">
+              <span class="text-ink/65">Quota d'Assistència IA:</span>
+              <span class="font-bold font-mono text-ink">
+                {{ plan.aiAssistanceQuota == -1 ? 'Il·limitada' : plan.aiAssistanceQuota ~ ' consultes' }}
+              </span>
+            </div>
+
+            <div class="flex items-center justify-between pb-2 border-b border-steel/10">
+              <span class="text-ink/65">Certificats oficials eIDAS:</span>
+              <span class="font-bold {{ plan.allowOfficialCertificates ? 'text-emerald-700' : 'text-steel' }}">
+                {{ plan.allowOfficialCertificates ? 'Permesos (' ~ plan.monthlyCertificatesQuota ~ '/mes)' : 'No inclosos (Draft)' }}
+              </span>
+            </div>
+
+            {# Interruptor Ràpid d'IA per Pla #}
+            <div class="pt-2 flex items-center justify-between bg-cream-50 p-3 rounded-xl border border-steel/15">
+              <div>
+                <span class="font-bold text-ink block text-xs">Assistència IA Sobirana</span>
+                <span class="text-[10px] text-ink/60">OCR & Visió local</span>
+              </div>
+              
+              <form method="post" action="{{ path('app_admin_plan_toggle_ai', {id: plan.id}) }}">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('toggle_plan_ai_' ~ plan.id) }}" />
+                <button type="submit" class="px-2.5 py-1 rounded-lg text-[10px] font-bold font-mono uppercase tracking-wider transition-colors cursor-pointer {{ plan.aiAssistanceEnabled ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200' : 'bg-amber-100 text-amber-800 hover:bg-amber-200' }}">
+                  {{ plan.aiAssistanceEnabled ? 'HABILITADA' : 'DESACTIVADA' }}
+                </button>
+              </form>
+            </div>
+
+          </div>
+        </div>
+
+        {# Botó d'Edició de Paràmetres #}
+        <div class="p-5 border-t border-steel/15 bg-cream-50/50">
+          <a href="{{ path('app_admin_plan_edit', {id: plan.id}) }}" 
+             class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold text-gold bg-ink hover:bg-ink/90 border border-gold/40 transition-colors shadow-2xs">
+            <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+            <span>Editar Paràmetres en Calent</span>
+          </a>
+        </div>
+
+      </div>
+    {% endfor %}
+  </div>
+
+  {# ========================================================================= #}
+  {# SECCIÓ: GESTIÓ DE TARIFES D'OPERACIÓ PAY-PER-VALUE (FREE vs SUBSCRIPCIONS)#}
+  {# ========================================================================= #}
+  <div class="bg-white rounded-2xl border border-steel/20 p-6 shadow-xs">
+    <div class="flex items-center justify-between pb-4 border-b border-steel/15 mb-5">
+      <div>
+        <h2 class="font-marcellus text-lg text-ink font-bold">Matriu de Tarifes d'Operació (Pay-per-Value)</h2>
+        <p class="text-xs text-ink/70 font-raleway mt-0.5">Definició de preus puntuals per a clients del Pla Free i quotes associades a Plus i Unlimited.</p>
+      </div>
+      <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-cream text-ink border border-gold/40">
+        Moneda: EUR (€)
+      </span>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse text-xs font-raleway">
+        <thead>
+          <tr class="bg-cream-50/80 border-b border-steel/20 text-ink/75 font-semibold text-[11px] uppercase tracking-wider">
+            <th class="py-3 px-4 sm:px-6">Servei / Operació Notarial</th>
+            <th class="py-3 px-4">Pla FREE (Pay-per-Use)</th>
+            <th class="py-3 px-4">Pla PLUS (22 €/any)</th>
+            <th class="py-3 px-4">Pla UNLIMITED (59 €/any)</th>
+            <th class="py-3 px-4">Tipus de Tràmit</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-steel/10">
+          <tr class="hover:bg-cream/20 transition-colors">
+            <td class="py-3.5 px-4 sm:px-6 font-bold text-ink">
+              Certificat Oficial eIDAS (Signaturit)
+              <span class="text-[11px] text-ink/65 font-normal block">Segellat de temps qualificat legal davant tribunals i asseguradores</span>
+            </td>
+            <td class="py-3.5 px-4 font-mono font-bold text-ink">6,00 € <span class="font-normal text-ink/60">/ u.</span></td>
+            <td class="py-3.5 px-4 font-semibold text-emerald-700">10 inclosos / any</td>
+            <td class="py-3.5 px-4 font-bold text-emerald-700">Il·limitats</td>
+            <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-50 text-amber-800 border border-amber-200">Legal eIDAS</span></td>
+          </tr>
+          <tr class="hover:bg-cream/20 transition-colors">
+            <td class="py-3.5 px-4 sm:px-6 font-bold text-ink">
+              Traspàs de Titularitat C2C Notaritzat
+              <span class="text-[11px] text-ink/65 font-normal block">Cessió segura entre particulars amb canvi d'ancoratge</span>
+            </td>
+            <td class="py-3.5 px-4 font-mono font-bold text-ink">2,90 € <span class="font-normal text-ink/60">/ u.</span></td>
+            <td class="py-3.5 px-4 font-semibold text-emerald-700">5 inclosos / any</td>
+            <td class="py-3.5 px-4 font-bold text-emerald-700">Il·limitats</td>
+            <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded text-[10px] font-mono bg-blue-50 text-blue-800 border border-blue-200">Traspàs C2C</span></td>
+          </tr>
+          <tr class="hover:bg-cream/20 transition-colors">
+            <td class="py-3.5 px-4 sm:px-6 font-bold text-ink">
+              Verificació d'Identitat eIDV (KYC)
+              <span class="text-[11px] text-ink/65 font-normal block">Validació oficial de DNI/NIE i biometria facial via Signaturit</span>
+            </td>
+            <td class="py-3.5 px-4 font-mono font-bold text-ink">3,50 € <span class="font-normal text-ink/60">/ tràmit</span></td>
+            <td class="py-3.5 px-4 font-semibold text-emerald-700">1 verificació inclosa</td>
+            <td class="py-3.5 px-4 font-bold text-emerald-700">Inclosa</td>
+            <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded text-[10px] font-mono bg-purple-50 text-purple-800 border border-purple-200">Identitat eIDV</span></td>
+          </tr>
+          <tr class="hover:bg-cream/20 transition-colors">
+            <td class="py-3.5 px-4 sm:px-6 font-bold text-ink">
+              Ancoratge Criptogràfic a Blockchain
+              <span class="text-[11px] text-ink/65 font-normal block">Segellat immutabilitzat a Polygon PoS (Layer 2)</span>
+            </td>
+            <td class="py-3.5 px-4 font-bold text-emerald-700">Gratuït (Alta bàsica)</td>
+            <td class="py-3.5 px-4 font-bold text-emerald-700">Re-segellats lliures</td>
+            <td class="py-3.5 px-4 font-bold text-emerald-700">Re-segellats lliures</td>
+            <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-50 text-emerald-800 border border-emerald-200">Polygon L2</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {# ========================================================================= #}
+  {# SECCIÓ: COSTOS REALS D'OPERACIÓ (UNIT ECONOMICS & INFRAESTRUCTURA)        #}
+  {# ========================================================================= #}
+  <div class="bg-white rounded-2xl border border-steel/20 p-6 shadow-xs">
+    <div class="flex items-center justify-between pb-4 border-b border-steel/15 mb-5">
+      <div>
+        <h2 class="font-marcellus text-lg text-ink font-bold">Costos Reals d'Operació (Proveïdors & Infraestructura)</h2>
+        <p class="text-xs text-ink/70 font-raleway mt-0.5">Estructura de costos unitaris de proveïdors externs i rendibilitat calculada.</p>
+      </div>
+      <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+        Marge Brut Estimat: ~88%
+      </span>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs font-raleway">
+      
+      {# Cost 1: Signaturit Timestamping #}
+      <div class="p-4 rounded-xl border border-steel/20 bg-cream-50/50">
+        <div class="flex items-center justify-between text-steel mb-1.5">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-ink font-mono">Signaturit eIDAS</span>
+          <span class="text-[10px] font-mono text-ink/65">Per Certificat</span>
+        </div>
+        <div class="font-marcellus text-2xl font-bold text-ink mt-0.5">~0,10 €</div>
+        <p class="text-[11px] text-ink/70 mt-1 leading-relaxed">
+          Segellat de temps qualificat per l'autoritat de certificació europea (TSP).
+        </p>
+        <div class="mt-3 pt-2 border-t border-steel/10 text-[10px] text-emerald-700 font-bold">
+          Preu cobrat: 6,00 € (Marge: 98,3%)
+        </div>
+      </div>
+
+      {# Cost 2: Signaturit KYC #}
+      <div class="p-4 rounded-xl border border-steel/20 bg-cream-50/50">
+        <div class="flex items-center justify-between text-steel mb-1.5">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-ink font-mono">Signaturit KYC</span>
+          <span class="text-[10px] font-mono text-ink/65">Per Verificació</span>
+        </div>
+        <div class="font-marcellus text-2xl font-bold text-ink mt-0.5">~1,50 €</div>
+        <p class="text-[11px] text-ink/70 mt-1 leading-relaxed">
+          Captura documental DNI/NIE i prova de vida facial biomètrica.
+        </p>
+        <div class="mt-3 pt-2 border-t border-steel/10 text-[10px] text-emerald-700 font-bold">
+          Amortitzat el 1r any del Pla Plus
+        </div>
+      </div>
+
+      {# Cost 3: Polygon Blockchain #}
+      <div class="p-4 rounded-xl border border-steel/20 bg-cream-50/50">
+        <div class="flex items-center justify-between text-steel mb-1.5">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-ink font-mono">Polygon PoS (L2)</span>
+          <span class="text-[10px] font-mono text-ink/65">Per Registre</span>
+        </div>
+        <div class="font-marcellus text-2xl font-bold text-ink mt-0.5">&lt; 0,003 €</div>
+        <p class="text-[11px] text-ink/70 mt-1 leading-relaxed">
+          Gas Layer 2 optimitzat amb Merkle Trees (~1,10 €/any per a 100.000 béns).
+        </p>
+        <div class="mt-3 pt-2 border-t border-steel/10 text-[10px] text-emerald-700 font-bold">
+          Cost tècnic marginal irrisori
+        </div>
+      </div>
+
+      {# Cost 4: Hosting & IA Local #}
+      <div class="p-4 rounded-xl border border-steel/20 bg-cream-50/50">
+        <div class="flex items-center justify-between text-steel mb-1.5">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-ink font-mono">Hosting & IA</span>
+          <span class="text-[10px] font-mono text-ink/65">Mensual Fix</span>
+        </div>
+        <div class="font-marcellus text-2xl font-bold text-ink mt-0.5">Quota Fixa</div>
+        <p class="text-[11px] text-ink/70 mt-1 leading-relaxed">
+          Servidor dedicat amb disc xifrat i SGLang propi (0 € per token d'IA).
+        </p>
+        <div class="mt-3 pt-2 border-t border-steel/10 text-[10px] text-emerald-700 font-bold">
+          Break-even assolit amb 50-80 usuaris Plus
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
