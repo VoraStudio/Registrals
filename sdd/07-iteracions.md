@@ -162,15 +162,23 @@ Cada subiteració segueix un flux d'enginyeria estricte:
   - [x] Repositori [`CertificateRepository`](file:///d:/webs/Registrals/Registrals/src/Repository/CertificateRepository.php) amb generador de números correlatius oficials (`CERT-YYYY-XXXXXX`).
   - [x] Migració Doctrine a MySQL 8.4 executada amb èxit (`Version20261029160647`).
   - [x] Bateria de tests unitaris a [`CertificateTest`](file:///d:/webs/Registrals/Registrals/tests/Entity/CertificateTest.php) (13 assertions OK).
-- [ ] **Subiteració 5.2: Motor de Generació PDF Vectorial**
-  - [ ] Maquetació Twig amb la Guia d'Estils oficial (Isologo daurat, tipografia Outfit/Inter, dades del bé i QR encastat).
-  - [ ] Renderitzat de l'esborrany amb marca d'aigua diagonal per al Pla Free.
-  - [ ] Renderitzat del certificat oficial d'alta seguretat per al Pla Plus/pagament.
-- [ ] **Subiteració 5.3: Integració Legal eIDAS (Signaturit) i Endpoint Públic `/verify/{uuid}`**
-  - [ ] Segellat de temps qualificat eIDAS via API de Signaturit.
-  - [ ] Endpoint públic `/verify/{uuid}` lliure d'autenticació que confirma vigència i hash del document (complint RGPD).
-- [ ] **Subiteració 5.4: Verificació & Validació HITL**
-  - [ ] Generació de prova d'esborrany i certificat oficial, i escaneig del QR amb el mòbil.
+- [x] **Subiteració 5.2: Motor de Generació PDF Vectorial**
+  - [x] Maquetació Twig solemne segons la Guia d'Estils oficial ([`templates/certificate/pdf_template.html.twig`](file:///d:/webs/Registrals/Registrals/templates/certificate/pdf_template.html.twig)) amb marcs de doble filigrana daurada, tipografies corporatives, taula d'evidències i QR encastat.
+  - [x] Renderitzat de l'esborrany amb marca d'aigua diagonal d'alta seguretat (*"ÚS EXCLUSIVAMENT INFORMATIU · NO APTE PER ASSEGURANCES"*) per al Pla Free.
+  - [x] Renderitzat del certificat oficial d'alta seguretat per al Pla Plus / Unlimited o pagament puntual.
+  - [x] Generador de codis QR en Data URI ([`CertificateQrGeneratorService`](file:///d:/webs/Registrals/Registrals/src/Service/Certificate/CertificateQrGeneratorService.php)).
+  - [x] Motor de renderitzat PDF vectorial basat en Chromium headless ([`PdfRendererService`](file:///d:/webs/Registrals/Registrals/src/Service/Certificate/PdfRendererService.php)).
+  - [x] Servei orquestrador d'emissió i custòdia a Flysystem ([`CertificateIssuerService`](file:///d:/webs/Registrals/Registrals/src/Service/Certificate/CertificateIssuerService.php)).
+  - [x] Bateria de tests unitaris i d'integració executada amb èxit (47 assertions OK).
+- [x] **Subiteració 5.3: Integració Legal eIDAS (Signaturit) i Endpoint Públic `/verify/{uuid}`**
+  - [x] Adaptador de segellat de temps qualificat eIDAS ([`SignaturitClient`](file:///d:/webs/Registrals/Registrals/src/Infrastructure/Adapter/Signature/SignaturitClient.php)) amb interfície [`SignaturitTimestampInterface`](file:///d:/webs/Registrals/Registrals/src/Infrastructure/Adapter/Signature/SignaturitTimestampInterface.php) i DTO [`SignaturitTimestampDto`](file:///d:/webs/Registrals/Registrals/src/DTO/SignaturitTimestampDto.php) (amb fallback automàtic per a sandbox/desenvolupament).
+  - [x] Controlador públic [`VerifyCertificateController`](file:///d:/webs/Registrals/Registrals/src/Controller/VerifyCertificateController.php) lliure d'autenticació (`/verify/{uuid}`) segons el principi de minimització de dades RGPD (Art. 5.1.c RGPD).
+  - [x] Detecció immediata d'alerta de robatori policial/registral (crimson warning si l'ítem consta com a `STOLEN`), comprovació d'integritat de fingerprint SHA-256 (avís de modificació posterior) i pseudonimització de dades del titular (`C***** S******`).
+  - [x] Plantilla notarial pública [`templates/verify/show.html.twig`](file:///d:/webs/Registrals/Registrals/templates/verify/show.html.twig) i pantalla d'error [`templates/verify/not_found.html.twig`](file:///d:/webs/Registrals/Registrals/templates/verify/not_found.html.twig) fidels a la Guia d'Estils oficial.
+  - [x] Controlador privat [`CertificateController`](file:///d:/webs/Registrals/Registrals/src/Controller/CertificateController.php) per a l'emissió i descàrrega directa de documents des de la fitxa del bé amb modal notarial integrat a [`templates/item/show.html.twig`](file:///d:/webs/Registrals/Registrals/templates/item/show.html.twig).
+- [x] **Subiteració 5.4: Verificació & Validació HITL**
+  - [x] Bateria de tests unitaris i d'integració a [`SignaturitClientTest`](file:///d:/webs/Registrals/Registrals/tests/Service/SignaturitClientTest.php) i [`VerifyCertificateControllerTest`](file:///d:/webs/Registrals/Registrals/tests/Controller/VerifyCertificateControllerTest.php) (13 tests, 81 assertions OK).
+  - [x] Verificació de resolució pública de codi QR i seguretat de descàrrega privada sota `ItemVoter`.
 
 ---
 
@@ -246,7 +254,7 @@ Cada subiteració segueix un flux d'enginyeria estricte:
 | **Iteració 2** | 2.1 Model Ítems <br> 2.2 CUI & Flysystem <br> 2.3 Wizard & Dashboard <br> 2.4 Validació HITL | Flysystem, Symfony Voters, Twig | **100% Completada** |
 | **Iteració 3** | 3.1 Messenger Cues <br> 3.2 SGLang Client <br> 3.3 UI Assistència IA <br> 3.4 Validació HITL <br> 3.5 Transparència IA Sobirana <br> 3.6 Anti-Frau C2PA, EXIF & QR | SGLang, Qwen VL local, Messenger | **Subiteracions 3.1, 3.2, 3.3, 3.5 i 3.6 Fetes (90%)** |
 | **Iteració 4** | 4.1 Model Blockchain <br> 4.2 Càlcul Hash & RPC <br> 4.3 Cua & UI Insígnia <br> 4.4 Validació HITL | Polygon/Base RPC, SHA-256 | **100% Completada** |
-| **Iteració 5** | 5.1 Model Certificats <br> 5.2 Motor PDF Vectorial <br> 5.3 eIDAS Signaturit & QR <br> 5.4 Validació HITL | KnpSnappy/Chromium, Signaturit API | Pendent |
+| **Iteració 5** | 5.1 Model Certificats <br> 5.2 Motor PDF Vectorial <br> 5.3 eIDAS Signaturit & QR <br> 5.4 Validació HITL | Chromium Headless, Signaturit API | **100% Completada** |
 | **Iteració 6** | 6.1 Model Traspassos <br> 6.2 Symfony Workflow <br> 6.3 UI Traspàs Notarial <br> 6.4 Validació HITL | Symfony Workflow, Mailer | Pendent |
 | **Iteració 7** | 7.1 Backoffice Admin <br> 7.2 Editor de Plans <br> 7.3 Passarel·la Stripe <br> 7.4 Validació HITL MVP <br> 7.5 Validació Backend | Symfony Admin, Stripe API, Messenger | En curs (7.1 feta, 7.2 pendent de revisió final) |
 | **Iteració 8** | 8.1 Condicions Legals <br> 8.2 Privadesa RGPD <br> 8.3 Guia d'Ús i Manual <br> 8.4 Validació HITL | Twig, Guia d'Estils, Marc Normatiu | Pendent |

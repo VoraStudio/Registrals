@@ -144,8 +144,11 @@ class ItemController extends AbstractController
      * Fitxa de Detall del Bé Custodiat
      */
     #[Route('/{cui}', name: 'show', methods: ['GET'])]
-    public function show(string $cui, ItemRepository $itemRepository): Response
-    {
+    public function show(
+        string $cui,
+        ItemRepository $itemRepository,
+        \App\Service\ItemFingerprintCalculator $fingerprintCalculator
+    ): Response {
         $item = $itemRepository->findOneByCui($cui);
 
         if (!$item) {
@@ -156,6 +159,7 @@ class ItemController extends AbstractController
 
         return $this->render('item/show.html.twig', [
             'item' => $item,
+            'currentFingerprint' => $fingerprintCalculator->calculateForItem($item),
         ]);
     }
 

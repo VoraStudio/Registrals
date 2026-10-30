@@ -37,3 +37,16 @@ services:
             $contractAddress: '%env(string:BLOCKCHAIN_CONTRACT_ADDRESS)%'
             $walletPrivateKey: '%env(string:default::BLOCKCHAIN_HOT_WALLET_PRIVATE_KEY)%'
             $network: '%env(string:BLOCKCHAIN_NETWORK)%'
+
+    App\Service\Certificate\PdfRendererService:
+        arguments:
+            $configuredBinary: '%env(default::string:CHROMIUM_BINARY_PATH)%'
+
+    App\Infrastructure\Adapter\Signature\SignaturitTimestampInterface: '@App\Infrastructure\Adapter\Signature\SignaturitClient'
+
+    App\Infrastructure\Adapter\Signature\SignaturitClient:
+        arguments:
+            $apiToken: '%env(default::string:SIGNATURIT_API_TOKEN)%'
+            $baseUrl: '%env(string:SIGNATURIT_BASE_URL)%'
+
+

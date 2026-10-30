@@ -203,7 +203,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getFullName(): string
     {
-        return trim($this->firstName . ' ' . $this->lastName);
+        $first = isset($this->firstName) ? $this->firstName : '';
+        $last = isset($this->lastName) ? $this->lastName : '';
+
+        return trim($first . ' ' . $last);
     }
 
     public function getTaxId(): ?string

@@ -91,9 +91,10 @@ class Certificate
         string $pdfFilePath,
         string $pdfSha256,
         string $itemFingerprintAtIssue,
-        CertificateStatus $status = CertificateStatus::VALID
+        CertificateStatus $status = CertificateStatus::VALID,
+        ?Uuid $uuid = null
     ) {
-        $this->uuid = Uuid::v7();
+        $this->uuid = $uuid ?? Uuid::v7();
         $this->item = $item;
         $this->issuedBy = $issuedBy;
         $this->certificateNumber = $certificateNumber;

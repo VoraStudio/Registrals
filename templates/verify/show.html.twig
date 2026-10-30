@@ -1,0 +1,290 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Verificació Notarial {{ certificate.certificateNumber }} — Registrals{% endblock %}
+{% block meta_description %}Consulta i verificació pública de validesa legal eIDAS i ancoratge criptogràfic Polygon d'un bé registrat a Registrals.{% endblock %}
+
+{% block body_class %}bg-cream-50 text-ink antialiased min-h-screen flex flex-col font-raleway{% endblock %}
+
+{% block body %}
+{# Capçalera Oficial Pública #}
+<header class="bg-white border-b border-steel/20 sticky top-0 z-40 shadow-xs">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
+    <a href="{{ path('app_home') }}" class="flex items-center gap-2.5 group">
+      <img src="{{ asset('img/logos/Isotip/1-transparent.svg') }}" alt="Registrals" class="w-8 h-8 group-hover:scale-105 transition-transform" />
+      <span class="font-marcellus text-xl text-ink tracking-wide">REGISTRALS</span>
+    </a>
+    <div class="flex items-center gap-2">
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-ink text-gold border border-gold/30 shadow-xs">
+        <span class="w-2 h-2 rounded-full bg-gold animate-pulse"></span>
+        Verificació Notarial
+      </span>
+    </div>
+  </div>
+</header>
+
+<main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
+  {# 1. BANNER D'ALERTA DE SOSTRACCIÓ / ROBATORI (SI S'APLICA) #}
+  {% if isStolen %}
+    <div class="mb-8 rounded-2xl bg-red-900 text-white p-6 sm:p-8 shadow-2xl border-2 border-red-500 relative overflow-hidden">
+      <div class="absolute -right-8 -bottom-8 opacity-15 pointer-events-none">
+        <svg class="w-48 h-48" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 10v4h2v-4h-2zm0 6v2h2v-2h-2z"/></svg>
+      </div>
+      <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+        <div class="w-14 h-14 rounded-2xl bg-red-800 border border-red-400 flex items-center justify-center shrink-0">
+          <svg class="w-8 h-8 text-red-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        </div>
+        <div>
+          <span class="px-2.5 py-0.5 rounded text-[11px] font-bold tracking-wider uppercase bg-red-600 text-white inline-block mb-1">
+            Alerta de Seguretat Activa
+          </span>
+          <h1 class="font-marcellus text-2xl sm:text-3xl text-white font-bold tracking-tight">
+            AQUEST BÉ CONSTA COM A SOSTRET / ROBAT
+          </h1>
+          <p class="text-red-100 text-sm mt-1 leading-relaxed">
+            El legítim propietari ha declarat aquest bé sostret. Si se us està oferint o esteu intentant verificar-ne una transacció, <strong>absteniu-vos d'adquirir-lo</strong> i notifiqueu-ho immediatament a les autoritats policials corresponents.
+          </p>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  {# 2. TARGETA PRINCIPAL DE VERIFICACIÓ NOTARIAL #}
+  <div class="bg-white rounded-3xl border border-gold/30 shadow-xl overflow-hidden">
+    {# Franja superior daurada #}
+    <div class="h-1.5 bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+
+    {# Capçalera de la targeta #}
+    <div class="p-6 sm:p-8 border-b border-steel/15 bg-cream-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2 mb-1.5">
+          <span class="text-xs uppercase tracking-widest text-steel font-bold">Resolució de Certificat</span>
+          <span class="text-steel/50">·</span>
+          <code class="text-xs text-ink font-mono bg-cream px-2 py-0.5 rounded">{{ certificate.certificateNumber }}</code>
+        </div>
+        <h2 class="font-marcellus text-2xl sm:text-3xl text-ink">
+          Certificat de Propietat i Custòdia
+        </h2>
+        <p class="text-xs sm:text-sm text-steel mt-0.5">
+          Emès el {{ certificate.createdAt|date('d/m/Y H:i:s') }} UTC
+        </p>
+      </div>
+
+      {# Segell d'Estat #}
+      <div class="shrink-0">
+        {% if isStolen %}
+          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-red-100 border border-red-300 text-red-800 text-sm font-bold shadow-xs">
+            <span class="w-2.5 h-2.5 rounded-full bg-red-600"></span>
+            BÉ SOSTRET (ROBATORI)
+          </div>
+        {% elseif not certificate.isValid %}
+          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-gray-100 border border-gray-300 text-gray-700 text-sm font-bold shadow-xs">
+            <span class="w-2.5 h-2.5 rounded-full bg-gray-500"></span>
+            CERTIFICAT REVOCAT
+          </div>
+        {% elseif not isFingerprintMatching %}
+          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-amber-50 border border-amber-300 text-amber-800 text-sm font-bold shadow-xs">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
+            SUPERAT (FINGERPRINT MODIFICAT)
+          </div>
+        {% elseif certificate.mode.isOfficial %}
+          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-sm font-bold shadow-xs">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+            OFICIAL eIDAS · VÀLID
+          </div>
+        {% else %}
+          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-cream border border-gold/40 text-ink text-sm font-bold shadow-xs">
+            <span class="w-2.5 h-2.5 rounded-full bg-gold"></span>
+            ESBORRANY INFORMATIU VÀLID
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    {# Avís de Fingerprint Modificat (Si el bé ha canviat després d'emetre el certificat) #}
+    {% if not isFingerprintMatching and not isStolen %}
+      <div class="p-6 bg-amber-50/70 border-b border-amber-200 text-xs sm:text-sm text-amber-900 leading-relaxed flex items-start gap-3">
+        <svg class="w-5 h-5 text-amber-700 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <div>
+          <strong>Avís d'immutabilitat notarial:</strong> Les dades o fotografies d'aquest bé van ser modificades amb posterioritat a l'emissió d'aquest certificat. El document acreditat reflecteix la versió amb hash <code>{{ certificate.itemFingerprintAtIssue|slice(0, 16) }}...</code>, mentre que el bé compta actualment amb una nova versió en custòdia.
+        </div>
+      </div>
+    {% endif %}
+
+    {# 3. IDENTIFICACIÓ PÚBLICA DEL BÉ #}
+    <div class="p-6 sm:p-8 space-y-6">
+      <div>
+        <h3 class="text-xs font-bold uppercase tracking-widest text-steel mb-3 flex items-center gap-2">
+          <span>Identificació del Bé Registrat</span>
+          <div class="flex-1 h-px bg-steel/15"></div>
+        </h3>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="p-4 rounded-2xl bg-cream-50 border border-steel/15">
+            <span class="block text-xs text-steel uppercase font-semibold">Codi Únic d'Identificació (CUI)</span>
+            <span class="font-marcellus text-xl text-ink font-bold tracking-wider mt-1 block">
+              {{ item.cui }}
+            </span>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-cream-50 border border-steel/15">
+            <span class="block text-xs text-steel uppercase font-semibold">Denominació del Bé</span>
+            <span class="font-raleway text-lg text-ink font-bold mt-1 block">
+              {{ item.name }}
+            </span>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-cream-50 border border-steel/15">
+            <span class="block text-xs text-steel uppercase font-semibold">Categoria Registrada</span>
+            <span class="font-raleway text-sm text-ink font-semibold mt-1 block">
+              {{ item.category.name|default('Bé moble general') }}
+            </span>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-cream-50 border border-steel/15">
+            <span class="block text-xs text-steel uppercase font-semibold">Marca & Model</span>
+            <span class="font-raleway text-sm text-ink font-semibold mt-1 block">
+              {{ item.brand|default('—') }} {% if item.model %}· {{ item.model }}{% endif %}
+            </span>
+          </div>
+
+          {% if item.serialNumber %}
+            <div class="p-4 rounded-2xl bg-cream-50 border border-steel/15">
+              <span class="block text-xs text-steel uppercase font-semibold">Núm. de Sèrie / Bastidor</span>
+              <code class="font-mono text-sm text-ink font-bold mt-1 block">
+                {{ item.serialNumber }}
+              </code>
+            </div>
+          {% endif %}
+
+          <div class="p-4 rounded-2xl bg-cream-50 border border-steel/15">
+            <span class="block text-xs text-steel uppercase font-semibold">Titular Registrat (Pseudonimitzat RGPD)</span>
+            <span class="font-mono text-sm text-ink font-bold mt-1 block">
+              {{ maskedOwnerName }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {# 4. DOBLE CAPA DE VERIFICACIÓ (eIDAS & BLOCKCHAIN) #}
+      <div>
+        <h3 class="text-xs font-bold uppercase tracking-widest text-steel mb-3 flex items-center gap-2">
+          <span>Doble Capa de Certificació Forense</span>
+          <div class="flex-1 h-px bg-steel/15"></div>
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {# Capa 1: Segellat de Temps eIDAS #}
+          <div class="p-5 rounded-2xl border border-steel/20 bg-cream-50/70 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold uppercase tracking-wider text-ink flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-gold"></span>
+                  Capa 1 · Segellat eIDAS
+                </span>
+                <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-white border border-steel/20 text-steel">
+                  TSP Qualificat
+                </span>
+              </div>
+              <p class="text-xs text-steel leading-relaxed mb-3">
+                Certificació de data certa i no-repudi jurídic sota el Reglament Europeu (UE) núm. 910/2014 (eIDAS) via Signaturit.
+              </p>
+            </div>
+            <div class="space-y-1.5 text-xs font-mono bg-white p-3 rounded-xl border border-steel/15">
+              <div class="flex justify-between items-center text-steel">
+                <span>Modalitat:</span>
+                <span class="text-ink font-bold">{{ certificate.mode.label }}</span>
+              </div>
+              {% if certificate.eidasSignaturitId %}
+                <div class="flex justify-between items-center text-steel">
+                  <span>Token eIDAS:</span>
+                  <span class="text-ink truncate max-w-[160px]">{{ certificate.eidasSignaturitId }}</span>
+                </div>
+                <div class="flex justify-between items-center text-steel">
+                  <span>Data Segellat:</span>
+                  <span class="text-ink">{{ certificate.eidasTimestamp ? certificate.eidasTimestamp|date('d/m/Y H:i:s') : 'Validat' }}</span>
+                </div>
+              {% else %}
+                <div class="text-steel italic text-[11px]">
+                  Segellat no aplicat (Mode Esborrany Informatiu).
+                </div>
+              {% endif %}
+            </div>
+          </div>
+
+          {# Capa 2: Ancoratge Criptogràfic Polygon PoS #}
+          <div class="p-5 rounded-2xl border border-steel/20 bg-cream-50/70 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold uppercase tracking-wider text-ink flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-ink"></span>
+                  Capa 2 · Polygon Layer 2
+                </span>
+                <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-white border border-steel/20 text-steel">
+                  Immutabilitat
+                </span>
+              </div>
+              <p class="text-xs text-steel leading-relaxed mb-3">
+                Ancoratge determinista de la prova d'existència a la cadena pública de Polygon PoS amb identificador immutable.
+              </p>
+            </div>
+            <div class="space-y-1.5 text-xs font-mono bg-white p-3 rounded-xl border border-steel/15">
+              <div class="flex justify-between items-center text-steel">
+                <span>Xarxa:</span>
+                <span class="text-ink font-bold">Polygon PoS (POL)</span>
+              </div>
+              {% if latestBlockchainReceipt %}
+                <div class="flex justify-between items-center text-steel">
+                  <span>Bloc L2:</span>
+                  <span class="text-ink font-bold">#{{ latestBlockchainReceipt.blockNumber|default('En cua') }}</span>
+                </div>
+                <div class="flex justify-between items-center text-steel">
+                  <span>Explorador:</span>
+                  <a href="{{ latestBlockchainReceipt.explorerUrl }}" target="_blank" rel="noopener noreferrer" class="text-gold hover:underline font-bold">
+                    Veure Polygonscan ↗
+                  </a>
+                </div>
+              {% else %}
+                <div class="text-steel italic text-[11px]">
+                  Ancoratge pendent de sincronització a la xarxa.
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# 5. HASHES CRIPTOGRÀFICS FORENSES #}
+      <div class="p-4 rounded-2xl bg-cream-50 border border-steel/15 space-y-2">
+        <span class="block text-xs font-bold uppercase tracking-wider text-steel">
+          Comprovació d'Integritat SHA-256
+        </span>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] font-mono">
+          <div>
+            <span class="text-steel block">Hash Documental PDF:</span>
+            <code class="text-ink font-bold break-all select-all">{{ certificate.pdfSha256 }}</code>
+          </div>
+          <div>
+            <span class="text-steel block">Fingerprint Bé en Emissió:</span>
+            <code class="text-ink font-bold break-all select-all">{{ certificate.itemFingerprintAtIssue }}</code>
+          </div>
+        </div>
+      </div>
+
+      {# 6. AVÍS DE PRIVADESES I PROTECCIÓ DE DADES (ART. 5 RGPD) #}
+      <div class="guide-note rounded-xl p-4 text-xs text-ink/80 leading-relaxed border-l-[3.5px] border-gold bg-gold/10">
+        <strong>Privadesa per Disseny (Art. 5.1.c RGPD):</strong> Per motius de seguretat jurídica i prevenció de fraus, les dades d'identificació personal del titular es mostren pseudonimitzades per protegir la seva intimitat. El document complet original roman en custòdia privada i només pot ser expedit o transferit pel seu legítim titular sota signatura digital eIDAS.
+      </div>
+    </div>
+  </div>
+
+  {# Enllaç de retorn o denúncia #}
+  <div class="mt-8 text-center text-xs text-steel space-y-2">
+    <p>
+      Plataforma Notarial Digital Registrals · Certificació Legal i Criptogràfica de Propietat
+    </p>
+    <p>
+      Per a consultes de verificació corporativa per a entitats asseguradores o pericials: <a href="mailto:perits@registrals.cat" class="text-ink underline hover:text-gold">perits@registrals.cat</a>
+    </p>
+  </div>
+</main>
+{% endblock %}

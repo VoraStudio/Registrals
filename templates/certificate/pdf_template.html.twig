@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ isDraft ? 'Esborrany de Certificat' : 'Certificat Oficial' }} — {{ item.name }} ({{ certificate.certificateNumber }})</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background: #FFFFFF;
+      color: #1D2F4B;
+      font-family: 'Raleway', 'Helvetica Neue', Arial, sans-serif;
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    /* Contenidor de pàgina A4 exacta */
+    .page {
+      width: 210mm;
+      height: 297mm;
+      padding: 14mm 16mm 12mm 16mm;
+      position: relative;
+      background: #FFFFFF;
+      overflow: hidden;
+    }
+
+    /* Marc Notarial de Doble Filigrana Daurada */
+    .notarial-border {
+      position: absolute;
+      top: 7mm;
+      left: 7mm;
+      right: 7mm;
+      bottom: 7mm;
+      border: 2px solid #CAA36C;
+      pointer-events: none;
+    }
+    .notarial-border-inner {
+      position: absolute;
+      top: 9mm;
+      left: 9mm;
+      right: 9mm;
+      bottom: 9mm;
+      border: 0.75px solid rgba(202, 163, 108, 0.45);
+      pointer-events: none;
+    }
+
+    /* Marca d'Aigua Diagonal per a Mode Esborrany (Pla Free) */
+    .watermark {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-35deg);
+      font-size: 38px;
+      font-weight: 900;
+      font-family: 'Marcellus', serif;
+      color: rgba(29, 47, 75, 0.08);
+      text-transform: uppercase;
+      letter-spacing: 4px;
+      text-align: center;
+      line-height: 1.3;
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 50;
+      border: 5px solid rgba(29, 47, 75, 0.07);
+      padding: 16px 30px;
+    }
+
+    /* Tipografies corporatives */
+    .font-marcellus {
+      font-family: 'Marcellus', Georgia, serif;
+    }
+    .font-mono {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    }
+
+    /* Capçalera solemne */
+    .header {
+      border-bottom: 1.5px solid #CAA36C;
+      padding-bottom: 10px;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    .brand-title {
+      font-size: 24px;
+      letter-spacing: 1.5px;
+      color: #1D2F4B;
+      font-weight: normal;
+      margin: 0;
+      text-transform: uppercase;
+    }
+    .brand-subtitle {
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #6A86A2;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+    .cert-meta {
+      text-align: right;
+    }
+    .cert-number {
+      font-size: 13px;
+      font-weight: bold;
+      color: #CAA36C;
+      letter-spacing: 1px;
+    }
+    .cert-badge {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 3px;
+    }
+    .cert-badge-official {
+      background: #1D2F4B;
+      color: #CAA36C;
+      border: 1px solid #CAA36C;
+    }
+    .cert-badge-draft {
+      background: #F1E3D3;
+      color: #1D2F4B;
+      border: 1px solid #6A86A2;
+    }
+
+    /* Seccions */
+    .section-title {
+      font-size: 12px;
+      font-family: 'Marcellus', serif;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #1D2F4B;
+      border-bottom: 1px solid rgba(202, 163, 108, 0.4);
+      padding-bottom: 3px;
+      margin-top: 10px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Taula de dades de l'objecte */
+    .item-grid {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 10px;
+    }
+    .item-grid td {
+      padding: 4px 6px;
+      vertical-align: top;
+      font-size: 10px;
+    }
+    .item-grid .label {
+      width: 25%;
+      color: #6A86A2;
+      text-transform: uppercase;
+      font-size: 8.5px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .item-grid .value {
+      width: 75%;
+      color: #1D2F4B;
+      font-weight: 600;
+    }
+
+    /* Caixa Notarial d'Integritat Criptogràfica */
+    .integrity-box {
+      background: #FAF6F0;
+      border: 1px solid #CAA36C;
+      border-radius: 6px;
+      padding: 8px 12px;
+      margin-top: 10px;
+    }
+    .hash-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+      font-size: 9.5px;
+    }
+    .hash-label {
+      color: #6A86A2;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 8px;
+    }
+    .hash-value {
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      font-size: 9px;
+      color: #1D2F4B;
+      background: #FFFFFF;
+      padding: 2px 6px;
+      border-radius: 3px;
+      border: 0.5px solid rgba(106, 134, 162, 0.3);
+      word-break: break-all;
+    }
+
+    /* Secció de Fotografies i Proves */
+    .evidence-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 4px;
+      font-size: 9px;
+    }
+    .evidence-table th {
+      text-align: left;
+      font-size: 8px;
+      text-transform: uppercase;
+      color: #6A86A2;
+      border-bottom: 1px solid #CAA36C;
+      padding: 3px 4px;
+    }
+    .evidence-table td {
+      padding: 3px 4px;
+      border-bottom: 0.5px solid rgba(106, 134, 162, 0.15);
+      color: #1D2F4B;
+    }
+
+    /* Peu de pàgina i Segellat Final amb QR */
+    .footer-seal {
+      position: absolute;
+      bottom: 14mm;
+      left: 16mm;
+      right: 16mm;
+      border-top: 1.5px solid #CAA36C;
+      padding-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .legal-clause {
+      font-size: 8px;
+      color: #6A86A2;
+      max-width: 125mm;
+      line-height: 1.35;
+    }
+    .qr-container {
+      text-align: right;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .qr-img {
+      width: 25mm;
+      height: 25mm;
+      border: 1px solid #CAA36C;
+      padding: 2px;
+      background: #FFFFFF;
+      border-radius: 4px;
+    }
+    .qr-text {
+      text-align: right;
+      font-size: 7.5px;
+      color: #1D2F4B;
+      line-height: 1.25;
+      max-width: 32mm;
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+  {# Marcs geomètrics notarials #}
+  <div class="notarial-border"></div>
+  <div class="notarial-border-inner"></div>
+
+  {# Marca d'Aigua Diagonal si és ESBORRANY (Pla Free) #}
+  {% if isDraft %}
+    <div class="watermark">
+      ESBORRANY INFORMATIU<br>
+      NO APTE PER ASSEGURANCES<br>
+      SENSE VALOR NOTARIAL
+    </div>
+  {% endif %}
+
+  {# Capçalera Oficial #}
+  <div class="header">
+    <div>
+      <h1 class="brand-title font-marcellus">REGISTRALS</h1>
+      <div class="brand-subtitle">Registre & Custòdia Notarial de Béns Mobles</div>
+    </div>
+    <div class="cert-meta">
+      <div class="cert-number font-mono">{{ certificate.certificateNumber }}</div>
+      <div>
+        {% if isDraft %}
+          <span class="cert-badge cert-badge-draft">Esborrany d'Inventari</span>
+        {% else %}
+          <span class="cert-badge cert-badge-official">Certificat Oficial Segellat</span>
+        {% endif %}
+      </div>
+      <div style="font-size: 8.5px; color: #6A86A2; margin-top: 2px;">
+        Data d'Emissió: <strong style="color: #1D2F4B;">{{ certificate.createdAt|date('d/m/Y H:i:s') }} UTC</strong>
+      </div>
+    </div>
+  </div>
+
+  {# 1. IDENTIFICACIÓ DEL TITULAR I DEL BÉ #}
+  <div class="section-title">
+    <span>1. Identificació del Bé Custodiat</span>
+    <span class="font-mono" style="font-size: 10px; font-weight: bold; color: #CAA36C;">CUI: {{ item.cui }}</span>
+  </div>
+
+  <table class="item-grid">
+    <tr>
+      <td class="label">Nom de l'Objecte</td>
+      <td class="value font-marcellus" style="font-size: 13px;">{{ item.name }}</td>
+    </tr>
+    <tr>
+      <td class="label">Categoria / Sector</td>
+      <td class="value">{{ item.category.name }}{% if item.subcategory %} &middot; {{ item.subcategory.name }}{% endif %}</td>
+    </tr>
+    {% if item.brand or item.model %}
+    <tr>
+      <td class="label">Marca & Model</td>
+      <td class="value">{{ item.brand|default('—') }} {% if item.model %}(Model: {{ item.model }}){% endif %}</td>
+    </tr>
+    {% endif %}
+    <tr>
+      <td class="label">Número de Sèrie / IMEI</td>
+      <td class="value font-mono" style="color: #1D2F4B; font-weight: bold;">{{ item.serialNumber|default('No indicat pel titular') }}</td>
+    </tr>
+    {% if item.declaredValueEuros %}
+    <tr>
+      <td class="label">Valor Estimat Declarat</td>
+      <td class="value font-mono">{{ item.declaredValueEuros|number_format(2, ',', '.') }} €</td>
+    </tr>
+    {% endif %}
+    <tr>
+      <td class="label">Titular Acreditat</td>
+      <td class="value">
+        {% if isDraft %}
+          {{ item.owner.fullName }} (Titularitat declarada sense validació eIDV)
+        {% else %}
+          {{ item.owner.fullName }} &middot; Compte Verificat Registrals
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td class="label">Origen de Propietat</td>
+      <td class="value">{{ item.acquisitionType.label }}{% if item.acquisitionDate %} (Data: {{ item.acquisitionDate|date('d/m/Y') }}){% endif %}</td>
+    </tr>
+  </table>
+
+  {# 2. PROVES DOCUMENTALS I EVIDÈNCIES CUSTODIADES #}
+  <div class="section-title">
+    <span>2. Evidències Probatòries Custodiades (Flysystem)</span>
+    <span style="font-size: 9px; color: #6A86A2;">{{ item.documents|length }} fitxer(s) associat(s)</span>
+  </div>
+
+  <table class="evidence-table">
+    <thead>
+      <tr>
+        <th style="width: 20%;">Tipus de Document</th>
+        <th style="width: 35%;">Nom de l'Arxiu Original</th>
+        <th style="width: 45%;">Empremta Criptogràfica SHA-256</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for doc in item.documents %}
+        <tr>
+          <td><strong>{{ doc.type.label }}</strong></td>
+          <td style="word-break: break-all;">{{ doc.originalFilename }}</td>
+          <td class="font-mono" style="font-size: 8px;">{{ doc.sha256Hash }}</td>
+        </tr>
+      {% else %}
+        <tr>
+          <td colspan="3" style="text-align: center; color: #6A86A2; padding: 8px;">Sense documents adjunts addicionals.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {# 3. BLINDATGE NOTARIAL I DOBLE CERTIFICACIÓ #}
+  <div class="section-title">
+    <span>3. Garantia Notarial, Integritat i Segellat</span>
+    <span class="font-mono" style="font-size: 9px; color: #CAA36C;">v1 (Immutable)</span>
+  </div>
+
+  <div class="integrity-box">
+    <div class="hash-row">
+      <span class="hash-label">Master Fingerprint del Bé (SHA-256):</span>
+      <span class="hash-value">{{ certificate.itemFingerprintAtIssue }}</span>
+    </div>
+    <div class="hash-row">
+      <span class="hash-label">Hash SHA-256 del Present Certificat:</span>
+      <span class="hash-value">{{ certificate.pdfSha256 }}</span>
+    </div>
+    <div class="hash-row">
+      <span class="hash-label">Ancoratge a Blockchain Layer 2:</span>
+      <span class="hash-value" style="color: #1D2F4B; font-weight: bold;">
+        {% if latestReceipt %}
+          POLYGON POS &middot; BLOC #{{ latestReceipt.blockNumber }} &middot; TX: {{ latestReceipt.shortTxHash }}
+        {% else %}
+          ANGLATGE PROGRAMAT A POLYGON LAYER 2
+        {% endif %}
+      </span>
+    </div>
+    <div class="hash-row" style="margin-bottom: 0;">
+      <span class="hash-label">Segellat de Temps Legal:</span>
+      <span class="hash-value">
+        {% if isDraft %}
+          SENSE SEGELL QUALIFICAT eIDAS (MODE ESBORRANY)
+        {% else %}
+          QUALIFIED TRUST SERVICE PROVIDER (eIDAS REGULATION EU 910/2014)
+        {% endif %}
+      </span>
+    </div>
+  </div>
+
+  {# Clàusula d'Immutabilitat solemne #}
+  <div style="margin-top: 8px; font-size: 8.5px; color: #6A86A2; line-height: 1.35; padding: 6px 10px; border-left: 3px solid #CAA36C; background: rgba(202, 163, 108, 0.08);">
+    <strong>Clàusula de Custòdia Notarial:</strong> Aquest certificat dona fe de les dades i evidències aportades pel titular en la data d'emissió. Qualsevol modificació sobre el bé (noves fotos, proves o canvi de titularitat) revoca automàticament aquesta versió i genera una nova acta notarial <code>v2</code> amb un nou hash SHA-256.
+  </div>
+
+  {# Peu de pàgina solemne amb Codi QR de comprovació pública #}
+  <div class="footer-seal">
+    <div class="legal-clause">
+      <strong>Verificació pública d'autenticitat (Art. 22 RGPD):</strong><br>
+      Aquest document pot ser comprovat per qualsevol companyia asseguradora, jutjat, cos de seguretat o tercer interessat escanejant el codi QR adjunt o visitant l'adreça pública de consulta <code>{{ certificate.getVerificationUrl('https://registrals.cat') }}</code>. No s'exposen dades sensibles no autoritzades.
+    </div>
+
+    <div class="qr-container">
+      <div class="qr-text">
+        <strong>VALIDACIÓ PÚBLICA</strong><br>
+        Escaneja amb el mòbil per confirmar la vigència.
+      </div>
+      <img src="{{ qrDataUri }}" alt="Codi QR de Verificació" class="qr-img" />
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Certificat No Trobat — Registrals{% endblock %}
+{% block meta_robots %}noindex, nofollow{% endblock %}
+
+{% block body_class %}bg-cream-50 text-ink antialiased min-h-screen flex flex-col font-raleway{% endblock %}
+
+{% block body %}
+<header class="bg-white border-b border-steel/20 sticky top-0 z-40">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
+    <a href="{{ path('app_home') }}" class="flex items-center gap-2.5 group">
+      <img src="{{ asset('img/logos/Isotip/1-transparent.svg') }}" alt="Registrals" class="w-8 h-8 group-hover:scale-105 transition-transform" />
+      <span class="font-marcellus text-xl text-ink tracking-wide">REGISTRALS</span>
+    </a>
+    <span class="px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-cream border border-steel/20 text-steel">
+      Verificació Notarial
+    </span>
+  </div>
+</header>
+
+<main class="flex-1 max-w-xl w-full mx-auto px-4 sm:px-6 py-16 flex items-center justify-center">
+  <div class="bg-white rounded-3xl border border-steel/20 shadow-xl p-8 sm:p-10 text-center w-full relative overflow-hidden">
+    <div class="h-1 bg-red-500 absolute top-0 inset-x-0"></div>
+
+    <div class="w-16 h-16 rounded-2xl bg-cream flex items-center justify-center mx-auto mb-6 text-steel border border-steel/20">
+      <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+    </div>
+
+    <h1 class="font-marcellus text-2xl sm:text-3xl text-ink mb-2">
+      Certificat No Trobat
+    </h1>
+
+    <p class="text-sm text-steel mb-6 leading-relaxed">
+      {{ reason|default('L\'identificador consultat no correspon a cap certificat vigent ni registrat a la plataforma.') }}
+    </p>
+
+    {% if identifier is defined and identifier %}
+      <div class="p-3 rounded-xl bg-cream-50 border border-steel/15 text-xs font-mono text-steel break-all mb-6">
+        <code>{{ identifier }}</code>
+      </div>
+    {% endif %}
+
+    <div class="guide-note rounded-xl p-4 text-xs text-ink/80 leading-relaxed border-l-[3.5px] border-gold bg-gold/10 text-left mb-6">
+      <strong>Precaució Notarial:</strong> Si us han facilitat un document en paper o PDF amb un codi QR que porta a aquest resultat, el document podria tractar-se d'una reproducció no autèntica, manipulada o revocada.
+    </div>
+
+    <a href="{{ path('app_home') }}" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-ink text-gold hover:bg-ink/90 font-bold text-sm tracking-wide transition-all shadow-md">
+      Tornar a l'Inici de Registrals
+    </a>
+  </div>
+</main>
+{% endblock %}
