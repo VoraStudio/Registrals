@@ -84,7 +84,7 @@ class StripeGatewayClient implements PaymentGatewayInterface
             $separator = str_contains($successUrl, '?') ? '&' : '?';
             return [
                 'sessionId' => $sessionId,
-                'url' => str_replace('{CHECKOUT_SESSION_ID}', $sessionId, $successUrl) . $separator . 'mock=1',
+                'url' => str_replace(['{CHECKOUT_SESSION_ID}', '%7BCHECKOUT_SESSION_ID%7D'], $sessionId, $successUrl) . $separator . 'mock=1',
             ];
         }
 
@@ -122,7 +122,7 @@ class StripeGatewayClient implements PaymentGatewayInterface
             $separator = str_contains($successUrl, '?') ? '&' : '?';
             return [
                 'sessionId' => $sessionId,
-                'url' => str_replace('{CHECKOUT_SESSION_ID}', $sessionId, $successUrl) . $separator . 'mock=1',
+                'url' => str_replace(['{CHECKOUT_SESSION_ID}', '%7BCHECKOUT_SESSION_ID%7D'], $sessionId, $successUrl) . $separator . 'mock=1',
             ];
         }
 
@@ -168,7 +168,7 @@ class StripeGatewayClient implements PaymentGatewayInterface
             $separator = str_contains($successUrl, '?') ? '&' : '?';
             return [
                 'sessionId' => $sessionId,
-                'url' => str_replace('{CHECKOUT_SESSION_ID}', $sessionId, $successUrl) . $separator . 'mock=1',
+                'url' => str_replace(['{CHECKOUT_SESSION_ID}', '%7BCHECKOUT_SESSION_ID%7D'], $sessionId, $successUrl) . $separator . 'mock=1',
             ];
         }
 
