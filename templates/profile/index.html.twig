@@ -11,24 +11,35 @@
   {# Barra Superior Privada Unificada #}
   {% include 'partials/_private_header.html.twig' %}
 
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 w-full flex-1">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 sm:py-5 w-full flex-1">
 
-    {# Capçalera Compacta de la Pàgina #}
-    <div class="mb-3 sm:mb-4 pb-2.5 sm:pb-3 border-b border-gold/20 flex items-center justify-between gap-3">
-      <div class="flex items-center gap-3">
-        <a href="{{ path('app_dashboard') }}" class="w-8 h-8 rounded-lg bg-white border border-steel/25 text-steel hover:text-ink hover:border-gold flex items-center justify-center transition-all shadow-2xs" aria-label="Tornar al patrimoni">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-        </a>
-        <div>
-          <h1 class="text-lg sm:text-xl font-marcellus text-ink tracking-wide leading-tight">El meu Perfil & Dades</h1>
-          <p class="text-[11px] text-ink/65 leading-tight">Identificació fiscal i paràmetres de seguretat del titular notarial.</p>
+    {# Capçalera Notarial Unificada de Subpàgina #}
+    <div class="mb-5 sm:mb-6 pb-3 sm:pb-4 border-b border-gold/20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div>
+        <nav class="flex items-center gap-1.5 text-xs font-mono text-steel uppercase tracking-wider mb-1.5" aria-label="Fil d'Ariadna">
+          <a href="{{ path('app_dashboard') }}" class="hover:text-gold transition-colors">Patrimoni</a>
+          <span class="text-steel/50">/</span>
+          <span class="text-ink font-bold">El meu Perfil</span>
+        </nav>
+        <div class="flex items-center gap-3">
+          <a href="{{ path('app_dashboard') }}" class="w-8 h-8 rounded-lg bg-white border border-steel/25 text-steel hover:text-ink hover:border-gold flex items-center justify-center transition-all shadow-2xs shrink-0 cursor-pointer" aria-label="Tornar al Patrimoni" title="Tornar al Patrimoni">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          </a>
+          <div>
+            <h1 class="text-xl sm:text-2xl font-marcellus text-ink tracking-wide leading-tight">El meu Perfil & Dades</h1>
+            <p class="text-xs text-ink/70 mt-0.5 font-raleway">Identificació fiscal, credencials i paràmetres de seguretat del titular notarial.</p>
+          </div>
         </div>
       </div>
 
-      <div class="flex items-center gap-2">
-        <a href="{{ path('app_plan') }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white border border-steel/30 text-ink hover:border-gold hover:text-gold shadow-2xs transition-all flex items-center gap-1.5">
+      <div class="flex items-center gap-2 self-start sm:self-center">
+        <a href="{{ path('app_plan') }}" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white border border-steel/30 text-ink hover:border-gold hover:text-gold shadow-2xs transition-all flex items-center gap-1.5">
           <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
           <span>Pla: <strong class="text-ink font-bold">{{ user.plan ? user.plan.name : 'Administrador' }}</strong></span>
+        </a>
+        <a href="{{ path('app_plan_billing') }}" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-ink text-gold border border-gold/40 hover:bg-ink/90 shadow-2xs transition-all flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+          <span>Facturació</span>
         </a>
       </div>
     </div>

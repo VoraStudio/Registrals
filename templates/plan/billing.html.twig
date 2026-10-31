@@ -11,38 +11,38 @@
   {# Barra Superior Privada Unificada #}
   {% include 'partials/_private_header.html.twig' %}
 
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8 w-full flex-1">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 sm:py-5 w-full flex-1">
 
-    {# Capçalera de la Pàgina #}
-    <div class="mb-6 pb-4 border-b border-gold/20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    {# Capçalera Notarial Unificada de Subpàgina #}
+    <div class="mb-5 sm:mb-6 pb-3 sm:pb-4 border-b border-gold/20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
       <div>
-        <div class="flex items-center gap-2 text-xs font-mono text-steel uppercase tracking-wider mb-1">
+        <nav class="flex items-center gap-1.5 text-xs font-mono text-steel uppercase tracking-wider mb-1.5" aria-label="Fil d'Ariadna">
           <a href="{{ path('app_dashboard') }}" class="hover:text-gold transition-colors">Patrimoni</a>
-          <span>/</span>
-          <a href="{{ path('app_plan') }}" class="hover:text-gold transition-colors">Pla & Quotes</a>
-          <span>/</span>
+          <span class="text-steel/50">/</span>
+          <a href="{{ path('app_plan') }}" class="hover:text-gold transition-colors">El meu Pla</a>
+          <span class="text-steel/50">/</span>
           <span class="text-ink font-bold">Facturació</span>
-        </div>
+        </nav>
         <div class="flex items-center gap-3">
-          <a href="{{ path('app_plan') }}" class="w-8 h-8 rounded-lg bg-white border border-steel/25 text-steel hover:text-ink hover:border-gold flex items-center justify-center transition-all shadow-2xs" aria-label="Tornar al Pla">
+          <a href="{{ path('app_plan') }}" class="w-8 h-8 rounded-lg bg-white border border-steel/25 text-steel hover:text-ink hover:border-gold flex items-center justify-center transition-all shadow-2xs shrink-0 cursor-pointer" aria-label="Tornar al Pla" title="Tornar al Pla">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
           </a>
           <div>
-            <h1 class="text-2xl sm:text-3xl font-marcellus text-ink tracking-wide">Facturació & Evidència de Pagaments</h1>
-            <p class="text-xs sm:text-sm text-ink/75 mt-0.5">Custòdia notarial d'actes de pagament, gestió de targeta i descàrrega de factures fiscals.</p>
+            <h1 class="text-xl sm:text-2xl font-marcellus text-ink tracking-wide leading-tight">Facturació & Evidència de Pagaments</h1>
+            <p class="text-xs text-ink/70 mt-0.5 font-raleway">Custòdia notarial d'actes de pagament, gestió fiscal i descàrrega de factures amb IVA.</p>
           </div>
         </div>
       </div>
 
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 self-start sm:self-center">
         {% if user.stripeCustomerId %}
-          <a href="{{ path('app_payment_portal') }}" class="px-4 py-2 rounded-xl text-xs font-semibold bg-ink text-gold border border-gold/40 hover:bg-ink/90 shadow-2xs transition-all flex items-center gap-1.5">
-            <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+          <a href="{{ path('app_payment_portal') }}" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-ink text-gold border border-gold/40 hover:bg-ink/90 shadow-2xs transition-all flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
             <span>Portal Stripe & Targeta</span>
           </a>
         {% endif %}
-        <a href="{{ path('app_profile') }}" class="px-4 py-2 rounded-xl text-xs font-semibold bg-white border border-steel/30 text-ink hover:border-gold hover:text-gold shadow-2xs transition-all flex items-center gap-1.5">
-          <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        <a href="{{ path('app_profile') }}" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white border border-steel/30 text-ink hover:border-gold hover:text-gold shadow-2xs transition-all flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
           <span>El meu Perfil</span>
         </a>
       </div>

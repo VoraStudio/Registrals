@@ -11,27 +11,38 @@
   {# Barra Superior Privada Unificada #}
   {% include 'partials/_private_header.html.twig' %}
 
-  <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-5 w-full flex-1 space-y-4">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 sm:py-5 w-full flex-1">
 
-    {# Capçalera de Retorn & Títol #}
-    <div class="pb-3 border-b border-gold/20 flex items-center justify-between gap-3">
-      <div class="flex items-center gap-3">
-        <a href="{{ path('app_profile') }}" class="w-8 h-8 rounded-lg bg-white border border-steel/25 text-steel hover:text-ink hover:border-gold flex items-center justify-center transition-all shadow-2xs" aria-label="Tornar al Perfil">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-        </a>
-        <div>
-          <div class="flex items-center gap-2">
-            <span class="text-xs font-mono text-gold font-bold uppercase tracking-wider">PWA & Mòbil</span>
-            <span class="w-1 h-1 rounded-full bg-steel/40"></span>
-            <span class="text-[11px] text-ink/60">Experiència Nativa</span>
+    {# Capçalera Notarial Unificada de Subpàgina #}
+    <div class="mb-5 sm:mb-6 pb-3 sm:pb-4 border-b border-gold/20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div>
+        <nav class="flex items-center gap-1.5 text-xs font-mono text-steel uppercase tracking-wider mb-1.5" aria-label="Fil d'Ariadna">
+          <a href="{{ path('app_dashboard') }}" class="hover:text-gold transition-colors">Patrimoni</a>
+          <span class="text-steel/50">/</span>
+          <a href="{{ path('app_profile') }}" class="hover:text-gold transition-colors">El meu Perfil</a>
+          <span class="text-steel/50">/</span>
+          <span class="text-ink font-bold">App Mòbil</span>
+        </nav>
+        <div class="flex items-center gap-3">
+          <a href="{{ path('app_profile') }}" class="w-8 h-8 rounded-lg bg-white border border-steel/25 text-steel hover:text-ink hover:border-gold flex items-center justify-center transition-all shadow-2xs shrink-0 cursor-pointer" aria-label="Tornar al Perfil" title="Tornar al Perfil">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          </a>
+          <div>
+            <h1 class="text-xl sm:text-2xl font-marcellus text-ink tracking-wide leading-tight">Com Instal·lar l'App Mòbil (PWA)</h1>
+            <p class="text-xs text-ink/70 mt-0.5 font-raleway">Guia pas a pas per gaudir d'una experiència nativa a iOS, Android o ordinador.</p>
           </div>
-          <h1 class="text-xl sm:text-2xl font-marcellus text-ink tracking-wide leading-tight">Com Instal·lar Registrals com a App</h1>
         </div>
       </div>
 
-      <div class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-gold/30 text-xs text-ink/80 shadow-2xs font-raleway">
-        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-        <span>Sense descàrregues pesades d'App Store</span>
+      <div class="flex items-center gap-2 self-start sm:self-center">
+        <div class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-gold/30 text-xs text-ink/80 shadow-2xs font-raleway">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>Sense botigues d'apps</span>
+        </div>
+        <a href="{{ path('app_profile') }}" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white border border-steel/30 text-ink hover:border-gold hover:text-gold shadow-2xs transition-all flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+          <span>El meu Perfil</span>
+        </a>
       </div>
     </div>
 
