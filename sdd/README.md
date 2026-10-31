@@ -29,5 +29,6 @@ Aquest directori conté el conjunt d'especificacions tècniques, de producte, de
 
 ## Recursos Addicionals
 - **Guia d'Estils Viva:** [`web/guia-destils.html`](../web/guia-destils.html) (disponible en local a [http://127.0.0.1:8004/guia-destils.html](http://127.0.0.1:8004/guia-destils.html)).
+- **Guia d'Integracions Externes Interactiva:** [`web/integracions-externes.html`](../web/integracions-externes.html) (disponible en local a [http://127.0.0.1:8008/integracions-externes.html](http://127.0.0.1:8008/integracions-externes.html)).
 - **Documents Originals de Referència:** Carpeta [`sdd/docs/`](docs/).
 
