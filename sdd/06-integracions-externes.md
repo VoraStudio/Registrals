@@ -30,6 +30,14 @@ Aquest document estableix l'**especificació tècnica oficial, arquitectura d'ad
   - [3.5. Desacoblament Asíncron mitjançant Symfony Messenger](#35-desacoblament-as%C3%ADncron-mitjan%C3%A7ant-symfony-messenger)
 - [4. Matriu Comparativa de Credencials i Seguretat per Entorn](#4-matriu-comparativa-de-credencials-i-seguretat-per-entorn)
 - [5. Protocols d'Idempotència i Resiliència Davant Caigudes](#5-protocols-didempot%C3%A8ncia-i-resili%C3%A8ncia-davant-caigudes)
+- [6. Guia d'Alta Pas a Pas i Unit Economics per Proveïdor](#6-guia-dalta-pas-a-pas-i-unit-economics-per-prove%C3%AFdor)
+  - [6.1. Stripe](#61-stripe)
+  - [6.2. Signaturit](#62-signaturit)
+  - [6.3. Polygon PoS Blockchain](#63-polygon-pos-blockchain)
+- [7. Anàlisi d'Alternatives Tecnològiques i Criteris de Decisió](#7-an%C3%A0lisi-dalternatives-tecnol%C3%B2giques-i-criteris-de-decisi%C3%B3)
+  - [7.1. Alternatives a Stripe (Pagaments)](#71-alternatives-a-stripe-pagaments)
+  - [7.2. Alternatives a Signaturit (eIDAS & KYC)](#72-alternatives-a-signaturit-eidas--kyc)
+  - [7.3. Alternatives a Polygon PoS (Blockchain)](#73-alternatives-a-polygon-pos-blockchain)
 
 ---
 
@@ -403,3 +411,105 @@ Aquesta estructura permet que qualsevol explorador com Polygonscan mostri exacta
    - Si l'endpoint de Signaturit respon amb error 5xx o timeout > 10 segons, el certificat no es perd: es marca en estat de reintent asíncron (`retry_pending`) o s'activa el simulador segur en DEV.
 3. **Polygon PoS:**
    - Si el proveïdor RPC pateix una incidència temporal, Symfony Messenger aplica la política de *backoff* exponencial (`messenger:failed:retry`) amb fins a 5 reintents abans de moure el missatge a la cua `failed` visible des de `/admin/serveis`.
+
+---
+
+# 6. Guia d'Alta Pas a Pas i Unit Economics per Proveïdor
+
+Aquesta secció detalla el procés administratiu, les dades necessàries per activar cada servei i el desglossament exacte dels costos unitaris d'operació.
+
+## 6.1. Stripe
+### Pas a pas d'Alta
+1. **Registre Inicial:** Crear compte a [dashboard.stripe.com/register](https://dashboard.stripe.com/register).
+2. **Mode de Proves Immediat (DEV):** Des del primer segon s'obté accés al Dashboard i a les claus de prova (`pk_test_...`, `sk_test_...`) sense verificació bancària ni documentació.
+3. **Activació de Compte de Producció (Live):**
+   - **Tipus d'entitat:** Autònom (*Sole proprietorship*) o Societat Limitada (*Company / SL*) a Espanya o la Unió Europea.
+   - **Dades requerides:** NIF/CIF fiscal, adreça fiscal, DNI/NIE de l'administrador o titular del compte, i compte bancari IBAN per a transferències de fons.
+   - **Verificació:** Stripe valida l'empresa de forma automatitzada en 24-48 hores.
+4. **Configuració del Webhook:** A *Developers > Webhooks*, afegir l'endpoint `https://registrals.com/webhook/stripe` i copiar el secret `whsec_...`.
+
+### Estructura de Costos Reals i Rendibilitat
+- **Cost fix de manteniment:** **0 € / mes**.
+- **Tarifa per transacció europea estàndard (Targetes UE, Apple Pay, Google Pay):** **1,5% + 0,25 €**.
+- **Unit Economics per operació de Registrals:**
+  | Producte / Tràmit | Preu Cobrat a Client | Comissió Stripe (1,5% + 0,25 €) | Ingrés Net per a Registrals | Marge de Cobrament |
+  | :--- | :--- | :--- | :--- | :--- |
+  | **Traspàs C2C Solt** | 2,90 € | 0,29 € | **2,61 €** | 90,0% |
+  | **Certificat Oficial Solt** | 5,90 € | 0,34 € | **5,56 €** | 94,2% |
+  | **Pla Plus Anual** | 22,00 € | 0,58 € | **21,42 €** | 97,4% |
+  | **Pla Unlimited Anual** | 59,00 € | 1,14 € | **57,86 €** | 98,1% |
+
+---
+
+## 6.2. Signaturit
+### Pas a pas d'Alta
+1. **Accés a Sandbox de Desenvolupament:**
+   - Registrar-se com a *developer* a [signaturit.com](https://www.signaturit.com/) per generar un API Token de proves a `api.sandbox.signaturit.com/v3`.
+   - *Nota d'arquitectura:* Registrals incorpora a `SignaturitClient` un simulador determinista de segellats que permet testejar en local sense necessitat d'estar connectat a l'API.
+2. **Contractació de Producció:**
+   - Sol·licitar l'activació d'un contracte de serveis de confiança qualificada amb l'equip de vendes de Signaturit Group (paquet de segellats de temps eIDAS i crides d'identitat eIDV).
+   - Generació del token de producció des del tauler d'administració de Signaturit i registre a `.env.local` (`SIGNATURIT_API_TOKEN`).
+
+### Estructura de Costos Reals i Rendibilitat
+- **Segellat de Temps Qualificat eIDAS (TSP):** **~0,05 € a 0,10 € per certificat**.
+  - *Marge comercial:* Cobrat a 5,90 € en pagament solt o amortitzat a la quota de 22 € del Pla Plus (10 certificats = ~0,80 € de cost de proveïdor; rendibilitat neta de la subscripció > 95%).
+- **Identificació Digital eIDV / KYC (OCR DNI + Biometria facial):** **~1,20 € a 1,50 € per verificació completa**.
+  - *Marge comercial:* Amortitzat al primer any de la subscripció Plus o cobrat com a tràmit d'identitat prèmium a 3,50 €.
+
+---
+
+## 6.3. Polygon PoS Blockchain
+### Pas a pas d'Alta
+1. **Sense Contracte ni Registre Centralitzat:** Com a xarxa descentralitzada i sense censura (*permissionless*), no cal demanar permís a cap entitat per començar a operar.
+2. **Generació de la Hot Wallet del Sistema:**
+   - Generar un parell de claus asimètriques EVM mitjançant utilitats com `cast wallet new`, web3 o OpenSSL offline.
+   - Desar l'adreça pública al sistema (serà visible als exploradors de blocs com l'emissor oficial de Registrals).
+   - Desar la clau privada de 64 caràcters hexadecimals a `POLYGON_WALLET_PRIVATE_KEY` a `.env.local` (o als secrets xifrats de Symfony).
+3. **Proveïdor de Node RPC (Producció):**
+   - Crear un compte gratuït a [Alchemy.com](https://www.alchemy.com/) o [QuickNode.com](https://www.quicknode.com/).
+   - El pla gratuït (*Free Tier*) inclou entre 30 i 100 milions d'unitats de computació (CU) mensuals, més que suficient per cobrir centenars de milers de consultes de Registrals a cost **0 €**.
+4. **Fons Inicials de Gas:**
+   - Adquirir entre 20 € i 50 € en token **POL** des d'un compte corporatiu en un exchange regulat o mitjançant transferència, i enviar-los a l'adreça de la Hot Wallet de Registrals.
+
+### Estructura de Costos Reals
+- **Cost de transacció (Gas Fee):** **< 0,003 € per ancoratge de hash**.
+- **Rendiment del dipòsit de gas:**
+  - Amb una càrrega inicial de **20 € en POL**, Registrals pot executar entre **7.000 i 10.000 ancoratges oficials** a la blockchain.
+  - El cost tècnic per bé és pràcticament nul, garantint la màxima viabilitat del pla Freemium.
+
+---
+
+# 7. Anàlisi d'Alternatives Tecnològiques i Criteris de Decisió
+
+Per a cadascun dels tres components, s'han avaluat les principals alternatives de mercat i els motius pels quals s'ha escollit la solució actual o quan podria tenir sentit una transició:
+
+## 7.1. Alternatives a Stripe (Pagaments)
+
+| Proveïdor | Avantatges | Inconvenients | Criteri i Veredicte per a Registrals |
+| :--- | :--- | :--- | :--- |
+| **Stripe** *(Triat)* | SDK de primer nivell, Hosted Checkout impecable, Apple/Google Pay nadiu, Customer Portal automatitzat, Webhooks robustos. | Comissió del 1,5% + 0,25 € lleugerament superior a la banca tradicional. | **Solució oficial d'entrada.** Redueix el temps de desenvolupament un 80% i ofereix la millor taxa de conversió per a clients particulars. |
+| **Redsýs / TPV Virtual** *(Bancs espanyols: CaixaBank, Santander, BBVA)* | Comissions molt baixes (~0,3% a 0,5%), sense fix per operació, suport natiu de **Bizum**. | Experiència d'usuari (UX) antiquada, redireccions bancàries que augmenten l'abandonament, gestió de subscripcions i canvis de targeta molt complexa i manual, sense Customer Portal. | **Candidat futur per a fase d'escala nacional.** Molt recomanable per oferir pagament per Bizum quan el volum de transaccions a Espanya superi els 100.000 € anuals. |
+| **Paddle / Lemon Squeezy** | Actuen com a *Merchant of Record* (gestionen l'IVA internacional MOSS/OSS i facturació per compte propi). | Comissió abusiva (5% + 0,50 $ per càrrec). Destrueix la rendibilitat en micro-pagaments de 2,90 €. | **Descartat.** Inviable econòmicament per al nostre model de tarifes. |
+| **Mollie** | Molt popular a la Unió Europea, excel·lent suport d'iDEAL (Països Baixos), Bancontact (Bèlgica) i targetes. Comissions competitives (~1,2% a 1,8%). | Menys maduresa que Stripe en subscripcions complexes i documentació d'SDK per a portals de clients. | **Bona alternativa europea de reserva** si en el futur es busca un operador amb seu estrictament a la UE. |
+
+---
+
+## 7.2. Alternatives a Signaturit (eIDAS & KYC)
+
+| Proveïdor | Avantatges | Inconvenients | Criteri i Veredicte per a Registrals |
+| :--- | :--- | :--- | :--- |
+| **Signaturit Group** *(Triat)* | QTSP eIDAS acreditat per la UE, API REST moderna per a segellat de temps (RFC 3161) i eIDV biomètric, seu a Barcelona/Madrid/París. | Documentació d'onboarding inicial menys automatitzada que Stripe (requereix contacte per tarifes d'alt volum). | **Solució oficial d'entrada.** Ofereix la doble capa que necessitem (temps qualificat legal + verificació de document d'identitat) sota un mateix proveïdor. |
+| **Validated ID (VIDsigner)** | Proveïdor qualificat europeu amb seu a Barcelona, excel·lent seguretat jurídica i API de signatura biomètrica i de temps. | Ecosistema més enfocat a signatura de documents que a crides massives de timestamping per hash. | **Millor alternativa directa.** Si calgués un segon proveïdor per redundància o concurrència, Validated ID és el candidat número u. |
+| **FNMT (Fábrica Nacional de Moneda y Timbre)** | Màxim reconeixement públic a Espanya, autoritat oficial de l'Estat. | Tràmits d'alta administratius molt burocràtics, integració API menys flexible per a arquitectures de núvol àgils. | **Descartat per a l'MVP.** Podria explorar-se per a acords institucionals a llarg termini. |
+| **DocuSign / Adobe Sign** | Reconeixement de marca mundial incontestable. | Preus desorbitats, barreres d'entrada amb contractes anuals mínims de milers d'euros, concebuts per a contractes mercantils i no per a segellat de temps tècnic de milers de PDFs. | **Descartat per pricing i enfocament de producte.** |
+
+---
+
+## 7.3. Alternatives a Polygon PoS (Blockchain)
+
+| Cadena / Capa | Avantatges | Inconvenients | Criteri i Veredicte per a Registrals |
+| :--- | :--- | :--- | :--- |
+| **Polygon PoS** *(Triat)* | Temps de bloc de 2 segons, comissions ultra-baixes (< 0,003 €), compatibilitat 100% EVM, ecosistema madur d'exploradors (Polygonscan) i àmplia acceptació institucional. | Cadena lateral (*sidechain*) amb mecanisme de consens autònom (PoS). | **Solució oficial d'entrada.** L'equilibri ideal entre cost per transacció, fiabilitat tècnica i facilitat de consulta pública per a tercers. |
+| **Base (Layer 2 de Coinbase)** | Optimistic Rollup d'Ethereum amb seguretat derivada directament de L1, comissions inferiors a 0,001 € gràcies a l'EIP-4844 (blobs), recolzat per Coinbase. | Temps de finalitat formal de 7 dies a Ethereum L1 (tot i que per a consultar l'ancoratge a L2 és immediat). | **Millor alternativa Layer 2.** Molt fàcil de commutar mitjançant el nostre adaptador `BlockchainAnchorInterface` simplement canviant l'RPC i el Chain ID (`8453`). |
+| **Arbitrum One / Optimism** | Les L2 més consolidades en volum i seguretat a l'ecosistema Ethereum. | El cost per transacció en pics de xarxa pot pujar a 0,05 € - 0,10 €, cosa que multiplicaria per 20 el nostre cost marginal. | **Alternativa secundària.** |
+| **Ethereum Mainnet (Layer 1)** | La xarxa més descentralitzada, immutable i prestigiosa del món. | Comissions de gas prohibitives (entre 1 € i 15 € per transacció). | **Completament descartat per a operacions individuals.** Únicament tindria sentit per a un ancoratge mestre mensual agregat (Merkle Root) de tot el sistema Registrals. |
