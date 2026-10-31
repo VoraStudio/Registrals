@@ -21,6 +21,11 @@ enum UserActivityAction: string
     case TRANSFER_ACCEPTED = 'transfer_accepted';
     case TRANSFER_CANCELLED = 'transfer_cancelled';
     case TRANSFER_REJECTED = 'transfer_rejected';
+    case PAYMENT_COMPLETED = 'payment_completed';
+    case PAYMENT_FAILED = 'payment_failed';
+    case SUBSCRIPTION_STARTED = 'subscription_started';
+    case SUBSCRIPTION_CANCELLED = 'subscription_cancelled';
+    case REFUND_PROCESSED = 'refund_processed';
 
     public function label(): string
     {
@@ -40,6 +45,11 @@ enum UserActivityAction: string
             self::TRANSFER_ACCEPTED => 'Acceptació de traspàs',
             self::TRANSFER_CANCELLED => 'Cancel·lació de traspàs',
             self::TRANSFER_REJECTED => 'Rebuig de traspàs',
+            self::PAYMENT_COMPLETED => 'Pagament completat',
+            self::PAYMENT_FAILED => 'Pagament fallit',
+            self::SUBSCRIPTION_STARTED => 'Subscripció activada',
+            self::SUBSCRIPTION_CANCELLED => 'Subscripció cancel·lada',
+            self::REFUND_PROCESSED => 'Reemborsament processat',
         };
     }
 
@@ -59,6 +69,9 @@ enum UserActivityAction: string
             self::CERTIFICATE_VERIFIED => 'bg-emerald-50 text-emerald-800 border-emerald-300',
             self::TRANSFER_INITIATED, self::TRANSFER_ACCEPTED => 'bg-purple-50 text-purple-800 border-purple-300',
             self::TRANSFER_CANCELLED, self::TRANSFER_REJECTED => 'bg-slate-100 text-slate-700 border-slate-300',
+            self::PAYMENT_COMPLETED, self::SUBSCRIPTION_STARTED => 'bg-emerald-50 text-emerald-800 border-emerald-300 font-medium',
+            self::PAYMENT_FAILED, self::SUBSCRIPTION_CANCELLED => 'bg-rose-50 text-rose-800 border-rose-300',
+            self::REFUND_PROCESSED => 'bg-amber-50 text-amber-800 border-amber-300',
         };
     }
 
@@ -83,6 +96,12 @@ enum UserActivityAction: string
             self::TRANSFER_ACCEPTED,
             self::TRANSFER_CANCELLED,
             self::TRANSFER_REJECTED => 'Transmissions C2C',
+
+            self::PAYMENT_COMPLETED,
+            self::PAYMENT_FAILED,
+            self::SUBSCRIPTION_STARTED,
+            self::SUBSCRIPTION_CANCELLED,
+            self::REFUND_PROCESSED => 'Facturació & Pagaments',
         };
     }
 
@@ -116,6 +135,13 @@ enum UserActivityAction: string
                 self::TRANSFER_ACCEPTED,
                 self::TRANSFER_CANCELLED,
                 self::TRANSFER_REJECTED,
+            ],
+            'Facturació & Pagaments' => [
+                self::PAYMENT_COMPLETED,
+                self::PAYMENT_FAILED,
+                self::SUBSCRIPTION_STARTED,
+                self::SUBSCRIPTION_CANCELLED,
+                self::REFUND_PROCESSED,
             ],
         ];
     }

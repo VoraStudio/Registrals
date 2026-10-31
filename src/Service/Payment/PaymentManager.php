@@ -12,6 +12,8 @@ use App\Entity\Plan;
 use App\Entity\User;
 use App\Enum\CertificateMode;
 use App\Enum\PaymentStatus;
+use App\Audit\Enum\UserActivityAction;
+use App\Audit\Service\UserActivityLogger;
 use App\Enum\PaymentType;
 use App\Repository\CertificateRepository;
 use App\Repository\ItemRepository;
@@ -34,7 +36,8 @@ class PaymentManager
         private readonly CertificateIssuerService $certificateIssuer,
         private readonly CertificateRepository $certificateRepository,
         private readonly EntityManagerInterface $entityManager,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
+        private readonly ?UserActivityLogger $activityLogger = null
     ) {
     }
 
@@ -130,6 +133,9 @@ class PaymentManager
         }
 
         // Acció de negoci segons el tipus de transacció
+        $amountTotal = (int) ($session['amount_total'] ?? 0);
+        $amountFormatted = number_format($amountTotal / 100, 2, ',', '.') . ' €';
+
         if ($typeStr === 'subscription') {
             $planCode = (string) ($metadata['plan_code'] ?? 'plus');
             $plan = $this->planRepository->findByCode($planCode);
@@ -142,6 +148,18 @@ class PaymentManager
                     $user->setStripeSubscriptionId($session['subscription']);
                 }
                 $this->entityManager->persist($user);
+
+                $this->activityLogger?->log(
+                    $user,
+                    UserActivityAction::SUBSCRIPTION_STARTED,
+                    sprintf('Subscripció al Pla %s activada via Stripe (%s)', strtoupper($planCode), $amountFormatted),
+                    [
+                        'session_id' => $sessionId,
+                        'event_id' => $eventId,
+                        'plan_code' => $planCode,
+                        'amount' => $amountTotal,
+                    ]
+                );
             }
         } elseif ($typeStr === 'certificate') {
             $itemId = (int) ($metadata['item_id'] ?? 0);
@@ -149,6 +167,19 @@ class PaymentManager
             if ($item !== null) {
                 // Emet el certificat oficial de pagament (compra directa autoritzada)
                 $this->certificateIssuer->issueCertificate($item, $user, CertificateMode::OFFICIAL, true);
+
+                $this->activityLogger?->log(
+                    $user,
+                    UserActivityAction::PAYMENT_COMPLETED,
+                    sprintf('Pagament de certificat oficial completat per al bé %s (%s)', $item->getCui(), $amountFormatted),
+                    [
+                        'session_id' => $sessionId,
+                        'event_id' => $eventId,
+                        'cui' => $item->getCui(),
+                        'item_id' => $itemId,
+                        'amount' => $amountTotal,
+                    ]
+                );
             }
         } elseif ($typeStr === 'transfer') {
             $transferId = (int) ($metadata['transfer_id'] ?? 0);
@@ -159,6 +190,18 @@ class PaymentManager
                 $transferMeta['stripe_session_id'] = $sessionId;
                 $transfer->setMetadata($transferMeta);
                 $this->entityManager->persist($transfer);
+
+                $this->activityLogger?->log(
+                    $user,
+                    UserActivityAction::PAYMENT_COMPLETED,
+                    sprintf('Pagament de taxa de traspàs C2C completat (%s)', $amountFormatted),
+                    [
+                        'session_id' => $sessionId,
+                        'event_id' => $eventId,
+                        'transfer_id' => $transferId,
+                        'amount' => $amountTotal,
+                    ]
+                );
             }
         }
 
@@ -192,6 +235,7 @@ class PaymentManager
         $user->setSubscriptionStatus('active');
 
         $amountPaid = (int) ($invoice['amount_paid'] ?? 0);
+        $amountFormatted = number_format($amountPaid / 100, 2, ',', '.') . ' €';
         $transaction = new PaymentTransaction($user, PaymentType::SUBSCRIPTION, $amountPaid);
         $transaction->setStatus(PaymentStatus::PAID);
         $transaction->setStripeEventId($eventId);
@@ -201,6 +245,18 @@ class PaymentManager
         $this->entityManager->persist($user);
         $this->entityManager->persist($transaction);
         $this->entityManager->flush();
+
+        $this->activityLogger?->log(
+            $user,
+            UserActivityAction::PAYMENT_COMPLETED,
+            sprintf('Renovació periòdica de subscripció cobrada amb èxit (%s)', $amountFormatted),
+            [
+                'invoice_id' => (string) ($invoice['id'] ?? ''),
+                'subscription_id' => $subscriptionId,
+                'event_id' => $eventId,
+                'amount' => $amountPaid,
+            ]
+        );
 
         return true;
     }
@@ -222,6 +278,17 @@ class PaymentManager
             $user->setSubscriptionStatus('past_due');
             $this->entityManager->persist($user);
             $this->entityManager->flush();
+
+            $this->activityLogger?->log(
+                $user,
+                UserActivityAction::PAYMENT_FAILED,
+                sprintf('Cobrament de factura de subscripció fallit via Stripe (%s)', (string) ($invoice['id'] ?? '')),
+                [
+                    'invoice_id' => (string) ($invoice['id'] ?? ''),
+                    'customer_id' => $customerId,
+                    'event_id' => (string) ($event['id'] ?? ''),
+                ]
+            );
         }
 
         return true;
@@ -248,6 +315,17 @@ class PaymentManager
             $user->setSubscriptionStatus('canceled');
             $this->entityManager->persist($user);
             $this->entityManager->flush();
+
+            $this->activityLogger?->log(
+                $user,
+                UserActivityAction::SUBSCRIPTION_CANCELLED,
+                'Subscripció Stripe cancel·lada. Retorn automàtic al Pla Free.',
+                [
+                    'subscription_id' => (string) ($subscription['id'] ?? ''),
+                    'customer_id' => $customerId,
+                    'event_id' => (string) ($event['id'] ?? ''),
+                ]
+            );
         }
 
         return true;
@@ -267,6 +345,22 @@ class PaymentManager
                 $transaction->setStatus(PaymentStatus::REFUNDED);
                 $this->entityManager->persist($transaction);
                 $this->entityManager->flush();
+
+                $refundUser = $transaction->getUser();
+                if ($refundUser !== null) {
+                    $amountRefunded = (int) ($charge['amount_refunded'] ?? $transaction->getAmount());
+                    $amountRefundedFormatted = number_format($amountRefunded / 100, 2, ',', '.') . ' €';
+                    $this->activityLogger?->log(
+                        $refundUser,
+                        UserActivityAction::REFUND_PROCESSED,
+                        sprintf('Reemborsament de %s executat via Stripe.', $amountRefundedFormatted),
+                        [
+                            'payment_intent_id' => $paymentIntent,
+                            'transaction_id' => $transaction->getId(),
+                            'charge_id' => (string) ($charge['id'] ?? ''),
+                        ]
+                    );
+                }
             }
         }
 
