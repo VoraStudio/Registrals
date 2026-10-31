@@ -154,6 +154,9 @@
           <div>
             <div class="flex justify-between items-center mb-1.5">
               <label for="inputPassword" class="block text-xs font-semibold uppercase tracking-wider text-cream/90 font-raleway">Contrasenya</label>
+              <a href="#" id="btn-forgot-password" onclick="event.preventDefault(); if (window.RegistralsToast) { window.RegistralsToast.show('Recuperació de Contrasenya', 'Aquesta funcionalitat d\'enviament d\'enllaç al correu estarà disponible properament.', 'info', 4500); } fetch('{{ path('api_track_feature_interest') }}', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ feature: 'password_reset', origin: 'login_form' }) }).catch(function(){}); return false;" class="text-[11px] text-gold hover:underline font-semibold font-raleway">
+                Has oblidat la contrasenya?
+              </a>
             </div>
             <div class="relative rounded-xl shadow-xs">
               <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-steel">

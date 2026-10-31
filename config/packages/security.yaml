@@ -42,6 +42,7 @@ security:
         - { path: ^/connect, roles: PUBLIC_ACCESS }
         - { path: ^/api/track, roles: PUBLIC_ACCESS }
         - { path: ^/verify, roles: PUBLIC_ACCESS }
+        - { path: ^/transfer, roles: PUBLIC_ACCESS }
         - { path: ^/guia-destils, roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/app, roles: ROLE_USER }

@@ -196,6 +196,34 @@ Per preservar el rigor d'auditoria i la productivitat de l'administrador:
    - El Backoffice a mòbil només mostra un dashboard condensat de seguiment (KPIs de salut, usuaris, béns i certificats).
    - Menú lateral plegat per defecte mitjançant acordió/botó per mantenir la netedat visual.
    - Prescripció d'ús: les operacions complexes d'auditoria, taules amples i parametrització indiquen amb `.guide-note` la necessitat de connectar-se des de la interfície d'escriptori (PC).
+6. **Telemetria d'Adquisició & Mapa Geogràfic de Trànsit (Google GeoChart):**
+   - El Dashboard d'Administració (`/admin`) incorpora un bloc de telemetria de canals (% Email vs % Google OAuth, demanda d'Apple ID i recuperació de contrasenya).
+   - Graella harmonitzada 16:9 que integra el mapa de coropletes interactiu (**Google GeoChart**) amb la paleta corporativa notarial (`#FAF6F0` de fons, `#CAA36C` or mitjà i `#1D2F4B` tinta profunda), acompanyat d'un rànquing lateral de Top Territoris i resolució d'IPs amb privadesa per disseny.
+
+---
+
+## 8. Safata de Certificats Digitals i Document PDF Notarial
+
+### 8.1. Safata Global de Certificats (`/app/certificats`)
+- **Barra Mètrica Compacta d'1 Sola Línia:**
+  - Substitueix les targetes voluminoses per una cinta horitzontal compacta (`px-4 py-2 bg-white rounded-xl border border-steel/20`).
+  - Indicadors d'alta densitat: `Total`, `Oficials eIDAS` (amb punt verd) i `Esborranys` en font Marcellus i accents daurat/acer.
+  - Estalvia més de 70px d'alçada vertical, posicionant els filtres i documents al primer cop d'ull en pantalles 16:9 sense scroll innecessari.
+- **Targeta de Document Notarial (`.cert-tile`):**
+  - **Orientació vertical pura (0°):** Prohibició de rotacions tipus paper desordenat (`-4°`) que difuminin el text per antialiasing. Rigor geomètric i nitidesa màxima de píxels per a codis QR i CUIs.
+  - **Affordance d'Interacció Directa:** Tot el cos del document és un enllaç `<a>` interactiu amb `target="_blank"`. En fer-hi clic, s'obre el PDF oficial de forma immediata al visor del navegador (`Content-Disposition: inline`).
+  - **Botoier Flotant Sincronitzat:** Barra d'accions ràpides al peu (Descarregar PDF, Veure bé, Validar QR) amb marge negatiu ajustat (`-mt-1.5`) i elevació sincronitzada al hover (`translateY(-4px)`).
+
+### 8.2. Maquetació del Certificat PDF Notarial (`pdf_template.html.twig`)
+- **Dimensions Físiques Deterministes (`mm`):** Format exacte A4 portrait (`210mm x 297mm`) amb marc perimetral de doble filigrana daurada (`#CAA36C`).
+- **Capçalera Institucional Ampliada:**
+  - Isotip oficial en alta resolució (`58px`) encastat com a Data URI SVG en base64.
+  - Títol `REGISTRALS` solemne en font Marcellus (`31px`), acompanyat de la numeració oficial (`CERT-YYYY-XXXXXX`) i xapa de modalitat.
+  - Separació física neta d'exactament **10mm** (`margin-bottom: 10mm` i `padding-bottom: 5mm`) abans d'iniciar el contingut per a un equilibri estètic solemne.
+- **Secció 1 (Identificació & Fotografia Principal Custodiada):**
+  - Composició en 2 columnes paral·leles: taula d'especificacions tècniques a l'esquerra i miniatura fotogràfica del bé a la dreta (`48mm x 38mm`).
+  - Marc daurat de custòdia Flysystem amb verificació de fingerprint SHA-256 integrat.
+- **Regeneració en Calent d'Esborranys:** Els certificats en mode esborrany es regeneren automàticament davant canvis de plantilla tant al vol a través de `UserCertificateController` com mitjançant la comanda CLI `app:certificates:regenerate-drafts`.
 
 
 

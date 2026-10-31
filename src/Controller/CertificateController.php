@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Audit\Enum\UserActivityAction;
+use App\Audit\Service\UserActivityLogger;
 use App\Entity\Certificate;
 use App\Entity\Item;
 use App\Entity\User;
@@ -24,7 +26,8 @@ class CertificateController extends AbstractController
     public function __construct(
         private readonly CertificateIssuerService $certificateIssuer,
         private readonly CertificateRepository $certificateRepository,
-        private readonly FilesystemOperator $itemDocumentStorage
+        private readonly FilesystemOperator $itemDocumentStorage,
+        private readonly ?UserActivityLogger $activityLogger = null
     ) {
     }
 
@@ -48,6 +51,20 @@ class CertificateController extends AbstractController
 
         try {
             $certificate = $this->certificateIssuer->issueCertificate($item, $user, $mode);
+
+            // Registre a la base d'auditoria forense (registrals_audit)
+            $this->activityLogger?->log(
+                user: $user,
+                action: UserActivityAction::CERTIFICATE_ISSUED,
+                description: sprintf('Emissió de certificat %s (%s) per al bé %s', $certificate->getCertificateNumber(), $mode->label(), $item->getCui()),
+                details: [
+                    'certificate_number' => $certificate->getCertificateNumber(),
+                    'cui' => $item->getCui(),
+                    'mode' => $mode->value,
+                    'is_official' => $mode->isOfficial(),
+                    'uuid' => $certificate->getUuid()->toRfc4122(),
+                ]
+            );
 
             $downloadUrl = $this->generateUrl('app_item_certificate_download', [
                 'id' => $item->getId(),
@@ -82,6 +99,13 @@ class CertificateController extends AbstractController
         $certificate = $this->certificateRepository->find($certId);
         if (!$certificate instanceof Certificate || $certificate->getItem()->getId() !== $item->getId()) {
             throw $this->createNotFoundException('El certificat sol·licitat no existeix o no pertany a aquest bé.');
+        }
+
+        /** @var User $currentUser */
+        $currentUser = $this->getUser();
+        $isAdmin = in_array('ROLE_ADMIN', $currentUser->getRoles(), true);
+        if (!$isAdmin && $certificate->getIssuedBy()->getId() !== $currentUser->getId()) {
+            throw $this->createAccessDeniedException('Per motius de privacitat i protecció de dades (RGPD), només l\'emissor titular pot descarregar aquest certificat.');
         }
 
         $storagePath = $certificate->getPdfFilePath();

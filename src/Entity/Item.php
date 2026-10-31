@@ -137,6 +137,13 @@ class Item
     #[ORM\OrderBy(['createdAt' => 'DESC'])]
     private Collection $certificates;
 
+    /**
+     * @var Collection<int, ItemTransfer>
+     */
+    #[ORM\OneToMany(mappedBy: 'item', targetEntity: ItemTransfer::class, cascade: ['persist', 'remove'])]
+    #[ORM\OrderBy(['requestedAt' => 'DESC'])]
+    private Collection $transfers;
+
     public function __construct(User $owner, string $cui, string $name, Category $category)
     {
         $this->uuid = Uuid::v7();
@@ -148,6 +155,7 @@ class Item
         $this->documents = new ArrayCollection();
         $this->blockchainReceipts = new ArrayCollection();
         $this->certificates = new ArrayCollection();
+        $this->transfers = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
     }
@@ -402,9 +410,9 @@ class Item
         return $this->status;
     }
 
-    public function setStatus(ItemStatus $status): self
+    public function setStatus(ItemStatus|string $status): self
     {
-        $this->status = $status;
+        $this->status = is_string($status) ? ItemStatus::from($status) : $status;
         $this->updatedAt = new \DateTimeImmutable();
         return $this;
     }
@@ -554,6 +562,35 @@ class Item
         foreach ($this->certificates as $cert) {
             if ($cert->getMode() === $mode) {
                 return $cert;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return Collection<int, ItemTransfer>
+     */
+    public function getTransfers(): Collection
+    {
+        return $this->transfers;
+    }
+
+    public function addTransfer(ItemTransfer $transfer): static
+    {
+        if (!$this->transfers->contains($transfer)) {
+            $this->transfers->add($transfer);
+            $transfer->setItem($this);
+        }
+
+        return $this;
+    }
+
+    public function getActiveTransfer(): ?ItemTransfer
+    {
+        foreach ($this->transfers as $transfer) {
+            if ($transfer->getStatus()->isPending() && !$transfer->isExpired()) {
+                return $transfer;
             }
         }
 

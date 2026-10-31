@@ -12,6 +12,8 @@ use App\Form\ItemType;
 use App\Message\AnchorBlockchainMessage;
 use App\Repository\CategoryRepository;
 use App\Repository\ItemRepository;
+use App\Audit\Enum\UserActivityAction;
+use App\Audit\Service\UserActivityLogger;
 use App\Security\Voter\ItemVoter;
 use App\Service\Item\CuiGeneratorService;
 use App\Service\Storage\SecureDocumentStorageService;
@@ -42,7 +44,8 @@ class ItemController extends AbstractController
         SecureDocumentStorageService $storageService,
         MediaIntegrityValidator $integrityValidator,
         EntityManagerInterface $entityManager,
-        \Symfony\Component\Messenger\MessageBusInterface $messageBus
+        \Symfony\Component\Messenger\MessageBusInterface $messageBus,
+        UserActivityLogger $activityLogger
     ): Response {
         /** @var User $user */
         $user = $this->getUser();
@@ -118,6 +121,20 @@ class ItemController extends AbstractController
 
                 $entityManager->flush();
 
+                // Registre a la base d'auditoria forense (registrals_audit)
+                $activityLogger->log(
+                    user: $user,
+                    action: UserActivityAction::ITEM_CREATED,
+                    description: sprintf('Alta i registre notarial del bé %s (%s)', $item->getName(), $item->getCui()),
+                    details: [
+                        'cui' => $item->getCui(),
+                        'name' => $item->getName(),
+                        'category' => $item->getCategory()?->getName(),
+                        'brand' => $item->getBrand(),
+                        'estimated_value' => $item->getEstimatedValueCents() !== null ? ($item->getEstimatedValueCents() / 100) : null,
+                    ]
+                );
+
                 // Notarització asíncrona a Polygon Blockchain (Layer 2)
                 $messageBus->dispatch(new AnchorBlockchainMessage($item->getId(), BlockchainActionType::ITEM_REGISTRATION));
 
@@ -155,7 +172,14 @@ class ItemController extends AbstractController
             throw $this->createNotFoundException('El bé sol·licitat no existeix.');
         }
 
-        $this->denyAccessUnlessGranted(ItemVoter::VIEW, $item);
+        if (!$this->isGranted(ItemVoter::VIEW, $item)) {
+            $this->addFlash('warning', sprintf(
+                'El bé %s no està disponible al vostre patrimoni actiu perquè ha estat transmès a un altre titular.',
+                $item->getCui()
+            ));
+
+            return $this->redirectToRoute('app_transfers_index');
+        }
 
         return $this->render('item/show.html.twig', [
             'item' => $item,

@@ -16,6 +16,8 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
+use App\Service\GeoIp\GeoLocationService;
+
 #[Route('/admin')]
 #[IsGranted('ROLE_ADMIN')]
 class AdminDashboardController extends AbstractController
@@ -28,7 +30,8 @@ class AdminDashboardController extends AbstractController
         PlanRepository $planRepository,
         SystemSettingRepository $settingRepository,
         ManagerRegistry $doctrine,
-        HttpClientInterface $httpClient
+        HttpClientInterface $httpClient,
+        GeoLocationService $geoLocationService
     ): Response {
         // 1. Mètriques de Negoci & Activitat
         $totalUsers = $userRepository->countTotal();
@@ -78,6 +81,66 @@ class AdminDashboardController extends AbstractController
         $estimatedArr = ($plusUsers * 22) + ($unlimitedUsers * 59);
         $estimatedMarginPercent = 88;
 
+        // 5. Canals d'Accés & Registre (Email vs Google OAuth)
+        $googleUsers = 0;
+        try {
+            $googleUsers = (int) $doctrine->getConnection('default')
+                ->executeQuery("SELECT COUNT(*) FROM users WHERE auth_provider = 'google' OR google_id IS NOT NULL")
+                ->fetchOne();
+        } catch (\Throwable) {
+            $googleUsers = 0;
+        }
+        $emailUsers = max(0, $totalUsers - $googleUsers);
+        $percentGoogle = $totalUsers > 0 ? round(($googleUsers / $totalUsers) * 100, 1) : 0.0;
+        $percentEmail = $totalUsers > 0 ? round(($emailUsers / $totalUsers) * 100, 1) : 0.0;
+
+        // 6. Demanda & Smoke Tests (Apple ID Leads i Password Reset)
+        $appleLoginClicks = 0;
+        $appleRegisterClicks = 0;
+        $passwordResetClicks = 0;
+        try {
+            $interestRows = $doctrine->getConnection('default')
+                ->executeQuery("SELECT feature_code, origin, COUNT(*) as cnt FROM feature_interest_events GROUP BY feature_code, origin")
+                ->fetchAllAssociative();
+
+            foreach ($interestRows as $row) {
+                $feature = (string) $row['feature_code'];
+                $origin = (string) $row['origin'];
+                $cnt = (int) $row['cnt'];
+
+                if ($feature === 'apple_id') {
+                    if ($origin === 'login_button') {
+                        $appleLoginClicks += $cnt;
+                    } elseif ($origin === 'register_button') {
+                        $appleRegisterClicks += $cnt;
+                    }
+                } elseif ($feature === 'password_reset') {
+                    $passwordResetClicks += $cnt;
+                }
+            }
+        } catch (\Throwable) {
+            // Taula no disponible
+        }
+        $totalAppleClicks = $appleLoginClicks + $appleRegisterClicks;
+
+        // 7. Distribució Geogràfica de Trànsit (Google GeoChart)
+        $ipRows = [];
+        try {
+            // Logs d'auditoria (registrals_audit)
+            $auditConn = $doctrine->getConnection('audit');
+            $auditIps = $auditConn->executeQuery("SELECT ip_address, COUNT(*) as cnt FROM user_activity_logs WHERE ip_address IS NOT NULL GROUP BY ip_address")->fetchAllAssociative();
+            $ipRows = array_merge($ipRows, $auditIps);
+        } catch (\Throwable) {}
+
+        try {
+            // Esdeveniments d'interès (registrals)
+            $defaultConn = $doctrine->getConnection('default');
+            $featureIps = $defaultConn->executeQuery("SELECT ip_address, COUNT(*) as cnt FROM feature_interest_events WHERE ip_address IS NOT NULL GROUP BY ip_address")->fetchAllAssociative();
+            $ipRows = array_merge($ipRows, $featureIps);
+        } catch (\Throwable) {}
+
+        $geoData = $geoLocationService->aggregateGeoTraffic($ipRows);
+
         $recentUsers = $userRepository->findRecent(6);
         $recentItems = $itemRepository->findRecent(6);
         $plans = $planRepository->findAll();
@@ -105,6 +168,17 @@ class AdminDashboardController extends AbstractController
             'recentUsers' => $recentUsers,
             'recentItems' => $recentItems,
             'plans' => $plans,
+            'googleUsers' => $googleUsers,
+            'emailUsers' => $emailUsers,
+            'percentGoogle' => $percentGoogle,
+            'percentEmail' => $percentEmail,
+            'totalAppleClicks' => $totalAppleClicks,
+            'appleLoginClicks' => $appleLoginClicks,
+            'appleRegisterClicks' => $appleRegisterClicks,
+            'passwordResetClicks' => $passwordResetClicks,
+            'geoChartData' => $geoData['chartData'],
+            'topCountries' => $geoData['topCountries'],
+            'totalGeoRequests' => $geoData['totalRequests'],
         ]);
     }
 }

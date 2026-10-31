@@ -164,11 +164,13 @@ Cada subiteració segueix un flux d'enginyeria estricte:
   - [x] Bateria de tests unitaris a [`CertificateTest`](file:///d:/webs/Registrals/Registrals/tests/Entity/CertificateTest.php) (13 assertions OK).
 - [x] **Subiteració 5.2: Motor de Generació PDF Vectorial**
   - [x] Maquetació Twig solemne segons la Guia d'Estils oficial ([`templates/certificate/pdf_template.html.twig`](file:///d:/webs/Registrals/Registrals/templates/certificate/pdf_template.html.twig)) amb marcs de doble filigrana daurada, tipografies corporatives, taula d'evidències i QR encastat.
+  - [x] Capçalera institucional ampliada amb l'isotip oficial de Registrals en base64 SVG (`58px`), títol `REGISTRALS` (`31px`) i separació neta de 10mm mitjançant unitats mil·limètriques precises d'impressió A4.
+  - [x] Secció 1 d'Identificació amb composició a 2 columnes: taula d'especificacions tècniques a l'esquerra i miniatura fotogràfica del bé (`item.mainPhoto`) a la dreta amb marc de segellat daurat i certificat de custòdia Flysystem.
   - [x] Renderitzat de l'esborrany amb marca d'aigua diagonal d'alta seguretat (*"ÚS EXCLUSIVAMENT INFORMATIU · NO APTE PER ASSEGURANCES"*) per al Pla Free.
   - [x] Renderitzat del certificat oficial d'alta seguretat per al Pla Plus / Unlimited o pagament puntual.
   - [x] Generador de codis QR en Data URI ([`CertificateQrGeneratorService`](file:///d:/webs/Registrals/Registrals/src/Service/Certificate/CertificateQrGeneratorService.php)).
   - [x] Motor de renderitzat PDF vectorial basat en Chromium headless ([`PdfRendererService`](file:///d:/webs/Registrals/Registrals/src/Service/Certificate/PdfRendererService.php)).
-  - [x] Servei orquestrador d'emissió i custòdia a Flysystem ([`CertificateIssuerService`](file:///d:/webs/Registrals/Registrals/src/Service/Certificate/CertificateIssuerService.php)).
+  - [x] Servei orquestrador d'emissió, custòdia a Flysystem i regeneració de plantilles ([`CertificateIssuerService`](file:///d:/webs/Registrals/Registrals/src/Service/Certificate/CertificateIssuerService.php)), acompanyat de la comanda CLI [`RegenerateDraftCertificatesCommand`](file:///d:/webs/Registrals/Registrals/src/Command/RegenerateDraftCertificatesCommand.php) (`app:certificates:regenerate-drafts`).
   - [x] Bateria de tests unitaris i d'integració executada amb èxit (47 assertions OK).
 - [x] **Subiteració 5.3: Integració Legal eIDAS (Signaturit) i Endpoint Públic `/verify/{uuid}`**
   - [x] Adaptador de segellat de temps qualificat eIDAS ([`SignaturitClient`](file:///d:/webs/Registrals/Registrals/src/Infrastructure/Adapter/Signature/SignaturitClient.php)) amb interfície [`SignaturitTimestampInterface`](file:///d:/webs/Registrals/Registrals/src/Infrastructure/Adapter/Signature/SignaturitTimestampInterface.php) i DTO [`SignaturitTimestampDto`](file:///d:/webs/Registrals/Registrals/src/DTO/SignaturitTimestampDto.php) (amb fallback automàtic per a sandbox/desenvolupament).
@@ -177,7 +179,13 @@ Cada subiteració segueix un flux d'enginyeria estricte:
   - [x] Plantilla notarial pública [`templates/verify/show.html.twig`](file:///d:/webs/Registrals/Registrals/templates/verify/show.html.twig) i pantalla d'error [`templates/verify/not_found.html.twig`](file:///d:/webs/Registrals/Registrals/templates/verify/not_found.html.twig) fidels a la Guia d'Estils oficial.
   - [x] Controlador privat [`CertificateController`](file:///d:/webs/Registrals/Registrals/src/Controller/CertificateController.php) per a l'emissió i descàrrega directa de documents des de la fitxa del bé amb modal notarial integrat a [`templates/item/show.html.twig`](file:///d:/webs/Registrals/Registrals/templates/item/show.html.twig).
 - [x] **Subiteració 5.4: Verificació & Validació HITL**
-  - [x] Bateria de tests unitaris i d'integració a [`SignaturitClientTest`](file:///d:/webs/Registrals/Registrals/tests/Service/SignaturitClientTest.php) i [`VerifyCertificateControllerTest`](file:///d:/webs/Registrals/Registrals/tests/Controller/VerifyCertificateControllerTest.php) (13 tests, 81 assertions OK).
+  - [x] Bateria de tests unitaris i d'integració a [`SignaturitClientTest`](file:///d:/webs/Registrals/Registrals/tests/Service/SignaturitClientTest.php), [`VerifyCertificateControllerTest`](file:///d:/webs/Registrals/Registrals/tests/Controller/VerifyCertificateControllerTest.php) i [`UserCertificateControllerTest`](file:///d:/webs/Registrals/Registrals/tests/Controller/UserCertificateControllerTest.php) (40 tests, 250 assertions OK).
+  - [x] **Safata Global de Certificats Digitals (`/app/certificats`):**
+    - Controlador [`UserCertificateController`](file:///d:/webs/Registrals/Registrals/src/Controller/UserCertificateController.php) amb suport per a cerca textual (número de certificat, CUI i nom del bé), filtres per tipus (Oficial eIDAS / Esborrany) i vigència.
+    - Barra de mètriques compacta d'1 sola línia d'alta densitat (`Total`, `Oficials eIDAS`, `Esborranys`) que redueix l'alçada vertical en més de 70px i elimina l'scroll innecessari en pantalles 16:9.
+    - Targetes de document ([`_certificate_tile.html.twig`](file:///d:/webs/Registrals/Registrals/templates/certificate/_certificate_tile.html.twig)) en orientació vertical pura (0°) per a solemnitat notarial i màxima nitidesa vectorial de píxel.
+    - Resolució d'*affordance* directa: tot el cos del document és un enllaç interactiu (`<a>`) que obre el PDF immediatament en una nova pestanya (`inline`), amb barra de botons d'acció ràpida sincronitzada al peu en elevació paral·lela.
+    - Integració bidireccional a la sub-barra superior de PC (`templates/dashboard/index.html.twig` i `templates/transfer/index.html.twig`) i a la barra inferior PWA mòbil (`templates/partials/_pwa_bottom_nav.html.twig`).
   - [x] Verificació de resolució pública de codi QR i seguretat de descàrrega privada sota `ItemVoter`.
 
 ---
@@ -185,17 +193,34 @@ Cada subiteració segueix un flux d'enginyeria estricte:
 ### Iteració 6: Traspàs entre Particulars (C2C) i Cicle de Vida
 **Objectiu:** Transmissió de propietat entre usuaris mantenint la traçabilitat històrica i la màquina d'estats.
 
-- [ ] **Subiteració 6.1: Model de Dades `ItemTransfer` i Auditoria**
-  - [ ] Entitat `ItemTransfer` amb `token` únic caducable (72 h) i enum `TransferStatus`.
-  - [ ] Migració Doctrine a MySQL 8.4.
-- [ ] **Subiteració 6.2: Màquina d'Estats (Symfony Workflow)**
-  - [ ] Configuració del cicle de vida d'ítems: `draft` -> `active` -> `transfer_pending` -> `transferred` / `stolen`.
-  - [ ] Transicions validades per regles de negoci i despatx d'emails de notificació.
-- [ ] **Subiteració 6.3: UI de Traspàs Notarial Digital i Acceptació del Receptor**
-  - [ ] Formulari d'inici de traspàs per email amb resum de costos (2,90 € o gratuït amb Pla Plus).
-  - [ ] Pàgina pública/privada d'acceptació del bé pel receptor i canvi irreversible de titularitat.
-- [ ] **Subiteració 6.4: Verificació & Validació HITL**
-  - [ ] Simulació de traspàs complet entre dos usuaris i comprovació de l'històric del bé.
+- [x] **Subiteració 6.1: Model de Dades `ItemTransfer` i Auditoria**
+  - [x] Enum [`TransferStatus`](file:///d:/webs/Registrals/Registrals/src/Enum/TransferStatus.php) (`pending`, `accepted`, `rejected`, `expired`, `cancelled`).
+  - [x] Entitat [`ItemTransfer`](file:///d:/webs/Registrals/Registrals/src/Entity/ItemTransfer.php) amb `token` segur únic caducable (72 hores), PIN opcional de doble factor, traça d'IPs i motiu de rebuig.
+  - [x] Repositori [`ItemTransferRepository`](file:///d:/webs/Registrals/Registrals/src/Repository/ItemTransferRepository.php) amb consultes de cerca per token, transferència activa i safates de sortida/entrada.
+  - [x] Relació bidireccional amb [`Item`](file:///d:/webs/Registrals/Registrals/src/Entity/Item.php) (`$transfers`, `getActiveTransfer()`).
+  - [x] Migració Doctrine a MySQL 8.4 executada amb èxit (`Version20261030094506`).
+  - [x] Bateria de proves unitàries a [`ItemTransferTest`](file:///d:/webs/Registrals/Registrals/tests/Entity/ItemTransferTest.php) (20 tests, 118 assertions OK).
+- [x] **Subiteració 6.2: Màquina d'Estats (Symfony Workflow)**
+  - [x] Instal·lació i configuració de `symfony/workflow` a [`config/packages/workflow.yaml`](file:///d:/webs/Registrals/Registrals/config/packages/workflow.yaml) amb màquina d'estats `item_lifecycle` (`draft`, `active`, `transfer_pending`, `transferred`, `stolen`, `lost`, `archived`).
+  - [x] Servei de domini [`ItemLifecycleService`](file:///d:/webs/Registrals/Registrals/src/Service/Item/ItemLifecycleService.php) amb mètodes d'orquestració de transicions, reassignació de titularitat C2C i enviament automàtic d'ancoratges a Polygon Layer 2 (`TRANSFER`, `STOLEN_FLAG`).
+  - [x] Event subscriber [`ItemLifecycleSubscriber`](file:///d:/webs/Registrals/Registrals/src/EventSubscriber/ItemLifecycleSubscriber.php) amb guàrdia estricta contra fraus (bloqueig de traspàs de béns sostrets o inactius) i registre d'auditoria de transicions.
+  - [x] Bateria de tests a [`ItemLifecycleServiceTest`](file:///d:/webs/Registrals/Registrals/tests/Service/ItemLifecycleServiceTest.php) (24 tests, 139 assertions OK).
+- [x] **Subiteració 6.3: UI de Traspàs Notarial Digital i Acceptació del Receptor** *(100% Completada)*
+  - [x] Controlador [`TransferController`](file:///d:/webs/Registrals/Registrals/src/Controller/TransferController.php) amb rutes d'inici (`/app/items/{cui}/transfer/initiate`), cancel·lació (`/app/items/{cui}/transfer/cancel`), reclamació pública (`/transfer/{token}`), acceptació (`/transfer/{token}/accept`) i rebuig (`/transfer/{token}/reject`).
+  - [x] Plantilla de correu electrònic transaccional d'alta fidelitat notarial a [`templates/emails/transfer_invitation.html.twig`](file:///d:/webs/Registrals/Registrals/templates/emails/transfer_invitation.html.twig).
+  - [x] Finestra modal notarial `#modal-item-transfer` integrada a la fitxa del bé ([`templates/item/show.html.twig`](file:///d:/webs/Registrals/Registrals/templates/item/show.html.twig)) per a PC i mòbil PWA, amb discriminació de costos (0 € Pla Plus / 2,90 € Free), codi PIN opcional, avís de 72h i botó de cancel·lació immediata si hi ha un traspàs en curs.
+  - [x] Pàgina pública de revisió i acceptació del traspàs a [`templates/transfer/claim.html.twig`](file:///d:/webs/Registrals/Registrals/templates/transfer/claim.html.twig) amb validació de correspondència de correu, comprovació de PIN i redirecció segura d'autenticació.
+  - [x] Pàgina d'estat a [`templates/transfer/expired.html.twig`](file:///d:/webs/Registrals/Registrals/templates/transfer/expired.html.twig) amb gestió solemne de caducitat (72h), cancel·lació per part de l'emissor o rebuig.
+  - [x] Bateria de tests funcionals a [`TransferControllerTest`](file:///d:/webs/Registrals/Registrals/tests/Controller/TransferControllerTest.php) (6 tests, 43 assertions OK).
+- [x] **Subiteració 6.4: Verificació & Validació HITL** *(100% Completada)*
+  - [x] Simulació de traspàs complet entre dos usuaris (Albert i Carles) i comprovació de l'històric del bé.
+  - [x] Verificació de la privadesa documental i RGPD: aïllament de certificats per titular emissor a la fitxa i descàrrega PDF.
+  - [x] Validació del flux de recepció, comprovació de PIN i confirmació notarial mitjançant interfície 16:9 i notificacions Notarial Toast.
+  - [x] Traçabilitat i auditoria forense integrada a `registrals_audit` ([`UserActivityLogger`](file:///d:/webs/Registrals/Registrals/src/Audit/Service/UserActivityLogger.php)):
+    - **Usuari:** Inici de sessió, tancament i intents fallits d'accés (`LOGIN_FAILED`) amb IP i credencial.
+    - **Béns:** Registre i alta notarial (`ITEM_CREATED`) amb CUI, categoria i valor estimat.
+    - **Certificats:** Emissió oficial/esborrany (`CERTIFICATE_ISSUED`) i verificació notarial pública QR (`CERTIFICATE_VERIFIED`).
+    - **Traspassos C2C:** Inici (`TRANSFER_INITIATED`), acceptació (`TRANSFER_ACCEPTED`), cancel·lació (`TRANSFER_CANCELLED`) i rebuig (`TRANSFER_REJECTED`).
 
 ---
 
@@ -205,6 +230,17 @@ Cada subiteració segueix un flux d'enginyeria estricte:
 - [x] **Subiteració 7.1: Panell d'Administració Backoffice (`/admin`)**
   - [x] Dashboard de control amb KPIs globals (usuaris actius, béns registrats, certificats emesos).
   - [x] Gestió d'usuaris (activació, bloqueig i auditoria).
+  - [x] Monitorització de Cues Asíncrones & Gestió d'Incidències (`/admin/serveis`):
+    - Supervisió en temps real de les cues de Symfony Messenger (`async_ai`, `async_chain`, `failed`).
+    - Taula d'inspecció de missatges fallits amb extracció d'excepcions i reintents exhaurits.
+    - Accions administratives de reencuament (`messenger:failed:retry`) i descart/supressió (`messenger:failed:remove`) individuals i per lot amb protecció CSRF.
+  - [x] Telemetria d'Adquisició & Smoke Tests al Dashboard (`/admin`):
+    - Seguiment de canals d'alta (% Email/Contrasenya vs % Google OAuth2).
+    - Mesura de demanda / leads per a Apple ID (clics d'interès des de login i registre a `feature_interest_events`).
+    - Traçabilitat de sol·licituds de recuperació de contrasenya (`password_reset`).
+  - [x] Distribució Geogràfica de Trànsit & Connexions (`/admin`):
+    - Integració de mapa interactiu de coropletes **Google GeoChart** adaptat a la paleta notarial corporativa (`#FAF6F0`, `#CAA36C`, `#1D2F4B`).
+    - Servei de resolució sobirana d'adreces IP ([`GeoLocationService`](file:///d:/webs/Registrals/Registrals/src/Service/GeoIp/GeoLocationService.php)) que agrega logs d'auditoria i telemetria per codi ISO-3166-1 amb rànquing de Top Territoris.
 - [ ] **Subiteració 7.2: Mòdul de Parametrització de Plans, Tarifes i Àmbit Geogràfic**
   - [x] Formulari d'edició en calent dels paràmetres de cada pla des de Backoffice: màxim de béns actius (Free: 20, Plus: 100, Unlimited: -1 il·limitat), límit de fotografies per bé (Free: 1, Plus: 5, Unlimited: -1 il·limitat), límit de proves/evidències per bé (Free: 1, Plus: 5, Unlimited: -1 il·limitat), quotes de certificats oficials i assistència d'IA (Free: 20, Plus: 100, Unlimited: 9.999).
   - [x] Interruptor global i per pla per activar o desactivar l'ús d'Assistència d'IA en calent (Feature Toggle d'IA des de Backoffice), amb gestió de quotes i consums per usuari.
@@ -255,6 +291,6 @@ Cada subiteració segueix un flux d'enginyeria estricte:
 | **Iteració 3** | 3.1 Messenger Cues <br> 3.2 SGLang Client <br> 3.3 UI Assistència IA <br> 3.4 Validació HITL <br> 3.5 Transparència IA Sobirana <br> 3.6 Anti-Frau C2PA, EXIF & QR | SGLang, Qwen VL local, Messenger | **Subiteracions 3.1, 3.2, 3.3, 3.5 i 3.6 Fetes (90%)** |
 | **Iteració 4** | 4.1 Model Blockchain <br> 4.2 Càlcul Hash & RPC <br> 4.3 Cua & UI Insígnia <br> 4.4 Validació HITL | Polygon/Base RPC, SHA-256 | **100% Completada** |
 | **Iteració 5** | 5.1 Model Certificats <br> 5.2 Motor PDF Vectorial <br> 5.3 eIDAS Signaturit & QR <br> 5.4 Validació HITL | Chromium Headless, Signaturit API | **100% Completada** |
-| **Iteració 6** | 6.1 Model Traspassos <br> 6.2 Symfony Workflow <br> 6.3 UI Traspàs Notarial <br> 6.4 Validació HITL | Symfony Workflow, Mailer | Pendent |
+| **Iteració 6** | 6.1 Model Traspassos <br> 6.2 Symfony Workflow <br> 6.3 UI Traspàs Notarial <br> 6.4 Validació HITL | Symfony Workflow, Mailer | **100% Completada** |
 | **Iteració 7** | 7.1 Backoffice Admin <br> 7.2 Editor de Plans <br> 7.3 Passarel·la Stripe <br> 7.4 Validació HITL MVP <br> 7.5 Validació Backend | Symfony Admin, Stripe API, Messenger | En curs (7.1 feta, 7.2 pendent de revisió final) |
 | **Iteració 8** | 8.1 Condicions Legals <br> 8.2 Privadesa RGPD <br> 8.3 Guia d'Ús i Manual <br> 8.4 Validació HITL | Twig, Guia d'Estils, Marc Normatiu | Pendent |

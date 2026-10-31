@@ -1,0 +1,60 @@
+framework:
+    workflows:
+        item_lifecycle:
+            type: 'state_machine'
+            audit_trail:
+                enabled: true
+            marking_store:
+                type: 'method'
+                property: 'status'
+            supports:
+                - App\Entity\Item
+            initial_marking: draft
+            places:
+                - draft
+                - active
+                - transfer_pending
+                - transferred
+                - stolen
+                - lost
+                - archived
+            transitions:
+                publish:
+                    from: draft
+                    to: active
+                initiate_transfer:
+                    from: active
+                    to: transfer_pending
+                cancel_transfer:
+                    from: transfer_pending
+                    to: active
+                reject_transfer:
+                    from: transfer_pending
+                    to: active
+                expire_transfer:
+                    from: transfer_pending
+                    to: active
+                complete_transfer:
+                    from: transfer_pending
+                    to: active
+                archive_transferred:
+                    from: transfer_pending
+                    to: transferred
+                report_stolen:
+                    from: [active, transfer_pending]
+                    to: stolen
+                recover_stolen:
+                    from: stolen
+                    to: active
+                report_lost:
+                    from: [active, transfer_pending]
+                    to: lost
+                recover_lost:
+                    from: lost
+                    to: active
+                archive:
+                    from: [active, transferred]
+                    to: archived
+                unarchive:
+                    from: archived
+                    to: active

@@ -84,47 +84,58 @@
 
     /* Capçalera solemne */
     .header {
-      border-bottom: 1.5px solid #CAA36C;
-      padding-bottom: 10px;
-      margin-bottom: 14px;
+      border-bottom: 2px solid #CAA36C;
+      padding-bottom: 5mm;
+      margin-bottom: 10mm;
       display: flex;
       justify-content: space-between;
-      align-items: flex-end;
+      align-items: center;
+    }
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .brand-logo {
+      width: 58px;
+      height: 58px;
+      object-fit: contain;
     }
     .brand-title {
-      font-size: 24px;
-      letter-spacing: 1.5px;
+      font-size: 31px;
+      letter-spacing: 2.5px;
       color: #1D2F4B;
       font-weight: normal;
       margin: 0;
+      line-height: 1.1;
       text-transform: uppercase;
     }
     .brand-subtitle {
-      font-size: 9px;
-      letter-spacing: 2px;
+      font-size: 10.5px;
+      letter-spacing: 2.2px;
       text-transform: uppercase;
       color: #6A86A2;
       font-weight: 600;
-      margin-top: 2px;
+      margin-top: 5px;
     }
     .cert-meta {
       text-align: right;
     }
     .cert-number {
-      font-size: 13px;
+      font-size: 16px;
       font-weight: bold;
       color: #CAA36C;
-      letter-spacing: 1px;
+      letter-spacing: 1.5px;
     }
     .cert-badge {
       display: inline-block;
-      font-size: 9px;
+      font-size: 10.5px;
       font-weight: 700;
-      padding: 2px 8px;
+      padding: 3px 12px;
       border-radius: 4px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-top: 3px;
+      margin-top: 5px;
     }
     .cert-badge-official {
       background: #1D2F4B;
@@ -139,21 +150,74 @@
 
     /* Seccions */
     .section-title {
-      font-size: 12px;
+      font-size: 12.5px;
       font-family: 'Marcellus', serif;
       text-transform: uppercase;
       letter-spacing: 1px;
       color: #1D2F4B;
       border-bottom: 1px solid rgba(202, 163, 108, 0.4);
-      padding-bottom: 3px;
-      margin-top: 10px;
-      margin-bottom: 8px;
+      padding-bottom: 1.5mm;
+      margin-top: 6mm;
+      margin-bottom: 3.5mm;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
 
-    /* Taula de dades de l'objecte */
+    /* Taula de dades de l'objecte i secció de fotografia */
+    .item-section-body {
+      display: flex;
+      gap: 16px;
+      align-items: stretch;
+      margin-bottom: 4mm;
+    }
+    .item-section-table {
+      flex: 1;
+    }
+    .item-thumb-card {
+      width: 48mm;
+      flex-shrink: 0;
+      background: #FAF6F0;
+      border: 1px solid #CAA36C;
+      border-radius: 6px;
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .item-thumb-wrapper {
+      width: 44mm;
+      height: 35mm;
+      border-radius: 4px;
+      overflow: hidden;
+      border: 0.5px solid rgba(202, 163, 108, 0.6);
+      background: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .item-thumb-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .item-thumb-label {
+      font-size: 7.5px;
+      font-weight: 700;
+      color: #1D2F4B;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 5px;
+    }
+    .item-thumb-sub {
+      font-size: 6.5px;
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      color: #6A86A2;
+      margin-top: 1px;
+    }
     .item-grid {
       width: 100%;
       border-collapse: collapse;
@@ -290,9 +354,14 @@
 
   {# Capçalera Oficial #}
   <div class="header">
-    <div>
-      <h1 class="brand-title font-marcellus">REGISTRALS</h1>
-      <div class="brand-subtitle">Registre & Custòdia Notarial de Béns Mobles</div>
+    <div class="brand-group">
+      {% if logoDataUri %}
+        <img src="{{ logoDataUri }}" alt="Registrals" class="brand-logo" />
+      {% endif %}
+      <div>
+        <h1 class="brand-title font-marcellus">REGISTRALS</h1>
+        <div class="brand-subtitle">Registre & Custòdia Notarial de Béns Mobles</div>
+      </div>
     </div>
     <div class="cert-meta">
       <div class="cert-number font-mono">{{ certificate.certificateNumber }}</div>
@@ -315,46 +384,66 @@
     <span class="font-mono" style="font-size: 10px; font-weight: bold; color: #CAA36C;">CUI: {{ item.cui }}</span>
   </div>
 
-  <table class="item-grid">
-    <tr>
-      <td class="label">Nom de l'Objecte</td>
-      <td class="value font-marcellus" style="font-size: 13px;">{{ item.name }}</td>
-    </tr>
-    <tr>
-      <td class="label">Categoria / Sector</td>
-      <td class="value">{{ item.category.name }}{% if item.subcategory %} &middot; {{ item.subcategory.name }}{% endif %}</td>
-    </tr>
-    {% if item.brand or item.model %}
-    <tr>
-      <td class="label">Marca & Model</td>
-      <td class="value">{{ item.brand|default('—') }} {% if item.model %}(Model: {{ item.model }}){% endif %}</td>
-    </tr>
-    {% endif %}
-    <tr>
-      <td class="label">Número de Sèrie / IMEI</td>
-      <td class="value font-mono" style="color: #1D2F4B; font-weight: bold;">{{ item.serialNumber|default('No indicat pel titular') }}</td>
-    </tr>
-    {% if item.declaredValueEuros %}
-    <tr>
-      <td class="label">Valor Estimat Declarat</td>
-      <td class="value font-mono">{{ item.declaredValueEuros|number_format(2, ',', '.') }} €</td>
-    </tr>
-    {% endif %}
-    <tr>
-      <td class="label">Titular Acreditat</td>
-      <td class="value">
-        {% if isDraft %}
-          {{ item.owner.fullName }} (Titularitat declarada sense validació eIDV)
-        {% else %}
-          {{ item.owner.fullName }} &middot; Compte Verificat Registrals
+  <div class="item-section-body">
+    <div class="item-section-table">
+      <table class="item-grid" style="margin-bottom: 0;">
+        <tr>
+          <td class="label">Nom de l'Objecte</td>
+          <td class="value font-marcellus" style="font-size: 13px;">{{ item.name }}</td>
+        </tr>
+        <tr>
+          <td class="label">Categoria / Sector</td>
+          <td class="value">{{ item.category.name }}{% if item.subcategory %} &middot; {{ item.subcategory.name }}{% endif %}</td>
+        </tr>
+        {% if item.brand or item.model %}
+        <tr>
+          <td class="label">Marca & Model</td>
+          <td class="value">{{ item.brand|default('—') }} {% if item.model %}(Model: {{ item.model }}){% endif %}</td>
+        </tr>
         {% endif %}
-      </td>
-    </tr>
-    <tr>
-      <td class="label">Origen de Propietat</td>
-      <td class="value">{{ item.acquisitionType.label }}{% if item.acquisitionDate %} (Data: {{ item.acquisitionDate|date('d/m/Y') }}){% endif %}</td>
-    </tr>
-  </table>
+        <tr>
+          <td class="label">Número de Sèrie / IMEI</td>
+          <td class="value font-mono" style="color: #1D2F4B; font-weight: bold;">{{ item.serialNumber|default('No indicat pel titular') }}</td>
+        </tr>
+        {% if item.declaredValueEuros %}
+        <tr>
+          <td class="label">Valor Estimat Declarat</td>
+          <td class="value font-mono">{{ item.declaredValueEuros|number_format(2, ',', '.') }} €</td>
+        </tr>
+        {% endif %}
+        <tr>
+          <td class="label">Titular Acreditat</td>
+          <td class="value">
+            {% if isDraft %}
+              {{ item.owner.fullName }} (Titularitat declarada sense validació eIDV)
+            {% else %}
+              {{ item.owner.fullName }} &middot; Compte Verificat Registrals
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <td class="label">Origen de Propietat</td>
+          <td class="value">{{ item.acquisitionType.label }}{% if item.acquisitionDate %} (Data: {{ item.acquisitionDate|date('d/m/Y') }}){% endif %}</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="item-thumb-card">
+      {% if mainPhotoDataUri %}
+        <div class="item-thumb-wrapper">
+          <img src="{{ mainPhotoDataUri }}" alt="{{ item.name }}" class="item-thumb-img" />
+        </div>
+        <div class="item-thumb-label">Fotografia Principal</div>
+        <div class="item-thumb-sub">Custòdia Flysystem</div>
+      {% else %}
+        <div class="item-thumb-wrapper" style="border-style: dashed; flex-direction: column; color: #6A86A2;">
+          <svg style="width: 22px; height: 22px; color: #CAA36C; margin-bottom: 2px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          <span style="font-size: 7px; text-transform: uppercase;">Sense foto principal</span>
+        </div>
+        <div class="item-thumb-label" style="color: #6A86A2;">Pendent d'evidència</div>
+      {% endif %}
+    </div>
+  </div>
 
   {# 2. PROVES DOCUMENTALS I EVIDÈNCIES CUSTODIADES #}
   <div class="section-title">

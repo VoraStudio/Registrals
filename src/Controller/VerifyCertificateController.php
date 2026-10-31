@@ -7,6 +7,8 @@ namespace App\Controller;
 use App\Entity\Certificate;
 use App\Entity\Item;
 use App\Enum\CertificateMode;
+use App\Audit\Enum\UserActivityAction;
+use App\Audit\Service\UserActivityLogger;
 use App\Enum\CertificateStatus;
 use App\Enum\ItemStatus;
 use App\Repository\CertificateRepository;
@@ -25,7 +27,8 @@ class VerifyCertificateController extends AbstractController
 {
     public function __construct(
         private readonly CertificateRepository $certificateRepository,
-        private readonly ItemFingerprintCalculator $fingerprintCalculator
+        private readonly ItemFingerprintCalculator $fingerprintCalculator,
+        private readonly ?UserActivityLogger $activityLogger = null
     ) {
     }
 
@@ -70,6 +73,20 @@ class VerifyCertificateController extends AbstractController
 
         // 6. Pseudonimització RGPD del titular (minimització de dades personals)
         $maskedOwnerName = $this->maskPersonalName($certificate->getIssuedBy()->getFullName());
+
+        // 7. Registre d'auditoria forense (registrals_audit)
+        $this->activityLogger?->logAnonymous(
+            identifier: $certificate->getCertificateNumber(),
+            action: UserActivityAction::CERTIFICATE_VERIFIED,
+            description: sprintf('Verificació pública notarial del certificat %s (%s)', $certificate->getCertificateNumber(), $item->getCui()),
+            details: [
+                'certificate_uuid' => $uuid,
+                'certificate_number' => $certificate->getCertificateNumber(),
+                'cui' => $item->getCui(),
+                'status' => $verificationStatus,
+            ],
+            userName: 'Verificador públic'
+        );
 
         return $this->render('verify/show.html.twig', [
             'certificate' => $certificate,

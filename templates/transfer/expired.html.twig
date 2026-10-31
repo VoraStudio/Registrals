@@ -1,0 +1,131 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Estat del Traspàs Notarial — Registrals{% endblock %}
+{% block meta_description %}Informació sobre l'estat d'una sol·licitud de traspàs a Registrals.{% endblock %}
+
+{% block body_class %}bg-cream text-ink min-h-screen flex flex-col justify-between selection:bg-gold selection:text-ink font-raleway{% endblock %}
+
+{% block body %}
+<div class="min-h-screen flex flex-col justify-between bg-cream">
+
+  {# Capçalera Pública Institucional #}
+  <header class="bg-white sticky top-0 z-50 border-b border-steel/20 shadow-2xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <a href="{{ path('app_home') }}" class="flex items-center gap-2.5">
+        <span class="font-marcellus text-xl tracking-wider text-ink font-bold">REGISTRALS</span>
+        <span class="text-[9px] uppercase tracking-widest text-gold font-bold bg-cream px-2 py-0.5 rounded-full border border-gold/30">Fe Pública Digital</span>
+      </a>
+      <div>
+        {% if app.user %}
+          <a href="{{ path('app_dashboard') }}" class="px-3.5 py-1.5 rounded-xl font-bold text-xs uppercase tracking-wider bg-ink text-gold border border-gold/40 hover:bg-ink/90 transition-all shadow-2xs">
+            El meu Patrimoni
+          </a>
+        {% else %}
+          <a href="{{ path('app_login') }}" class="px-3.5 py-1.5 rounded-xl font-bold text-xs uppercase tracking-wider bg-white border border-steel/30 text-ink hover:text-gold transition-all shadow-2xs">
+            Accés Usuaris
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  {# Contingut Principal #}
+  <main class="max-w-xl mx-auto px-4 sm:px-6 py-12 sm:py-16 w-full flex-1 flex flex-col justify-center">
+
+    <div class="bg-white rounded-3xl border border-gold/40 shadow-xl overflow-hidden text-center">
+      
+      {# Lluentor Superior Daurada #}
+      <div class="h-1.5 bg-gradient-to-r from-ink via-gold to-ink"></div>
+
+      <div class="p-8 sm:p-10 space-y-6">
+
+        {# Icona d'Estat Segons Motiu #}
+        <div class="w-16 h-16 rounded-full mx-auto flex items-center justify-center
+          {% if reason in ['expired', 'cancelled'] %}
+            bg-amber-100 text-amber-700 border border-amber-300
+          {% elseif reason in ['rejected', 'just_rejected'] %}
+            bg-red-100 text-red-700 border border-red-300
+          {% elseif reason == 'already_accepted' %}
+            bg-emerald-100 text-emerald-700 border border-emerald-300
+          {% else %}
+            bg-steel/15 text-steel border border-steel/30
+          {% endif %}
+        ">
+          {% if reason == 'expired' %}
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          {% elseif reason == 'cancelled' %}
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          {% elseif reason in ['rejected', 'just_rejected'] %}
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+          {% elseif reason == 'already_accepted' %}
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          {% else %}
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          {% endif %}
+        </div>
+
+        {# Títols i Explicacions #}
+        <div class="space-y-2">
+          <h1 class="font-marcellus text-2xl text-ink">
+            {% if reason == 'expired' %}
+              Aquesta Sol·licitud ha Caducat
+            {% elseif reason == 'cancelled' %}
+              Traspàs Cancel·lat per l'Emissor
+            {% elseif reason == 'just_rejected' %}
+              Traspàs Rebutjat
+            {% elseif reason == 'rejected' %}
+              Aquesta Sol·licitud ha estat Rebutjada
+            {% elseif reason == 'already_accepted' %}
+              Traspàs Ja Completat
+            {% else %}
+              Enllaç de Traspàs No Vàlid
+            {% endif %}
+          </h1>
+
+          <p class="text-xs sm:text-sm text-steel leading-relaxed max-w-md mx-auto">
+            {% if reason == 'expired' %}
+              El termini notarial màxim de 72 hores per acceptar aquesta transmissió de titularitat ha vençut. El bé roman sota la custòdia del titular original.
+            {% elseif reason == 'cancelled' %}
+              L'usuari remitent ha retirat la petició de traspàs abans de la seva acceptació.
+            {% elseif reason in ['just_rejected', 'rejected'] %}
+              Heu declinat la recepció d'aquest bé moble. La propietat no s'ha transferit.
+            {% elseif reason == 'already_accepted' %}
+              La transmissió de propietat d'aquest bé ja s'ha formalitzat amb èxit i s'ha ancorat a la xarxa Polygon Blockchain.
+            {% else %}
+              El testimoni de seguretat no coincideix amb cap sol·licitud activa a la plataforma o ja ha estat purgat.
+            {% endif %}
+          </p>
+        </div>
+
+        {% if transfer and transfer.item %}
+          <div class="p-3.5 bg-cream-50 rounded-xl border border-steel/20 text-xs text-ink/80 flex items-center justify-between">
+            <span class="font-semibold">{{ transfer.item.name }}</span>
+            <span class="font-mono font-bold text-steel">{{ transfer.item.cui }}</span>
+          </div>
+        {% endif %}
+
+        {# Botó d'Acció de Retorn #}
+        <div class="pt-2">
+          {% if app.user %}
+            <a href="{{ path('app_dashboard') }}" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-xs uppercase tracking-wider transition-all shadow-sm">
+              <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+              <span>Tornar al meu Patrimoni</span>
+            </a>
+          {% else %}
+            <a href="{{ path('app_home') }}" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-xs uppercase tracking-wider transition-all shadow-sm">
+              <span>Anar a la Portada</span>
+            </a>
+          {% endif %}
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  {# Peu de Pàgina Institucional #}
+  {{ include('page/home/_footer.html.twig') }}
+
+</div>
+{% endblock %}

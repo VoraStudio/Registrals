@@ -21,6 +21,7 @@ use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use RuntimeException;
+use Symfony\Component\HttpKernel\KernelInterface;
 use Twig\Environment;
 
 class CertificateIssuerServiceTest extends TestCase
@@ -56,6 +57,9 @@ class CertificateIssuerServiceTest extends TestCase
         $entityManager->expects($this->once())->method('persist');
         $entityManager->expects($this->once())->method('flush');
 
+        $kernel = $this->createMock(KernelInterface::class);
+        $kernel->method('getProjectDir')->willReturn(__DIR__ . '/../../');
+
         $issuerService = new CertificateIssuerService(
             twig: $twig,
             pdfRenderer: $pdfRenderer,
@@ -64,6 +68,7 @@ class CertificateIssuerServiceTest extends TestCase
             certificateRepository: $certificateRepository,
             entityManager: $entityManager,
             itemDocumentStorage: $storage,
+            kernel: $kernel,
             defaultBaseUrl: 'https://registrals.cat',
             logger: new NullLogger()
         );
@@ -98,6 +103,9 @@ class CertificateIssuerServiceTest extends TestCase
         $storage = $this->createMock(FilesystemOperator::class);
         $entityManager = $this->createMock(EntityManagerInterface::class);
 
+        $kernel = $this->createMock(KernelInterface::class);
+        $kernel->method('getProjectDir')->willReturn(__DIR__ . '/../../');
+
         $issuerService = new CertificateIssuerService(
             twig: $twig,
             pdfRenderer: $pdfRenderer,
@@ -106,6 +114,7 @@ class CertificateIssuerServiceTest extends TestCase
             certificateRepository: $certificateRepository,
             entityManager: $entityManager,
             itemDocumentStorage: $storage,
+            kernel: $kernel,
             defaultBaseUrl: 'https://registrals.cat',
             logger: new NullLogger()
         );

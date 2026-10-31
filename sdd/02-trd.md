@@ -53,6 +53,10 @@ L'aplicació es dissenya com un **monòlit modular basat en Symfony 7**, allotja
 - **Motor de Base de Dades:** MySQL 8.0+ / 8.4 (motor InnoDB, codificació utf8mb4_unicode_ci, columnes JSON per a dades dinàmiques).
 - **Gestió d'Arxius:** Llibreria league/flysystem-bundle configurada amb un adaptador local que apunta fora de l'arrel web pública (/var/data/registrals_storage).
 - **Cues i Asincronia:** Component natiu symfony/messenger amb transport emmagatzemat a MySQL (doctrine://default). Permet executar processos pesats en segon pla sense dependències externes com Redis.
+- **Correu Transaccional:** Component symfony/mailer amb gestió per entorns segons la metodologia 12-factor:
+  - *DEV (Local):* Descartat (`null://null`) o interceptat en safata web via Mailpit (`smtp://127.0.0.1:1025`).
+  - *TEST (CI/PHPUnit):* Simulat en memòria (`null://null`) per a velocitat i aïllament absolut.
+  - *PRODUCCIÓ:* SMTP transaccional dedicat (SendGrid, Mailgun, Postmark o servidor propi) amb alineació SPF, DKIM i DMARC per al domini `@registrals.com`.
 - **Generació de Documents:** Generació de certificats PDF vectorials d'alta qualitat mitjançant knplabs/knp-snappy-bundle o binari local Chromium/wkhtmltopdf headless.
 
 ## 3. Integracions de Serveis i Protocols

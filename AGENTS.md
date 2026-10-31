@@ -35,6 +35,7 @@ Aquest document estableix les regles d'arquitectura, el stack tecnològic, el si
 | **Cues i Asincronia** | Symfony Messenger | Transport `doctrine://default` emmagatzemat a taula `messenger_messages` de MySQL. |
 | **Custòdia d'Arxius**| Flysystem | Fitxers privats aïllats fora de l'arrel web, lliurats mitjançant `MediaController` i `ItemVoter`. |
 | **Assistent IA** | SGLang Local + Qwen VL | Servei local a `http://127.0.0.1:30000/v1` (format OpenAI Chat Completions amb Structured Outputs). |
+| **Correu Transaccional** | Symfony Mailer | Gestió per entorns (12-Factor): DEV (`null://null` o interceptor Mailpit a `127.0.0.1:1025`), TEST (`null://null` o memòria), PROD (SMTP certificat amb SPF, DKIM i DMARC). |
 | **Firma & KYC** | Signaturit API | Segellat de temps qualificat eIDAS (TSP) i verificació d'identitat (eIDV). |
 | **Blockchain** | Polygon PoS (Layer 2) | Ancoratge de fingerprints SHA-256 de béns i certificats. |
 
@@ -55,6 +56,10 @@ Aquest document estableix les regles d'arquitectura, el stack tecnològic, el si
 - **Navegació Dual i Consistència de Sub-barra (PC):**
   - *En PC:* Header 100% net + Sub-barra superior de pestanyes solemnes (`[ El meu Patrimoni ] [ Certificats ] [ Traspassos ]`). Les accions principals de capçalera sempre se situen a la mateixa posició superior dreta per coherència de memòria muscular (`[+ Nou Bé]` al dashboard vs `[📜 Emetre Certificat] [⇄ Traspassar]` a la fitxa).
   - *En Mòbil PWA:* Barra inferior d'accions (*Bottom App Bar*) amb acció central `(+) Nou Bé` en mode normal, convertible en *Barra d'Accions per Lot* al Dashboard, i en *Barra Contextual d'Ítem* a la fitxa del bé (`[⬅ Patrimoni]`, `[📜 Certificat]`, `[⇄ Traspàs]`, `[✨ IA (PLUS)]`).
+- **Aprofitament Horitzontal 16:9 en PC (Regla Anti-Scroll Vertical Innecessari):**
+  - A PC / escriptori 16:9, **prohibició expressa d'apilar verticalment seccions buides o continguts en fila índia** que empenyin la informació cap avall obligant a fer scroll innecessari tenint espai horitzontal ample.
+  - Distribució en **columnes paral·leles harmonitzades (ex. 2 columnes 50/50 o graelles 16:9)**, pestanyes de safata o taules notarials d'alta densitat d'informació perquè tota l'activitat càpiga en un sol cop d'ull net.
+  - Els **estats buits (*empty states*) a PC** han de ser **sobris, compactes i d'1 sola línia discreta** (caixa subtil amb micro-text), mai targetes inflades amb 80px de padding ni icones gegants que desplacin el contingut viu fora del viewport.
 - **Fitxa del Bé a PC (Graella 2x2 Harmonitzada en 2 Files):** 
   - *Fila 1 (Superiors igualades en alçada):* Bloc 1 (Especificacions & Identificació) a l'esquerra i Bloc 2 (Galeria Fotogràfica 16:9 amb controls `< >` a la capçalera i peu de custòdia Flysystem) a la dreta.
   - *Fila 2 (Inferiors al mateix nivell horitzontal):* Bloc 4 (Garantia Notarial Registrals amb Caixa Blava Ink) a l'esquerra i Bloc 3 (Proves Documentals custodiades sota Flysystem) a la dreta, començant exactament a la mateixa alçada.
@@ -76,7 +81,14 @@ Aquest document estableix les regles d'arquitectura, el stack tecnològic, el si
     - **Cos:** Text explicatiu en `font-raleway text-xs sm:text-sm text-ink/80 leading-relaxed`. Si hi ha un advertiment legal o discrepància, incloure-hi una `.guide-note` interna.
     - **Botoier d'Acció:** Footer alineat a la dreta amb botó secundari `[ Cancel·lar ]` (`bg-cream hover:bg-cream/80 text-ink`) i botó d'acció primari `[ Confirmar ]` (`bg-ink text-gold border border-gold/40`) o destructiu `[ Desvincular / Eliminar ]` (`bg-red-700 text-white`).
     - **Accessibilitat:** Gestió de tancament amb tecla `ESC`, clic a l'àrea exterior del backdrop i restabliment del focus.
-- **Actius:** Logotips i isotips SVG ubicats a `web/img/logos/`. No utilitzar mai imatges genèriques o placeholders temporals.
+- **Safata de Certificats Digitals i Targetes de Document (`.cert-tile`):**
+  - **Verticalitat pura (0°):** Prohibició expressa d'utilitzar inclinacions o rotacions artificials que degradin la nitidesa tipogràfica o dels codis QR per antialiasing.
+  - **Affordance directa:** Tot el document és un enllaç interactiu (`<a>`) que obre el PDF directament en una nova pestanya (`inline`).
+  - **Barra de mètriques d'1 sola línia:** Els comptadors de la safata han d'ocupar una única línia horitzontal compacta (`Total`, `Oficials eIDAS`, `Esborranys`) sense targetes inflades ni texts redundants que empitjorin l'scroll en 16:9.
+- **Certificat PDF Notarial (`pdf_template.html.twig`):**
+  - **Mètrica en mil·límetres (`mm`):** Tots els marges i paddings del document A4 s'especifiquen en unitats físiques mil·limètriques per garantir precisió d'impressió i evitar el col·lapse de marges en píxels.
+  - **Capçalera Institucional:** Isotip oficial en format SVG base64 (`58px`), títol solemne `REGISTRALS` (`31px`), i **10mm nets de separació física** respecte a la Secció 1.
+  - **Identificació amb Fotografia:** La Secció 1 integra la taula tècnica del bé a l'esquerra i la miniatura de la fotografia principal custodiada a la dreta amb marc daurat i certificat de custòdia Flysystem.
 - **Backoffice a Mòbil (Mode de Supervisió Mòbil vs Escriptori):** El Panell d'Administració (`/admin`) és una cabina d'alta densitat d'informació dissenyada per a pantalla d'escriptori (PC). Quan un administrador accedeix des de dispositiu mòbil, la interfície adopta un **mode de seguiment compacte** (dashboard de KPIs essencials i comprovació de serveis), amb el menú lateral plegat per defecte per no envair el viewport, i adverteix solemnement que la gestió densa (taules d'auditoria, filtres complexos i parametrització) s'ha de dur a terme a la versió web d'escriptori (PC).
 
 ---

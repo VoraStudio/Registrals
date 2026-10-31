@@ -49,4 +49,35 @@ class UserActivityLogger
 
         return $log;
     }
+
+    /**
+     * @param array<string, mixed>|null $details
+     */
+    public function logAnonymous(
+        string $identifier,
+        UserActivityAction $action,
+        string $description,
+        ?array $details = null,
+        ?string $userName = 'Intent no autenticat'
+    ): UserActivityLog {
+        $request = $this->requestStack->getCurrentRequest();
+        $ipAddress = $request?->getClientIp();
+        $userAgent = $request?->headers->get('User-Agent');
+
+        $log = new UserActivityLog(
+            userUuid: '00000000-0000-0000-0000-000000000000',
+            userEmail: $identifier,
+            userName: $userName ?? 'Intent no autenticat',
+            action: $action,
+            description: $description,
+            ipAddress: $ipAddress,
+            userAgent: $userAgent,
+            details: $details
+        );
+
+        $this->auditEntityManager->persist($log);
+        $this->auditEntityManager->flush();
+
+        return $log;
+    }
 }

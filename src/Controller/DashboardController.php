@@ -17,7 +17,8 @@ class DashboardController extends AbstractController
     public function index(
         \Symfony\Component\HttpFoundation\Request $request,
         \App\Repository\ItemRepository $itemRepository,
-        \App\Repository\CategoryRepository $categoryRepository
+        \App\Repository\CategoryRepository $categoryRepository,
+        \App\Repository\ItemTransferRepository $itemTransferRepository
     ): Response {
         /** @var \App\Entity\User $user */
         $user = $this->getUser();
@@ -33,11 +34,13 @@ class DashboardController extends AbstractController
 
         $items = $itemRepository->findTopLevelItemsByOwner($user);
         $categories = $categoryRepository->findRootCategories();
+        $pendingIncomingTransfers = $itemTransferRepository->findPendingReceivedByEmail($user->getEmail());
 
         return $this->render('dashboard/index.html.twig', [
             'user' => $user,
             'items' => $items,
             'categories' => $categories,
+            'pendingIncomingTransfers' => $pendingIncomingTransfers,
         ]);
     }
 }

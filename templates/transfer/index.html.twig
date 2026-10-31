@@ -1,0 +1,460 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Safata de Traspassos — Registrals{% endblock %}
+{% block meta_description %}Gestió de traspassos de titularitat de béns mobles rebuts i enviats a Registrals.{% endblock %}
+
+{% block body_class %}bg-cream text-ink min-h-screen flex flex-col justify-between selection:bg-gold selection:text-ink font-raleway{% endblock %}
+
+{% block body %}
+<div class="min-h-screen flex flex-col justify-between bg-cream">
+
+  {# Barra Superior Privada Unificada #}
+  {% include 'partials/_private_header.html.twig' %}
+
+  {# Contingut Principal #}
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 sm:py-5 w-full flex-1 pb-20 md:pb-6">
+
+    {# Sub-barra de Navegació Superior per a PC #}
+    <div class="hidden md:flex items-center justify-between pb-3.5 mb-3.5 border-b border-gold/20">
+      <nav class="flex items-center gap-2 font-raleway">
+        <a href="{{ path('app_dashboard') }}" class="px-4 py-2 rounded-xl font-semibold text-xs uppercase tracking-wider bg-white/70 hover:bg-white text-ink/80 hover:text-ink border border-steel/25 hover:border-gold/40 shadow-2xs transition-all flex items-center gap-2">
+          <svg class="w-4 h-4 text-steel" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+          <span>El meu Patrimoni</span>
+        </a>
+        <a href="{{ path('app_certificates_index') }}" class="px-4 py-2 rounded-xl font-semibold text-xs uppercase tracking-wider bg-white/70 hover:bg-white text-ink/80 hover:text-ink border border-steel/25 hover:border-gold/40 shadow-2xs transition-all flex items-center gap-2">
+          <svg class="w-4 h-4 text-steel" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <span>Certificats</span>
+        </a>
+        <a href="{{ path('app_transfers_index') }}" class="px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider bg-ink text-gold border border-gold/40 shadow-xs flex items-center gap-2">
+          <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+          <span>Traspassos</span>
+        </a>
+      </nav>
+
+      <a href="{{ path('app_dashboard') }}" class="py-2 px-4 rounded-xl border border-steel/30 bg-white hover:bg-cream/40 text-ink font-semibold text-xs uppercase tracking-wider transition-all flex items-center gap-2">
+        <svg class="w-4 h-4 text-steel" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        <span>Tornar al Patrimoni</span>
+      </a>
+    </div>
+
+    {# Capçalera de Pàgina #}
+    <div class="mb-5 sm:mb-6 pb-3 border-b border-gold/15">
+      <h1 class="text-xl sm:text-3xl font-marcellus text-ink tracking-wide">Safata de Traspassos de Titularitat</h1>
+      <p class="text-xs sm:text-sm text-ink/75 mt-0.5 font-raleway">
+        Supervisió de transmissions de propietat C2C, custòdia notarial i segellat a Polygon Blockchain.
+      </p>
+    </div>
+
+    {# Missatges Flash via Notarial Toast Oficial #}
+    {% for label, messages in app.flashes %}
+      {% for message in messages %}
+        <script>
+          document.addEventListener('DOMContentLoaded', function() {
+            if (window.RegistralsToast) {
+              window.RegistralsToast.show(
+                '{{ label == 'error' ? 'Avís de Seguretat' : (label == 'warning' ? 'Atenció' : 'Notificació Notarial') }}',
+                '{{ message|e('js') }}',
+                '{{ label == 'error' ? 'error' : (label == 'warning' ? 'info' : 'info') }}',
+                5000
+              );
+            }
+          });
+        </script>
+      {% endfor %}
+    {% endfor %}
+
+    {# Graella Notarial 2x2: 4 Blocs Harmonitzats (2 Superiors Pendents + 2 Inferiors Històrics) #}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+
+      {# ==================================================================== #}
+      {# FILA 1, COL 1: BLOC 1 - REBUTS PENDENTS D'ACCEPTAR                  #}
+      {# ==================================================================== #}
+      <div class="bg-whitef border border-gold/30 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col justify-between space-y-3">
+        <div>
+          {# Capçalera de Caixa Notarial #}
+          <div class="flex items-center justify-between pb-2 border-b border-cream gap-2">
+            <h2 class="font-marcellus text-base text-ink flex items-center gap-2 whitespace-nowrap">
+              <svg class="w-4 h-4 text-emerald-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+              <span>Rebuts Pendents d'Acceptar</span>
+            </h2>
+            <span class="text-[10px] uppercase font-mono font-bold text-steel bg-cream/50 px-2.5 py-0.5 rounded-md border border-steel/20 whitespace-nowrap">
+              {{ pendingReceived|length }} pendent(s)
+            </span>
+          </div>
+
+          {# Cos de la Caixa amb Scroll Delimitat #}
+          <div class="pt-2">
+            {% if pendingReceived|length > 0 %}
+              <div class="max-h-[300px] overflow-y-auto space-y-2 pr-1">
+                {% for transfer in pendingReceived %}
+                  <div class="bg-white rounded-xl border border-gold/40 border-l-4 border-l-emerald-500 p-2.5 sm:p-3 shadow-2xs hover:border-gold transition-all flex items-center justify-between gap-3">
+                    <div class="min-w-0 flex-1">
+                      <div class="flex items-center gap-1.5 mb-0.5">
+                        <h4 class="font-marcellus text-sm font-bold text-ink truncate">{{ transfer.item.name }}</h4>
+                        <span class="bg-cream/80 text-ink/75 font-mono text-[10px] px-1.5 py-0.5 rounded border border-steel/20 shrink-0">{{ transfer.item.cui }}</span>
+                      </div>
+                      <div class="text-[11px] text-steel flex items-center gap-2 truncate">
+                        <span>De: <strong class="text-ink">{{ transfer.sender.fullName }}</strong></span>
+                        <span>&middot;</span>
+                        <span class="text-amber-800 font-medium">Caduca {{ transfer.expiresAt|date('d/m H:i') }}</span>
+                      </div>
+                    </div>
+                    <div class="shrink-0 flex items-center gap-2">
+                      <a href="{{ path('app_transfer_claim', {'token': transfer.token}) }}" class="px-3 py-1.5 rounded-lg bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-xs uppercase tracking-wider shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer">
+                        <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                        <span>Acceptar</span>
+                      </a>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="py-4 px-3 rounded-xl bg-cream-50/50 border border-steel/15 text-center text-xs text-steel flex items-center justify-center gap-2">
+                <svg class="w-4 h-4 text-steel/60 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
+                <span>No teniu cap traspàs pendent d'acceptar</span>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        {# Peu de Caixa Notarial #}
+        <div class="pt-2 border-t border-cream/80 text-[11px] text-ink/50 flex items-center justify-between">
+          <span>Entrada de patrimoni</span>
+          <span class="font-mono text-steel">72 h de validesa</span>
+        </div>
+      </div>
+
+      {# ==================================================================== #}
+      {# FILA 1, COL 2: BLOC 2 - ENVIATS EN CURS (PENDENT RECEPTOR)          #}
+      {# ==================================================================== #}
+      <div class="bg-whitef border border-gold/30 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col justify-between space-y-3">
+        <div>
+          {# Capçalera de Caixa Notarial #}
+          <div class="flex items-center justify-between pb-2 border-b border-cream gap-2">
+            <h2 class="font-marcellus text-base text-ink flex items-center gap-2 whitespace-nowrap">
+              <svg class="w-4 h-4 text-amber-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+              <span>Enviats en Curs (Pendent Receptor)</span>
+            </h2>
+            <span class="text-[10px] uppercase font-mono font-bold text-steel bg-cream/50 px-2.5 py-0.5 rounded-md border border-steel/20 whitespace-nowrap">
+              {{ pendingSent|length }} en curs
+            </span>
+          </div>
+
+          {# Cos de la Caixa amb Scroll Delimitat #}
+          <div class="pt-2">
+            {% if pendingSent|length > 0 %}
+              <div class="max-h-[300px] overflow-y-auto space-y-2 pr-1">
+                {% for transfer in pendingSent %}
+                  <div class="bg-white rounded-xl border border-gold/40 border-l-4 border-l-amber-500 p-2.5 sm:p-3 shadow-2xs hover:border-gold transition-all flex items-center justify-between gap-3">
+                    <div class="min-w-0 flex-1">
+                      <div class="flex items-center gap-1.5 mb-0.5">
+                        <h4 class="font-marcellus text-sm font-bold text-ink truncate">{{ transfer.item.name }}</h4>
+                        <span class="bg-cream/80 text-ink/75 font-mono text-[10px] px-1.5 py-0.5 rounded border border-steel/20 shrink-0">{{ transfer.item.cui }}</span>
+                      </div>
+                      <div class="text-[11px] text-steel flex items-center gap-2 truncate">
+                        <span>A: <strong class="text-ink font-mono">{{ transfer.recipientEmail }}</strong></span>
+                        <span>&middot;</span>
+                        <span class="text-amber-800 font-medium">Caduca {{ transfer.expiresAt|date('d/m H:i') }}</span>
+                      </div>
+                    </div>
+                    <div class="shrink-0 flex items-center gap-2">
+                      <button type="button" onclick="openTransferDetailModal('{{ transfer.id }}')" class="px-3 py-1.5 rounded-lg bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-xs uppercase tracking-wider shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer">
+                        <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        <span>Detalls</span>
+                      </button>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="py-4 px-3 rounded-xl bg-cream-50/50 border border-steel/15 text-center text-xs text-steel flex items-center justify-center gap-2">
+                <svg class="w-4 h-4 text-steel/60 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                <span>No teniu cap traspàs iniciat en curs</span>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        {# Peu de Caixa Notarial #}
+        <div class="pt-2 border-t border-cream/80 text-[11px] text-ink/50 flex items-center justify-between">
+          <span>Sortida de patrimoni</span>
+          <span class="font-mono text-steel">Codi PIN opcional</span>
+        </div>
+      </div>
+
+      {# ==================================================================== #}
+      {# FILA 2, COL 1: BLOC 3 - HISTÒRIC DE REBUTS (EXECUTATS)               #}
+      {# ==================================================================== #}
+      <div class="bg-whitef border border-gold/30 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col justify-between space-y-3">
+        <div>
+          {# Capçalera de Caixa Notarial #}
+          <div class="flex items-center justify-between pb-2 border-b border-cream gap-2">
+            <h2 class="font-marcellus text-base text-ink flex items-center gap-2 whitespace-nowrap">
+              <svg class="w-4 h-4 text-emerald-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <span>Històric Rebuts (Executats)</span>
+            </h2>
+            <span class="text-[10px] uppercase font-mono font-bold text-steel bg-cream/50 px-2.5 py-0.5 rounded-md border border-steel/20 whitespace-nowrap">
+              {{ historyReceived|length }} rebut(s)
+            </span>
+          </div>
+
+          {# Cos de la Caixa amb Scroll Delimitat #}
+          <div class="pt-2">
+            {% if historyReceived|length > 0 %}
+              <div class="max-h-[300px] overflow-y-auto space-y-2 pr-1">
+                {% for transfer in historyReceived %}
+                  <div class="bg-cream-50/70 rounded-xl border border-steel/20 border-l-4 border-l-emerald-600 p-2.5 sm:p-3 hover:border-gold/40 transition-all flex items-center justify-between gap-3">
+                    <div class="min-w-0 flex-1">
+                      <div class="flex items-center gap-1.5 mb-0.5">
+                        <h4 class="font-marcellus text-sm font-bold text-ink truncate">{{ transfer.item.name }}</h4>
+                        <span class="text-[10px] font-mono text-steel bg-white px-1.5 py-0.5 rounded border border-steel/20 shrink-0">{{ transfer.item.cui }}</span>
+                      </div>
+                      <div class="text-[11px] text-steel flex items-center gap-2 truncate">
+                        <span>De: <strong class="text-ink">{{ transfer.sender.fullName }}</strong></span>
+                        <span>&middot;</span>
+                        <span class="font-mono text-ink/75">{{ (transfer.completedAt ?: transfer.requestedAt)|date('d/m/Y') }}</span>
+                      </div>
+                    </div>
+                    <div class="shrink-0 flex items-center gap-2">
+                      <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 uppercase tracking-wider">
+                        Rebut
+                      </span>
+                      {% if transfer.item.owner.id == app.user.id %}
+                        <a href="{{ path('app_item_show', {'cui': transfer.item.cui}) }}" class="px-2.5 py-1 rounded-lg bg-white hover:bg-cream text-ink text-xs font-semibold border border-steel/25 transition-all">
+                          Veure Bé
+                        </a>
+                      {% else %}
+                        <span class="px-2 py-0.5 rounded-full text-[9px] font-semibold bg-gray-100 text-gray-500 border border-gray-200" title="Aquest bé ha estat transmès posteriorment a un altre titular">
+                          Transmès
+                        </span>
+                      {% endif %}
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="py-4 px-3 rounded-xl bg-cream-50/50 border border-steel/15 text-center text-xs text-steel flex items-center justify-center gap-2">
+                <svg class="w-4 h-4 text-steel/60 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>Cap traspàs rebut a l'històric</span>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        {# Peu de Caixa Notarial #}
+        <div class="pt-2 border-t border-cream/80 text-[11px] text-ink/50 flex items-center justify-between">
+          <span>Patrimoni adquirit</span>
+          <span class="font-mono text-steel">Immutabilitat</span>
+        </div>
+      </div>
+
+      {# ==================================================================== #}
+      {# FILA 2, COL 2: BLOC 4 - HISTÒRIC D'ENVIATS (EXECUTATS)               #}
+      {# ==================================================================== #}
+      <div class="bg-whitef border border-gold/30 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col justify-between space-y-3">
+        <div>
+          {# Capçalera de Caixa Notarial #}
+          <div class="flex items-center justify-between pb-2 border-b border-cream gap-2">
+            <h2 class="font-marcellus text-base text-ink flex items-center gap-2 whitespace-nowrap">
+              <svg class="w-4 h-4 text-amber-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <span>Històric Enviats (Executats)</span>
+            </h2>
+            <span class="text-[10px] uppercase font-mono font-bold text-steel bg-cream/50 px-2.5 py-0.5 rounded-md border border-steel/20 whitespace-nowrap">
+              {{ historySent|length }} enviat(s)
+            </span>
+          </div>
+
+          {# Cos de la Caixa amb Scroll Delimitat #}
+          <div class="pt-2">
+            {% if historySent|length > 0 %}
+              <div class="max-h-[300px] overflow-y-auto space-y-2 pr-1">
+                {% for transfer in historySent %}
+                  <div class="bg-cream-50/70 rounded-xl border border-steel/20 border-l-4 border-l-amber-500 p-2.5 sm:p-3 hover:border-gold/40 transition-all flex items-center justify-between gap-3">
+                    <div class="min-w-0 flex-1">
+                      <div class="flex items-center gap-1.5 mb-0.5">
+                        <h4 class="font-marcellus text-sm font-bold text-ink truncate">{{ transfer.item.name }}</h4>
+                        <span class="text-[10px] font-mono text-steel bg-white px-1.5 py-0.5 rounded border border-steel/20 shrink-0">{{ transfer.item.cui }}</span>
+                      </div>
+                      <div class="text-[11px] text-steel flex items-center gap-2 truncate">
+                        <span>A: <strong class="text-ink font-mono">{{ transfer.recipientEmail }}</strong></span>
+                        <span>&middot;</span>
+                        <span class="font-mono text-ink/75">{{ (transfer.completedAt ?: transfer.cancelledAt ?: transfer.requestedAt)|date('d/m/Y') }}</span>
+                      </div>
+                    </div>
+                    <div class="shrink-0 flex items-center gap-2">
+                      <span class="font-bold text-[9px] px-2 py-0.5 rounded-full uppercase tracking-wider border {{ transfer.status.badgeClasses }}">
+                        {{ transfer.status.label }}
+                      </span>
+                      {% if transfer.item.owner.id == app.user.id %}
+                        <a href="{{ path('app_item_show', {'cui': transfer.item.cui}) }}" class="px-2.5 py-1 rounded-lg bg-white hover:bg-cream text-ink text-xs font-semibold border border-steel/25 transition-all">
+                          Veure Bé
+                        </a>
+                      {% else %}
+                        <span class="px-2 py-0.5 rounded-full text-[9px] font-semibold bg-gray-100 text-gray-500 border border-gray-200" title="Titularitat transmesa a un tercer">
+                          Cedit
+                        </span>
+                      {% endif %}
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="py-4 px-3 rounded-xl bg-cream-50/50 border border-steel/15 text-center text-xs text-steel flex items-center justify-center gap-2">
+                <svg class="w-4 h-4 text-steel/60 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>Cap traspàs enviat a l'històric</span>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        {# Peu de Caixa Notarial #}
+        <div class="pt-2 border-t border-cream/80 text-[11px] text-ink/50 flex items-center justify-between">
+          <span>Transmissions notariades</span>
+          <span class="font-mono text-steel">Traçabilitat forense</span>
+        </div>
+      </div>
+
+    </div>
+
+    {# ==================================================================== #}
+    {# MODALS NOTARIALS DE DETALL DE TRASPÀS EN CURS                       #}
+    {# ==================================================================== #}
+    {% for transfer in pendingSent %}
+      <div id="modal-transfer-{{ transfer.id }}" class="fixed inset-0 z-50 bg-ink/65 backdrop-blur-xs hidden items-center justify-center p-4 transition-opacity">
+        <div class="bg-white rounded-3xl border border-gold/50 shadow-2xl flex flex-col overflow-hidden w-full max-w-lg max-h-[92vh] animate-in fade-in zoom-in-95 duration-200">
+          
+          {# Capçalera del Modal #}
+          <div class="px-5 py-3.5 sm:px-6 sm:py-4 bg-ink text-cream border-b border-gold/30 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-full bg-cream/15 text-gold flex items-center justify-center shrink-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+              </div>
+              <div>
+                <h3 class="font-marcellus text-lg text-cream">Gestió del Traspàs</h3>
+                <span class="text-[10px] font-mono text-gold uppercase tracking-wider font-bold">{{ transfer.item.name }} &middot; {{ transfer.item.cui }}</span>
+              </div>
+            </div>
+            <button type="button" onclick="closeTransferDetailModal('{{ transfer.id }}')" class="w-8 h-8 rounded-full bg-cream/10 hover:bg-cream/20 text-cream flex items-center justify-center text-sm transition-colors cursor-pointer" aria-label="Tancar">&times;</button>
+          </div>
+
+          {# Cos del Modal #}
+          <div class="p-5 sm:p-6 overflow-y-auto space-y-4 text-xs font-raleway">
+            
+            {# Caixa d'estat #}
+            <div class="p-4 rounded-2xl bg-amber-50/80 border border-amber-300 text-amber-900 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 text-amber-900">
+                  <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                  <span>Traspàs Pendent d'Acceptació</span>
+                </span>
+                <span class="text-[10px] font-mono bg-white px-2 py-0.5 rounded-md border border-amber-300 font-bold">72 h</span>
+              </div>
+              <p class="text-xs text-amber-800">
+                S'ha enviat una invitació de transmissió de titularitat a <strong class="text-ink">{{ transfer.recipientEmail }}</strong>.
+              </p>
+              <div class="text-[11px] text-amber-700/90 pt-1 border-t border-amber-200">
+                Caduca el: <strong>{{ transfer.expiresAt|date('d/m/Y H:i') }} UTC</strong>
+              </div>
+            </div>
+
+            {# PIN de Seguretat si n'hi ha #}
+            {% if transfer.securityCode %}
+              <div class="p-3 bg-cream-50 rounded-xl border border-steel/20 flex items-center justify-between">
+                <span class="text-steel text-[11px] uppercase tracking-wider font-bold">Codi PIN de Seguretat Requerit:</span>
+                <span class="font-mono font-bold text-ink text-sm bg-white px-2.5 py-0.5 rounded-lg border border-gold/40 shadow-2xs">{{ transfer.securityCode }}</span>
+              </div>
+            {% endif %}
+
+            {# Enllaç Directe per al Receptor #}
+            <div class="space-y-1.5">
+              <label class="block text-[11px] font-bold text-ink uppercase tracking-wider">Enllaç directe per al receptor</label>
+              <div class="flex items-center gap-2">
+                <input type="text" readonly value="{{ url('app_transfer_claim', {'token': transfer.token}) }}" class="flex-1 px-3 py-2 rounded-xl border border-steel/25 bg-cream-50 text-xs font-mono text-ink/80 select-all" id="modal-input-transfer-{{ transfer.id }}">
+                <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('modal-input-transfer-{{ transfer.id }}').value); if(window.RegistralsToast) RegistralsToast.show('Enllaç Copiat', 'S\'ha copiat l\'enllaç al porta-retalls.', 'success');" class="px-3.5 py-2 rounded-xl bg-ink text-gold text-xs font-bold hover:bg-ink/90 cursor-pointer shadow-2xs shrink-0">
+                  Copiar
+                </button>
+              </div>
+            </div>
+
+            {# Accions #}
+            <div class="pt-3 border-t border-steel/15 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <a href="{{ path('app_item_show', {'cui': transfer.item.cui}) }}" class="text-ink hover:text-gold font-bold underline transition-colors text-xs flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                <span>Veure Fitxa del Bé</span>
+              </a>
+              <form action="{{ path('app_item_transfer_cancel', {'cui': transfer.item.cui}) }}" method="POST" onsubmit="return confirm('Esteu segur que voleu cancel·lar aquest traspàs? El bé continuarà al vostre patrimoni.');">
+                <input type="hidden" name="_token" value="{{ csrf_token('cancel_transfer_' ~ transfer.item.id) }}">
+                <button type="submit" class="px-3.5 py-2 rounded-xl bg-red-700 hover:bg-red-800 text-white font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer shadow-2xs">
+                  Cancel·lar Traspàs
+                </button>
+              </form>
+            </div>
+
+          </div>
+
+          {# Peu del Modal #}
+          <div class="px-6 py-3 bg-cream-50/70 border-t border-steel/15 flex items-center justify-end">
+            <button type="button" onclick="closeTransferDetailModal('{{ transfer.id }}')" class="px-4 py-2 rounded-xl bg-cream hover:bg-cream/80 text-ink font-semibold text-xs transition-colors cursor-pointer">
+              Tancar
+            </button>
+          </div>
+
+        </div>
+      </div>
+    {% endfor %}
+
+    {# Scripts dels Modals de Detall #}
+    <script>
+      function openTransferDetailModal(id) {
+        const el = document.getElementById('modal-transfer-' + id);
+        if (el) {
+          el.classList.remove('hidden');
+          el.classList.add('flex');
+          document.body.classList.add('overflow-hidden');
+        }
+      }
+
+      function closeTransferDetailModal(id) {
+        const el = document.getElementById('modal-transfer-' + id);
+        if (el) {
+          el.classList.add('hidden');
+          el.classList.remove('flex');
+          document.body.classList.remove('overflow-hidden');
+        }
+      }
+
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          document.querySelectorAll('[id^="modal-transfer-"]').forEach(m => {
+            m.classList.add('hidden');
+            m.classList.remove('flex');
+          });
+          document.body.classList.remove('overflow-hidden');
+        }
+      });
+
+      document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('[id^="modal-transfer-"]').forEach(modal => {
+          modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+              modal.classList.add('hidden');
+              modal.classList.remove('flex');
+              document.body.classList.remove('overflow-hidden');
+            }
+          });
+        });
+      });
+    </script>
+
+  </main>
+
+  {# Peu de pàgina privat #}
+  <footer class="border-t border-gold/30 py-5 text-center text-xs text-ink/65 bg-whitef hidden md:block">
+    <p>&copy; {{ "now"|date("Y") }} Registrals &middot; Àrea privada de custòdia de patrimoni moble.</p>
+  </footer>
+
+  {# Barra Inferior Dinàmica PWA per a Mòbil (< md) #}
+  {% include 'partials/_pwa_bottom_nav.html.twig' with {'active_tab': 'transfers'} %}
+
+</div>
+{% endblock %}

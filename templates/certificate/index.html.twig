@@ -1,0 +1,168 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Els meus Certificats Digitals — Registrals{% endblock %}
+
+{% block body_class %}bg-cream-50 min-h-screen font-raleway text-ink antialiased flex flex-col{% endblock %}
+
+{% block body %}
+  {# Capçalera Privada Unificada #}
+  {% include 'partials/_private_header.html.twig' %}
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 sm:py-4 w-full flex-1 space-y-4">
+
+    {# Sub-barra de Navegació Superior per a PC (Sub-Header Net sense Sidebars) #}
+    <div class="hidden md:flex items-center justify-between pb-3.5 border-b border-gold/20">
+      <nav class="flex items-center gap-2 font-raleway">
+        <a href="{{ path('app_dashboard') }}" class="px-4 py-2 rounded-xl font-semibold text-xs uppercase tracking-wider bg-white/70 hover:bg-white text-ink/80 hover:text-ink border border-steel/25 hover:border-gold/40 shadow-2xs transition-all flex items-center gap-2">
+          <svg class="w-4 h-4 text-steel" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+          <span>El meu Patrimoni</span>
+        </a>
+        <a href="{{ path('app_certificates_index') }}" class="px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider bg-ink text-gold border border-gold/40 shadow-xs flex items-center gap-2">
+          <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <span>Certificats</span>
+        </a>
+        <a href="{{ path('app_transfers_index') }}" class="px-4 py-2 rounded-xl font-semibold text-xs uppercase tracking-wider bg-white/70 hover:bg-white text-ink/80 hover:text-ink border border-steel/25 hover:border-gold/40 shadow-2xs transition-all flex items-center gap-2">
+          <svg class="w-4 h-4 text-steel" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+          <span>Traspassos</span>
+        </a>
+      </nav>
+
+      <a href="{{ path('app_item_new') }}" style="background-color: #1D2F4B; color: #FAF6F0;" class="py-2 px-5 rounded-xl shadow-md hover:bg-ink/90 active:scale-[0.99] transition-all flex items-center gap-2 text-xs uppercase tracking-wider font-raleway font-semibold cursor-pointer">
+        <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 4v16m8-8H4"/></svg>
+        <span>Registrar Nou Bé</span>
+      </a>
+    </div>
+
+    {# Capçalera Solemne & Títol #}
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-gold/15">
+      <div>
+        <h1 class="font-marcellus text-2xl sm:text-3xl text-ink tracking-tight font-medium">Els meus Certificats Digitals</h1>
+        <p class="font-raleway text-xs sm:text-sm text-ink/70 mt-1">
+          Historial de certificats de propietat amb segellat de temps legal eIDAS i esborranys informatius de custòdia.
+        </p>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold bg-cream border border-gold/40 text-ink">
+          <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          Custòdia Immutable
+        </span>
+      </div>
+    </div>
+
+    {# Resum Mètric Compacte (1 sola línia d'alta densitat) #}
+    <div class="bg-white rounded-xl border border-steel/20 px-4 py-2 shadow-2xs flex flex-wrap items-center justify-between gap-3 text-xs font-raleway">
+      <div class="flex items-center gap-4 sm:gap-6 flex-wrap">
+        <div class="flex items-center gap-1.5">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-ink/65">Total</span>
+          <span class="font-marcellus text-base font-bold text-ink px-2 py-0.5 rounded-md bg-cream-50 border border-steel/20">{{ metrics.total }}</span>
+        </div>
+        <span class="h-3.5 w-px bg-steel/25"></span>
+        <div class="flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-gold">Oficials eIDAS</span>
+          <span class="font-marcellus text-base font-bold text-ink px-2 py-0.5 rounded-md bg-cream-50 border border-gold/30">{{ metrics.official }}</span>
+        </div>
+        <span class="h-3.5 w-px bg-steel/25"></span>
+        <div class="flex items-center gap-1.5">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-steel">Esborranys</span>
+          <span class="font-marcellus text-base font-bold text-ink px-2 py-0.5 rounded-md bg-cream-50 border border-steel/20">{{ metrics.draft }}</span>
+        </div>
+      </div>
+      <div class="hidden sm:flex items-center gap-1.5 text-[11px] text-ink/60">
+        <span class="w-1.5 h-1.5 rounded-full bg-gold"></span>
+        <span>Doble certificació eIDAS & Blockchain</span>
+      </div>
+    </div>
+
+    {# Barra de Filtres & Cerca Notarial #}
+    <div class="bg-white rounded-2xl border border-steel/20 p-4 shadow-xs">
+      <form method="get" action="{{ path('app_certificates_index') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end text-xs font-raleway">
+        
+        {# Cerca per text #}
+        <div class="sm:col-span-5">
+          <label for="q" class="block text-[11px] font-bold uppercase tracking-wider text-ink/70 mb-1">Cerca de Certificat</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-steel">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </div>
+            <input type="text" name="q" id="q" value="{{ currentSearch }}" placeholder="Nº certificat (CERT-...), CUI o nom del bé..." class="w-full pl-9 pr-3 py-2 rounded-xl border border-steel/30 text-ink text-xs focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold bg-cream-50/30">
+          </div>
+        </div>
+
+        {# Filtre per Tipus #}
+        <div class="sm:col-span-3">
+          <label for="mode" class="block text-[11px] font-bold uppercase tracking-wider text-ink/70 mb-1">Tipus</label>
+          <select name="mode" id="mode" class="w-full px-3 py-2 rounded-xl border border-steel/30 text-ink text-xs focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold bg-cream-50/30 cursor-pointer">
+            <option value="all" {{ currentMode == 'all' ? 'selected' : '' }}>Tots els tipus</option>
+            <option value="official" {{ currentMode == 'official' ? 'selected' : '' }}>Certificat Oficial (eIDAS)</option>
+            <option value="draft" {{ currentMode == 'draft' ? 'selected' : '' }}>Esborrany Informatiu</option>
+          </select>
+        </div>
+
+        {# Filtre per Estat #}
+        <div class="sm:col-span-2">
+          <label for="status" class="block text-[11px] font-bold uppercase tracking-wider text-ink/70 mb-1">Estat</label>
+          <select name="status" id="status" class="w-full px-3 py-2 rounded-xl border border-steel/30 text-ink text-xs focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold bg-cream-50/30 cursor-pointer">
+            <option value="all" {{ currentStatus == 'all' ? 'selected' : '' }}>Tots els estats</option>
+            <option value="valid" {{ currentStatus == 'valid' ? 'selected' : '' }}>Vigents</option>
+            <option value="superseded" {{ currentStatus == 'superseded' ? 'selected' : '' }}>Superats (v2)</option>
+            <option value="revoked" {{ currentStatus == 'revoked' ? 'selected' : '' }}>Revocats</option>
+          </select>
+        </div>
+
+        {# Botó d'acció #}
+        <div class="sm:col-span-2 flex items-center gap-2">
+          <button type="submit" class="w-full py-2 px-4 rounded-xl bg-ink hover:bg-ink/90 text-gold font-bold text-xs border border-gold/40 shadow-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+            <span>Filtrar</span>
+          </button>
+          {% if currentSearch or currentMode != 'all' or currentStatus != 'all' %}
+            <a href="{{ path('app_certificates_index') }}" class="p-2 rounded-xl bg-cream hover:bg-cream/80 text-ink text-xs font-semibold border border-steel/20 flex items-center justify-center" title="Netejar filtres">
+              ✕
+            </a>
+          {% endif %}
+        </div>
+
+      </form>
+    </div>
+
+    {# Galeria / Llistat de Certificats #}
+    {% if certificates is empty %}
+      <div class="bg-white rounded-2xl border border-steel/20 p-8 sm:p-12 text-center shadow-xs">
+        <div class="w-16 h-16 rounded-2xl bg-cream text-gold flex items-center justify-center mx-auto mb-4 border border-gold/30">
+          <svg class="w-8 h-8 text-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        </div>
+        <h2 class="font-marcellus text-xl text-ink font-bold mb-2">Sense certificats registrats</h2>
+        <p class="text-xs sm:text-sm text-ink/70 font-raleway max-w-md mx-auto mb-6 leading-relaxed">
+          {% if currentSearch or currentMode != 'all' or currentStatus != 'all' %}
+            No s'ha trobat cap certificat que coincideixi amb els filtres aplicats.
+          {% else %}
+            Encara no has emès cap certificat de propietat. Pots emetre esborranys o certificats oficials eIDAS des de la fitxa de qualsevol bé del teu patrimoni.
+          {% endif %}
+        </p>
+
+        {% if currentSearch or currentMode != 'all' or currentStatus != 'all' %}
+          <a href="{{ path('app_certificates_index') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-cream text-ink text-xs font-semibold border border-steel/20 hover:bg-cream/80 transition-colors">
+            <span>Restablir filtres</span>
+          </a>
+        {% else %}
+          <a href="{{ path('app_dashboard') }}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-ink text-gold border border-gold/40 text-xs font-bold shadow-xs hover:bg-ink/90 transition-colors">
+            <span>Explorar El meu Patrimoni</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </a>
+        {% endif %}
+      </div>
+    {% else %}
+      <div class="flex flex-wrap justify-center sm:justify-start gap-6 sm:gap-8">
+        {% for cert in certificates %}
+          {% include 'certificate/_certificate_tile.html.twig' with { cert: cert, qr: qrCodes[cert.id] ?? null } only %}
+        {% endfor %}
+      </div>
+    {% endif %}
+
+  </main>
+
+  {# Barra Inferior Dinàmica PWA per a Mòbil (< md) #}
+  {% include 'partials/_pwa_bottom_nav.html.twig' with { active_tab: 'certificates' } %}
+
+{% endblock %}

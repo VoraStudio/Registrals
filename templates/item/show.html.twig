@@ -267,7 +267,7 @@
             <svg class="w-3.5 h-3.5 text-steel" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             <span>Certificats</span>
           </a>
-          <a href="#" class="px-3.5 py-1.5 rounded-xl font-semibold text-xs uppercase tracking-wider bg-white/70 hover:bg-white text-ink/80 hover:text-ink border border-steel/25 hover:border-gold/40 shadow-2xs transition-all flex items-center gap-2">
+          <a href="{{ path('app_transfers_index') }}" class="px-3.5 py-1.5 rounded-xl font-semibold text-xs uppercase tracking-wider bg-white/70 hover:bg-white text-ink/80 hover:text-ink border border-steel/25 hover:border-gold/40 shadow-2xs transition-all flex items-center gap-2">
             <svg class="w-3.5 h-3.5 text-steel" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
             <span>Traspassos</span>
           </a>
@@ -280,10 +280,17 @@
             <span>Emetre Certificat</span>
           </button>
 
-          <button type="button" onclick="if (window.RegistralsToast) { window.RegistralsToast.show('Traspàs C2C', 'El servei de traspàs segur estarà disponible a la Iteració 6.', 'info'); }" class="py-1.5 px-4 rounded-xl bg-white border border-steel/30 text-ink shadow-2xs hover:bg-cream/40 active:scale-[0.99] transition-all flex items-center gap-2 text-xs uppercase tracking-wider font-raleway font-semibold cursor-pointer">
-            <svg class="w-3.5 h-3.5 text-steel" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
-            <span>Traspassar</span>
-          </button>
+          {% if item.activeTransfer %}
+            <button type="button" onclick="openTransferModal()" class="py-1.5 px-4 rounded-xl bg-amber-50 border border-amber-300 text-amber-800 shadow-2xs hover:bg-amber-100 active:scale-[0.99] transition-all flex items-center gap-2 text-xs uppercase tracking-wider font-raleway font-semibold cursor-pointer">
+              <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+              <span>Traspàs en Curs</span>
+            </button>
+          {% else %}
+            <button type="button" onclick="openTransferModal()" class="py-1.5 px-4 rounded-xl bg-white border border-steel/30 text-ink shadow-2xs hover:bg-cream/40 active:scale-[0.99] transition-all flex items-center gap-2 text-xs uppercase tracking-wider font-raleway font-semibold cursor-pointer">
+              <svg class="w-3.5 h-3.5 text-steel" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+              <span>Traspassar</span>
+            </button>
+          {% endif %}
         </div>
       </div>
 
@@ -639,11 +646,16 @@
       </button>
 
       {# 3. Traspàs C2C #}
-      <button type="button" onclick="if (window.RegistralsToast) { window.RegistralsToast.show('Traspàs C2C', 'El servei de traspàs de titularitat estarà disponible a la Iteració 6.', 'info'); }" class="flex flex-col items-center justify-center gap-1 text-steel hover:text-ink active:scale-95 transition-all py-1 cursor-pointer">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
-        </svg>
-        <span class="text-[10px] font-bold font-raleway">Traspàs</span>
+      <button type="button" onclick="openTransferModal()" class="flex flex-col items-center justify-center gap-1 {% if item.activeTransfer %}text-amber-700{% else %}text-steel{% endif %} hover:text-ink active:scale-95 transition-all py-1 cursor-pointer">
+        <div class="relative">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+          </svg>
+          {% if item.activeTransfer %}
+            <span class="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+          {% endif %}
+        </div>
+        <span class="text-[10px] font-bold font-raleway">{% if item.activeTransfer %}Traspàs (!){% else %}Traspàs{% endif %}</span>
       </button>
 
       {# 4. Assistent IA amb Micro-badge PLUS #}
@@ -787,13 +799,15 @@
     </div>
 
     {# Cos del Modal #}
-    {# Cos del Modal #}
     <div class="p-5 sm:p-6 overflow-y-auto space-y-6 text-xs font-raleway">
+      
+      {# Filtrar certificats per titular emissor (privadesa RGPD): només l'emissor o admin poden gestionar els seus certificats #}
+      {% set userCertificates = is_granted('ROLE_ADMIN') ? item.certificates : item.certificates|filter(c => c.issuedBy.id == app.user.id) %}
       
       {# Detecció de certificats vigents per a la versió actual del bé #}
       {% set activeCurrentDraft = null %}
       {% set activeCurrentOfficial = null %}
-      {% for cert in item.certificates %}
+      {% for cert in userCertificates %}
         {% if currentFingerprint is defined and cert.itemFingerprintAtIssue == currentFingerprint and cert.isValid %}
           {% if cert.mode.value == 'draft' %}
             {% set activeCurrentDraft = cert %}
@@ -804,15 +818,15 @@
       {% endfor %}
 
       {# Llista de Certificats Ja Emesos (si n'hi ha) #}
-      {% if item.certificates|length > 0 %}
+      {% if userCertificates|length > 0 %}
         <div class="space-y-2">
           <div class="flex items-center justify-between">
             <span class="font-bold text-ink uppercase tracking-wider text-[11px]">Certificats en Custòdia</span>
-            <span class="text-[10px] text-steel font-mono">{{ item.certificates|length }} registrat(s)</span>
+            <span class="text-[10px] text-steel font-mono">{{ userCertificates|length }} registrat(s)</span>
           </div>
           
           <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
-            {% for cert in item.certificates %}
+            {% for cert in userCertificates %}
               {% set isCurrentVersion = currentFingerprint is defined and cert.itemFingerprintAtIssue == currentFingerprint %}
               <div class="p-3 rounded-2xl {{ isCurrentVersion ? 'bg-emerald-50/70 border border-emerald-300' : 'bg-cream-50 border border-steel/20' }} flex items-center justify-between gap-3">
                 <div class="min-w-0">
@@ -951,6 +965,158 @@
   </div>
 </div>
 
+{# Modal Notarial de Traspàs C2C de Titularitat #}
+<div id="modal-item-transfer" class="fixed inset-0 z-50 bg-ink/75 backdrop-blur-xs hidden items-center justify-center p-3 sm:p-6 transition-all" onclick="if(event.target === this) closeTransferModal();">
+  <div class="bg-white rounded-3xl border border-gold/50 shadow-2xl flex flex-col overflow-hidden w-full max-w-lg max-h-[92vh] animate-in fade-in zoom-in-95 duration-200">
+    
+    {# Capçalera del Modal #}
+    <div class="px-5 py-3.5 sm:px-6 sm:py-4 bg-ink text-cream border-b border-gold/30 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-full bg-cream/15 text-gold flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+        </div>
+        <div>
+          <h3 class="font-marcellus text-lg text-cream">Traspàs de Titularitat</h3>
+          <span class="text-[10px] font-mono text-gold uppercase tracking-wider font-bold">Transmissió C2C & Polygon L2</span>
+        </div>
+      </div>
+      <button type="button" onclick="closeTransferModal()" class="w-8 h-8 rounded-full bg-cream/10 hover:bg-cream/20 text-cream flex items-center justify-center text-sm transition-colors cursor-pointer" aria-label="Tancar">&times;</button>
+    </div>
+
+    {# Cos del Modal #}
+    <div class="p-5 sm:p-6 overflow-y-auto space-y-5 text-xs font-raleway">
+      
+      {% set activeTransfer = item.activeTransfer %}
+      {% if activeTransfer %}
+        {# ESTAT: TRASPÀS EN CURS #}
+        <div class="space-y-4">
+          <div class="p-4 rounded-2xl bg-amber-50/80 border border-amber-300 text-amber-900 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 text-amber-900">
+                <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                <span>Traspàs Pendent d'Acceptació</span>
+              </span>
+              <span class="text-[10px] font-mono bg-white px-2 py-0.5 rounded-md border border-amber-300 font-bold">72 h</span>
+            </div>
+            <p class="text-xs text-amber-800">
+              S'ha enviat una invitació de transmissió de titularitat a <strong class="text-ink">{{ activeTransfer.recipientEmail }}</strong>.
+            </p>
+            <div class="text-[11px] text-amber-700/90 pt-1 border-t border-amber-200">
+              Caduca el: <strong>{{ activeTransfer.expiresAt|date('d/m/Y H:i') }} UTC</strong>
+            </div>
+          </div>
+
+          {% if activeTransfer.securityCode %}
+            <div class="p-3 bg-cream-50 rounded-xl border border-steel/20 flex items-center justify-between">
+              <span class="text-steel text-[11px] uppercase tracking-wider font-bold">Codi PIN de Seguretat Requerit:</span>
+              <span class="font-mono font-bold text-ink text-sm bg-white px-2.5 py-0.5 rounded-lg border border-gold/40 shadow-2xs">{{ activeTransfer.securityCode }}</span>
+            </div>
+          {% endif %}
+
+          {# Enllaç Directe per Compartir #}
+          <div class="space-y-1.5">
+            <label class="block text-[11px] font-bold text-ink uppercase tracking-wider">Enllaç directe per al receptor</label>
+            <div class="flex items-center gap-2">
+              <input type="text" readonly value="{{ url('app_transfer_claim', {'token': activeTransfer.token}) }}" class="flex-1 px-3 py-2 rounded-xl border border-steel/25 bg-cream-50 text-xs font-mono text-ink/80 select-all" id="input-transfer-url">
+              <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('input-transfer-url').value); if(window.RegistralsToast) RegistralsToast.show('Enllaç Copiat', 'S\'ha copiat l\'enllaç al porta-retalls.', 'success');" class="px-3.5 py-2 rounded-xl bg-ink text-gold text-xs font-bold hover:bg-ink/90 cursor-pointer shadow-2xs">
+                Copiar
+              </button>
+            </div>
+          </div>
+
+          {# Formulari de Cancel·lació #}
+          <div class="pt-2 border-t border-steel/15 flex justify-between items-center">
+            <span class="text-[11px] text-steel">Voleu anul·lar la sol·licitud?</span>
+            <form action="{{ path('app_item_transfer_cancel', {'cui': item.cui}) }}" method="POST" onsubmit="return confirm('Esteu segur que voleu cancel·lar aquest traspàs? El bé continuarà al vostre patrimoni.');">
+              <input type="hidden" name="_token" value="{{ csrf_token('cancel_transfer_' ~ item.id) }}">
+              <button type="submit" class="px-3.5 py-1.5 rounded-xl bg-red-700 hover:bg-red-800 text-white font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer shadow-2xs">
+                Cancel·lar Traspàs
+              </button>
+            </form>
+          </div>
+        </div>
+
+      {% else %}
+        {# ESTAT: NOU TRASPÀS #}
+        {% if item.status.value != 'active' %}
+          <div class="p-4 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 text-xs leading-relaxed">
+            <strong>Bé no disponible per a traspàs:</strong> Aquest bé té l'estat <em>{{ item.status.label }}</em>. Només els béns actius i custodiats es poden traspassar.
+          </div>
+        {% else %}
+          <form action="{{ path('app_item_transfer_initiate', {'cui': item.cui}) }}" method="POST" class="space-y-4">
+            <input type="hidden" name="_token" value="{{ csrf_token('initiate_transfer_' ~ item.id) }}">
+
+            <div class="space-y-1.5">
+              <label for="recipient_email" class="block font-bold text-ink uppercase tracking-wider text-[11px]">
+                Correu electrònic del receptor <span class="text-red-600">*</span>
+              </label>
+              <input type="email" id="recipient_email" name="recipient_email" required placeholder="receptor@exemple.cat" class="w-full px-3.5 py-2.5 rounded-xl border border-steel/30 focus:border-gold focus:ring-1 focus:ring-gold bg-white text-ink text-xs font-raleway">
+              <p class="text-[10px] text-steel">
+                El receptor rebrà una invitació amb un enllaç segur vàlid durant 72 hores per acceptar el bé.
+              </p>
+            </div>
+
+            <div class="space-y-1.5">
+              <label for="security_code" class="block font-bold text-ink uppercase tracking-wider text-[11px]">
+                PIN de Seguretat Notarial (Opcional)
+              </label>
+              <input type="text" id="security_code" name="security_code" maxlength="10" placeholder="Ex: 849201" class="w-full max-w-xs px-3.5 py-2 rounded-xl border border-steel/30 focus:border-gold focus:ring-1 focus:ring-gold bg-white text-ink text-xs font-mono">
+              <p class="text-[10px] text-steel">
+                Si definiu un codi, el receptor haurà d'introduir-lo per validar el traspàs (doble factor de seguretat entre parts).
+              </p>
+            </div>
+
+            {# Resum de Costos Notarials #}
+            {% set userPlan = app.user.plan %}
+            {% set hasFreeTransfers = userPlan and userPlan.transfersIncluded > 0 %}
+            <div class="p-3.5 rounded-xl bg-cream-50 border border-steel/20 space-y-1.5">
+              <div class="flex items-center justify-between text-xs">
+                <span class="font-bold text-ink">Taxa de gestió i segellat Polygon L2:</span>
+                {% if hasFreeTransfers %}
+                  <span class="font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md">0,00 € (Inclòs al pla)</span>
+                {% else %}
+                  <span class="font-bold text-ink font-mono">2,90 €</span>
+                {% endif %}
+              </div>
+              <p class="text-[10px] text-steel">
+                {% if hasFreeTransfers %}
+                  El vostre pla actual ({{ userPlan.name }}) inclou traspassos il·limitats de titularitat.
+                {% else %}
+                  Taxa estàndard per canvi de titularitat i ancoratge de hash SHA-256 a Polygon Layer 2. Gratuït amb Pla Plus.
+                {% endif %}
+              </p>
+            </div>
+
+            {# Avís Notarial Canònic d'Efecte Jurídic #}
+            <div class="guide-note rounded-xl p-3.5 text-[11px] text-ink/80 leading-relaxed border-l-[3.5px] border-gold bg-gold/10">
+              <strong>Efecte Jurídic Immediat:</strong> Quan el receptor accepti la invitació, la propietat del bé es transmetrà de forma irrevocable. El vostre compte conservarà l'accés a l'històric com a antic titular, però ja no podreu editar-lo ni emetre certificats oficials.
+            </div>
+
+            <div class="pt-2 flex items-center justify-end gap-2.5">
+              <button type="button" onclick="closeTransferModal()" class="px-4 py-2 rounded-xl bg-white border border-steel/30 text-ink font-bold text-xs uppercase tracking-wider hover:bg-cream/40 transition-colors cursor-pointer">
+                Cancel·lar
+              </button>
+              <button type="submit" class="px-5 py-2 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-xs uppercase tracking-wider shadow-md transition-all flex items-center gap-1.5 cursor-pointer">
+                <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                <span>Iniciar Traspàs</span>
+              </button>
+            </div>
+          </form>
+        {% endif %}
+      {% endif %}
+
+    </div>
+
+    {# Peu de pàgina del Modal #}
+    <div class="px-5 py-3 sm:px-6 bg-cream-50 border-t border-gold/20 flex items-center justify-end">
+      <button type="button" onclick="closeTransferModal()" class="px-4 py-1.5 rounded-xl bg-ink text-gold font-bold hover:bg-ink/90 transition-colors cursor-pointer text-xs">
+        Tancar
+      </button>
+    </div>
+
+  </div>
+</div>
+
 <script>
   function openAiNudgingModal() {
     const modal = document.getElementById('modal-ai-nudging');
@@ -1049,11 +1215,30 @@
     }
   }
 
+  function openTransferModal() {
+    const modal = document.getElementById('modal-item-transfer');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.classList.add('overflow-hidden');
+    }
+  }
+
+  function closeTransferModal() {
+    const modal = document.getElementById('modal-item-transfer');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.classList.remove('overflow-hidden');
+    }
+  }
+
   document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
       closeDocPreview();
       closeAiNudgingModal();
       closeCertificateModal();
+      closeTransferModal();
     }
   });
 

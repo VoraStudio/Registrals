@@ -16,6 +16,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use League\Flysystem\FilesystemOperator;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Uid\Uuid;
 use Twig\Environment;
 
@@ -32,6 +33,7 @@ class CertificateIssuerService
         private readonly CertificateRepository $certificateRepository,
         private readonly EntityManagerInterface $entityManager,
         private readonly FilesystemOperator $itemDocumentStorage,
+        private readonly KernelInterface $kernel,
         private readonly ?SignaturitTimestampInterface $signaturitClient = null,
         private readonly string $defaultBaseUrl = 'https://registrals.cat',
         private readonly ?LoggerInterface $logger = null
@@ -72,9 +74,10 @@ class CertificateIssuerService
         // 2. Càlcul del fingerprint mestre del bé en aquest moment exacte
         $itemFingerprint = $this->fingerprintCalculator->calculateForItem($item);
 
-        // 2.1. Comprovació d'idempotència: si ja existeix un certificat vigent amb aquest fingerprint i modalitat, el retornem
+        // 2.1. Comprovació d'idempotència: si ja existeix un certificat vigent emès per aquest usuari amb aquest fingerprint i modalitat, el retornem
         $existing = $this->certificateRepository->findOneBy([
             'item' => $item,
+            'issuedBy' => $issuer,
             'mode' => $mode,
             'itemFingerprintAtIssue' => $itemFingerprint,
             'status' => CertificateStatus::VALID,
@@ -98,6 +101,10 @@ class CertificateIssuerService
         $verificationUrl = rtrim($this->defaultBaseUrl, '/') . '/verify/' . $certificateUuid->toRfc4122();
         $qrDataUri = $this->qrGenerator->generateDataUri($verificationUrl);
 
+        // Assets visuals notarials: Logo oficial i miniatura del bé
+        $logoDataUri = $this->getLogoDataUri();
+        $mainPhotoDataUri = $this->getMainPhotoDataUri($item);
+
         // 5. Càlcul provisional de context per a la plantilla Twig
         $dummyCertificate = new Certificate(
             item: $item,
@@ -116,6 +123,8 @@ class CertificateIssuerService
             'certificate' => $dummyCertificate,
             'isDraft' => $mode->isDraft(),
             'qrDataUri' => $qrDataUri,
+            'logoDataUri' => $logoDataUri,
+            'mainPhotoDataUri' => $mainPhotoDataUri,
             'latestReceipt' => $item->getLatestBlockchainReceipt(),
         ]);
 
@@ -164,5 +173,82 @@ class CertificateIssuerService
         ]);
 
         return $certificate;
+    }
+
+    /**
+     * Regenera el document PDF d'un certificat existent (útil per a esborranys en canvis de plantilla).
+     */
+    public function regeneratePdf(Certificate $certificate): void
+    {
+        $item = $certificate->getItem();
+        $verificationUrl = rtrim($this->defaultBaseUrl, '/') . '/verify/' . $certificate->getUuid()->toRfc4122();
+        $qrDataUri = $this->qrGenerator->generateDataUri($verificationUrl);
+
+        $logoDataUri = $this->getLogoDataUri();
+        $mainPhotoDataUri = $this->getMainPhotoDataUri($item);
+
+        $html = $this->twig->render('certificate/pdf_template.html.twig', [
+            'item' => $item,
+            'certificate' => $certificate,
+            'isDraft' => $certificate->getMode()->isDraft(),
+            'qrDataUri' => $qrDataUri,
+            'logoDataUri' => $logoDataUri,
+            'mainPhotoDataUri' => $mainPhotoDataUri,
+            'latestReceipt' => $item->getLatestBlockchainReceipt(),
+        ]);
+
+        $pdfBinary = $this->pdfRenderer->renderHtmlToPdf($html);
+        $pdfSha256 = hash('sha256', $pdfBinary);
+
+        $storagePath = $certificate->getPdfFilePath();
+        if (empty($storagePath)) {
+            $year = $certificate->getCreatedAt()->format('Y');
+            $storagePath = sprintf('certificates/%s/%s_%s.pdf', $year, $item->getCui(), $certificate->getCertificateNumber());
+            $certificate->setPdfFilePath($storagePath);
+        }
+
+        $this->itemDocumentStorage->write($storagePath, $pdfBinary);
+        $certificate->setPdfSha256($pdfSha256);
+
+        $this->entityManager->flush();
+    }
+
+    /**
+     * Obté l'isotip oficial de Registrals en format Data URI (base64 SVG).
+     */
+    private function getLogoDataUri(): ?string
+    {
+        $logoPath = $this->kernel->getProjectDir() . '/web/img/logos/Isotip/1-transparent.svg';
+        if (!file_exists($logoPath)) {
+            return null;
+        }
+
+        $svgContent = file_get_contents($logoPath);
+        if ($svgContent === false) {
+            return null;
+        }
+
+        return 'data:image/svg+xml;base64,' . base64_encode($svgContent);
+    }
+
+    /**
+     * Obté la miniatura de la foto principal del bé en format Data URI des de la custòdia Flysystem.
+     */
+    private function getMainPhotoDataUri(Item $item): ?string
+    {
+        $mainPhoto = $item->getMainPhoto();
+        if ($mainPhoto === null) {
+            return null;
+        }
+
+        $path = $mainPhoto->getFilePath();
+        if (!$this->itemDocumentStorage->fileExists($path)) {
+            return null;
+        }
+
+        $binary = $this->itemDocumentStorage->read($path);
+        $mime = $mainPhoto->getMimeType() ?: 'image/jpeg';
+
+        return sprintf('data:%s;base64,%s', $mime, base64_encode($binary));
     }
 }

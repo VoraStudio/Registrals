@@ -1,0 +1,184 @@
+{#
+  Certificate gallery tile (app-icon style).
+  Expects: cert (App\Entity\Certificate), qr (optional data URI string).
+  Visual states:
+    - Official + valid  -> gold seal with check mark, no stamp
+    - Draft             -> muted seal, red "ESBORRANY" stamp
+    - Superseded        -> amber "SUPERAT v2" stamp
+    - Revoked           -> red "REVOCAT" stamp
+#}
+{% set uid = 'c' ~ cert.id %}
+{% set isDraft = cert.mode.isDraft %}
+{% set status = cert.status.value %}
+{% set itemName = cert.item.name|length > 18 ? cert.item.name|slice(0, 17) ~ '…' : cert.item.name %}
+
+<div class="cert-tile relative group flex flex-col items-center w-[210px] focus:outline-none" tabindex="0" title="{{ cert.certificateNumber }} · {{ cert.item.name }}">
+
+  {# Document clickable: obre directament el PDF al visor natiu #}
+  <a href="{{ path('app_certificate_direct_download', { id: cert.id }) }}" target="_blank" rel="noopener noreferrer"
+     class="cert-tile__paper block transition-transform duration-300 ease-out group-hover:scale-[1.03] group-hover:-translate-y-1 cursor-pointer"
+     title="Obrir certificat PDF {{ cert.certificateNumber }}">
+
+    <svg viewBox="0 0 200 208" width="210" height="218" class="block" role="img"
+         aria-label="Certificat {{ cert.certificateNumber }} — {{ cert.item.name }}">
+      <defs>
+        <linearGradient id="{{ uid }}-paper" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#FFFFFF"/>
+          <stop offset="1" stop-color="#F3EFE7"/>
+        </linearGradient>
+        <linearGradient id="{{ uid }}-gold" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#EDD3A1"/>
+          <stop offset="0.5" stop-color="#CAA36C"/>
+          <stop offset="1" stop-color="#9E7841"/>
+        </linearGradient>
+        <radialGradient id="{{ uid }}-sealcore" cx="0.4" cy="0.35" r="0.7">
+          <stop offset="0" stop-color="#2F67A8"/>
+          <stop offset="1" stop-color="#1D2F4B"/>
+        </radialGradient>
+        <filter id="{{ uid }}-shadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#1D2F4B" flood-opacity="0.18"/>
+        </filter>
+        <clipPath id="{{ uid }}-photo">
+          <rect x="44" y="60" width="30" height="30" rx="3"/>
+        </clipPath>
+      </defs>
+
+      {# Upright document (0deg) for solemn notarial presentation and pixel-crisp rendering #}
+      <g>
+        {# Paper with folded top-right corner #}
+        <path d="M34 18 L152 18 L170 36 L170 194 Q170 198 166 198 L34 198 Q30 198 30 194 L30 22 Q30 18 34 18 Z"
+              fill="url(#{{ uid }}-paper)" filter="url(#{{ uid }}-shadow)"/>
+
+        {# Gold frame #}
+        <path d="M37 25 L148 25 L163 40 L163 191 L37 191 Z"
+              fill="none" stroke="url(#{{ uid }}-gold)" stroke-width="2.4" stroke-linejoin="round"/>
+
+        {# Folded corner #}
+        <path d="M152 18 L152 31 Q152 36 157 36 L170 36 Z" fill="url(#{{ uid }}-gold)"/>
+        <path d="M152 18 L170 36" stroke="#9E7841" stroke-width="0.6" opacity="0.6"/>
+
+        {# Header #}
+        <text x="44" y="49" textLength="102" lengthAdjust="spacingAndGlyphs"
+              font-family="'Marcellus', Georgia, serif" font-size="15" font-weight="700"
+              fill="#1D2F4B" letter-spacing="0.6">REGISTRALS</text>
+        <rect x="44" y="53" width="112" height="2" rx="1" fill="#6A86A2" opacity="0.75"/>
+
+        {# Identity block: photo + name + CUI #}
+        <rect x="44" y="60" width="30" height="30" rx="3" fill="#FAF1E2"/>
+        <path d="M51 82 L57 74 L62 80 L65 77 L69 82 Z" fill="#CAA36C" opacity="0.55"/>
+        {% if cert.item.mainPhoto %}
+          <image href="{{ path('app_media_document', { uuid: cert.item.mainPhoto.uuid }) }}"
+                 x="44" y="60" width="30" height="30"
+                 preserveAspectRatio="xMidYMid slice" clip-path="url(#{{ uid }}-photo)"/>
+        {% endif %}
+        <rect x="44" y="60" width="30" height="30" rx="3" fill="none" stroke="url(#{{ uid }}-gold)" stroke-width="1.2"/>
+
+        <text x="80" y="68" font-family="'Raleway', 'Helvetica Neue', Arial, sans-serif"
+              font-size="7" font-weight="700" fill="#1D2F4B">{{ itemName }}</text>
+        <text x="80" y="78" font-family="'SFMono-Regular', Consolas, monospace"
+              font-size="6.4" font-weight="700" fill="#9E7841">{{ cert.item.cui }}</text>
+        <rect x="80" y="83" width="62" height="2.4" rx="1.2" fill="#1D2F4B"/>
+        <rect x="80" y="88" width="44" height="2" rx="1" fill="#1D2F4B" opacity="0.55"/>
+
+        {# Body lines #}
+        <rect x="44" y="97" width="56" height="2.4" rx="1.2" fill="#2F5D8C"/>
+        <rect x="44" y="103" width="32" height="2" rx="1" fill="#1D2F4B" opacity="0.8"/>
+        <rect x="44" y="108" width="26" height="2" rx="1" fill="#1D2F4B" opacity="0.8"/>
+        <rect x="44" y="113" width="36" height="2" rx="1" fill="#1D2F4B" opacity="0.8"/>
+        <rect x="96" y="103" width="58" height="2" rx="1" fill="#6A86A2" opacity="0.45"/>
+        <rect x="96" y="108" width="50" height="2" rx="1" fill="#6A86A2" opacity="0.45"/>
+        <rect x="96" y="113" width="60" height="2" rx="1" fill="#6A86A2" opacity="0.45"/>
+
+        {# Cream integrity box #}
+        <rect x="44" y="121" width="112" height="27" rx="2.5" fill="#FAF1E2" stroke="url(#{{ uid }}-gold)" stroke-width="1.2"/>
+        <rect x="50" y="128" width="36" height="2" rx="1" fill="#1D2F4B" opacity="0.8"/>
+        <rect x="50" y="134" width="28" height="2" rx="1" fill="#1D2F4B" opacity="0.8"/>
+        <rect x="50" y="140" width="40" height="2" rx="1" fill="#1D2F4B" opacity="0.8"/>
+        <rect x="104" y="128" width="46" height="2" rx="1" fill="#2F5D8C"/>
+        <rect x="116" y="134" width="34" height="2" rx="1" fill="#1D2F4B" opacity="0.7"/>
+        <rect x="104" y="140" width="22" height="2" rx="1" fill="#2F5D8C"/>
+        <rect x="130" y="140" width="20" height="2" rx="1" fill="#2F5D8C"/>
+
+        <rect x="44" y="154" width="96" height="1.6" rx="0.8" fill="#6A86A2" opacity="0.4"/>
+        <rect x="44" y="159" width="4" height="4" rx="0.5" fill="#2F5D8C"/>
+        <rect x="52" y="160" width="70" height="1.6" rx="0.8" fill="#6A86A2" opacity="0.35"/>
+
+        {# QR code #}
+        <rect x="134" y="160" width="26" height="26" rx="2" fill="#FFFFFF" stroke="url(#{{ uid }}-gold)" stroke-width="1.2"/>
+        {% if qr %}
+          <image href="{{ qr }}" x="136" y="162" width="22" height="22" preserveAspectRatio="xMidYMid meet"/>
+        {% else %}
+          <g fill="#1D2F4B">
+            <rect x="137" y="163" width="6" height="6"/><rect x="151" y="163" width="6" height="6"/>
+            <rect x="137" y="177" width="6" height="6"/><rect x="146" y="172" width="3" height="3"/>
+            <rect x="151" y="177" width="3" height="3"/><rect x="154" y="180" width="3" height="3"/>
+          </g>
+        {% endif %}
+
+        {# Small ribbon medal #}
+        <g>
+          <polygon points="117,176 114,190 119,187 122,190 121,176" fill="#2F5D8C"/>
+          <polygon points="122,176 121,190 125,187 129,190 126,176" fill="#1D2F4B"/>
+          <circle cx="121.5" cy="174" r="7" fill="url(#{{ uid }}-gold)"/>
+          <circle cx="121.5" cy="174" r="4.5" fill="none" stroke="#FFFFFF" stroke-width="0.8" stroke-dasharray="1.2 1"/>
+        </g>
+
+        {# Main seal (overlaps the bottom edge) #}
+        <g>
+          {% if isDraft %}
+            <circle cx="76" cy="184" r="18" fill="#C9D3DE"/>
+            <circle cx="76" cy="184" r="18" fill="none" stroke="#9AAFC4" stroke-width="3" stroke-dasharray="2.2 2"/>
+            <circle cx="76" cy="184" r="13.5" fill="#E8EFF5" stroke="#9AAFC4" stroke-width="1.4"/>
+            <circle cx="76" cy="184" r="9" fill="none" stroke="#9AAFC4" stroke-width="1" stroke-dasharray="1.5 1.5"/>
+          {% else %}
+            <circle cx="76" cy="184" r="18" fill="url(#{{ uid }}-gold)"/>
+            <circle cx="76" cy="184" r="18" fill="none" stroke="#9E7841" stroke-width="3" stroke-dasharray="2.2 2"/>
+            <circle cx="76" cy="184" r="13.5" fill="url(#{{ uid }}-sealcore)" stroke="#EDD3A1" stroke-width="1.4"/>
+            <path d="M69.5 184.5 L74.5 189.5 L83.5 179" fill="none" stroke="url(#{{ uid }}-gold)" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
+          {% endif %}
+        </g>
+
+        {# Status stamp #}
+        {% if isDraft or status in ['superseded', 'revoked'] %}
+          {% if status == 'superseded' and not isDraft %}
+            {% set stampLabel = 'SUPERAT v2' %}{% set stampFill = '#FEF3C7' %}{% set stampInk = '#92400E' %}
+          {% elseif status == 'revoked' and not isDraft %}
+            {% set stampLabel = 'REVOCAT' %}{% set stampFill = '#FEE2E2' %}{% set stampInk = '#7F1D1D' %}
+          {% else %}
+            {% set stampLabel = 'ESBORRANY' %}{% set stampFill = '#FEE2E2' %}{% set stampInk = '#B91C1C' %}
+          {% endif %}
+          <g transform="rotate(-26 100 108)" opacity="0.93">
+            <rect x="38" y="96" width="124" height="24" rx="3" fill="{{ stampFill }}" fill-opacity="0.9"
+                  stroke="{{ stampInk }}" stroke-width="1.8"/>
+            <rect x="41" y="99" width="118" height="18" rx="2" fill="none" stroke="{{ stampInk }}" stroke-width="0.7"/>
+            <text x="100" y="112.5" text-anchor="middle" font-family="'Marcellus', Georgia, serif"
+                  font-size="12" font-weight="700" letter-spacing="2.5" fill="{{ stampInk }}">{{ stampLabel }}</text>
+          </g>
+        {% endif %}
+      </g>
+    </svg>
+  </a>
+
+  {# Actions: només visibles en passar el cursor (hover) o fer focus sobre aquest certificat #}
+  <div class="cert-tile__actions -mt-1.5 transition-all duration-200 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:opacity-100 group-focus-within:pointer-events-auto transform translate-y-1 group-hover:-translate-y-1 z-10">
+    <div class="cert-tile__buttons inline-flex items-center gap-1.5 p-1 bg-white/95 rounded-full border border-gold/40 shadow-md backdrop-blur-xs">
+      <a href="{{ path('app_certificate_direct_download', { id: cert.id }) }}" target="_blank"
+         class="cert-tile__btn w-8 h-8 rounded-full flex items-center justify-center text-ink hover:text-gold hover:bg-ink transition-all duration-150 cursor-pointer"
+         title="Descarregar PDF" aria-label="Descarregar PDF {{ cert.certificateNumber }}">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3" d="M12 4v12m0 0l-5-5m5 5l5-5M5 20h14"/></svg>
+      </a>
+      <span class="w-px h-4 bg-steel/20"></span>
+      <a href="{{ path('app_item_show', { cui: cert.item.cui }) }}"
+         class="cert-tile__btn w-8 h-8 rounded-full flex items-center justify-center text-ink hover:text-gold hover:bg-ink transition-all duration-150 cursor-pointer"
+         title="Veure bé" aria-label="Veure bé {{ cert.item.name }}">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+      </a>
+      <span class="w-px h-4 bg-steel/20"></span>
+      <a href="{{ path('app_verify_certificate', { uuid: cert.uuid.toRfc4122 }) }}" target="_blank"
+         class="cert-tile__btn w-8 h-8 rounded-full flex items-center justify-center text-ink hover:text-gold hover:bg-ink transition-all duration-150 cursor-pointer"
+         title="Validar QR" aria-label="Validar QR {{ cert.certificateNumber }}">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z"/></svg>
+      </a>
+    </div>
+  </div>
+</div>

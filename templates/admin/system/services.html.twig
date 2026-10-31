@@ -207,5 +207,200 @@
 
   </div>
 
+  {# Secció Dedicada: Cues Asíncrones & Gestió d'Errors (Symfony Messenger) #}
+  <div class="bg-white rounded-2xl border border-steel/20 p-6 shadow-xs space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-steel/15 gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-ink text-gold flex items-center justify-center font-bold text-sm shadow-2xs">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+        </div>
+        <div>
+          <h2 class="font-marcellus text-lg text-ink font-bold">Cues Asíncrones & Gestió d'Incidències (Symfony Messenger)</h2>
+          <p class="text-xs text-ink/65 font-raleway">Processament en segon terme per a visió artificial (SGLang) i ancoratge criptogràfic (Polygon)</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        {% if messengerStats.failed > 0 %}
+          <span class="px-3 py-1.5 rounded-xl text-xs font-mono font-bold bg-rose-50 text-rose-800 border border-rose-200 flex items-center gap-1.5 animate-pulse">
+            <span class="w-2 h-2 rounded-full bg-rose-600"></span>
+            {{ messengerStats.failed }} INCIDÈNCIA{{ messengerStats.failed > 1 ? 'ES' : '' }}
+          </span>
+        {% else %}
+          <span class="px-3 py-1.5 rounded-xl text-xs font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            CUES 100% OPERATIVES
+          </span>
+        {% endif %}
+      </div>
+    </div>
+
+    {# Targetes Mètriques de les Cues (16:9 3 Columnes) #}
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+      {# Cua 1: async_ai #}
+      <div class="p-4 rounded-xl border border-steel/20 bg-cream-50/50 flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="font-mono text-xs font-bold text-ink/80 uppercase tracking-wider flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            async_ai
+          </span>
+          <span class="px-2 py-0.5 rounded text-xs font-mono font-bold {{ messengerStats.async_ai > 0 ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800' }}">
+            {{ messengerStats.async_ai|default(0) }} en cua
+          </span>
+        </div>
+        <p class="text-[11px] text-ink/70 font-raleway mt-2">
+          Anàlisi per visió artificial i extracció OCR documental (Qwen-VL).
+        </p>
+      </div>
+
+      {# Cua 2: async_chain #}
+      <div class="p-4 rounded-xl border border-steel/20 bg-cream-50/50 flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="font-mono text-xs font-bold text-ink/80 uppercase tracking-wider flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+            async_chain
+          </span>
+          <span class="px-2 py-0.5 rounded text-xs font-mono font-bold {{ messengerStats.async_chain > 0 ? 'bg-blue-100 text-blue-800' : 'bg-emerald-100 text-emerald-800' }}">
+            {{ messengerStats.async_chain|default(0) }} en cua
+          </span>
+        </div>
+        <p class="text-[11px] text-ink/70 font-raleway mt-2">
+          Ancoratge criptogràfic de fingerprints SHA-256 a la xarxa Polygon.
+        </p>
+      </div>
+
+      {# Cua 3: failed #}
+      <div class="p-4 rounded-xl border {{ messengerStats.failed > 0 ? 'border-rose-300 bg-rose-50/50' : 'border-steel/20 bg-cream-50/50' }} flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="font-mono text-xs font-bold {{ messengerStats.failed > 0 ? 'text-rose-800' : 'text-ink/80' }} uppercase tracking-wider flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 {{ messengerStats.failed > 0 ? 'text-rose-600' : 'text-emerald-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            failed (errors)
+          </span>
+          <span class="px-2 py-0.5 rounded text-xs font-mono font-bold {{ messengerStats.failed > 0 ? 'bg-rose-200 text-rose-900' : 'bg-emerald-100 text-emerald-800' }}">
+            {{ messengerStats.failed|default(0) }} fallits
+          </span>
+        </div>
+        <p class="text-[11px] {{ messengerStats.failed > 0 ? 'text-rose-800' : 'text-ink/70' }} font-raleway mt-2">
+          Transport de fallades: retenció de missatges amb reintents exhaurits.
+        </p>
+      </div>
+
+    </div>
+
+    {# Estat de la Cua d'Errors: Neta vs Amb Incidències #}
+    {% if messengerStats.failed == 0 %}
+      <div class="p-4 rounded-xl border border-emerald-200 bg-emerald-50/40 flex items-center justify-between text-xs font-raleway text-emerald-900">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <div>
+            <span class="font-bold text-emerald-900 block font-marcellus text-sm">Cua de Fallades Neta & Sense Errors</span>
+            <span class="text-emerald-800/80 text-[11px]">No hi ha cap tasca asíncrona bloquejada ni errors pendents d'intervenció manual.</span>
+          </div>
+        </div>
+        <span class="text-[11px] font-mono font-semibold text-emerald-700 bg-white px-2.5 py-1 rounded-lg border border-emerald-200 shadow-2xs">
+          Auto-Retry OK
+        </span>
+      </div>
+    {% else %}
+      {# Banner d'Alerta amb Accions Globals #}
+      <div class="border-l-[3.5px] border-rose-500 bg-rose-50/70 p-4 rounded-r-xl flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h3 class="font-marcellus text-sm font-bold text-rose-950 flex items-center gap-2">
+            <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            S'han detectat {{ messengerStats.failed }} missatges encallats a la cua de fallades
+          </h3>
+          <p class="text-xs text-rose-900/80 font-raleway mt-1 leading-relaxed">
+            Aquests processos asíncrons han esgotat el límit de reintents automàtics i requereixen acció de l'administrador. Pots revisar el motiu de l'error, reencuar-los o descartar-los.
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
+          <form method="post" action="{{ path('app_admin_messenger_retry_all') }}" onsubmit="return confirm('Segur que vols reintentar TOTS els missatges fallits?');">
+            <input type="hidden" name="_token" value="{{ csrf_token('messenger_retry_all') }}">
+            <button type="submit" class="px-3 py-1.5 rounded-lg bg-ink hover:bg-ink/90 text-gold border border-gold/40 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              <span>Reintentar Tots</span>
+            </button>
+          </form>
+
+          <form method="post" action="{{ path('app_admin_messenger_remove_all') }}" onsubmit="return confirm('ATENCIÓ: Es descartaran i eliminaran TOTS els missatges fallits de la cua. Vols continuar?');">
+            <input type="hidden" name="_token" value="{{ csrf_token('messenger_remove_all') }}">
+            <button type="submit" class="px-3 py-1.5 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-800 border border-rose-300 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              <span>Descartar Tots</span>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      {# Taula Notarial de Missatges Fallits #}
+      <div class="overflow-x-auto rounded-xl border border-steel/20">
+        <table class="w-full text-left border-collapse text-xs font-raleway">
+          <thead>
+            <tr class="bg-cream border-b border-steel/20 text-ink/70 font-mono text-[11px] uppercase tracking-wider">
+              <th class="py-2.5 px-3">ID & Data</th>
+              <th class="py-2.5 px-3">Tipus de Tasca</th>
+              <th class="py-2.5 px-3">Reintents</th>
+              <th class="py-2.5 px-3">Diagnòstic de l'Error</th>
+              <th class="py-2.5 px-3 text-right">Accions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-steel/15 bg-white">
+            {% for msg in failedMessages %}
+              <tr class="hover:bg-cream-50/50 transition-colors">
+                <td class="py-3 px-3 whitespace-nowrap">
+                  <span class="font-mono font-bold text-ink">#{{ msg.id }}</span>
+                  <span class="block text-[10px] text-ink/60 font-mono mt-0.5">
+                    {{ msg.createdAt|date('d/m/Y H:i:s') }}
+                  </span>
+                </td>
+                <td class="py-3 px-3 whitespace-nowrap">
+                  <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded font-mono text-xs font-semibold {{ 'Blockchain' in msg.shortType ? 'bg-blue-50 text-blue-900 border border-blue-200' : 'bg-gold/15 text-ink border border-gold/30' }}">
+                    {{ msg.shortType }}
+                  </span>
+                </td>
+                <td class="py-3 px-3 whitespace-nowrap">
+                  <span class="font-mono text-xs text-rose-700 font-bold bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
+                    {{ msg.retries }} reintents
+                  </span>
+                </td>
+                <td class="py-3 px-3">
+                  {% if msg.exceptionClass %}
+                    <span class="font-mono text-[10px] text-ink/65 font-bold block mb-0.5">{{ msg.exceptionClass }}</span>
+                  {% endif %}
+                  <p class="font-mono text-[11px] text-rose-900 bg-rose-50/60 p-1.5 rounded border border-rose-200/60 max-w-xl truncate" title="{{ msg.errorMessage }}">
+                    {{ msg.errorMessage }}
+                  </p>
+                </td>
+                <td class="py-3 px-3 text-right whitespace-nowrap">
+                  <div class="inline-flex items-center gap-1.5">
+                    <form method="post" action="{{ path('app_admin_messenger_retry', { id: msg.id }) }}" onsubmit="return confirm('Reintentar aquest missatge (#{{ msg.id }})?');">
+                      <input type="hidden" name="_token" value="{{ csrf_token('messenger_retry_' ~ msg.id) }}">
+                      <button type="submit" class="px-2.5 py-1 rounded-lg bg-ink hover:bg-ink/90 text-gold text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1" title="Reencuar missatge">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        <span>Reintentar</span>
+                      </button>
+                    </form>
+
+                    <form method="post" action="{{ path('app_admin_messenger_remove', { id: msg.id }) }}" onsubmit="return confirm('Descartar i eliminar definitivament el missatge #{{ msg.id }}?');">
+                      <input type="hidden" name="_token" value="{{ csrf_token('messenger_remove_' ~ msg.id) }}">
+                      <button type="submit" class="p-1 rounded-lg text-rose-700 hover:bg-rose-100 transition-colors cursor-pointer" title="Descartar missatge">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endif %}
+
+  </div>
+
 </div>
 {% endblock %}
