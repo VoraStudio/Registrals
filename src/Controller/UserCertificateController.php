@@ -75,7 +75,7 @@ class UserCertificateController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/descarregar', name: 'app_certificate_direct_download', methods: ['GET'])]
+    #[Route('/{uuid}/descarregar', name: 'app_certificate_direct_download', methods: ['GET'])]
     public function download(Certificate $certificate): Response
     {
         /** @var User $currentUser */

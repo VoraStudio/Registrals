@@ -15,7 +15,7 @@
 <div class="cert-tile relative group flex flex-col items-center w-[210px] focus:outline-none" tabindex="0" title="{{ cert.certificateNumber }} · {{ cert.item.name }}">
 
   {# Document clickable: obre directament el PDF al visor natiu #}
-  <a href="{{ path('app_certificate_direct_download', { id: cert.id }) }}" target="_blank" rel="noopener noreferrer"
+  <a href="{{ path('app_certificate_direct_download', { uuid: cert.uuid }) }}" target="_blank" rel="noopener noreferrer"
      class="cert-tile__paper block transition-transform duration-300 ease-out group-hover:scale-[1.03] group-hover:-translate-y-1 cursor-pointer"
      title="Obrir certificat PDF {{ cert.certificateNumber }}">
 
@@ -162,7 +162,7 @@
   {# Actions: només visibles en passar el cursor (hover) o fer focus sobre aquest certificat #}
   <div class="cert-tile__actions -mt-1.5 transition-all duration-200 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:opacity-100 group-focus-within:pointer-events-auto transform translate-y-1 group-hover:-translate-y-1 z-10">
     <div class="cert-tile__buttons inline-flex items-center gap-1.5 p-1 bg-white/95 rounded-full border border-gold/40 shadow-md backdrop-blur-xs">
-      <a href="{{ path('app_certificate_direct_download', { id: cert.id }) }}" target="_blank"
+      <a href="{{ path('app_certificate_direct_download', { uuid: cert.uuid }) }}" target="_blank"
          class="cert-tile__btn w-8 h-8 rounded-full flex items-center justify-center text-ink hover:text-gold hover:bg-ink transition-all duration-150 cursor-pointer"
          title="Descarregar PDF" aria-label="Descarregar PDF {{ cert.certificateNumber }}">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3" d="M12 4v12m0 0l-5-5m5 5l5-5M5 20h14"/></svg>
