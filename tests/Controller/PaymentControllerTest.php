@@ -183,6 +183,72 @@ class PaymentControllerTest extends TestCase
         $this->assertSame('https://checkout.stripe.com/pay/cs_test_123', $response->getTargetUrl());
     }
 
+    public function testCheckoutCertificateWithValidCsrfRedirectsToStripe(): void
+    {
+        $user = $this->createUser();
+        $refUser = new \ReflectionProperty(User::class, 'id');
+        $refUser->setValue($user, 10);
+
+        $category = new \App\Entity\Category('rellotges', 'Rellotges');
+        $item = new Item($user, 'REG-2026-82KQM4', 'Rellotge Rolex Submariner', $category);
+
+        $session = new Session(new MockArraySessionStorage());
+        $router = $this->createMock(UrlGeneratorInterface::class);
+        $router->method('generate')->willReturnCallback(function (string $route) {
+            return match ($route) {
+                'app_payment_success' => 'https://registrals.com/app/payment/success',
+                'app_item_show' => 'https://registrals.com/app/items/REG-2026-82KQM4',
+                default => '/app',
+            };
+        });
+
+        $paymentGateway = $this->createMock(PaymentGatewayInterface::class);
+        $paymentGateway->expects($this->once())
+            ->method('createCertificateCheckout')
+            ->willReturn([
+                'sessionId' => 'cs_cert_123',
+                'url' => 'https://checkout.stripe.com/pay/cs_cert_123',
+            ]);
+
+        $paymentManager = $this->createMock(PaymentManager::class);
+        $paymentManager->expects($this->once())
+            ->method('createPendingTransaction');
+
+        $transactionRepo = $this->createMock(PaymentTransactionRepository::class);
+        $planRepo = $this->createMock(PlanRepository::class);
+        $itemRepo = $this->createMock(ItemRepository::class);
+        $itemRepo->expects($this->once())
+            ->method('findOneByCui')
+            ->with('REG-2026-82KQM4')
+            ->willReturn($item);
+
+        $transferRepo = $this->createMock(ItemTransferRepository::class);
+
+        $controller = new PaymentController(
+            $paymentGateway,
+            $paymentManager,
+            $transactionRepo,
+            $planRepo,
+            $itemRepo,
+            $transferRepo
+        );
+
+        $controller->setContainer($this->createContainerWithServices(
+            $user,
+            router: $router,
+            session: $session,
+            csrfValid: true
+        ));
+
+        $request = new Request([], ['_token' => 'valid_csrf']);
+        $request->setSession($session);
+
+        $response = $controller->checkoutCertificate('REG-2026-82KQM4', $request);
+
+        $this->assertInstanceOf(RedirectResponse::class, $response);
+        $this->assertSame('https://checkout.stripe.com/pay/cs_cert_123', $response->getTargetUrl());
+    }
+
     public function testCustomerPortalRedirectsToPortalUrl(): void
     {
         $user = $this->createUser();

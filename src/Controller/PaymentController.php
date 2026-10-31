@@ -110,7 +110,7 @@ class PaymentController extends AbstractController
             return $this->redirectToRoute('app_item_show', ['cui' => $cui]);
         }
 
-        $item = $this->itemRepository->findByCui($cui);
+        $item = $this->itemRepository->findOneByCui($cui);
         if ($item === null || $item->getOwner()->getId() !== $user->getId()) {
             throw $this->createNotFoundException('Bé no trobat o accés denegat.');
         }
