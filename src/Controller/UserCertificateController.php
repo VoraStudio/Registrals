@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Uid\Uuid;
 
 #[Route('/app/certificats')]
 #[IsGranted('ROLE_USER')]
@@ -76,8 +77,18 @@ class UserCertificateController extends AbstractController
     }
 
     #[Route('/{uuid}/descarregar', name: 'app_certificate_direct_download', methods: ['GET'])]
-    public function download(Certificate $certificate): Response
+    public function download(Certificate|string $uuid): Response
     {
+        $certificate = $uuid instanceof Certificate
+            ? $uuid
+            : (Uuid::isValid((string) $uuid)
+                ? $this->certificateRepository->findByUuid((string) $uuid)
+                : (ctype_digit((string) $uuid) ? $this->certificateRepository->find((int) $uuid) : null));
+
+        if (!$certificate instanceof Certificate) {
+            throw $this->createNotFoundException('El certificat sol·licitat no s\'ha trobat.');
+        }
+
         /** @var User $currentUser */
         $currentUser = $this->getUser();
         $isAdmin = in_array('ROLE_ADMIN', $currentUser->getRoles(), true);

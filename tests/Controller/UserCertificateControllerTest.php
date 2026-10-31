@@ -180,4 +180,40 @@ class UserCertificateControllerTest extends TestCase
         $this->assertStringContainsString('inline; filename="REG-2026-TEST_CERT-2026-000001.pdf"', (string) $response->headers->get('Content-Disposition'));
         $this->assertSame('%PDF-1.4 test binary', $response->getContent());
     }
+
+    public function testDownloadByUuidStringStreamsPdfSuccessfully(): void
+    {
+        $owner = new User('albert@registrals.com', 'Albert', 'Vora');
+        $refUser = new \ReflectionProperty(User::class, 'id');
+        $refUser->setValue($owner, 10);
+
+        $category = new Category('Joieria', 'joieria');
+        $item = new Item($owner, 'REG-2026-TEST', 'Anell d\'Or', $category);
+
+        $cert = new Certificate(
+            item: $item,
+            issuedBy: $owner,
+            certificateNumber: 'CERT-2026-000001',
+            mode: CertificateMode::OFFICIAL,
+            pdfFilePath: 'certificates/test.pdf',
+            pdfSha256: hash('sha256', 'dummy'),
+            itemFingerprintAtIssue: hash('sha256', 'fingerprint')
+        );
+
+        $certRepo = $this->createMock(CertificateRepository::class);
+        $certRepo->method('findByUuid')->with($cert->getUuid()->toRfc4122())->willReturn($cert);
+
+        $flysystem = $this->createMock(FilesystemOperator::class);
+        $flysystem->method('fileExists')->with('certificates/test.pdf')->willReturn(true);
+        $flysystem->method('read')->with('certificates/test.pdf')->willReturn('%PDF-1.4 test binary');
+
+        $issuer = $this->createMock(CertificateIssuerService::class);
+        $controller = new UserCertificateController($certRepo, $flysystem, $issuer);
+        $controller->setContainer($this->createContainerWithUser($owner));
+
+        $response = $controller->download($cert->getUuid()->toRfc4122());
+
+        $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertSame('%PDF-1.4 test binary', $response->getContent());
+    }
 }
