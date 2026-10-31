@@ -11,8 +11,10 @@ Aquest directori conté el conjunt d'especificacions tècniques, de producte, de
 | 03 | **Model de Dades Detallat** | [`03-model-dades.md`](03-model-dades.md) | Entitats de Doctrine ORM, relacions MySQL 8, índexs, taules de configuració de plans, béns, documents i traçabilitat. |
 | 04 | **Fluxos de l'Aplicació i Màquines d'Estats** | [`04-fluxos-maquines-estat.md`](04-fluxos-maquines-estat.md) | Cicles de vida d'ítems, màquines d'estats de Symfony Workflow, flux de traspàs C2C, cues asíncrones de Messenger i emissions de certificats. |
 | 05 | **Disseny UI/UX i Sistema d'Interacció** | [`05-disseny-ui-ux.md`](05-disseny-ui-ux.md) | Principis d'interacció, disseny responsive mobile-first, components de l'àrea privada, gestió d'estats buits i nudging visual. |
+| 05-B | **Arquitectura de Pantalles & Guia d'Interfícies** | [`05-guia-interficies.md`](05-guia-interficies.md) | Catàleg exhaustiu d'estructures de pantalla, paleta, targetes notarials, safates i PDF. |
 | 06 | **Backend, Seguretat, Serveis i Endpoints** | [`06-backend-seguretat-serveis.md`](06-backend-seguretat-serveis.md) | Catàleg complet d'endpoints REST/Twig, voters de seguretat (ItemVoter), MediaController segur, integració SGLang i Polygon. |
-| 07 | **Full de Ruta i Iteracions d'Execució** | [`07-iteracions.md`](07-iteracions.md) | Desglossament ordenat per iteracions (Iteració 0 tancada, Iteració 1: Auth/Sessions, Iteració 2: CRUD Béns/CUI, Iteració 3: IA Local, etc.). |
+| 06-B | **Guia d'Integracions Externes (Stripe, Signaturit, Polygon)** | [`06-integracions-externes.md`](06-integracions-externes.md) | Especificació tècnica oficial dels 3 components externs: Stripe (Checkout, Webhooks, Portal), Signaturit (eIDAS TSP, eIDV) i Polygon PoS (L2, Amoy, Mainnet). |
+| 07 | **Full de Ruta i Iteracions d'Execució** | [`07-iteracions.md`](07-iteracions.md) | Desglossament ordenat per iteracions (Iteracions 0 a 6 tancades, Iteració 7: Monetització & Stripe, etc.). |
 | 08 | **Annexes i Decisions Estratègiques** | [`08-annexes.md`](08-annexes.md) | Document íntegre de referència d'annexes: estratègia PLG/Freemium detallada, anàlisi de costos, abast legal territorial i snippets d'implementació Symfony. |
 
 ## Estat d'Execució i Progrés (Subiteracions)

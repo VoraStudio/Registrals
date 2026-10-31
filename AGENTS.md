@@ -101,7 +101,9 @@ La documentació de referència del projecte es troba a la carpeta [`sdd/`](sdd/
 - [`03-model-dades.md`](sdd/03-model-dades.md) — Entitats, Enums i Diagrama ER.
 - [`04-fluxos-maquines-estat.md`](sdd/04-fluxos-maquines-estat.md) — Workflows Symfony i cicles de vida.
 - [`05-disseny-ui-ux.md`](sdd/05-disseny-ui-ux.md) — Sistema d'interacció de l'àrea privada.
+- [`05-guia-interficies.md`](sdd/05-guia-interficies.md) — Arquitectura de pantalles, safata de certificats i PDF notarial.
 - [`06-backend-seguretat-serveis.md`](sdd/06-backend-seguretat-serveis.md) — Endpoints REST, Voters i Serveis.
+- [`06-integracions-externes.md`](sdd/06-integracions-externes.md) — Guia tècnica d'integració oficial per a Stripe, Signaturit eIDAS i Polygon Blockchain.
 - [`07-iteracions.md`](sdd/07-iteracions.md) — Full de ruta d'implementació i subiteracions.
 - [`08-annexes.md`](sdd/08-annexes.md) — Annexes íntegres de referència tècnica i econòmica.
 
