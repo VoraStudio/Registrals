@@ -1,515 +1,443 @@
-# 06 - Guia Tècnica d'Integracions Externes: Stripe, Signaturit & Polygon Blockchain (SDD)
+# 06 - Guia d'Integració i Configuració d'Stripe, Signaturit i Polygon Blockchain (SDD)
 
-Aquest document estableix l'**especificació tècnica oficial, arquitectura d'adaptadors i guia pràctica d'implementació** per als tres proveïdors i components tecnològics externs fonamentals de la plataforma **Registrals**:
+```
+<Registrals/>
+PAGAMENTS · SEGELLAT LEGAL eIDAS · BLOCKCHAIN LAYER 2
+Registrals — Guia d'ús, arquitectura i configuració dels components externs
+Com configurar i usar Stripe, Signaturit i Polygon PoS a Registrals partint de zero:
+comptes de plataforma, claus i secrets, webhooks, mode de prova i els fluxos pas a pas.
+v1.0 · Base: disseny aprovat (SDD-01 a SDD-05) · Implementació: Iteració 7 (Etapa 7.3)
+```
 
-1. **Stripe:** Passarel·la de pagament, subscripcions anuals, microtransaccions puntuals (Apple Pay / Google Pay) i recepció segura de Webhooks.
-2. **Signaturit:** Proveïdor Qualificat de Serveis de Confiança (QTSP) per al segellat de temps legal eIDAS (TSP) i la verificació biomètrica d'identitat (eIDV/KYC).
-3. **Polygon PoS (Layer 2):** Xarxa blockchain per a l'ancoratge criptogràfic públic i immutable de fingerprints SHA-256 de béns, certificats i traspassos.
-
----
-
-## Índex
-- [1. Stripe: Pagaments, Subscripcions & Facturació](#1-stripe-pagaments-subscripcions--facturaci%C3%B3)
-  - [1.1. Visió General i Models de Cobrament](#11-visi%C3%B3-general-i-models-de-cobrament)
-  - [1.2. Llibreria Oficial i Configuració a Symfony](#12-llibreria-oficial-i-configuraci%C3%B3-a-symfony)
-  - [1.3. Flux de Subscripcions Anuals (Stripe Checkout)](#13-flux-de-subscripcions-anuals-stripe-checkout)
-  - [1.4. Flux de Micro-pagaments Puntuals (Pay-per-Value)](#14-flux-de-micro-pagaments-puntuals-pay-per-value)
-  - [1.5. Portal de Client (Stripe Customer Portal)](#15-portal-de-client-stripe-customer-portal)
-  - [1.6. Arquitectura de Webhooks Criptogràfics i Idempotència](#16-arquitectura-de-webhooks-criptogr%C3%A0fics-i-idempot%C3%A8ncia)
-  - [1.7. Checklist de Variables d'Entorn i Proves Locals](#17-checklist-de-variables-dentorn-i-proves-locals)
-- [2. Signaturit: Segellat de Temps eIDAS i Identitat eIDV](#2-signaturit-segellat-de-temps-eidas-i-identitat-eidv)
-  - [2.1. Marc Jurídic eIDAS (Reglament UE 910/2014)](#21-marc-jur%C3%ADdic-eidas-reglament-ue-9102014)
-  - [2.2. API de Segellat de Temps Qualificat (TSP / RFC 3161)](#22-api-de-segellat-de-temps-qualificat-tsp--rfc-3161)
-  - [2.3. API d'Identificació Digital i Verificació Biomètrica (eIDV / KYC)](#23-api-didentificaci%C3%B3-digital-i-verificaci%C3%B3-biom%C3%A8trica-eidv--kyc)
-  - [2.4. Entorns Sandbox vs Producció i Simulador de Fallback](#24-entorns-sandbox-vs-producci%C3%B3-i-simulador-de-fallback)
-- [3. Polygon PoS: Ancoratge Criptogràfic a Blockchain Layer 2](#3-polygon-pos-ancoratge-criptogr%C3%A0fic-a-blockchain-layer-2)
-  - [3.1. Visió Tècnica i Racional d'Arquitectura](#31-visi%C3%B3-t%C3%A8cnica-i-racional-darquitectura)
-  - [3.2. Xarxes Oficials: Amoy Testnet vs Polygon Mainnet](#32-xarxes-oficials-amoy-testnet-vs-polygon-mainnet)
-  - [3.3. Mecanisme d'Ancoratge Determinista de Hashes SHA-256](#33-mecanisme-dancoratge-determinista-de-hashes-sha-256)
-  - [3.4. Gestió de Gas (EIP-1559) i Custòdia Segura de la Hot Wallet](#34-gesti%C3%B3-de-gas-eip-1559-i-cust%C3%B2dia-segura-de-la-hot-wallet)
-  - [3.5. Desacoblament Asíncron mitjançant Symfony Messenger](#35-desacoblament-as%C3%ADncron-mitjan%C3%A7ant-symfony-messenger)
-- [4. Matriu Comparativa de Credencials i Seguretat per Entorn](#4-matriu-comparativa-de-credencials-i-seguretat-per-entorn)
-- [5. Protocols d'Idempotència i Resiliència Davant Caigudes](#5-protocols-didempot%C3%A8ncia-i-resili%C3%A8ncia-davant-caigudes)
-- [6. Guia d'Alta Pas a Pas i Unit Economics per Proveïdor](#6-guia-dalta-pas-a-pas-i-unit-economics-per-prove%C3%AFdor)
-  - [6.1. Stripe](#61-stripe)
-  - [6.2. Signaturit](#62-signaturit)
-  - [6.3. Polygon PoS Blockchain](#63-polygon-pos-blockchain)
-- [7. Anàlisi d'Alternatives Tecnològiques i Criteris de Decisió](#7-an%C3%A0lisi-dalternatives-tecnol%C3%B2giques-i-criteris-de-decisi%C3%B3)
-  - [7.1. Alternatives a Stripe (Pagaments)](#71-alternatives-a-stripe-pagaments)
-  - [7.2. Alternatives a Signaturit (eIDAS & KYC)](#72-alternatives-a-signaturit-eidas--kyc)
-  - [7.3. Alternatives a Polygon PoS (Blockchain)](#73-alternatives-a-polygon-pos-blockchain)
+| Camp | Detall |
+| :--- | :--- |
+| **Versió** | v1.0 |
+| **Data** | 2026-10-31 |
+| **Àmbit** | Pagaments (Stripe Checkout / Billing), Segellat Qualificat eIDAS & KYC (Signaturit), Ancoratge L2 (Polygon PoS) |
+| **Entitat** | Registrals (Vora Studio) |
+| **Estat** | Document tècnic normatiu de referència obligatòria |
 
 ---
 
-# 1. Stripe: Pagaments, Subscripcions & Facturació
+## 1. Estat del Document i Estructura de la Trilogia d'Integracions
 
-## 1.1. Visió General i Models de Cobrament
-- **Web Oficial:** [https://stripe.com/](https://stripe.com/)
-- **Documentació Oficial de Desenvolupadors:** [https://docs.stripe.com/](https://docs.stripe.com/)
-- **Documentació de Checkout:** [https://docs.stripe.com/payments/checkout](https://docs.stripe.com/payments/checkout)
-- **Documentació de Billing/Subscripcions:** [https://docs.stripe.com/billing/subscriptions/overview](https://docs.stripe.com/billing/subscriptions/overview)
+Aquest document és el **Marc Arquitectural Global** dels tres components externs de Registrals. Per garantir el màxim rigor operatiu i d'enginyeria, la documentació s'estructura en tres guies monogràfiques exhaustives de referència obligatòria:
 
-Registrals utilitza dos models comercials clarament diferenciats gestionats íntegrament per Stripe:
-1. **Cobrament Recurrent (Subscripcions):**
-   - **Pla Plus:** 22,00 € / any (renovació automàtica anual).
-   - **Pla Unlimited:** 59,00 € / any (renovació automàtica anual).
-   - *Mode Stripe:* `mode => 'subscription'`.
-2. **Microtransaccions Puntuals (Pay-per-Value):**
-   - **Certificat Oficial Solt:** 5,90 € (o 6,00 € segons parametrització d'Admin).
-   - **Traspàs C2C Solt:** 2,90 € (per a usuaris del Pla Free que han esgotat la quota).
-   - *Mode Stripe:* `mode => 'payment'`.
+* 📘 [**`sdd/06a-stripe.md` — Stripe: Guia d'Ús, Arquitectura i Configuració**](06a-stripe.md): Manual operatiu de 16 capítols per a subscripcions recurrents (Plans Plus i Unlimited), micropagaments de certificats i traspassos solts, tractament d'esdeveniments webhooks amb Messenger, gestió de fallades i Customer Portal.
+* 📕 [**`sdd/06b-signaturit.md` — Signaturit: Guia de Segellat Qualificat eIDAS i KYC**](06b-signaturit.md): Manual de 12 capítols per al Time Stamping conforme a l'estàndard RFC 3161 (segellat de fitxers PDF mitjançant hash SHA-256 amb privadesa per disseny) i verificació biomètrica d'identitat (eIDV).
+* 📗 [**`sdd/06c-polygon.md` — Polygon PoS: Guia d'Ancoratge Criptogràfic Layer 2**](06c-polygon.md): Manual de 12 capítols per a l'ancoratge descentralitzat en Calldata de 0 POL (zero smart contracts vulnerables), xarxa Amoy de proves, gestió de gas EIP-1559 i explorador Polygonscan.
 
-## 1.2. Llibreria Oficial i Configuració a Symfony
-La integració es realitza amb l'SDK oficial de PHP recomanat per Stripe:
+### On està cada informació a l'arquitectura SDD
+| Document | Què aporta a aquesta guia |
+| :--- | :--- |
+| [`sdd/01-prd.md`](01-prd.md) | Model de negoci freemium, tarifes i unit economics. |
+| [`sdd/02-trd.md`](02-trd.md) | Topologia de servidors, comunicació amb SGLang local i seguretat de ports. |
+| [`sdd/03-model-dades.md`](03-model-dades.md) | Entitats `Plan`, `User`, `Certificate`, `BlockchainReceipt`, `ItemTransfer`. |
+| [`sdd/04-fluxos-maquines-estat.md`](04-fluxos-maquines-estat.md) | Workflows de cicles de vida d'ítems i cues asíncrones de Messenger (`async_chain`). |
+| [`sdd/05-disseny-ui-ux.md`](05-disseny-ui-ux.md) | Disseny de la safata de certificats, botons de pagament i modals notarials. |
+| [`sdd/05-guia-interficies.md`](05-guia-interficies.md) | Arquitectura de pantalles, targetes `.cert-tile`, PDF notarial en mil·límetres i paleta. |
+| [`sdd/06a-stripe.md`](06a-stripe.md) | **Monogràfic Stripe:** Billing, Checkout, Webhooks, Reintents i Customer Portal. |
+| [`sdd/06b-signaturit.md`](06b-signaturit.md) | **Monogràfic Signaturit:** Segellat de Temps eIDAS RFC 3161 i Verificació eIDV. |
+| [`sdd/06c-polygon.md`](06c-polygon.md) | **Monogràfic Polygon:** Calldata, Hot Wallet, Amoy Testnet i Gas EIP-1559. |
+| [`sdd/07-iteracions.md`](07-iteracions.md) | Full de ruta: Iteració 7 (Backoffice 7.2 tancat, Passarel·la Stripe 7.3 en curs). |
+| [`sdd/08-annexes.md`](08-annexes.md) | Anàlisi estratègica PLG, càlculs de marges bruts i marc legal de consum europeu. |
+
+---
+
+## Índex General de la Guia
+
+- [2. Com mouen els diners i les proves Registrals](#2-com-mouen-els-diners-i-les-proves-registrals)
+- [3. Conceptes clau des de zero](#3-conceptes-clau-des-de-zero)
+- [4. El compte de la plataforma a Stripe](#4-el-compte-de-la-plataforma-a-stripe)
+- [5. El compte i API de Signaturit (eIDAS & KYC)](#5-el-compte-i-api-de-signaturit-eidas--kyc)
+- [6. La infraestructura de Polygon PoS Blockchain](#6-la-infraestructura-de-polygon-pos-blockchain)
+- [7. Entorn i mode de prova (Desenvolupament local)](#7-entorn-i-mode-de-prova-desenvolupament-local)
+- [8. Flux A · Contractació de Subscripció Anual (Pla Plus o Unlimited)](#8-flux-a--contractaci%C3%B3-de-subscripci%C3%B3-anual-pla-plus-o-unlimited)
+- [9. Flux B · Compra de Certificat Oficial Solt (Pay-per-Value)](#9-flux-b--compra-de-certificat-oficial-solt-pay-per-value)
+- [10. Flux C · Traspàs Notarial C2C de Pagament i Reserva de 72h](#10-flux-c--trasp%C3%A0s-notarial-c2c-de-pagament-i-reserva-de-72h)
+- [11. Flux D · Portal de Client (Canvi de Targeta, Factures i Cancel·lació)](#11-flux-d--portal-de-client-canvi-de-targeta-factures-i-cancel%C2%B7laci%C3%B3)
+- [12. Flux E · Devolucions, Discrepàncies i Fallades de Cobrament](#12-flux-e--devolucions-discrep%C3%A0ncies-i-fallades-de-cobrament)
+- [13. Com tracta l'aplicació els Webhooks (Arquitectura Hexagonal)](#13-com-tracta-laplicaci%C3%B3-els-webhooks-arquitectura-hexagonal)
+- [14. Producció, quan toqui (Canvi de mode, no de codi)](#14-producci%C3%B3-quan-toqui-canvi-de-mode-no-de-codi)
+- [15. Matriu de Responsabilitats: Qui fa què](#15-matriu-de-responsabilitats-qui-fa-qu%C3%A8)
+- [16. Anàlisi d'Alternatives Tecnològiques de Mercat](#16-an%C3%A0lisi-dalternatives-tecnol%C3%B2giques-de-mercat)
+- [17. Registre de Decisions (D-xxx), Riscos (R-xxx) i Referències](#17-registre-de-decisions-d-xxx-riscos-r-xxx-i-refer%C3%A8ncies)
+
+---
+
+# 2. Com mouen els diners i les proves Registrals
+
+Registrals té dos fluxos operatius clarament diferenciats: el **flux econòmic (Stripe)** i el **flux probatori notarial (Signaturit + Polygon)**.
+
+### Matriu de Fluxos
+| Flux Operatiu | Canal / Proveïdor | Objectiu | Com es controla |
+| :--- | :--- | :--- | :--- |
+| **Subscripcions Anuals** | Stripe Billing (Checkout Hosted) | Cobrament recurrent de plans Plus (22 €) i Unlimited (59 €) | Automàtic: Checkout + Webhooks de renovació |
+| **Micro-pagaments Puntuals** | Stripe Payments (Checkout Hosted) | Cobrament de certificats solts (5,90 €) i traspassos solts (2,90 €) | Automàtic: Checkout + Webhooks d'activació |
+| **Segellat de Temps Legal** | Signaturit API v3 (TSP) | Prova de data i hora fefaent davant tribunals i asseguradores (eIDAS) | Síncron/Asíncron mitjançant hash SHA-256 |
+| **Verificació d'Identitat (KYC)** | Signaturit eIDV | Validació biomètrica facial i OCR de documents oficials d'identitat | Redirecció a WebApp Signaturit + Webhook de resultat |
+| **Ancoratge Criptogràfic L2** | Polygon PoS (JSON-RPC) | Immutabilització pública i descentralitzada del fingerprint | Cua asíncrona de Symfony Messenger (`async_chain`) |
+
+> [!IMPORTANT]
+> ### Tres Regles d'Or Innegociables
+> 1. **La tornada d'Stripe mai no aprova el servei:** Per molt que la URL de tornada contingui `?session_id=cs_...`, el servei o pla només s'activa quan el webhook signat per Stripe (`checkout.session.completed`) ha estat rebut, verificat criptogràficament i processat pel servidor (Decisió `D-080`).
+> 2. **Privadesa des del disseny a Signaturit (Art. 25 RGPD):** A Signaturit només viatja el hash SHA-256 de 32 bytes del document PDF generat. Mai s'envia el contingut del document, ni imatges del bé moble, ni dades personals del titular (Decisió `D-081`).
+> 3. **Cap espera de xarxa per la Blockchain:** Un bloc a Polygon triga entre 2 i 3 segons a minar-se. La petició HTTP de l'usuari mai espera el bloc: el controlador desa l'ítem o certificat i despatxa un missatge asíncron a la cua `async_chain` de Symfony Messenger (Decisió `D-082`).
+
+---
+
+# 3. Conceptes clau des de zero
+
+Aquesta taula es llegeix de dalt a baix: quan un concepte aparegui més endavant, ja se'n coneix exactament el significat i el rol a Registrals.
+
+| Terme | Què és en termes plans | On es veu a Registrals |
+| :--- | :--- | :--- |
+| **Stripe** | Plataforma internacional de processament de pagaments i gestió de subscripcions. | Gestiona les quotes i els pagaments de targetes, Apple Pay i Google Pay. |
+| **Compte de Plataforma** | El compte principal de Registrals a Stripe. | D'on surten totes les crides de l'API i on s'ingressen els fons cobrats als usuaris. |
+| **Sessió de Checkout** | Formulari de pagament segur allotjat als servidors de Stripe (*Hosted Checkout*). | La pàgina on l'usuari introdueix la targeta o paga amb un sol clic des del mòbil. |
+| **Mode `subscription`** | Paràmetre de Checkout per crear una subscripció anual amb renovació periòdica. | S'utilitza a la contractació dels plans Plus i Unlimited. |
+| **Mode `payment`** | Paràmetre de Checkout per cobrar una transacció única immediata sense renovació. | S'utilitza a la compra de certificats oficials solts i traspassos puntuals. |
+| **Stripe Customer Portal** | Pàgina allotjada per Stripe on el client pot canviar la targeta o cancel·lar la renovació. | Enllaçada des de `/app/plan` per als subscriptors de pagament. |
+| **Webhook** | Notificació HTTP POST que un proveïdor extern envia al nostre servidor quan passa un fet. | Endpoint `/webhook/stripe` i `/webhook/signaturit`. |
+| **Secret de Signat (`whsec_...`)**| Clau secreta que Stripe utilitza per signar digitalment cada webhook que ens envia. | Permet verificar que la notificació prové realment de Stripe i no d'un atacant. |
+| **Consum Idempotent** | Patró de seguretat: processar el mateix webhook dues vegades produeix exactament el mateix efecte que una sola vegada. | Taula `payment_transactions` amb clau única `stripe_event_id`. |
+| **Import en Cèntims** | A les APIs financeres els imports sempre s'expressen com a enters en cèntims (mai amb decimals). | `2200` = 22,00 €; `590` = 5,90 €; `290` = 2,90 €. |
+| **Signaturit (QTSP)** | Prestador Qualificat de Serveis de Confiança reconegut oficialment per la Comissió Europea. | Emet el segellat de temps qualificat eIDAS amb validesa jurídica plena. |
+| **Segellat de Temps (TSP / RFC 3161)** | Certificat digital que demostra de manera inalterable que un hash existia en una data i hora exactes. | Secció 3 del Certificat Notarial PDF de Registrals. |
+| **eIDV (Identity Verification)** | Mòdul de validació d'identitat: comprovació OCR de documents oficials + prova de vida facial. | Flux de verificació d'identitat per a usuaris prèmium i certificats d'alta gamma. |
+| **Polygon PoS (Layer 2)** | Cadena de blocs pública compatible amb Ethereum que processa transaccions ràpides i econòmiques. | Xarxa on s'immutabilitza el fingerprint SHA-256 de cada bé moble. |
+| **Token POL** | Moneda nativa utilitzada per pagar el cost de computació (gas) a la xarxa Polygon. | Saldo que conté la Hot Wallet del sistema per pagar les transaccions d'ancoratge. |
+| **Hot Wallet** | Cartera de criptomonedes connectada al servidor, controlada per una clau privada a `.env.local`. | L'adreça pública que signa els ancoratges de fingerprints a la blockchain. |
+| **Calldata** | Camp de dades addicionals d'una transacció a la xarxa EVM. | On s'introdueix el hash determinista `0x52454749...` a cost mínim de gas. |
+
+---
+
+# 4. El compte de la plataforma a Stripe
+
+Abans de començar a programar, el compte de Registrals a Stripe s'ha de configurar seguint aquest protocol:
+
+### Protocol d'Alta Pas a Pas
+1. **Crear el compte de la plataforma:** Registrar-se a [dashboard.stripe.com/register](https://dashboard.stripe.com/register) amb el correu corporatiu de l'empresa.
+2. **Activar el mode de prova (*Test mode*):** Mantenir actiu l'interruptor taronja de *Test mode* al tauler de control. Tota la construcció i validació es fa en mode de prova.
+3. **Obtenir les claus d'API de desenvolupament:** A la secció *Developers > API keys*, copiar:
+   - `Publishable key`: Comença per `pk_test_...` (pública, va a la interfície).
+   - `Secret key`: Comença per `sk_test_...` (secreta, només al servidor; mai entra a Git).
+4. **Configurar el Portal de Client:** A *Settings > Billing > Customer portal*, activar:
+   - Actualització de mètodes de pagament (targetes).
+   - Cancel·lació de subscripcions al final del període de facturació.
+   - Historial de factures i descàrrega de PDFs.
+   - Condicions del servei i política de privadesa enllaçades a `https://registrals.com/legal`.
+
+---
+
+# 5. El compte i API de Signaturit (eIDAS & KYC)
+
+### Protocol d'Alta Pas a Pas
+1. **Compte de Desenvolupador a Sandbox:** Accedir al portal de desenvolupador de Signaturit per obtenir l'API Token de proves (`api.sandbox.signaturit.com/v3`).
+2. **Simulador de Fallback Local:** A Registrals, la classe [`SignaturitClient`](file:///d:/webs/Registrals/Registrals/src/Infrastructure/Adapter/Signature/SignaturitClient.php) incorpora un simulador determinista per defecte: si no hi ha token configurat o comença per `el_teu_`, genera un segellat determinista amb prefix `eIDAS-SIG-...`, permetent que tota la suite de proves i el desenvolupament funcionin sense consumir saldo real de l'API.
+3. **Contractació de Producció:** Formalitzar el contracte amb Signaturit Group pel paquet de segellats qualificats (TSP) i crides de verificació documental (eIDV). Obtenir el token definitiu de producció per a `SIGNATURIT_API_TOKEN`.
+
+---
+
+# 6. La infraestructura de Polygon PoS Blockchain
+
+Com que Polygon és una xarxa pública descentralitzada, **no cal contractar cap servei centralitzat per donar-se d'alta**. El procediment consisteix a preparar la infraestructura de connexió:
+
+### Protocol de Posada en Marxa Pas a Pas
+1. **Generar la Hot Wallet del Sistema:**
+   - Crear una clau privada EVM de 64 caràcters hexadecimals (offline mitjançant eines estàndard web3 o OpenSSL).
+   - L'adreça pública associada serà la identitat pública oficial de la Notaria Digital de Registrals als exploradors de blocs.
+   - Desar la clau privada a `.env.local` sota la variable `POLYGON_WALLET_PRIVATE_KEY` (a producció, xifrada als secrets de Symfony).
+2. **Configurar el Node RPC (Accés a la Xarxa):**
+   - **Desenvolupament (Amoy Testnet):** RPC públic oficial gratuït: `https://rpc-amoy.polygon.technology/`.
+   - **Producció (Mainnet):** Crear un compte gratuït a [Alchemy.com](https://www.alchemy.com/) o [QuickNode.com](https://www.quicknode.com/). El pla gratuït cobreix entre 30 i 100 milions de peticions mensuals sense cap cost fix.
+3. **Dipositar fons de Gas:**
+   - **En mode Test:** Utilitzar faucets d'Amoy Testnet per rebre tokens POL de proves gratuïts.
+   - **En mode Live:** Enviar 20 € o 50 € en token POL des d'un exchange corporatiu a l'adreça de la Hot Wallet (suficient per a més de 7.000 transaccions d'ancoratge).
+
+---
+
+# 7. Entorn i mode de prova (Desenvolupament local)
+
+Tot el desenvolupament es treballa en mode de prova a la màquina local (`https://127.0.0.1:8008`). Requisits previs: PHP 8.2+, Composer, MySQL 8.4 (Docker) i Symfony CLI.
+
+### 7.1. Instal·lar l'SDK d'Stripe
 ```bash
 composer require stripe/stripe-php
 ```
 
-### Servei Adaptador (`StripeGatewayService`)
-A `src/Service/Payment/StripeGatewayService.php`, instanciem el client utilitzant la clau secreta de Stripe:
-```php
-namespace App\Service\Payment;
-
-use Stripe\StripeClient;
-
-class StripeGatewayService
-{
-    private StripeClient $stripe;
-
-    public function __construct(
-        private readonly string $stripeSecretKey,
-        private readonly string $webhookSecret
-    ) {
-        $this->stripe = new StripeClient($this->stripeSecretKey);
-    }
-
-    public function getClient(): StripeClient
-    {
-        return $this->stripe;
-    }
-}
-```
-
-## 1.3. Flux de Subscripcions Anuals (Stripe Checkout)
-Per a les subscripcions, s'utilitza **Stripe Checkout en mode allotjat (*Hosted Checkout*)**, que garanteix el màxim compliment normatiu PCI-DSS SAQ A i suport natiu per a SCA (3D Secure 2.0), Apple Pay i Google Pay sense gestionar targetes al nostre servidor.
-
-### Creació de Sessió de Checkout (`mode => 'subscription'`)
-```php
-$session = $stripe->checkout->sessions->create([
-    'customer_email' => $user->getEmail(),
-    'client_reference_id' => (string) $user->getId(),
-    'payment_method_types' => ['card'],
-    'mode' => 'subscription',
-    'line_items' => [[
-        'price_data' => [
-            'currency' => 'eur',
-            'product_data' => [
-                'name' => 'Subscripció Registrals — ' . $plan->getName(),
-                'description' => 'Custòdia notarial de béns mobles, segellat eIDAS i Polygon Blockchain.',
-            ],
-            'unit_amount' => $plan->getPriceCents(),
-            'recurring' => ['interval' => 'year'],
-        ],
-        'quantity' => 1,
-    ]],
-    'metadata' => [
-        'plan_code' => $plan->getCode(),
-        'user_id' => (string) $user->getId(),
-    ],
-    'success_url' => $router->generate('app_payment_success', [], UrlGeneratorInterface::ABSOLUTE_URL) . '?session_id={CHECKOUT_SESSION_ID}',
-    'cancel_url' => $router->generate('app_plan', [], UrlGeneratorInterface::ABSOLUTE_URL),
-]);
-
-return new RedirectResponse($session->url);
-```
-
-> [!IMPORTANT]
-> **Diferència crítica d'arquitectura:** En mode `subscription`, el camp `payment_intent` de la sessió de Checkout és inicialment `null`. L'objecte associat és `subscription` (`sub_...`). L'ID del client creat és accessible mitjançant `customer` (`cus_...`), que ha de persistir-se a `user.stripeCustomerId`.
-
-## 1.4. Flux de Micro-pagaments Puntuals (Pay-per-Value)
-Quan un usuari Free vol notaritzar un certificat oficial solt o un traspàs C2C, es crea una sessió amb `mode => 'payment'`:
-
-```php
-$session = $stripe->checkout->sessions->create([
-    'customer_email' => $user->getEmail(),
-    'client_reference_id' => (string) $user->getId(),
-    'payment_method_types' => ['card'],
-    'mode' => 'payment',
-    'line_items' => [[
-        'price_data' => [
-            'currency' => 'eur',
-            'product_data' => [
-                'name' => 'Tràmit Notarial Puntual: ' . $actionTitle,
-                'description' => sprintf('CUI: %s — Emissió de document amb validesa legal eIDAS.', $itemCui),
-            ],
-            'unit_amount' => $feeCents, // Ex: 290 o 590
-        ],
-        'quantity' => 1,
-    ]],
-    'metadata' => [
-        'transaction_type' => $type, // 'certificate_issue' | 'item_transfer'
-        'item_cui' => $itemCui,
-        'user_id' => (string) $user->getId(),
-    ],
-    'success_url' => $successUrl . '?session_id={CHECKOUT_SESSION_ID}',
-    'cancel_url' => $cancelUrl,
-]);
-```
-
-## 1.5. Portal de Client (Stripe Customer Portal)
-Per permetre que els subscriptors actualitzin la targeta de crèdit, consultin factures en PDF o cancel·lin la renovació anual sense que haguem de construir pantalles complexes de gestió bancària, fem servir el **Stripe Billing Customer Portal**:
-
-```php
-use Stripe\BillingPortal\Session as PortalSession;
-
-$portalSession = $stripe->billingPortal->sessions->create([
-    'customer' => $user->getStripeCustomerId(),
-    'return_url' => $router->generate('app_plan', [], UrlGeneratorInterface::ABSOLUTE_URL),
-]);
-
-return new RedirectResponse($portalSession->url);
-```
-
-## 1.6. Arquitectura de Webhooks Criptogràfics i Idempotència
-> [!CAUTION]
-> **Regla d'Or de Facturació:** Mai aprovar o activar un pla o cobrament a la pàgina de retorn `success_url`. Si l'usuari tanca el navegador o perd la connexió abans de la redirecció, el pagament s'hauria cobrat però el servei no s'activaria. **L'activació del servei s'executa exclusivament des del Webhook de Stripe.**
-
-### Endpoint de Recepció: `/webhook/stripe`
-- **Capçalera HTTP obligatòria:** `Stripe-Signature`
-- **Cos de la petició:** `raw body` sense alterar (`$request->getContent()`).
-
-```php
-#[Route('/webhook/stripe', name: 'app_webhook_stripe', methods: ['POST'])]
-public function handleWebhook(
-    Request $request,
-    StripeGatewayService $gateway,
-    PaymentTransactionManager $transactionManager,
-    LoggerInterface $logger
-): Response {
-    $payload = $request->getContent();
-    $sigHeader = $request->headers->get('stripe-signature', '');
-
-    try {
-        $event = \Stripe\Webhook::constructEvent(
-            $payload,
-            $sigHeader,
-            $this->webhookSecret,
-            300 // tolerància de 5 minuts contra atacs de repetició (replay attacks)
-        );
-    } catch (\UnexpectedValueException $e) {
-        return new Response('Invalid payload', Response::HTTP_BAD_REQUEST);
-    } catch (\Stripe\Exception\SignatureVerificationException $e) {
-        return new Response('Invalid signature', Response::HTTP_BAD_REQUEST);
-    }
-
-    // Control d'Idempotència: si ja hem processat aquest event.id, retornem 200 immediat
-    if ($transactionManager->isEventAlreadyProcessed($event->id)) {
-        return new Response('Event already handled', Response::HTTP_OK);
-    }
-
-    switch ($event->type) {
-        case 'checkout.session.completed':
-            $session = $event->data->object;
-            $transactionManager->processCheckoutCompleted($session);
-            break;
-
-        case 'invoice.payment_succeeded':
-            $invoice = $event->data->object;
-            $transactionManager->processSubscriptionRenewed($invoice);
-            break;
-
-        case 'customer.subscription.deleted':
-            $subscription = $event->data->object;
-            $transactionManager->processSubscriptionCancelled($subscription);
-            break;
-
-        default:
-            $logger->info('Unhandled Stripe event: ' . $event->type);
-    }
-
-    $transactionManager->markEventAsProcessed($event->id, $event->type);
-
-    return new Response('Webhook handled successfully', Response::HTTP_OK);
-}
-```
-
-## 1.7. Checklist de Variables d'Entorn i Proves Locals
-Al fitxer `.env` i `.env.local`:
+### 7.2. Configuració de Claus a `.env.local`
+Al fitxer `.env.local` (que està ignorat per `.gitignore` i mai puja al repositori):
 ```dotenv
 ###> stripe/stripe-php ###
 STRIPE_PUBLIC_KEY=pk_test_...
 STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 ###< stripe/stripe-php ###
+
+###> signaturit ###
+SIGNATURIT_API_TOKEN=el_teu_token_sandbox
+SIGNATURIT_BASE_URL=https://api.sandbox.signaturit.com/v3
+###< signaturit ###
+
+###> polygon ###
+POLYGON_RPC_URL=https://rpc-amoy.polygon.technology/
+POLYGON_CHAIN_ID=80002
+POLYGON_WALLET_PRIVATE_KEY=0x...clau_de_testnet...
+POLYGON_EXPLORER_URL=https://amoy.polygonscan.com
+###< polygon ###
 ```
 
-Per provar webhooks localment amb la CLI oficial de Stripe:
+> [!CAUTION]
+> **Les claus no entren mai al repositori:** Encara que siguin de prova, una clau `sk_test_...` o una clau privada de cartera pujada a Git és una vulnerabilitat greu. A producció s'utilitzen exclusivament els secrets xifrats de Symfony (`bin/console secrets:set STRIPE_SECRET_KEY`).
+
+### 7.3. Stripe CLI: Escoltar els Webhooks a la Màquina Local
+Com que el servidor local `127.0.0.1:8008` no té una IP pública accessible per Stripe, utilitzem l'eina oficial **Stripe CLI** per rebre els webhooks directament:
+
 ```bash
-stripe listen --forward-to localhost:8008/webhook/stripe
+# 1. Iniciar sessió al compte de Stripe
+stripe login
+
+# 2. Escoltar els esdeveniments i reenviar-los al servidor Symfony
+stripe listen --forward-to https://127.0.0.1:8008/webhook/stripe
 ```
+
+La consola de la Stripe CLI mostrarà el secret de signat de prova:
+```text
+> Ready! Your webhook signing secret is whsec_a1b2c3d4... (^C to quit)
+```
+Aquest secret `whsec_...` és el que es copia a `STRIPE_WEBHOOK_SECRET` a `.env.local`.
+
+### Llista de Comprovació de l'Entorn de Desenvolupament
+- [ ] `php bin/console debug:container "Stripe\StripeClient"` mostra el servei registrat correctament.
+- [ ] Cap clau de Stripe ni clau privada de Polygon a `.env` general ni a cap fitxer versionat a Git.
+- [ ] `stripe listen` corre al terminal i rep peticions sense errors 400 ni 500.
+- [ ] El simulador de Signaturit respon amb DTOs vàlids quan el token és de proves.
+- [ ] La consulta de bloc RPC de Polygon (`eth_blockNumber`) retorna el número de bloc actual d'Amoy Testnet.
 
 ---
 
-# 2. Signaturit: Segellat de Temps eIDAS i Identitat eIDV
+# 8. Flux A · Contractació de Subscripció Anual (Pla Plus o Unlimited)
 
-## 2.1. Marc Jurídic eIDAS (Reglament UE 910/2014)
-- **Web Oficial:** [https://www.signaturit.com/](https://www.signaturit.com/)
-- **Documentació API:** [https://docs.signaturit.com/v3](https://docs.signaturit.com/v3)
-- **Verificació d'Identitat:** [https://www.signaturit.com/es/productos/identidad-digital/verificacion-de-identidad/](https://www.signaturit.com/es/productos/identidad-digital/verificacion-de-identidad/)
+**Objectiu:** Que un usuari del Pla Free actualitzi la seva subscripció a Plus (22 €/any) o Unlimited (59 €/any) i se li activin les noves quotes instantàniament.
 
-Signaturit Group és un **Prestador Qualificat de Serveis de Confiança (QTSP)** acreditat davant la Comissió Europea. La seva integració a Registrals proveeix:
-1. **Presumpció d'exactitud i integritat (Art. 41 eIDAS):** Un segellat de temps qualificat gaudeix de presumpció de data i hora exactes davant qualsevol tribunal de la Unió Europea, sense necessitat de peritatge addicional.
-2. **Inversió de la càrrega de la prova:** En cas de litigi contra una companyia asseguradora o contrapart, qui al·legui que el document no existia en aquella data ha de demostrar-ho pericialment.
-
-## 2.2. API de Segellat de Temps Qualificat (TSP / RFC 3161)
-- **Endpoint Producció:** `https://api.signaturit.com/v3/timestamps.json`
-- **Endpoint Sandbox:** `https://api.sandbox.signaturit.com/v3/timestamps.json`
-- **Mètode:** `POST`
-- **Autenticació:** `Authorization: Bearer <SIGNATURIT_API_TOKEN>`
-
-### Payload d'Enviament (Hash SHA-256)
-En virtut del principi de **Privadesa des del Disseny (Art. 25 RGPD)**, mai s'envia el contingut del document ni dades personals a Signaturit. Únicament s'envia el hash criptogràfic SHA-256 calculat sobre el PDF vectorial del certificat:
-```json
-{
-  "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-  "hash_algorithm": "SHA256"
-}
+```
+[1. Clic "Millorar Pla" a /app/plan]
+         ↓
+[2. Controlador crea Checkout Session (mode: subscription)]
+         ↓
+[3. Redirecció a Stripe Hosted Checkout (targeta / Apple Pay / Google Pay)]
+         ↓
+[4. Usuari completa el pagament a Stripe]
+         ↓
+[5. Stripe envia Webhook: checkout.session.completed]
+         ↓
+[6. Servidor valida signatura, actualitza User (plan, dates) de forma idempotent]
+         ↓
+[7. Usuari torna a success_url i veu el Pla Plus actiu immediatament]
 ```
 
-### Resposta Estructurada de Signaturit
-```json
-{
-  "id": "ts_a1b2c3d4e5f6",
-  "created_at": "2026-10-31T09:15:32Z",
-  "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-  "hash_algorithm": "SHA256",
-  "status": "completed",
-  "certificate": {
-    "issuer": "Signaturit Qualified Time Stamping Authority QTSA1",
-    "serial_number": "4859302910394857201",
-    "policy_identifier": "0.4.0.2023.1.4"
-  }
-}
-```
+### Seqüència Pas a Pas
+1. L'usuari accedeix a [`/app/plan`](file:///d:/webs/Registrals/Registrals/templates/plan/index.html.twig) i fa clic a *"Contractar Pla Plus"* o *"Contractar Pla Unlimited"*.
+2. El servidor ([`PaymentController::checkoutSubscription`](file:///d:/webs/Registrals/Registrals/src/Controller/PaymentController.php)) crea una sessió de Stripe Checkout amb `mode => 'subscription'`, especificant el preu en cèntims (`2200` o `5900`), període anual i les metadades de l'usuari (`user_id`, `plan_code`).
+3. El navegador redirigeix a la pàgina segura d'Stripe Checkout.
+4. L'usuari paga amb targeta real o de prova (`4242 4242 4242 4242`).
+5. Stripe processa el cobrament i emet el webhook `checkout.session.completed`.
+6. L'endpoint `/webhook/stripe` de Registrals:
+   - Verifica la signatura criptogràfica `Stripe-Signature` amb `whsec_...`.
+   - Comprova que l'esdeveniment no s'hagi processat abans (idempotència).
+   - Vincula `user.stripeCustomerId = session.customer` i `user.stripeSubscriptionId = session.subscription`.
+   - Assigna el nou `Plan` a l'entitat `User`, renova les quotes i estableix la data d'expiració a 1 any vista.
+   - Envia un correu electrònic notarial de benvinguda al nou pla amb la factura adjunta.
+7. L'usuari torna a la `success_url` de Registrals i troba el seu panell actualitzat.
 
-Aquestes dades s'emmagatzemen a l'entitat `Certificate` en els camps:
-- `signaturitTokenId`: Identificador únic del token (`ts_...`).
-- `signaturitTimestamp`: Data i hora UTC qualificada.
-- `signaturitEvidencePath`: Camí de Flysystem on es custodia el paquet probatori XML/PDF.
-
-## 2.3. API d'Identificació Digital i Verificació Biomètrica (eIDV / KYC)
-Per a usuaris que desitgen la insígnia de **Titular Verificat** o emetre certificats d'alt valor (>10.000 €), Registrals utilitza el mòdul eIDV de Signaturit:
-
-### Flux d'Execució
-1. **Sol·licitud d'IDV (`POST /v3/identifications.json`):** Es genera un procés vinculat a l'usuari amb redirecció web o iframe protegit.
-2. **Captura Documental Automatitzada:**
-   - Reconeixement OCR de DNI, NIE o Passaport (>200 països).
-   - Anàlisi de més de 50 punts de seguretat (tipografies MRZ, patrons hologràfics, micro-impressions).
-   - Detecció d'adulteració o generació per IA (deepfakes).
-3. **Verificació Biomètrica Facial:**
-   - Captura de selfie en temps real amb **prova de vida activa/passiva** (*liveness detection*).
-   - Comparativa 1:1 entre el rostre del titular i la fotografia del document oficial.
-4. **Callback Asíncron:** El webhook de Signaturit notifica el resultat (`validated`, `rejected`, `manual_review`), emmagatzemant a `User` el camp `identityVerifiedAt` i la referència forense de validació.
-
-## 2.4. Entorns Sandbox vs Producció i Simulador de Fallback
-L'adaptador `SignaturitClient` implementa tolerància a fallades i aïllament en entorn de desenvolupament:
-- Si `SIGNATURIT_API_TOKEN` comença per `el_teu_` o és buit, el client opera en **mode simulació controlada**:
-  - Genera un token deterministic amb prefix `eIDAS-SIG-...`.
-  - Permet provar el cicle complet de certificats i traspassos sense consumir saldo de la llicència Signaturit.
-- En entorn de test o producció amb credencials vàlides, executa la crida HTTP contra l'API corresponent (`api.sandbox.signaturit.com` o `api.signaturit.com`).
+### Com es prova en mode de desenvolupament
+1. A [`/app/plan`](file:///d:/webs/Registrals/Registrals/templates/plan/index.html.twig), seleccionar Pla Plus.
+2. Pagar a Stripe amb targeta `4242...`, data futura i CVC `123`.
+3. Al terminal d'Stripe CLI, comprovar que arriba l'esdeveniment `checkout.session.completed [200 OK]`.
+4. Comprovar a la base de dades que l'usuari té `plan_id = 2` (Plus) i `stripe_customer_id` omplert.
+5. Reenviar el mateix esdeveniment amb `stripe events resend <event_id>` i comprovar que l'aplicació respon `200 OK` sense duplicar dates ni trencar l'històric.
 
 ---
 
-# 3. Polygon PoS: Ancoratge Criptogràfic a Blockchain Layer 2
+# 9. Flux B · Compra de Certificat Oficial Solt (Pay-per-Value)
 
-## 3.1. Visió Tècnica i Racional d'Arquitectura
-- **Web Oficial:** [https://polygon.technology/](https://polygon.technology/)
-- **Documentació Oficial:** [https://docs.polygon.technology/](https://docs.polygon.technology/)
-- **Documentació de Xarxes & RPC:** [https://docs.polygon.technology/pos/reference/rpc-endpoints/](https://docs.polygon.technology/pos/reference/rpc-endpoints/)
+**Objectiu:** Que un usuari del Pla Free que vol emetre un certificat oficial puntual (amb validesa legal eIDAS i ancoratge a Blockchain) pugui pagar 5,90 € sense obligar-lo a contractar una subscripció anual.
 
-### Per què Polygon PoS com a Layer 2?
-1. **Neutralitat i Independència:** Mentre que Signaturit depèn d'un prestador centralitzat privat, la cadena pública Polygon és autònoma, descentralitzada i auditable per qualsevol tercer al món sense dependre de la supervivència de Registrals.
-2. **Cost Marginal Irrisori:** Ancorar una traça costa menys de `0,003 €` per transacció gràcies a l'alta eficiència de Polygon PoS, fent viable el pla Freemium.
-3. **Immutabilitat i Compatibilitat EVM:** La transacció queda registrada en milers de nodes validadors globals seguint l'estàndard Ethereum Virtual Machine (EVM).
+### Seqüència Pas a Pas
+1. A la fitxa del bé moble ([`/app/items/{cui}`](file:///d:/webs/Registrals/Registrals/templates/item/show.html.twig)), l'usuari fa clic a *"Emetre Certificat Oficial"*.
+2. Com que l'usuari és Free i no té quota oficial, s'obre el modal notarial explicant el cost del tràmit: *"5,90 € per certificat oficial eIDAS (o gratuït amb el Pla Plus)"*.
+3. L'usuari fa clic a *"Pagar i Notaritzar (5,90 €)"*.
+4. El servidor crea una sessió de Stripe Checkout amb `mode => 'payment'`, import `590` cèntims i metadades `transaction_type = 'official_certificate'` i `item_cui = {cui}`.
+5. L'usuari paga a Stripe.
+6. Stripe envia el webhook `checkout.session.completed`.
+7. El processador de pagaments de Registrals:
+   - Marca la transacció com a pagada a la base de dades.
+   - Crida el servei [`CertificateIssuerService`](file:///d:/webs/Registrals/Registrals/src/Service/Certificate/CertificateIssuerService.php) en modalitat `OFFICIAL`.
+   - Genera el PDF vectorial amb el segell institucional en mil·límetres i la fotografia del bé.
+   - Crida Signaturit per obtenir el segellat de temps qualificat eIDAS del hash SHA-256.
+   - Despatxa el missatge d'ancoratge asíncron a Polygon PoS (`AnchorBlockchainMessage`).
+8. L'usuari torna a la pantalla del certificat amb el PDF llest per obrir en pestanya nova (`inline`).
 
-## 3.2. Xarxes Oficials: Amoy Testnet vs Polygon Mainnet
+---
 
-| Paràmetre | Polygon Amoy Testnet (Desenvolupament / Staging) | Polygon PoS Mainnet (Producció) |
-| :--- | :--- | :--- |
-| **Finalitat** | Proves completes de transaccions i gas | Producció i notarització pública oficial |
-| **Chain ID** | `80002` (`0x13882`) | `137` (`0x89`) |
-| **Token de Gas** | `POL` (abans anomenat testnet MATIC) | `POL` (token natiu migrat des de MATIC) |
-| **RPC Públic Oficial** | `https://rpc-amoy.polygon.technology/` | `https://polygon-rpc.com/` |
-| **RPC Recomanat Prod** | Alchemy / QuickNode / Infura Sepolia-Amoy | Alchemy / QuickNode dedicat privat |
-| **Explorador de Blocs** | [https://amoy.polygonscan.com/](https://amoy.polygonscan.com/) | [https://polygonscan.com/](https://polygonscan.com/) |
-| **Cadena Pare (L1)** | Ethereum Sepolia Testnet | Ethereum Mainnet |
+# 10. Flux C · Traspàs Notarial C2C de Pagament i Reserva de 72h
 
-## 3.3. Mecanisme d'Ancoratge Determinista de Hashes SHA-256
-Per optimitzar el consum de gas i evitar la càrrega de desplegar i auditar contractes excessivament complexos, Registrals utilitza l'**ancoratge en dades de transacció (*Transaction Calldata / Null Address Anchor*)**:
+**Objectiu:** Que un usuari del Pla Free pugui traspassar la titularitat d'un bé a un altre particular pagant la taxa de tràmit notarial de 2,90 €.
 
-### Estructura de la Transacció
-- **To:** Adreça del Registre Públic Oficial de Registrals (o contracte mínim d'auditoria).
-- **Value:** `0 POL` (sense transferència monetària).
-- **Data (Calldata):** Cadena hexadecimal de 66 caràcters composta pel codi d'acció i el hash SHA-256 mestre:
-  ```
-  0x52454749[CodiAcció:4B][CUI:10B][HashSHA256:32B]
-  ```
-  - Prefix màgic: `0x52454749` (representació ASCII de `"REGI"`).
-  - Codi d'acció: `01` (Alta de bé), `02` (Traspàs C2C), `03` (Alerta de robatori), `04` (Certificat oficial).
-  - SHA-256: 32 bytes del fingerprint calculat per `ItemFingerprintCalculator`.
+### Seqüència Pas a Pas
+1. L'emissor inicia el traspàs a la fitxa del bé moble indicant el correu del receptor.
+2. Com que el pla és Free i s'han esgotat els traspassos inclosos, l'aplicació indica la taxa de 2,90 €.
+3. Es genera la sessió de Checkout per 2,90 € (`mode => 'payment'`).
+4. En confirmar-se el cobrament via webhook, la màquina d'estats de Symfony Workflow passa l'objecte a `transfer_pending` i s'inicia el compte enrere de caducitat de 72 hores.
+5. El receptor rep la invitació notarial per correu electrònic amb el token criptogràfic.
+6. **Cas C.1 (Acceptació a temps):** El receptor valida el seu compte o s'hi registra, introdueix el codi PIN si n'hi havia, i confirma la recepció. El bé canvia de titularitat a la base de dades i s'ancora a Polygon PoS.
+7. **Cas C.2 (Expiració sense acceptació als 3 dies):** La comanda de cron `app:transfers:expire` detecta que han passat 72 hores sense resposta. El traspàs es cancel·la automàticament i el bé torna a l'estat `active` del remitent original. No hi ha devolució automàtica en tractar-se d'una taxa de tramitació administrativa ja executada (Decisió `D-077`).
 
-Aquesta estructura permet que qualsevol explorador com Polygonscan mostri exactament el hash certificat al camp *Input Data* de la transacció de manera inalterable i per a sempre.
+---
 
-## 3.4. Gestió de Gas (EIP-1559) i Custòdia Segura de la Hot Wallet
-- **Tipus de Transacció:** EIP-1559 (Dynamic Fee Transaction).
-- **Paràmetres:**
-  - `maxPriorityFeePerGas`: Propina per a validadors (ex: 30 Gwei a Polygon).
-  - `maxFeePerGas`: Tarifa màxima total acceptable.
-  - `gasLimit`: 21.000 unitats de gas per a transaccions estàndard amb dades bàsiques, o fins a 45.000 per a crides amb contracte mínim.
-- **Custòdia Segura:**
-  - La clau privada de la cartera de sistema (*Hot Wallet*) es troba exclusivament a la variable d'entorn `POLYGON_WALLET_PRIVATE_KEY` a `.env.local` o emmagatzemada mitjançant el sistema segur de secrets de Symfony (`bin/console secrets:set`).
-  - La cartera només conté un saldo operatiu moderat (ex: 50 a 100 POL) destinat exclusivament al pagament de gas, amb monitorització de saldo des de `/admin/serveis`.
+# 11. Flux D · Portal de Client (Canvi de Targeta, Factures i Cancel·lació)
 
-## 3.5. Desacoblament Asíncron mitjançant Symfony Messenger
-> [!NOTE]
-> **Arquitectura sense Bloqueig:** Un bloc a Polygon PoS triga entre 2 i 3 segons en ser minat. La interfície web d'un usuari mai ha d'esperar el bloc de xarxa.
+**Objectiu:** Permetre la gestió autònoma de la subscripció sense intervenció manual de l'equip de suport.
 
-1. Quan un bé és registrat, certificat o traspassat, el controlador o servei despatxa un missatge asíncron:
+1. A [`/app/plan`](file:///d:/webs/Registrals/Registrals/templates/plan/index.html.twig), els usuaris amb un pla Plus o Unlimited disposen del botó *"Administrar Subscripció i Factures"*.
+2. El controlador fa una crida a l'API de Stripe:
    ```php
-   $messageBus->dispatch(new AnchorBlockchainMessage($itemId, BlockchainActionType::ITEM_REGISTRATION));
+   $portalSession = $stripe->billingPortal->sessions->create([
+       'customer' => $user->getStripeCustomerId(),
+       'return_url' => $this->generateUrl('app_plan', [], UrlGeneratorInterface::ABSOLUTE_URL),
+   ]);
    ```
-2. El missatge s'encua al transport `async_chain` de Symfony Messenger.
-3. El *worker* en segon pla (`php bin/console messenger:consume async_chain`) recull el missatge, signa la transacció, la transmet al node RPC de Polygon i desa l'entitat `BlockchainReceipt` vinculada a l'objecte:
-   - `txHash`: Hash de la transacció (ex: `0x7a8b...`).
-   - `blockNumber`: Bloc on ha estat inclosa.
-   - `anchoredHash`: Hash SHA-256 immutabilitzat.
-   - `network`: `polygon-pos` o `polygon-amoy`.
+3. L'usuari és redirigit al Customer Portal segur de Stripe, on pot:
+   - Afegir una nova targeta de crèdit o canviar la predeterminada.
+   - Descarregar totes les factures històriques en PDF amb l'IVA desglossat.
+   - Cancel·lar la renovació anual automàtica (el pla es manté actiu fins a la data d'expiració ja pagada).
+4. En sortir del portal, torna automàticament a `/app/plan`.
+5. Si cancel·la la subscripció, Stripe emet el webhook `customer.subscription.deleted`, que Registrals rep per programar el retorn al Pla Free un cop vençut el període anual.
 
 ---
 
-# 4. Matriu Comparativa de Credencials i Seguretat per Entorn
+# 12. Flux E · Devolucions, Discrepàncies i Fallades de Cobrament
 
-| Servei | Variable d'Entorn | Format DEV / Sandbox | Format PROD |
+### 12.1. Fallada en la Renovació Anual (`invoice.payment_failed`)
+Quan arriba la data de renovació d'un Pla Plus o Unlimited i la targeta del client és rebutjada (caducada o sense saldo):
+1. Stripe intenta el cobrament seguint la seva política de *Smart Retries* durant 3 setmanes.
+2. Stripe envia el webhook `invoice.payment_failed`.
+3. Registrals no suspèn el compte immediatament: entra en estat de gràcia (*Grace Period*) de 7 dies, notificant solemnement l'usuari per correu perquè actualitzi el mètode de pagament al Customer Portal.
+4. Si després dels reintents el cobrament no prospera, Stripe cancel·la la subscripció (`customer.subscription.deleted`) i l'usuari torna al Pla Free, congelant els béns que superin el límit de 20 (es mantenen en custòdia però no es poden editar ni notaritzar nous documents).
+
+### 12.2. Disputes i Càrrecs Fraudulents (Chargebacks)
+1. Si un usuari obre una disputa davant del seu banc, Stripe emet l'esdeveniment `charge.dispute.created`.
+2. El webhook de Registrals bloqueja cautelarment l'emissió de nous certificats oficials a aquest usuari i notifica l'administrador a `/admin/usuaris` per revisar el cas.
+
+---
+
+# 13. Com tracta l'aplicació els Webhooks (Arquitectura Hexagonal)
+
+El controlador del webhook fa exclusivament dues tasques en menys de 50 ms: **validar la signatura criptogràfica** i **desar l'esdeveniment a la base de dades** de forma idempotent. Tota la lògica de domini es desacobla a serveis especialitzats (patró Adapter / Ports & Adapters, Decisió `D-144`).
+
+```
+Peticions HTTP Stripe
+         ↓
+[StripeWebhookController] ──→ Verifica Stripe-Signature (whsec_...)
+         ↓
+[PaymentTransactionManager] ──→ Comprova duplicats (UNIQUE stripe_event_id)
+         ↓
+  ┌──────┴────────────────────────┬────────────────────────┐
+  ↓                               ↓                        ↓
+checkout.session.completed   invoice.payment_succeeded   customer.subscription.deleted
+  ↓                               ↓                        ↓
+[SubscriptionActivationService] [RenewalService]       [PlanDowngradeService]
+```
+
+### Matriu Esdeveniment Webhook → Servei de Domini
+| Esdeveniment de Stripe | Servei que el gestiona | Mètode | Efecte a la Base de Dades de Registrals |
 | :--- | :--- | :--- | :--- |
-| **Stripe Públic** | `STRIPE_PUBLIC_KEY` | `pk_test_51...` | `pk_live_51...` |
-| **Stripe Secret** | `STRIPE_SECRET_KEY` | `sk_test_51...` | `sk_live_51...` |
-| **Stripe Webhook** | `STRIPE_WEBHOOK_SECRET` | `whsec_...` (Stripe CLI) | `whsec_...` (Dashboard Prod) |
-| **Signaturit Token** | `SIGNATURIT_API_TOKEN` | Token Sandbox o `el_teu_token` (Simulat) | Token Producció QTSP |
-| **Signaturit URL** | `SIGNATURIT_BASE_URL` | `https://api.sandbox.signaturit.com/v3` | `https://api.signaturit.com/v3` |
-| **Polygon RPC** | `POLYGON_RPC_URL` | `https://rpc-amoy.polygon.technology/` | `https://polygon-mainnet.g.alchemy.com/v2/...` |
-| **Polygon Wallet** | `POLYGON_WALLET_PRIVATE_KEY` | Clau de Testnet (Faucets Amoy) | Clau de Producció xifrada amb secrets |
-| **Polygon Explorer**| `POLYGON_EXPLORER_URL` | `https://amoy.polygonscan.com` | `https://polygonscan.com` |
+| `checkout.session.completed` | `SubscriptionActivationService` | `activateFromCheckout()` | Si és subscripció: assigna pla Plus/Unlimited, data d'inici i expiració (+1 any). Si és pagament solt: autoritza l'emissió de certificat o traspàs. |
+| `invoice.payment_succeeded` | `SubscriptionRenewalService` | `renewSubscription()` | Estén la data d'expiració un any addicional i restableix el comptador de quotes anuals d'IA i certificats. |
+| `invoice.payment_failed` | `SubscriptionGraceService` | `handleFailedPayment()` | Activa el període de gràcia de 7 dies i envia avís per correu al titular. |
+| `customer.subscription.deleted`| `SubscriptionDowngradeService` | `downgradeToFree()` | Retorna l'usuari al Pla Free en vèncer el període pagat. |
+| `charge.dispute.created` | `FraudInvestigationService` | `flagDisputedAccount()` | Marca l'usuari en alerta d'auditoria i bloqueja l'emissió de certificats oficials. |
+
+### Divisió de Responsabilitats en Capes
+- **Capa 3 (Adaptadors d'Infraestructura):** `StripeGatewayService`, `SignaturitClient`, `PolygonAnchorClient`. Tradueixen crides HTTP i formats externs. Mai prenen decisions de negoci.
+- **Capa 4 (Serveis de Domini / Negoci):** `CertificateIssuerService`, `ItemLifecycleService`, `PaymentTransactionManager`. Decideixen quan s'activa un bé, quan es pot emetre un certificat, quins límits s'apliquen i com es registren les auditories.
+
+> Si en el futur es canviés Stripe per Redsýs o un altre proveïdor, només es reescriurien els adaptadors de la Capa 3; cap classe de la Capa 4 de negoci es veuria afectada.
 
 ---
 
-# 5. Protocols d'Idempotència i Resiliència Davant Caigudes
+# 14. Producció, quan toqui (Canvi de mode, no de codi)
 
-1. **Stripe:**
-   - Tots els identificadors d'esdeveniment de webhook (`event.id`) es registren a una taula de control d'idempotència.
-   - Qualsevol intent de repetició per part de Stripe rep un `200 OK` instantani sense duplicar càrrecs ni transaccions a la base de dades.
-2. **Signaturit:**
-   - Si l'endpoint de Signaturit respon amb error 5xx o timeout > 10 segons, el certificat no es perd: es marca en estat de reintent asíncron (`retry_pending`) o s'activa el simulador segur en DEV.
-3. **Polygon PoS:**
-   - Si el proveïdor RPC pateix una incidència temporal, Symfony Messenger aplica la política de *backoff* exponencial (`messenger:failed:retry`) amb fins a 5 reintents abans de moure el missatge a la cua `failed` visible des de `/admin/serveis`.
+Tot el que s'ha implementat funciona exactament igual en mode de prova i en mode de producció: **no canvia cap línia de codi**. La diferència són les claus d'API, l'adreça del webhook i els secrets de Symfony.
 
----
-
-# 6. Guia d'Alta Pas a Pas i Unit Economics per Proveïdor
-
-Aquesta secció detalla el procés administratiu, les dades necessàries per activar cada servei i el desglossament exacte dels costos unitaris d'operació.
-
-## 6.1. Stripe
-### Pas a pas d'Alta
-1. **Registre Inicial:** Crear compte a [dashboard.stripe.com/register](https://dashboard.stripe.com/register).
-2. **Mode de Proves Immediat (DEV):** Des del primer segon s'obté accés al Dashboard i a les claus de prova (`pk_test_...`, `sk_test_...`) sense verificació bancària ni documentació.
-3. **Activació de Compte de Producció (Live):**
-   - **Tipus d'entitat:** Autònom (*Sole proprietorship*) o Societat Limitada (*Company / SL*) a Espanya o la Unió Europea.
-   - **Dades requerides:** NIF/CIF fiscal, adreça fiscal, DNI/NIE de l'administrador o titular del compte, i compte bancari IBAN per a transferències de fons.
-   - **Verificació:** Stripe valida l'empresa de forma automatitzada en 24-48 hores.
-4. **Configuració del Webhook:** A *Developers > Webhooks*, afegir l'endpoint `https://registrals.com/webhook/stripe` i copiar el secret `whsec_...`.
-
-### Estructura de Costos Reals i Rendibilitat
-- **Cost fix de manteniment:** **0 € / mes**.
-- **Tarifa per transacció europea estàndard (Targetes UE, Apple Pay, Google Pay):** **1,5% + 0,25 €**.
-- **Unit Economics per operació de Registrals:**
-  | Producte / Tràmit | Preu Cobrat a Client | Comissió Stripe (1,5% + 0,25 €) | Ingrés Net per a Registrals | Marge de Cobrament |
-  | :--- | :--- | :--- | :--- | :--- |
-  | **Traspàs C2C Solt** | 2,90 € | 0,29 € | **2,61 €** | 90,0% |
-  | **Certificat Oficial Solt** | 5,90 € | 0,34 € | **5,56 €** | 94,2% |
-  | **Pla Plus Anual** | 22,00 € | 0,58 € | **21,42 €** | 97,4% |
-  | **Pla Unlimited Anual** | 59,00 € | 1,14 € | **57,86 €** | 98,1% |
+### Llista de Comprovació per a la Sortida a Producció (Checklist Live)
+- [ ] **Perfil de Stripe completat:** Dades fiscals de l'empresa, adreça i compte bancari IBAN verificats per Stripe.
+- [ ] **Generades les claus Live:** `pk_live_...` i `sk_live_...` registrades a Symfony Secrets (`bin/console secrets:set STRIPE_SECRET_KEY`).
+- [ ] **Webhook de Producció actiu:** Endpoint públic HTTPS configurat a `https://registrals.com/webhook/stripe` i secret `whsec_...` de producció copiat als secrets del servidor.
+- [ ] **Token de Producció de Signaturit:** Llicència QTSP eIDAS activada i token introduït a `SIGNATURIT_API_TOKEN`.
+- [ ] **Hot Wallet de Polygon finançada:** 20 € a 50 € de token POL enviats a l'adreça pública del servidor a Polygon Mainnet (Chain ID `137`).
+- [ ] **Node RPC de Producció:** URL d'Alchemy o QuickNode configurada a `POLYGON_RPC_URL`.
+- [ ] **Prova de cobrament real de punta a punta:** Executada una transacció real amb targeta bancària pròpia d'1 € o prova d'alta abans d'obrir l'accés al públic general.
 
 ---
 
-## 6.2. Signaturit
-### Pas a pas d'Alta
-1. **Accés a Sandbox de Desenvolupament:**
-   - Registrar-se com a *developer* a [signaturit.com](https://www.signaturit.com/) per generar un API Token de proves a `api.sandbox.signaturit.com/v3`.
-   - *Nota d'arquitectura:* Registrals incorpora a `SignaturitClient` un simulador determinista de segellats que permet testejar en local sense necessitat d'estar connectat a l'API.
-2. **Contractació de Producció:**
-   - Sol·licitar l'activació d'un contracte de serveis de confiança qualificada amb l'equip de vendes de Signaturit Group (paquet de segellats de temps eIDAS i crides d'identitat eIDV).
-   - Generació del token de producció des del tauler d'administració de Signaturit i registre a `.env.local` (`SIGNATURIT_API_TOKEN`).
+# 15. Matriu de Responsabilitats: Qui fa què
 
-### Estructura de Costos Reals i Rendibilitat
-- **Segellat de Temps Qualificat eIDAS (TSP):** **~0,05 € a 0,10 € per certificat**.
-  - *Marge comercial:* Cobrat a 5,90 € en pagament solt o amortitzat a la quota de 22 € del Pla Plus (10 certificats = ~0,80 € de cost de proveïdor; rendibilitat neta de la subscripció > 95%).
-- **Identificació Digital eIDV / KYC (OCR DNI + Biometria facial):** **~1,20 € a 1,50 € per verificació completa**.
-  - *Marge comercial:* Amortitzat al primer any de la subscripció Plus o cobrat com a tràmit d'identitat prèmium a 3,50 €.
+La següent matriu distribueix amb precisió jurídica i tècnica les obligacions de cada actor del sistema:
 
----
-
-## 6.3. Polygon PoS Blockchain
-### Pas a pas d'Alta
-1. **Sense Contracte ni Registre Centralitzat:** Com a xarxa descentralitzada i sense censura (*permissionless*), no cal demanar permís a cap entitat per començar a operar.
-2. **Generació de la Hot Wallet del Sistema:**
-   - Generar un parell de claus asimètriques EVM mitjançant utilitats com `cast wallet new`, web3 o OpenSSL offline.
-   - Desar l'adreça pública al sistema (serà visible als exploradors de blocs com l'emissor oficial de Registrals).
-   - Desar la clau privada de 64 caràcters hexadecimals a `POLYGON_WALLET_PRIVATE_KEY` a `.env.local` (o als secrets xifrats de Symfony).
-3. **Proveïdor de Node RPC (Producció):**
-   - Crear un compte gratuït a [Alchemy.com](https://www.alchemy.com/) o [QuickNode.com](https://www.quicknode.com/).
-   - El pla gratuït (*Free Tier*) inclou entre 30 i 100 milions d'unitats de computació (CU) mensuals, més que suficient per cobrir centenars de milers de consultes de Registrals a cost **0 €**.
-4. **Fons Inicials de Gas:**
-   - Adquirir entre 20 € i 50 € en token **POL** des d'un compte corporatiu en un exchange regulat o mitjançant transferència, i enviar-los a l'adreça de la Hot Wallet de Registrals.
-
-### Estructura de Costos Reals
-- **Cost de transacció (Gas Fee):** **< 0,003 € per ancoratge de hash**.
-- **Rendiment del dipòsit de gas:**
-  - Amb una càrrega inicial de **20 € en POL**, Registrals pot executar entre **7.000 i 10.000 ancoratges oficials** a la blockchain.
-  - El cost tècnic per bé és pràcticament nul, garantint la màxima viabilitat del pla Freemium.
-
----
-
-# 7. Anàlisi d'Alternatives Tecnològiques i Criteris de Decisió
-
-Per a cadascun dels tres components, s'han avaluat les principals alternatives de mercat i els motius pels quals s'ha escollit la solució actual o quan podria tenir sentit una transició:
-
-## 7.1. Alternatives a Stripe (Pagaments)
-
-| Proveïdor | Avantatges | Inconvenients | Criteri i Veredicte per a Registrals |
+| Àmbit Operatiu | Registrals (Plataforma) | Usuari (Titular del Patrimoni) | Proveïdor Extern (Stripe / Signaturit / Polygon) |
 | :--- | :--- | :--- | :--- |
-| **Stripe** *(Triat)* | SDK de primer nivell, Hosted Checkout impecable, Apple/Google Pay nadiu, Customer Portal automatitzat, Webhooks robustos. | Comissió del 1,5% + 0,25 € lleugerament superior a la banca tradicional. | **Solució oficial d'entrada.** Redueix el temps de desenvolupament un 80% i ofereix la millor taxa de conversió per a clients particulars. |
-| **Redsýs / TPV Virtual** *(Bancs espanyols: CaixaBank, Santander, BBVA)* | Comissions molt baixes (~0,3% a 0,5%), sense fix per operació, suport natiu de **Bizum**. | Experiència d'usuari (UX) antiquada, redireccions bancàries que augmenten l'abandonament, gestió de subscripcions i canvis de targeta molt complexa i manual, sense Customer Portal. | **Candidat futur per a fase d'escala nacional.** Molt recomanable per oferir pagament per Bizum quan el volum de transaccions a Espanya superi els 100.000 € anuals. |
-| **Paddle / Lemon Squeezy** | Actuen com a *Merchant of Record* (gestionen l'IVA internacional MOSS/OSS i facturació per compte propi). | Comissió abusiva (5% + 0,50 $ per càrrec). Destrueix la rendibilitat en micro-pagaments de 2,90 €. | **Descartat.** Inviable econòmicament per al nostre model de tarifes. |
-| **Mollie** | Molt popular a la Unió Europea, excel·lent suport d'iDEAL (Països Baixos), Bancontact (Bèlgica) i targetes. Comissions competitives (~1,2% a 1,8%). | Menys maduresa que Stripe en subscripcions complexes i documentació d'SDK per a portals de clients. | **Bona alternativa europea de reserva** si en el futur es busca un operador amb seu estrictament a la UE. |
+| **Custòdia de Dades Bancàries** | **Mai no veu ni emmagatzema números de targetes.** | Introdueix les dades al formulari d'Stripe. | **Stripe:** Custodia les targetes sota PCI-DSS Level 1. |
+| **Facturació i Cobraments** | Orquestra els plans i registra les transaccions locals. | Paga les quotes o tràmits solts. | **Stripe:** Executa el cobrament, liquida al banc i aplica 3DS. |
+| **Validesa Jurídica del Temps** | Calcula el hash SHA-256 del document. | Sol·licita l'emissió del certificat. | **Signaturit (QTSP):** Emet el segellat qualificat eIDAS davant tribunals. |
+| **Identificació Biomètrica (KYC)**| Sol·licita el tràmit i desa el veredicte. | Realitza la captura del DNI i la prova de vida facial. | **Signaturit:** Analitza els punts de seguretat del document i el selfie. |
+| **Immutabilitat Descentralitzada**| Despatxa el missatge d'ancoratge asíncron. | Consulta l'enllaç públic del seu rebut. | **Polygon PoS:** Minadors i validadors de la blockchain descentralitzada. |
+| **Custòdia dels Documents Reals** | **Flysystem:** Emmagatzema arxius xifrats fora de l'arrel web. | Titular exclusiu de la propietat dels seus béns. | Cap proveïdor extern té accés als fitxers reals del bé moble. |
 
 ---
 
-## 7.2. Alternatives a Signaturit (eIDAS & KYC)
+# 16. Anàlisi d'Alternatives Tecnològiques de Mercat
 
-| Proveïdor | Avantatges | Inconvenients | Criteri i Veredicte per a Registrals |
-| :--- | :--- | :--- | :--- |
-| **Signaturit Group** *(Triat)* | QTSP eIDAS acreditat per la UE, API REST moderna per a segellat de temps (RFC 3161) i eIDV biomètric, seu a Barcelona/Madrid/París. | Documentació d'onboarding inicial menys automatitzada que Stripe (requereix contacte per tarifes d'alt volum). | **Solució oficial d'entrada.** Ofereix la doble capa que necessitem (temps qualificat legal + verificació de document d'identitat) sota un mateix proveïdor. |
-| **Validated ID (VIDsigner)** | Proveïdor qualificat europeu amb seu a Barcelona, excel·lent seguretat jurídica i API de signatura biomètrica i de temps. | Ecosistema més enfocat a signatura de documents que a crides massives de timestamping per hash. | **Millor alternativa directa.** Si calgués un segon proveïdor per redundància o concurrència, Validated ID és el candidat número u. |
-| **FNMT (Fábrica Nacional de Moneda y Timbre)** | Màxim reconeixement públic a Espanya, autoritat oficial de l'Estat. | Tràmits d'alta administratius molt burocràtics, integració API menys flexible per a arquitectures de núvol àgils. | **Descartat per a l'MVP.** Podria explorar-se per a acords institucionals a llarg termini. |
-| **DocuSign / Adobe Sign** | Reconeixement de marca mundial incontestable. | Preus desorbitats, barreres d'entrada amb contractes anuals mínims de milers d'euros, concebuts per a contractes mercantils i no per a segellat de temps tècnic de milers de PDFs. | **Descartat per pricing i enfocament de producte.** |
+Per a cadascun dels tres components, s'han analitzat exhaustivament les alternatives de mercat i els motius d'elecció:
+
+### 16.1. Alternatives a Stripe (Passarel·la de Pagaments)
+- **Stripe *(Solució Triada)*:** Màxima conversió per a particulars, Hosted Checkout impecable, Apple Pay/Google Pay nadiu, Customer Portal automatitzat. Comissió de l'1,5% + 0,25 € plenament amortitzable pel nostre marge brut (>90%).
+- **Redsýs / TPV Virtual (Banc Santander, CaixaBank, BBVA):** Comissions més baixes (~0,3% a 0,5%) i suport natiu de **Bizum**. *Veredicte:* La UX és feixuga i no té Customer Portal; és el nostre **candidat d'escala nacional** per a una segona fase quan es vulgui oferir Bizum.
+- **Paddle / Lemon Squeezy:** Comissió del 5% + 0,50 $, que destrueix els marges dels nostres micro-pagaments de 2,90 €. *Descartat.*
+- **Mollie:** Bona alternativa europea si calgués un operador amb seu estrictament a la UE.
+
+### 16.2. Alternatives a Signaturit (Segellat eIDAS & KYC)
+- **Signaturit Group *(Solució Triada)*:** Prestador Qualificat de Serveis de Confiança (QTSP) acreditat a la UE. Unifica en un sol proveïdor el segellat de temps qualificat per volum i la verificació d'identitat biomètrica.
+- **Validated ID (VIDsigner):** Proveïdor qualificat europeu amb seu a Barcelona. *Veredicte:* És el nostre **pla B directe de redundància** si mai calgués una segona línia d'emissió de segellats.
+- **FNMT (Fábrica Nacional de Moneda y Timbre):** Màxim reconeixement a Espanya, però contractació molt burocràtica per a un entorn SaaS àgil.
+- **DocuSign / Adobe Sign:** Enfocats a signatura de contractes i no pas a segellats tècnics de milers de PDFs per API; preus desorbitats. *Descartats.*
+
+### 16.3. Alternatives a Polygon PoS (Blockchain)
+- **Polygon PoS *(Solució Triada)*:** Temps de bloc de 2 segons, cost per transacció < 0,003 €, compatibilitat EVM completa i màxima difusió pública a exploradors de blocs com Polygonscan.
+- **Base (Layer 2 de Coinbase):** Optimistic Rollup d'Ethereum amb seguretat L1 i comissions inferiors a 0,001 € gràcies a l'EIP-4844 (blobs). *Veredicte:* És la **millor alternativa L2**, commutable en minuts canviant l'RPC i el Chain ID (`8453`) a la classe `PolygonAnchorClient`.
+- **Arbitrum One / Optimism:** Excel·lents xarxes, però el cost en pics de trànsit pot pujar a 0,05 € - 0,10 €, augmentant innecessàriament el cost per bé.
+- **Ethereum Mainnet (Layer 1):** Inviable econòmicament per a transaccions individuals (entre 1 € i 15 € per ancoratge).
 
 ---
 
-## 7.3. Alternatives a Polygon PoS (Blockchain)
+# 17. Registre de Decisions (D-xxx), Riscos (R-xxx) i Referències
 
-| Cadena / Capa | Avantatges | Inconvenients | Criteri i Veredicte per a Registrals |
-| :--- | :--- | :--- | :--- |
-| **Polygon PoS** *(Triat)* | Temps de bloc de 2 segons, comissions ultra-baixes (< 0,003 €), compatibilitat 100% EVM, ecosistema madur d'exploradors (Polygonscan) i àmplia acceptació institucional. | Cadena lateral (*sidechain*) amb mecanisme de consens autònom (PoS). | **Solució oficial d'entrada.** L'equilibri ideal entre cost per transacció, fiabilitat tècnica i facilitat de consulta pública per a tercers. |
-| **Base (Layer 2 de Coinbase)** | Optimistic Rollup d'Ethereum amb seguretat derivada directament de L1, comissions inferiors a 0,001 € gràcies a l'EIP-4844 (blobs), recolzat per Coinbase. | Temps de finalitat formal de 7 dies a Ethereum L1 (tot i que per a consultar l'ancoratge a L2 és immediat). | **Millor alternativa Layer 2.** Molt fàcil de commutar mitjançant el nostre adaptador `BlockchainAnchorInterface` simplement canviant l'RPC i el Chain ID (`8453`). |
-| **Arbitrum One / Optimism** | Les L2 més consolidades en volum i seguretat a l'ecosistema Ethereum. | El cost per transacció en pics de xarxa pot pujar a 0,05 € - 0,10 €, cosa que multiplicaria per 20 el nostre cost marginal. | **Alternativa secundària.** |
-| **Ethereum Mainnet (Layer 1)** | La xarxa més descentralitzada, immutable i prestigiosa del món. | Comissions de gas prohibitives (entre 1 € i 15 € per transacció). | **Completament descartat per a operacions individuals.** Únicament tindria sentit per a un ancoratge mestre mensual agregat (Merkle Root) de tot el sistema Registrals. |
+### Riscos Oberts i Mitigacions a la Data d'Aquest Document
+| Ref. | Descripció del Risc | Mitigació i Impacte a Registrals |
+| :--- | :--- | :--- |
+| **R-001** | **Claus d'API filtrades al repositori:** Un desenvolupador podria incloure per error una clau privada a Git. | **Mitigació:** `.env.local` afegit a `.gitignore` des del dia 1; ús de Symfony Secrets xifrats a producció (`D-082`). |
+| **R-002** | **Pèrdua de connexió durant el pagament:** L'usuari tanca el navegador abans de tornar a `success_url`. | **Mitigació:** Regla d'or: l'activació només l'executa el webhook de Stripe de forma idempotent (`D-080`). |
+| **R-003** | **Retard o congestió del node RPC de Polygon:** La xarxa blockchain triga més del previst a minar. | **Mitigació:** Desacoblament total amb Symfony Messenger (`async_chain`); la web respon al mil·lisegon (`D-082`). |
+| **R-004** | **Requisits de prova de vida facial (KYC):** Alguns usuaris particulars podrien percebre el KYC com una barrera d'entrada. | **Mitigació:** El KYC biomètric és opcional; només es requereix per a la insígnia de Titular Verificat o béns d'alta gamma (>10.000 €). |
+| **R-005** | **Formulari de pagament d'Stripe no traduït al català:** Stripe Checkout no admet català en alguns navegadors. | **Mitigació:** Configuració del *locale* d'Stripe en `auto` i avís clar a l'usuari sobre la passarel·la segura internacional. |
+| **R-006** | **Discrepàncies fiscals en la facturació de subscripcions (IVA):** Venda B2C a diferents països de la UE. | **Mitigació:** Aplicació del règim europeu OSS (*One Stop Shop*) per a serveis digitals i generació automàtica de factures via Stripe Billing. |
+
+### Decisions d'Arquitectura Adoptades (Architecture Decision Records)
+- **`D-074`:** Elecció d'Stripe Hosted Checkout com a passarel·la oficial PCI-DSS Compliant per a l'MVP.
+- **`D-077`:** Política de no devolució de la taxa administrativa de traspàs (2,90 €) en cas d'expiració a les 72h.
+- **`D-080`:** Activació exclusiva de serveis i subscripcions des del webhook signat d'Stripe.
+- **`D-081`:** Aïllament criptogràfic de dades personals: enviament exclusiu de hash SHA-256 a Signaturit i Polygon.
+- **`D-082`:** Desacoblament asíncron de la blockchain mitjançant transport `async_chain` de Symfony Messenger.
+- **`D-090`:** Expressió estricta de tots els preus i imports com a nombres enters en cèntims (`int $priceCents`).
+- **`D-144`:** Aplicació de l'arquitectura hexagonal: Capa 3 d'adaptadors aïllada de la Capa 4 de lògica de negoci.

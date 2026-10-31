@@ -13,7 +13,10 @@ Aquest directori conté el conjunt d'especificacions tècniques, de producte, de
 | 05 | **Disseny UI/UX i Sistema d'Interacció** | [`05-disseny-ui-ux.md`](05-disseny-ui-ux.md) | Principis d'interacció, disseny responsive mobile-first, components de l'àrea privada, gestió d'estats buits i nudging visual. |
 | 05-B | **Arquitectura de Pantalles & Guia d'Interfícies** | [`05-guia-interficies.md`](05-guia-interficies.md) | Catàleg exhaustiu d'estructures de pantalla, paleta, targetes notarials, safates i PDF. |
 | 06 | **Backend, Seguretat, Serveis i Endpoints** | [`06-backend-seguretat-serveis.md`](06-backend-seguretat-serveis.md) | Catàleg complet d'endpoints REST/Twig, voters de seguretat (ItemVoter), MediaController segur, integració SGLang i Polygon. |
-| 06-B | **Guia d'Integracions Externes (Stripe, Signaturit, Polygon)** | [`06-integracions-externes.md`](06-integracions-externes.md) | Especificació tècnica oficial dels 3 components externs: Stripe (Checkout, Webhooks, Portal), Signaturit (eIDAS TSP, eIDV) i Polygon PoS (L2, Amoy, Mainnet). |
+| 06-B | **Guia d'Integracions Externes (Marc Global)** | [`06-integracions-externes.md`](06-integracions-externes.md) | Especificació marc dels 3 components externs: Stripe, Signaturit i Polygon PoS. |
+| 06-A | **Monogràfic Stripe (16 capítols)** | [`06a-stripe.md`](06a-stripe.md) | Manual d'enginyeria exhaustiu per a Stripe Billing (Subscripcions Plus/Unlimited), Checkout, Webhooks, Idempotència i Customer Portal. |
+| 06-B.1 | **Monogràfic Signaturit (12 capítols)** | [`06b-signaturit.md`](06b-signaturit.md) | Manual de Segellat Qualificat de Temps eIDAS (RFC 3161) amb privadesa per disseny i Verificació d'Identitat Biomètrica (eIDV). |
+| 06-C | **Monogràfic Polygon PoS (12 capítols)** | [`06c-polygon.md`](06c-polygon.md) | Manual d'Ancoratge Criptogràfic Layer 2 en Calldata (0 POL), gestió de Hot Wallet aïllada, Amoy Testnet i Gas EIP-1559. |
 | 07 | **Full de Ruta i Iteracions d'Execució** | [`07-iteracions.md`](07-iteracions.md) | Desglossament ordenat per iteracions (Iteracions 0 a 6 tancades, Iteració 7: Monetització & Stripe, etc.). |
 | 08 | **Annexes i Decisions Estratègiques** | [`08-annexes.md`](08-annexes.md) | Document íntegre de referència d'annexes: estratègia PLG/Freemium detallada, anàlisi de costos, abast legal territorial i snippets d'implementació Symfony. |
 

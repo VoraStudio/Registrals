@@ -104,7 +104,10 @@ La documentació de referència del projecte es troba a la carpeta [`sdd/`](sdd/
 - [`05-disseny-ui-ux.md`](sdd/05-disseny-ui-ux.md) — Sistema d'interacció de l'àrea privada.
 - [`05-guia-interficies.md`](sdd/05-guia-interficies.md) — Arquitectura de pantalles, safata de certificats i PDF notarial.
 - [`06-backend-seguretat-serveis.md`](sdd/06-backend-seguretat-serveis.md) — Endpoints REST, Voters i Serveis.
-- [`06-integracions-externes.md`](sdd/06-integracions-externes.md) — Guia tècnica d'integració oficial per a Stripe, Signaturit eIDAS i Polygon Blockchain.
+- [`06-integracions-externes.md`](sdd/06-integracions-externes.md) — Marc global dels 3 components externs.
+- [`06a-stripe.md`](sdd/06a-stripe.md) — Monogràfic Stripe: Billing, Checkout, Webhooks, Idempotència i Customer Portal.
+- [`06b-signaturit.md`](sdd/06b-signaturit.md) — Monogràfic Signaturit: Segellat de Temps eIDAS RFC 3161 i Verificació eIDV.
+- [`06c-polygon.md`](sdd/06c-polygon.md) — Monogràfic Polygon: Calldata, Hot Wallet, Amoy Testnet i Gas EIP-1559.
 - [`07-iteracions.md`](sdd/07-iteracions.md) — Full de ruta d'implementació i subiteracions.
 - [`08-annexes.md`](sdd/08-annexes.md) — Annexes íntegres de referència tècnica i econòmica.
 

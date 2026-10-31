@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Guia d'Integracions Externes — Stripe, Signaturit & Polygon | Registrals</title>
+  <title>Registrals — Stripe, Signaturit & Polygon: Guia d'Ús i Configuració Tècnica</title>
   
   <!-- Fonts Google: Marcellus (titulars/marca) i Raleway (cos/UI) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -45,7 +45,7 @@
 
     /* Layout Sidebar + Main */
     .guide-sidebar {
-      width: 300px;
+      width: 320px;
       position: fixed;
       top: 0;
       left: 0;
@@ -72,18 +72,10 @@
       color: var(--cream);
     }
 
-    .guide-logo-icon {
-      width: 36px;
-      height: 36px;
-      background: var(--gold);
-      color: var(--ink);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 18px;
-      font-family: var(--font-marcellus);
+    .guide-logo img {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
     }
 
     .guide-logo-text {
@@ -116,31 +108,32 @@
       text-transform: uppercase;
       letter-spacing: 0.1em;
       color: var(--steel-light);
-      margin: 16px 8px 8px;
+      margin: 18px 8px 6px;
     }
 
     .guide-nav-link {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 8px 12px;
-      color: rgba(241, 227, 211, 0.8);
+      padding: 7px 12px;
+      color: rgba(241, 227, 211, 0.82);
       text-decoration: none;
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 500;
       border-radius: 8px;
       transition: all 0.15s ease;
-      margin-bottom: 3px;
+      margin-bottom: 2px;
     }
 
     .guide-nav-link:hover,
     .guide-nav-link.active {
-      background: rgba(202, 163, 108, 0.18);
+      background: rgba(202, 163, 108, 0.2);
       color: #ffffff;
     }
 
     .guide-nav-link.active {
       border-left: 3px solid var(--gold);
+      font-weight: 700;
     }
 
     .guide-nav-link .dot {
@@ -148,7 +141,8 @@
       height: 6px;
       border-radius: 50%;
       background: var(--gold);
-      opacity: 0.7;
+      opacity: 0.8;
+      shrink: 0;
     }
 
     .guide-sidebar-footer {
@@ -166,81 +160,126 @@
       text-decoration: none;
     }
 
-    /* Main Content */
+    /* Main Content Area */
     .guide-main {
-      margin-left: 300px;
-      padding: 40px 60px 100px;
-      max-width: 1300px;
+      margin-left: 320px;
+      padding: 40px 60px 120px;
+      max-width: 1350px;
     }
 
-    .guide-header {
-      margin-bottom: 40px;
-      padding-bottom: 24px;
-      border-bottom: 1px solid var(--border-subtle);
+    /* Portada d'Estil VoraData */
+    .guide-cover-card {
+      background: #0f1826;
+      color: #ffffff;
+      border-radius: 20px;
+      padding: 48px;
+      margin-bottom: 48px;
+      border: 1px solid rgba(202, 163, 108, 0.3);
+      box-shadow: 0 12px 36px rgba(15, 24, 38, 0.25);
+      position: relative;
+      overflow: hidden;
     }
 
-    .guide-title {
+    .guide-cover-tag {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .guide-cover-title {
       font-family: var(--font-marcellus);
-      font-size: 34px;
-      color: var(--ink);
-      letter-spacing: 0.02em;
-      margin-bottom: 8px;
-    }
-
-    .guide-subtitle {
-      font-size: 16px;
-      color: var(--steel);
+      font-size: 38px;
+      line-height: 1.15;
+      color: #ffffff;
+      margin-bottom: 16px;
       max-width: 900px;
     }
 
-    .guide-section {
-      margin-bottom: 64px;
-      scroll-margin-top: 40px;
+    .guide-cover-desc {
+      font-size: 16px;
+      color: var(--steel-light);
+      max-width: 800px;
+      line-height: 1.6;
+      margin-bottom: 28px;
     }
 
-    .guide-section-header {
+    .guide-cover-box {
+      border: 1px solid rgba(202, 163, 108, 0.4);
+      background: rgba(202, 163, 108, 0.08);
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--cream);
+      display: inline-block;
+      margin-bottom: 32px;
+    }
+
+    .guide-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      padding-top: 24px;
+      font-size: 12px;
+    }
+
+    .guide-meta-item .label {
+      text-transform: uppercase;
+      font-family: var(--font-mono);
+      color: var(--steel);
+      margin-bottom: 4px;
+      font-size: 10px;
+      letter-spacing: 0.05em;
+    }
+
+    .guide-meta-item .val {
+      font-weight: 700;
+      color: var(--cream);
+    }
+
+    /* Sections */
+    .guide-section {
+      margin-bottom: 64px;
+      scroll-margin-top: 30px;
+    }
+
+    .guide-section-head {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
+      gap: 14px;
+      margin-bottom: 12px;
       padding-bottom: 12px;
-      border-bottom: 2px solid rgba(202, 163, 108, 0.3);
+      border-bottom: 2px solid rgba(202, 163, 108, 0.35);
+    }
+
+    .guide-section-num {
+      font-family: var(--font-marcellus);
+      font-size: 26px;
+      color: var(--ink);
+      font-weight: 700;
     }
 
     .guide-section-title {
       font-family: var(--font-marcellus);
-      font-size: 24px;
+      font-size: 26px;
       color: var(--ink);
-      display: flex;
-      align-items: center;
-      gap: 12px;
     }
 
-    .guide-section-num {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: var(--ink);
-      color: var(--gold);
-      font-family: var(--font-mono);
-      font-size: 14px;
-      font-weight: bold;
-    }
-
-    /* Cards & Components */
+    /* Cards */
     .guide-card {
       background: var(--whitef);
       border: 1px solid rgba(106, 134, 162, 0.25);
       border-radius: 16px;
-      padding: 24px;
+      padding: 24px 28px;
       box-shadow: 0 4px 16px rgba(29, 47, 75, 0.04);
       margin-bottom: 24px;
     }
 
-    .guide-card-header {
+    .guide-card-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -253,69 +292,32 @@
       font-family: var(--font-marcellus);
       font-size: 18px;
       color: var(--ink);
+    }
+
+    /* Callout solemn VoraData / Registrals */
+    .callout-golden {
+      border-left: 4px solid var(--gold);
+      background: rgba(202, 163, 108, 0.1);
+      padding: 20px 24px;
+      border-radius: 0 14px 14px 0;
+      margin: 20px 0;
+      font-size: 13.5px;
+      color: var(--ink);
+      line-height: 1.65;
+    }
+
+    .callout-golden .title {
+      font-weight: 800;
+      color: var(--ink-dark);
+      margin-bottom: 8px;
       display: flex;
       align-items: center;
       gap: 8px;
-    }
-
-    /* Notarial Guide Note */
-    .guide-note {
-      border-left: 3.5px solid var(--gold);
-      background: rgba(202, 163, 108, 0.08);
-      padding: 16px 20px;
-      border-radius: 0 12px 12px 0;
-      font-size: 13px;
-      color: var(--ink);
-      margin: 16px 0;
-      line-height: 1.6;
-    }
-
-    .guide-note strong {
-      color: var(--ink-dark);
-    }
-
-    .guide-note code {
-      background: rgba(202, 163, 108, 0.2);
-      padding: 2px 6px;
-      border-radius: 4px;
+      text-transform: uppercase;
+      font-size: 11.5px;
+      letter-spacing: 0.05em;
       font-family: var(--font-mono);
-      font-size: 12px;
     }
-
-    /* Code Snippets */
-    .guide-code {
-      background: #111a27;
-      color: #e2e8f0;
-      padding: 18px 20px;
-      border-radius: 12px;
-      font-family: var(--font-mono);
-      font-size: 12.5px;
-      line-height: 1.65;
-      overflow-x: auto;
-      border: 1px solid rgba(202, 163, 108, 0.2);
-      margin: 14px 0;
-    }
-
-    .guide-code-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #0b131d;
-      margin: -18px -20px 14px;
-      padding: 8px 16px;
-      border-top-left-radius: 11px;
-      border-top-right-radius: 11px;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      font-size: 11px;
-      color: var(--steel-light);
-    }
-
-    .keyword { color: #f472b6; font-weight: bold; }
-    .type { color: #38bdf8; }
-    .string { color: #a7f3d0; }
-    .comment { color: #64748b; font-style: italic; }
-    .method { color: #fde047; }
-    .var { color: #e2e8f0; }
 
     /* Tables */
     .guide-table {
@@ -330,14 +332,13 @@
     }
 
     .guide-table th {
-      background: rgba(241, 227, 211, 0.5);
-      color: var(--ink);
+      background: #1d2f4b;
+      color: #ffffff;
       font-weight: 700;
       text-align: left;
       padding: 12px 16px;
-      border-bottom: 2px solid rgba(106, 134, 162, 0.2);
       font-family: var(--font-raleway);
-      font-size: 12px;
+      font-size: 11.5px;
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
@@ -354,10 +355,130 @@
     }
 
     .guide-table tr:hover td {
-      background: rgba(241, 227, 211, 0.2);
+      background: rgba(241, 227, 211, 0.25);
     }
 
-    /* Pills & Status */
+    /* Code Blocks */
+    .guide-code-box {
+      margin: 18px 0;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(202, 163, 108, 0.25);
+      background: #0f172a;
+    }
+
+    .guide-code-bar {
+      background: #0a0f1d;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--steel-light);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .guide-code-content {
+      padding: 16px 20px;
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      line-height: 1.65;
+      color: #e2e8f0;
+      overflow-x: auto;
+    }
+
+    .kw { color: #f472b6; font-weight: bold; }
+    .fn { color: #38bdf8; }
+    .str { color: #a7f3d0; }
+    .cm { color: #64748b; font-style: italic; }
+
+    /* Step circles (1, 2, 3...) */
+    .step-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin: 20px 0;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      background: var(--whitef);
+      border: 1px solid rgba(106, 134, 162, 0.2);
+      border-radius: 14px;
+      padding: 18px 22px;
+    }
+
+    .step-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--ink);
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-family: var(--font-marcellus);
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .step-body {
+      flex: 1;
+      font-size: 13.5px;
+      color: var(--ink);
+    }
+
+    .step-title {
+      font-weight: 700;
+      color: var(--ink-dark);
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+
+    /* Checklist boxes [ ] */
+    .checklist-box {
+      background: #ffffff;
+      border: 1px solid rgba(106, 134, 162, 0.25);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin: 16px 0;
+    }
+
+    .checklist-title {
+      font-family: var(--font-marcellus);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--ink);
+      padding: 6px 0;
+      border-bottom: 1px dashed rgba(106, 134, 162, 0.15);
+    }
+
+    .check-item:last-child {
+      border-bottom: none;
+    }
+
+    .check-box-icon {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    /* Badges */
     .pill {
       display: inline-flex;
       align-items: center;
@@ -371,838 +492,699 @@
       letter-spacing: 0.04em;
     }
 
-    .pill-green {
-      background: #dcfce7;
-      color: #166534;
-      border: 1px solid #86efac;
-    }
+    .pill-green { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+    .pill-blue { background: #e0f2fe; color: #075985; border: 1px solid #7dd3fc; }
+    .pill-gold { background: rgba(202, 163, 108, 0.2); color: #8c6832; border: 1px solid var(--gold); }
+    .pill-red { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
 
-    .pill-blue {
-      background: #e0f2fe;
-      color: #075985;
-      border: 1px solid #7dd3fc;
-    }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin: 16px 0; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 16px 0; }
 
-    .pill-gold {
-      background: rgba(202, 163, 108, 0.2);
-      color: #8c6832;
-      border: 1px solid var(--gold);
-    }
-
-    .pill-amber {
-      background: #fef3c7;
-      color: #92400e;
-      border: 1px solid #fde68a;
-    }
-
-    .pill-red {
-      background: #fee2e2;
-      color: #991b1b;
-      border: 1px solid #fca5a5;
-    }
-
-    .pill-gray {
-      background: #f1f5f9;
-      color: #475569;
-      border: 1px solid #cbd5e1;
-    }
-
-    /* Grid layout */
-    .grid-2 {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
-      margin: 16px 0;
-    }
-
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-      margin: 16px 0;
-    }
-
-    .grid-4 {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin: 16px 0;
-    }
-
-    /* Stat Box */
-    .stat-box {
-      background: var(--whitef);
-      border: 1px solid rgba(106, 134, 162, 0.25);
-      border-radius: 14px;
-      padding: 18px 20px;
-      position: relative;
-    }
-
-    .stat-label {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--steel);
-      font-family: var(--font-mono);
-      font-weight: 600;
-    }
-
-    .stat-value {
-      font-family: var(--font-marcellus);
-      font-size: 26px;
-      color: var(--ink);
-      margin: 4px 0 2px;
-    }
-
-    .stat-meta {
-      font-size: 11px;
-      color: #15803d;
-      font-weight: 600;
-    }
-
-    /* Alternative Card */
-    .alt-card {
-      background: var(--whitef);
-      border: 1px solid rgba(106, 134, 162, 0.25);
-      border-radius: 14px;
-      padding: 20px;
-      margin-bottom: 16px;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }
-
-    .alt-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(29, 47, 75, 0.06);
-    }
-
-    .alt-card.chosen {
-      border: 2px solid var(--gold);
-      background: #ffffff;
-      box-shadow: 0 4px 20px rgba(202, 163, 108, 0.12);
-    }
-
-    .alt-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-
-    .alt-title {
-      font-family: var(--font-marcellus);
-      font-size: 18px;
-      color: var(--ink);
-    }
-
-    /* Responsive */
     @media (max-width: 1024px) {
-      .guide-sidebar {
-        width: 100%;
-        height: auto;
-        position: relative;
-      }
-      .guide-main {
-        margin-left: 0;
-        padding: 30px 20px 80px;
-      }
-      .grid-2, .grid-3, .grid-4 {
-        grid-template-columns: 1fr;
-      }
+      .guide-sidebar { width: 100%; height: auto; position: relative; }
+      .guide-main { margin-left: 0; padding: 24px 16px 80px; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .guide-meta-grid { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </head>
 <body>
 
-  <!-- Sidebar Navigacional -->
+  <!-- Barra Lateral de Navegació Exhaustiva -->
   <aside class="guide-sidebar">
     <div class="guide-sidebar-header">
       <a href="guia-destils.html" class="guide-logo">
-        <img src="/img/logos/Isotip/3-transparent.svg" alt="Registrals" width="30" height="30" style="width: 30px; height: 30px; object-fit: contain;">
+        <img src="/img/logos/Isotip/3-transparent.svg" alt="Registrals" width="30" height="30">
         <div class="guide-logo-text">REGISTRALS</div>
       </a>
-      <span class="guide-badge">Integracions Externes v1.0</span>
+      <span class="guide-badge">Integracions Externes · SDD 06-B</span>
     </div>
 
     <nav class="guide-nav">
-      <div class="guide-nav-title">Pilars Tecnològics</div>
-      <a href="#stripe" class="guide-nav-link active">
-        <span class="dot"></span>
-        <span>1. Stripe (Pagaments)</span>
-      </a>
-      <a href="#signaturit" class="guide-nav-link">
-        <span class="dot"></span>
-        <span>2. Signaturit (eIDAS & KYC)</span>
-      </a>
-      <a href="#polygon" class="guide-nav-link">
-        <span class="dot"></span>
-        <span>3. Polygon PoS (Blockchain)</span>
-      </a>
+      <div class="guide-nav-title">Fonaments & Context</div>
+      <a href="#estat-document" class="guide-nav-link active"><span class="dot"></span> 1. Estat del document</a>
+      <a href="#fluxos-dels-diners" class="guide-nav-link"><span class="dot"></span> 2. Com mou diners i proves</a>
+      <a href="#conceptes-clau" class="guide-nav-link"><span class="dot"></span> 3. Conceptes clau des de zero</a>
 
-      <div class="guide-nav-title">Arquitectura & Seguretat</div>
-      <a href="#credencials" class="guide-nav-link">
-        <span class="dot"></span>
-        <span>4. Matriu de Credencials</span>
-      </a>
-      <a href="#resiliencia" class="guide-nav-link">
-        <span class="dot"></span>
-        <span>5. Idempotència & Resiliència</span>
-      </a>
+      <div class="guide-nav-title">Els Tres Proveïdors</div>
+      <a href="#compte-stripe" class="guide-nav-link"><span class="dot"></span> 4. Plataforma Stripe</a>
+      <a href="#compte-signaturit" class="guide-nav-link"><span class="dot"></span> 5. Signaturit (eIDAS & KYC)</a>
+      <a href="#infra-polygon" class="guide-nav-link"><span class="dot"></span> 6. Polygon PoS Blockchain</a>
 
-      <div class="guide-nav-title">Operació & Estratègia</div>
-      <a href="#alta-costos" class="guide-nav-link">
-        <span class="dot"></span>
-        <span>6. Guia d'Alta & Costos Reals</span>
-      </a>
-      <a href="#alternatives" class="guide-nav-link">
-        <span class="dot"></span>
-        <span>7. Anàlisi d'Alternatives</span>
-      </a>
+      <div class="guide-nav-title">Desenvolupament & Fluxos</div>
+      <a href="#entorn-dev" class="guide-nav-link"><span class="dot"></span> 7. Entorn i mode de prova</a>
+      <a href="#flux-a-subscripcio" class="guide-nav-link"><span class="dot"></span> 8. Flux A · Subscripció anual</a>
+      <a href="#flux-b-certificat" class="guide-nav-link"><span class="dot"></span> 9. Flux B · Certificat solt</a>
+      <a href="#flux-c-traspas" class="guide-nav-link"><span class="dot"></span> 10. Flux C · Traspàs C2C (72h)</a>
+      <a href="#flux-d-portal" class="guide-nav-link"><span class="dot"></span> 11. Flux D · Customer Portal</a>
+      <a href="#flux-e-devolucions" class="guide-nav-link"><span class="dot"></span> 12. Flux E · Devolucions & Fallades</a>
 
-      <div class="guide-nav-title">Ecosistema Registrals</div>
-      <a href="guia-destils.html" class="guide-nav-link">
-        <span class="dot"></span>
-        <span>🎨 Guia d'Estils UI/UX</span>
-      </a>
-      <a href="/admin/serveis" class="guide-nav-link">
-        <span class="dot"></span>
-        <span>⚙️ Monitorització Admin</span>
-      </a>
+      <div class="guide-nav-title">Arquitectura & Validació</div>
+      <a href="#arquitectura-webhooks" class="guide-nav-link"><span class="dot"></span> 13. Webhooks & Idempotència</a>
+      <a href="#produccio" class="guide-nav-link"><span class="dot"></span> 14. Producció, quan toqui</a>
+      <a href="#responsabilitats" class="guide-nav-link"><span class="dot"></span> 15. Qui fa què (Matriu)</a>
+      <a href="#alternatives" class="guide-nav-link"><span class="dot"></span> 16. Alternatives de mercat</a>
+      <a href="#decisions-riscos" class="guide-nav-link"><span class="dot"></span> 17. Decisions & Riscos</a>
     </nav>
 
     <div class="guide-sidebar-footer">
-      <span>SDD 06-B · Vora Studio</span>
-      <a href="#">↑ Amunt</a>
+      <span>Vora Studio · 2026</span>
+      <a href="#">↑ Inici</a>
     </div>
   </aside>
 
-  <!-- Main Content -->
+  <!-- Contingut Principal -->
   <main class="guide-main">
 
-    <!-- Capçalera Principal -->
-    <header class="guide-header">
-      <div style="font-family: var(--font-mono); font-size: 12px; color: var(--steel); text-transform: uppercase; margin-bottom: 8px;">
-        Especificació Tècnica SDD · Document Oficial 06-B
-      </div>
-      <h1 class="guide-title">Guia d'Integracions Externes</h1>
-      <p class="guide-subtitle">
-        Arquitectura d'adaptadors, protocols de comunicació segura, gestió d'idempotència i unit economics per als tres proveïdors externs fonamentals de <strong>Registrals</strong>.
+    <!-- Portada Institucional Notarial -->
+    <div class="guide-cover-card">
+      <div class="guide-cover-tag">&lt;Registrals/&gt; · PAGAMENTS · SEGELLAT LEGAL eIDAS · BLOCKCHAIN LAYER 2</div>
+      <h1 class="guide-cover-title">Registrals — Stripe, Signaturit & Polygon: Guia d'Ús, Arquitectura i Configuració</h1>
+      <p class="guide-cover-desc">
+        Com configurar i usar Stripe, Signaturit i Polygon PoS a Registrals partint de zero: comptes de la plataforma, claus i secrets, webhooks, mode de prova i els fluxos pas a pas.
       </p>
 
-      <div class="grid-3" style="margin-top: 24px;">
-        <div class="stat-box">
-          <div class="stat-label">Passarel·la de Pagament</div>
-          <div class="stat-value">Stripe</div>
-          <div class="stat-meta">Checkout · Subscripcions · Webhooks</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-label">Segellat Legal eIDAS & KYC</div>
-          <div class="stat-value">Signaturit</div>
-          <div class="stat-meta">QTSP Europeu · Art. 41 eIDAS · eIDV</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-label">Ancoratge Criptogràfic L2</div>
-          <div class="stat-value">Polygon PoS</div>
-          <div class="stat-meta">Amoy & Mainnet · &lt; 0,003 € / Tx</div>
-        </div>
-      </div>
-    </header>
-
-    <!-- SECCIÓ 1: STRIPE -->
-    <section id="stripe" class="guide-section">
-      <div class="guide-section-header">
-        <h2 class="guide-section-title">
-          <span class="guide-section-num">1</span>
-          <span>Stripe: Pagaments, Subscripcions & Facturació</span>
-        </h2>
-        <span class="pill pill-green">SDK Oficial PHP v16+</span>
+      <div class="guide-cover-box">
+        v1.0 · Base: disseny aprovat (SDD-01 a SDD-05) · Implementació: Iteració 7 (Etapa 7.3)
       </div>
 
-      <div class="guide-card">
-        <div class="guide-card-header">
-          <div class="guide-card-title">1.1. Arquitectura de Cobrament Dual</div>
-          <span class="pill pill-blue">Hosted Checkout</span>
+      <div class="guide-meta-grid">
+        <div class="guide-meta-item">
+          <div class="label">Versió</div>
+          <div class="val">v1.0 (Canònica)</div>
         </div>
-        <p style="font-size: 13.5px; color: var(--ink); margin-bottom: 12px;">
-          Registrals utilitza el servei <strong>Stripe Checkout en mode allotjat</strong> per complir l'estàndard PCI-DSS SAQ A i donar suport natiu a Apple Pay, Google Pay i 3D Secure 2.0 sense gestionar dades de targetes al nostre servidor.
-        </p>
-
-        <div class="grid-2">
-          <div style="background: var(--cream-50); padding: 16px; border-radius: 12px; border: 1px solid rgba(106, 134, 162, 0.2);">
-            <div style="font-weight: 700; font-size: 13px; color: var(--ink); margin-bottom: 6px;">Mode Subscripció (Anual)</div>
-            <p style="font-size: 12px; color: var(--steel);">
-              Utilitzat per als plans <strong>Plus (22 €/any)</strong> i <strong>Unlimited (59 €/any)</strong>.<br>
-              Paràmetre: <code>mode =&gt; 'subscription'</code>.<br>
-              Genera objectes <code>Subscription</code> i vincula <code>customer_id</code> permanent a l'usuari.
-            </p>
-          </div>
-          <div style="background: var(--cream-50); padding: 16px; border-radius: 12px; border: 1px solid rgba(106, 134, 162, 0.2);">
-            <div style="font-weight: 700; font-size: 13px; color: var(--ink); margin-bottom: 6px;">Mode Pagament Solt (Pay-per-Value)</div>
-            <p style="font-size: 12px; color: var(--steel);">
-              Utilitzat per a <strong>Certificats oficials solts (5,90 €)</strong> o <strong>traspassos C2C solts (2,90 €)</strong>.<br>
-              Paràmetre: <code>mode =&gt; 'payment'</code>.<br>
-              Genera objecte <code>PaymentIntent</code> immediat.
-            </p>
-          </div>
+        <div class="guide-meta-item">
+          <div class="label">Data</div>
+          <div class="val">2026-10-31</div>
         </div>
-
-        <div class="guide-note">
-          <strong>Regla d'Or d'Enginyeria:</strong> Mai aprovar ni activar un pla o servei a la pàgina de retorn <code>success_url</code>. Si l'usuari tanca la pestanya abans de la redirecció, el cobrament existiria a Stripe però no a la base de dades. <strong>Tota activació es fa exclusivament al Webhook criptogràfic.</strong>
+        <div class="guide-meta-item">
+          <div class="label">Àmbit</div>
+          <div class="val">Checkout, eIDAS TSP, eIDV & Polygon L2</div>
         </div>
-
-        <div class="guide-code">
-          <div class="guide-code-header">
-            <span>src/Controller/PaymentController.php — Creació de Sessió de Checkout</span>
-            <span>PHP 8.3 / Symfony 7</span>
-          </div>
-<span class="keyword">public function</span> <span class="method">checkoutSubscription</span>(<span class="type">Plan</span> <span class="var">$plan</span>, <span class="type">StripeGatewayService</span> <span class="var">$gateway</span>): <span class="type">Response</span>
-{
-    <span class="var">$user</span> = <span class="var">$this</span>-&gt;<span class="method">getUser</span>();
-    <span class="var">$stripe</span> = <span class="var">$gateway</span>-&gt;<span class="method">getClient</span>();
-
-    <span class="var">$session</span> = <span class="var">$stripe</span>-&gt;checkout-&gt;sessions-&gt;<span class="method">create</span>([
-        <span class="string">'customer_email'</span> =&gt; <span class="var">$user</span>-&gt;<span class="method">getEmail</span>(),
-        <span class="string">'client_reference_id'</span> =&gt; (<span class="type">string</span>) <span class="var">$user</span>-&gt;<span class="method">getId</span>(),
-        <span class="string">'mode'</span> =&gt; <span class="string">'subscription'</span>,
-        <span class="string">'line_items'</span> =&gt; [[
-            <span class="string">'price_data'</span> =&gt; [
-                <span class="string">'currency'</span> =&gt; <span class="string">'eur'</span>,
-                <span class="string">'product_data'</span> =&gt; [
-                    <span class="string">'name'</span> =&gt; <span class="string">'Subscripció Registrals: '</span> . <span class="var">$plan</span>-&gt;<span class="method">getName</span>(),
-                ],
-                <span class="string">'unit_amount'</span> =&gt; <span class="var">$plan</span>-&gt;<span class="method">getPriceCents</span>(),
-                <span class="string">'recurring'</span> =&gt; [<span class="string">'interval'</span> =&gt; <span class="string">'year'</span>],
-            ],
-            <span class="string">'quantity'</span> =&gt; 1,
-        ]],
-        <span class="string">'metadata'</span> =&gt; [
-            <span class="string">'plan_code'</span> =&gt; <span class="var">$plan</span>-&gt;<span class="method">getCode</span>(),
-            <span class="string">'user_id'</span> =&gt; (<span class="type">string</span>) <span class="var">$user</span>-&gt;<span class="method">getId</span>(),
-        ],
-        <span class="string">'success_url'</span> =&gt; <span class="var">$this</span>-&gt;<span class="method">generateUrl</span>(<span class="string">'app_payment_success'</span>, [], <span class="type">UrlGeneratorInterface</span>::ABSOLUTE_URL) . <span class="string">'?session_id={CHECKOUT_SESSION_ID}'</span>,
-        <span class="string">'cancel_url'</span> =&gt; <span class="var">$this</span>-&gt;<span class="method">generateUrl</span>(<span class="string">'app_plan'</span>, [], <span class="type">UrlGeneratorInterface</span>::ABSOLUTE_URL),
-    ]);
-
-    <span class="keyword">return new</span> <span class="type">RedirectResponse</span>(<span class="var">$session</span>-&gt;url);
-}
-        </div>
-
-        <div class="guide-card-header" style="margin-top: 24px;">
-          <div class="guide-card-title">1.2. Verificació de Webhooks Criptogràfics (`/webhook/stripe`)</div>
-          <span class="pill pill-gold">HMAC-SHA256 Signature</span>
-        </div>
-        <p style="font-size: 13px; color: var(--ink);">
-          L'endpoint rep el cos cru (*raw body*) sense processar i verifica la capçalera <code>Stripe-Signature</code> amb tolerància de 300 segons contra atacs de repetició:
-        </p>
-
-        <div class="guide-code">
-          <div class="guide-code-header">
-            <span>src/Controller/Webhook/StripeWebhookController.php</span>
-            <span>Verificació i Idempotència</span>
-          </div>
-<span class="var">$payload</span> = <span class="var">$request</span>-&gt;<span class="method">getContent</span>(); <span class="comment">// Cos en brut OBLIGATORI</span>
-<span class="var">$sigHeader</span> = <span class="var">$request</span>-&gt;headers-&gt;<span class="method">get</span>(<span class="string">'stripe-signature'</span>, <span class="string">''</span>);
-
-<span class="keyword">try</span> {
-    <span class="var">$event</span> = \<span class="type">Stripe\Webhook</span>::<span class="method">constructEvent</span>(
-        <span class="var">$payload</span>, <span class="var">$sigHeader</span>, <span class="var">$this</span>-&gt;webhookSecret, 300
-    );
-} <span class="keyword">catch</span> (\<span class="type">Stripe\Exception\SignatureVerificationException</span> <span class="var">$e</span>) {
-    <span class="keyword">return new</span> <span class="type">Response</span>(<span class="string">'Signatura no vàlida'</span>, 400);
-}
-
-<span class="comment">// Control d'idempotència: si ja s'ha processat l'event.id, retornem 200 OK</span>
-<span class="keyword">if</span> (<span class="var">$transactionManager</span>-&gt;<span class="method">isEventAlreadyProcessed</span>(<span class="var">$event</span>-&gt;id)) {
-    <span class="keyword">return new</span> <span class="type">Response</span>(<span class="string">'Event ja gestionat'</span>, 200);
-}
+        <div class="guide-meta-item">
+          <div class="label">Entitat</div>
+          <div class="val">Registrals (Vora Studio)</div>
         </div>
       </div>
-    </section>
+    </div>
 
-    <!-- SECCIÓ 2: SIGNATURIT -->
-    <section id="signaturit" class="guide-section">
-      <div class="guide-section-header">
-        <h2 class="guide-section-title">
-          <span class="guide-section-num">2</span>
-          <span>Signaturit: Segellat de Temps eIDAS & Identitat eIDV</span>
-        </h2>
-        <span class="pill pill-green">eIDAS QTSP Qualified</span>
+    <!-- 1. ESTAT DEL DOCUMENT -->
+    <section id="estat-document" class="guide-section">
+      <div class="guide-section-head">
+        <span class="guide-section-num">1.</span>
+        <h2 class="guide-section-title">Estat del document</h2>
       </div>
 
-      <div class="guide-card">
-        <div class="guide-card-header">
-          <div class="guide-card-title">2.1. Segellat de Temps Qualificat (TSP / RFC 3161)</div>
-          <span class="pill pill-blue">Art. 41 Reglament UE 910/2014</span>
-        </div>
-        <p style="font-size: 13.5px; color: var(--ink); margin-bottom: 12px;">
-          Com a <strong>Prestador Qualificat de Serveis de Confiança (QTSP)</strong> acreditat davant la UE, Signaturit atorga presumpció legal d'exactitud de data i hora davant tribunals de justícia i companyies asseguradores.
-        </p>
+      <p style="font-size: 14px; margin-bottom: 16px;">
+        Aquesta guia explica com configurar i usar Stripe, Signaturit i Polygon PoS a Registrals pas a pas, per a qui parteix de zero: no cal saber prèviament res d'aquests serveis per llegir-la. Recull el que ja està decidit al projecte (decisions <code>D-xxx</code>, riscos <code>R-xxx</code>) i ho separa en dues capes:
+      </p>
 
-        <div class="guide-note">
-          <strong>Privadesa per Disseny (Art. 25 RGPD):</strong> Registrals <strong>mai envia el document PDF ni dades personals a Signaturit</strong>. Només es transmet el hash criptogràfic SHA-256 de 32 bytes del document. Signaturit segella el hash i emet el certificat d'auditoria X.509 sense conèixer mai el contingut.
+      <div class="grid-2">
+        <div style="background: var(--whitef); padding: 20px; border-radius: 14px; border: 1px solid rgba(106, 134, 162, 0.2);">
+          <div style="font-weight: 700; color: var(--ink); margin-bottom: 6px;">Estable (es pot fer ja)</div>
+          <p style="font-size: 12.5px; color: var(--steel);">
+            Tot el que passa al costat de cada proveïdor — el compte de Stripe, el mode de prova, les claus d'API, els portals de Signaturit i la Hot Wallet de Polygon.
+          </p>
         </div>
-
-        <div class="guide-code">
-          <div class="guide-code-header">
-            <span>Payload HTTP enviat a https://api.signaturit.com/v3/timestamps.json</span>
-            <span>JSON Payload</span>
-          </div>
-{
-  <span class="string">"hash"</span>: <span class="string">"a8f5b61c92d04e38e1b4c910385920a4b7c891e23f0485910294857102938475"</span>,
-  <span class="string">"hash_algorithm"</span>: <span class="string">"SHA256"</span>
-}
-        </div>
-
-        <div class="guide-card-header" style="margin-top: 24px;">
-          <div class="guide-card-title">2.2. Verificació d'Identitat Biomètrica (eIDV / KYC)</div>
-          <span class="pill pill-gold">Anti-Deepfake & Liveness Detection</span>
-        </div>
-        <p style="font-size: 13px; color: var(--ink); margin-bottom: 12px;">
-          Flux d'identificació digital per al reconeixement de titulars oficials i certificats d'alta gamma:
-        </p>
-
-        <div class="grid-3">
-          <div style="background: var(--cream-50); padding: 14px; border-radius: 12px; border: 1px solid rgba(106, 134, 162, 0.2);">
-            <div style="font-weight: 700; font-size: 12px; color: var(--ink); margin-bottom: 4px;">1. Captura Documental</div>
-            <p style="font-size: 11.5px; color: var(--steel);">
-              OCR de DNI, NIE o Passaport (>200 països) amb comprovació de patrons hologràfics i línies MRZ.
-            </p>
-          </div>
-          <div style="background: var(--cream-50); padding: 14px; border-radius: 12px; border: 1px solid rgba(106, 134, 162, 0.2);">
-            <div style="font-weight: 700; font-size: 12px; color: var(--ink); margin-bottom: 4px;">2. Biometria Facial</div>
-            <p style="font-size: 11.5px; color: var(--steel);">
-              Selfie en temps real amb <em>liveness detection</em> i comparativa facial 1:1 contra la foto del document.
-            </p>
-          </div>
-          <div style="background: var(--cream-50); padding: 14px; border-radius: 12px; border: 1px solid rgba(106, 134, 162, 0.2);">
-            <div style="font-weight: 700; font-size: 12px; color: var(--ink); margin-bottom: 4px;">3. Traçabilitat Forense</div>
-            <p style="font-size: 11.5px; color: var(--steel);">
-              Recepció de veredicte de validació i certificat d'auditoria custodiat a Flysystem privat.
-            </p>
-          </div>
+        <div style="background: var(--whitef); padding: 20px; border-radius: 14px; border: 1px solid rgba(106, 134, 162, 0.2);">
+          <div style="font-weight: 700; color: var(--ink); margin-bottom: 6px;">Dissenys & Implementació (Symfony)</div>
+          <p style="font-size: 12.5px; color: var(--steel);">
+            Com ho consumeix l'aplicació — adaptadors d'infraestructura (patró Adapter), serveis de domini, cues asíncrones de Messenger i plantilles Twig.
+          </p>
         </div>
       </div>
-    </section>
 
-    <!-- SECCIÓ 3: POLYGON BLOCKCHAIN -->
-    <section id="polygon" class="guide-section">
-      <div class="guide-section-header">
-        <h2 class="guide-section-title">
-          <span class="guide-section-num">3</span>
-          <span>Polygon PoS: Ancoratge Criptogràfic Layer 2</span>
-        </h2>
-        <span class="pill pill-green">Ethereum Layer 2 · EVM</span>
-      </div>
-
-      <div class="guide-card">
-        <div class="guide-card-header">
-          <div class="guide-card-title">3.1. Xarxes Oficials & Connectivitat RPC</div>
-          <span class="pill pill-blue">Amoy Testnet (80002) vs Mainnet (137)</span>
+      <div class="guide-card" style="margin-top: 24px;">
+        <div class="guide-card-head">
+          <div class="guide-card-title">On està cada informació a l'arquitectura SDD</div>
         </div>
-        <p style="font-size: 13.5px; color: var(--ink); margin-bottom: 16px;">
-          L'ancoratge a Polygon garanteix independència de qualsevol entitat privada centralitzada: el certificat queda registrat en una xarxa pública immutable consultable des de qualsevol explorador de blocs.
-        </p>
-
         <table class="guide-table">
           <thead>
             <tr>
-              <th>Paràmetre</th>
-              <th>Polygon Amoy Testnet (DEV / Staging)</th>
-              <th>Polygon PoS Mainnet (PROD)</th>
+              <th>Document</th>
+              <th>Què aporta a aquesta guia</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td><strong>Finalitat</strong></td>
-              <td>Desenvolupament, proves completes i integració contínua</td>
-              <td>Producció pública i notarització legal oficial</td>
+              <td><code>sdd/01-prd.md</code></td>
+              <td>Model de negoci freemium, tarifes i unit economics del projecte.</td>
             </tr>
             <tr>
-              <td><strong>Chain ID</strong></td>
-              <td><code>80002</code> (Hex: <code>0x13882</code>)</td>
-              <td><code>137</code> (Hex: <code>0x89</code>)</td>
+              <td><code>sdd/03-model-dades.md</code></td>
+              <td>Entitats Doctrine: <code>Plan</code>, <code>User</code>, <code>Certificate</code>, <code>BlockchainReceipt</code>, <code>ItemTransfer</code>.</td>
             </tr>
             <tr>
-              <td><strong>Token Natiu de Gas</strong></td>
-              <td><code>POL</code> (Testnet Faucets gratuïts)</td>
-              <td><code>POL</code> (Migrat des de MATIC)</td>
+              <td><code>sdd/04-fluxos-maquines-estat.md</code></td>
+              <td>Cicles de vida Symfony Workflow i cues asíncrones de Messenger (<code>async_chain</code>).</td>
             </tr>
             <tr>
-              <td><strong>Endpoint RPC Oficial</strong></td>
-              <td><code>https://rpc-amoy.polygon.technology/</code></td>
-              <td><code>https://polygon-rpc.com/</code> (o Alchemy/QuickNode dedicat)</td>
+              <td><code>sdd/05-guia-interficies.md</code></td>
+              <td>Arquitectura de pantalles, targetes <code>.cert-tile</code>, PDF notarial en mil·límetres i paleta.</td>
             </tr>
             <tr>
-              <td><strong>Explorador de Blocs</strong></td>
-              <td><a href="https://amoy.polygonscan.com/" target="_blank" style="color: var(--gold); text-decoration: none;">amoy.polygonscan.com</a></td>
-              <td><a href="https://polygonscan.com/" target="_blank" style="color: var(--gold); text-decoration: none;">polygonscan.com</a></td>
+              <td><strong style="color: var(--gold);">sdd/06a-stripe.md</strong></td>
+              <td><strong>Monogràfic Stripe (16 capítols):</strong> Billing, Checkout, Webhooks, Idempotència, Reintents i Customer Portal.</td>
             </tr>
             <tr>
-              <td><strong>Cost per Ancoratge</strong></td>
-              <td>0,00 € (Testnet)</td>
-              <td><strong>&lt; 0,003 € per transacció</strong> (EIP-1559)</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <div class="guide-card-header" style="margin-top: 24px;">
-          <div class="guide-card-title">3.2. Estructura de Calldata d'Ancoratge Determinista</div>
-          <span class="pill pill-gold">0x52454749 (REGI Prefix)</span>
-        </div>
-        <p style="font-size: 13px; color: var(--ink);">
-          Per mantenir el cost marginal per sota de 0,003 € sense desplegar contractes complexos de gas elevat, Registrals grava el hash a les dades d'entrada (<em>Calldata</em>) de la transacció:
-        </p>
-
-        <div class="guide-code">
-          <div class="guide-code-header">
-            <span>Estructura del Calldata a Polygonscan</span>
-            <span>Format Hexadecimal</span>
-          </div>
-<span class="comment">// Format: 0x52454749 [CodiAcció: 2 caràcters] [CUI: 20 caràcters] [HashSHA256: 64 caràcters]</span>
-<span class="string">0x5245474901</span>4355492d3230323631303331303031<span class="type">a8f5b61c92d04e38e1b4c910385920a4b7c891e23f0485910294857102938475</span>
-
-<span class="comment">// 0x52454749 = ASCII per "REGI"</span>
-<span class="comment">// 01         = ITEM_REGISTRATION (02 = TRANSFER, 03 = STOLEN, 04 = CERTIFICATE)</span>
-<span class="comment">// Resta      = CUI del bé moble + Hash SHA-256 mestre certificat</span>
-        </div>
-
-        <div class="guide-note">
-          <strong>Processament Asíncron:</strong> La transacció a Polygon PoS triga entre 2 i 3 segons a minar-se. Mitjançant <strong>Symfony Messenger</strong> (cua <code>async_chain</code>), la interfície d'usuari respon immediatament i el <em>worker</em> en segon pla signa la transacció i emmagatzema l'entitat <code>BlockchainReceipt</code>.
-        </div>
-      </div>
-    </section>
-
-    <!-- SECCIÓ 4: CREDENCIALS -->
-    <section id="credencials" class="guide-section">
-      <div class="guide-section-header">
-        <h2 class="guide-section-title">
-          <span class="guide-section-num">4</span>
-          <span>Matriu Comparativa de Credencials per Entorn</span>
-        </h2>
-        <span class="pill pill-blue">12-Factor App Config</span>
-      </div>
-
-      <div class="guide-card">
-        <table class="guide-table">
-          <thead>
-            <tr>
-              <th>Servei</th>
-              <th>Variable d'Entorn</th>
-              <th>Format DEV / Sandbox</th>
-              <th>Format Producció (PROD)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>Stripe Public</strong></td>
-              <td><code>STRIPE_PUBLIC_KEY</code></td>
-              <td><code>pk_test_51...</code></td>
-              <td><code>pk_live_51...</code></td>
+              <td><strong style="color: var(--gold);">sdd/06b-signaturit.md</strong></td>
+              <td><strong>Monogràfic Signaturit (12 capítols):</strong> Time Stamping eIDAS (RFC 3161) i Verificació Biomètrica eIDV.</td>
             </tr>
             <tr>
-              <td><strong>Stripe Secret</strong></td>
-              <td><code>STRIPE_SECRET_KEY</code></td>
-              <td><code>sk_test_51...</code></td>
-              <td><code>sk_live_51...</code></td>
+              <td><strong style="color: var(--gold);">sdd/06c-polygon.md</strong></td>
+              <td><strong>Monogràfic Polygon (12 capítols):</strong> Ancoratge L2 en Calldata, Hot Wallet, Amoy Testnet i Gas EIP-1559.</td>
             </tr>
             <tr>
-              <td><strong>Stripe Webhook</strong></td>
-              <td><code>STRIPE_WEBHOOK_SECRET</code></td>
-              <td><code>whsec_...</code> (Stripe CLI local)</td>
-              <td><code>whsec_...</code> (Dashboard Prod)</td>
+              <td><code>sdd/07-iteracions.md</code></td>
+              <td>Full de ruta: Iteració 7 (Editor de plans 7.2 tancat, Passarel·la Stripe 7.3 en curs).</td>
             </tr>
             <tr>
-              <td><strong>Signaturit Token</strong></td>
-              <td><code>SIGNATURIT_API_TOKEN</code></td>
-              <td>Token Sandbox o <code>el_teu_token</code> (Simulat)</td>
-              <td>Token Producció QTSP Oficial</td>
-            </tr>
-            <tr>
-              <td><strong>Signaturit URL</strong></td>
-              <td><code>SIGNATURIT_BASE_URL</code></td>
-              <td><code>https://api.sandbox.signaturit.com/v3</code></td>
-              <td><code>https://api.signaturit.com/v3</code></td>
-            </tr>
-            <tr>
-              <td><strong>Polygon RPC</strong></td>
-              <td><code>POLYGON_RPC_URL</code></td>
-              <td><code>https://rpc-amoy.polygon.technology/</code></td>
-              <td><code>https://polygon-mainnet.g.alchemy.com/v2/...</code></td>
-            </tr>
-            <tr>
-              <td><strong>Polygon Wallet</strong></td>
-              <td><code>POLYGON_WALLET_PRIVATE_KEY</code></td>
-              <td>Clau de Testnet (Faucets Amoy)</td>
-              <td>Clau Privada Producció (Secrets xifrats)</td>
+              <td><code>sdd/08-annexes.md</code></td>
+              <td>Anàlisi estratègica PLG, càlculs de marges bruts i marc legal de consum europeu.</td>
             </tr>
           </tbody>
         </table>
       </div>
     </section>
 
-    <!-- SECCIÓ 5: RESILIÈNCIA & IDEMPOTÈNCIA -->
-    <section id="resiliencia" class="guide-section">
-      <div class="guide-section-header">
-        <h2 class="guide-section-title">
-          <span class="guide-section-num">5</span>
-          <span>Protocols d'Idempotència i Resiliència Davant Caigudes</span>
-        </h2>
-        <span class="pill pill-green">Alta Disponibilitat</span>
+    <!-- 2. COM MOU ELS DINERS I LES PROVES -->
+    <section id="fluxos-dels-diners" class="guide-section">
+      <div class="guide-section-head">
+        <span class="guide-section-num">2.</span>
+        <h2 class="guide-section-title">Com mou els diners i les proves Registrals</h2>
       </div>
 
-      <div class="grid-3">
-        <div class="guide-card" style="margin-bottom: 0;">
-          <div style="font-weight: 700; font-size: 15px; color: var(--ink); margin-bottom: 8px;">Stripe: Idempotència</div>
-          <p style="font-size: 12px; color: var(--steel); line-height: 1.6;">
-            Els <code>event.id</code> de webhook es registren a una taula d'auditoria. Si Stripe repeteix la notificació per retard de xarxa, rep un <code>200 OK</code> instantani sense duplicar càrrecs ni transaccions.
-          </p>
-        </div>
+      <p style="font-size: 14px; margin-bottom: 16px;">
+        Registrals compta amb dos fluxos independents: el flux financer (Stripe) i el flux de certificació notarial legal i criptogràfica (Signaturit + Polygon PoS):
+      </p>
 
-        <div class="guide-card" style="margin-bottom: 0;">
-          <div style="font-weight: 700; font-size: 15px; color: var(--ink); margin-bottom: 8px;">Signaturit: Timeout Safe</div>
-          <p style="font-size: 12px; color: var(--steel); line-height: 1.6;">
-            Si el servidor de signatura triga més de 10 segons o retorna error 5xx, l'emissió del certificat no es perd: es marca en reintent asíncron (<code>retry_pending</code>) o s'activa el simulador segur en DEV.
-          </p>
-        </div>
+      <table class="guide-table">
+        <thead>
+          <tr>
+            <th>Flux Operatiu</th>
+            <th>Canal / Proveïdor</th>
+            <th>Com es controla</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Subscripcions Anuals (Plus 22 € / Unlimited 59 €)</strong></td>
+            <td>Stripe Billing (mode subscription)</td>
+            <td>Automàtic: Checkout + Webhooks de renovació periòdica</td>
+          </tr>
+          <tr>
+            <td><strong>Certificats Oficials Solts (5,90 €)</strong></td>
+            <td>Stripe Payments (mode payment)</td>
+            <td>Automàtic: Checkout + Webhook checkout.session.completed</td>
+          </tr>
+          <tr>
+            <td><strong>Traspassos Notarials C2C Solts (2,90 €)</strong></td>
+            <td>Stripe Payments (mode payment)</td>
+            <td>Automàtic: Checkout + Webhook + Reserva de 72 hores</td>
+          </tr>
+          <tr>
+            <td><strong>Segellat Legal de Temps (TSP eIDAS)</strong></td>
+            <td>Signaturit API v3 (POST /v3/timestamps.json)</td>
+            <td>Enviament exclusiu del hash SHA-256 del PDF del certificat</td>
+          </tr>
+          <tr>
+            <td><strong>Ancoratge Criptogràfic Immutable</strong></td>
+            <td>Polygon PoS (JSON-RPC Layer 2)</td>
+            <td>Asíncron: Cua de Symfony Messenger (async_chain)</td>
+          </tr>
+        </tbody>
+      </table>
 
-        <div class="guide-card" style="margin-bottom: 0;">
-          <div style="font-weight: 700; font-size: 15px; color: var(--ink); margin-bottom: 8px;">Polygon: Backoff Exponencial</div>
-          <p style="font-size: 12px; color: var(--steel); line-height: 1.6;">
-            Si el node RPC pateix congestió, Symfony Messenger reintenta l'enviament fins a 5 vegades amb intervals exponencials abans d'enviar el missatge a la cua <code>failed</code> de l'Admin.
-          </p>
+      <div class="callout-golden">
+        <div class="title">🛡️ Tres Regles d'Or Innegociables</div>
+        <p><strong>1. La tornada d'Stripe mai no aprova el servei:</strong> Per molt que la URL de tornada contingui <code>?session_id=cs_...</code>, el servei o pla només s'activa quan el webhook signat per Stripe (<code>checkout.session.completed</code>) ha estat rebut, verificat criptogràficament i persistit (D-080).</p>
+        <p style="margin-top: 8px;"><strong>2. Privadesa per Disseny a Signaturit (Art. 25 RGPD):</strong> A Signaturit només viatja el hash SHA-256 de 32 bytes del document PDF generat. Mai s'envia el contingut del document, ni imatges del bé moble, ni dades personals del titular (D-081).</p>
+        <p style="margin-top: 8px;"><strong>3. Cap espera de xarxa per la Blockchain:</strong> Un bloc a Polygon triga entre 2 i 3 segons a minar-se. La petició HTTP de l'usuari mai espera el bloc: el controlador desa l'ítem o certificat i despatxa un missatge asíncron a la cua <code>async_chain</code> de Symfony Messenger (D-082).</p>
+      </div>
+    </section>
+
+    <!-- 3. CONCEPTES CLAU DES DE ZERO -->
+    <section id="conceptes-clau" class="guide-section">
+      <div class="guide-section-head">
+        <span class="guide-section-num">3.</span>
+        <h2 class="guide-section-title">Conceptes clau des de zero</h2>
+      </div>
+
+      <table class="guide-table">
+        <thead>
+          <tr>
+            <th>Terme</th>
+            <th>Què és en termes plans</th>
+            <th>On el veus a Registrals</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Stripe</strong></td>
+            <td>Plataforma internacional de pagaments; processa targetes i custodia el saldo.</td>
+            <td>Canal de cobrament de subscripcions i tràmits solts.</td>
+          </tr>
+          <tr>
+            <td><strong>Sessió de Checkout</strong></td>
+            <td>Formulari de pagament allotjat per Stripe; mode subscription o payment.</td>
+            <td>Pàgina allotjada segura on el client introdueix la targeta.</td>
+          </tr>
+          <tr>
+            <td><strong>Customer Portal</strong></td>
+            <td>Portal allotjat per Stripe on el client canvia la targeta o baixa factures.</td>
+            <td>Enllaçat des de <code>/app/plan</code> per als subscriptors de pagament.</td>
+          </tr>
+          <tr>
+            <td><strong>Webhook</strong></td>
+            <td>Avís HTTP POST que Stripe envia a l'aplicació quan passa alguna cosa al seu costat.</td>
+            <td>Endpoint <code>POST /webhook/stripe</code> protegit per signatura.</td>
+          </tr>
+          <tr>
+            <td><strong>whsec_...</strong></td>
+            <td>Secret de signat: amb ell es verifica que cada webhook ha sortit de Stripe.</td>
+            <td>Variable <code>STRIPE_WEBHOOK_SECRET</code>; si falla → rebuig 400.</td>
+          </tr>
+          <tr>
+            <td><strong>Consum idempotent</strong></td>
+            <td>Patró: es desa l'identificador de cada esdeveniment; els dobles no tenen efecte.</td>
+            <td>Columna única <code>stripe_event_id</code> a la base de dades.</td>
+          </tr>
+          <tr>
+            <td><strong>Signaturit (QTSP)</strong></td>
+            <td>Prestador Qualificat de Serveis de Confiança sota el Reglament eIDAS de la UE.</td>
+            <td>Emet el segellat de temps qualificat legal davant tribunals.</td>
+          </tr>
+          <tr>
+            <td><strong>Polygon PoS (L2)</strong></td>
+            <td>Cadena de blocs pública compatible amb Ethereum, ràpida i ultra-econòmica.</td>
+            <td>On s'immutabilitza el fingerprint SHA-256 de cada bé.</td>
+          </tr>
+          <tr>
+            <td><strong>Hot Wallet</strong></td>
+            <td>Cartera de criptomonedes del servidor que conté saldo en token POL per a gas.</td>
+            <td>Clau privada a <code>.env.local</code> (<code>POLYGON_WALLET_PRIVATE_KEY</code>).</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 4. EL COMPTE DE LA PLATAFORMA A STRIPE -->
+    <section id="compte-stripe" class="guide-section">
+      <div class="guide-section-head">
+        <span class="guide-section-num">4.</span>
+        <h2 class="guide-section-title">El compte de la plataforma a Stripe</h2>
+      </div>
+
+      <div class="step-list">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">Crear el compte de la plataforma a dashboard.stripe.com</div>
+            Amb les dades corporatives de Registrals (Vora Studio) i activitat: plataforma de registre i certificació digital de béns mobles.
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">Activar el mode de prova (*Test mode*)</div>
+            Fins que tot el cicle no estigui verificat i provat de punta a punta, es treballa exclusivament en mode de prova.
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">Obtenir la clau secreta de prova (sk_test_...)</div>
+            De la pàgina <em>Developers → API keys</em>. Només s'utilitza al servidor; mai no es publica ni es desa al repositori de codi.
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <div class="step-title">Activar el Stripe Customer Portal</div>
+            A <em>Settings → Billing → Customer portal</em>, habilitar canvis de targeta, descàrrega de factures en PDF i cancel·lació de renovacions.
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- SECCIÓ 6: ALTA & UNIT ECONOMICS -->
-    <section id="alta-costos" class="guide-section">
-      <div class="guide-section-header">
-        <h2 class="guide-section-title">
-          <span class="guide-section-num">6</span>
-          <span>Guia d'Alta Pas a Pas i Unit Economics</span>
-        </h2>
-        <span class="pill pill-green">Marge Brut &gt; 90%</span>
+    <!-- 7. ENTORN I MODE DE PROVA -->
+    <section id="entorn-dev" class="guide-section">
+      <div class="guide-section-head">
+        <span class="guide-section-num">7.</span>
+        <h2 class="guide-section-title">Entorn i mode de prova (Desenvolupament local)</h2>
       </div>
 
       <div class="guide-card">
-        <div class="guide-card-title" style="margin-bottom: 12px;">6.1. Taula de Rendibilitat Unitària (Unit Economics)</div>
-        <p style="font-size: 13px; color: var(--steel); margin-bottom: 16px;">
-          L'estructura de costos marginals garanteix la viabilitat financera tant del pla Freemium de custòdia com de les operacions puntuals i subscripcions anuals:
+        <div class="guide-card-head">
+          <div class="guide-card-title">7.1. Instal·lació de l'SDK Oficial d'Stripe</div>
+          <span class="pill pill-green">stripe/stripe-php</span>
+        </div>
+        <div class="guide-code-box">
+          <div class="guide-code-bar">Terminal · Arrel del projecte</div>
+          <div class="guide-code-content">composer require stripe/stripe-php</div>
+        </div>
+
+        <div class="guide-card-head" style="margin-top: 20px;">
+          <div class="guide-card-title">7.2. Configuració de Claus a .env.local</div>
+          <span class="pill pill-red">Fora del repositori Git</span>
+        </div>
+        <div class="guide-code-box">
+          <div class="guide-code-bar">.env.local (mai entra a Git)</div>
+          <div class="guide-code-content">
+<span class="cm"># Stripe Test Keys</span>
+STRIPE_PUBLIC_KEY=pk_test_...
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+
+<span class="cm"># Signaturit Sandbox</span>
+SIGNATURIT_API_TOKEN=el_teu_token_sandbox
+SIGNATURIT_BASE_URL=https://api.sandbox.signaturit.com/v3
+
+<span class="cm"># Polygon Amoy Testnet</span>
+POLYGON_RPC_URL=https://rpc-amoy.polygon.technology/
+POLYGON_CHAIN_ID=80002
+POLYGON_WALLET_PRIVATE_KEY=0x...clau_privada_testnet...
+          </div>
+        </div>
+
+        <div class="guide-card-head" style="margin-top: 20px;">
+          <div class="guide-card-title">7.3. Stripe CLI: Escoltar Webhooks a Local</div>
+          <span class="pill pill-blue">Stripe CLI Forwarding</span>
+        </div>
+        <div class="guide-code-box">
+          <div class="guide-code-bar">Terminal · Inici de sessió i escolta</div>
+          <div class="guide-code-content">
+stripe login
+stripe listen --forward-to https://127.0.0.1:8008/webhook/stripe
+          </div>
+        </div>
+
+        <div class="checklist-box">
+          <div class="checklist-title">Verificació de l'entorn de treball</div>
+          <div class="check-item"><span class="check-box-icon">[✓]</span> <code>php bin/console debug:container "Stripe\StripeClient"</code> mostra el servei registrat.</div>
+          <div class="check-item"><span class="check-box-icon">[✓]</span> Cap clau de Stripe ni clau privada de Polygon a <code>.env</code> general ni al repositori.</div>
+          <div class="check-item"><span class="check-box-icon">[✓]</span> <code>stripe listen</code> corre al terminal i rep esdeveniments sense errors 400.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. FLUX A: SUBSCRIPCIÓ ANUAL -->
+    <section id="flux-a-subscripcio" class="guide-section">
+      <div class="guide-section-head">
+        <span class="guide-section-num">8.</span>
+        <h2 class="guide-section-title">Flux A · Contractació de Subscripció Anual (Pla Plus o Unlimited)</h2>
+      </div>
+
+      <div class="step-list">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">L'usuari fa clic a «Contractar Pla Plus» a /app/plan</div>
+            L'acció envia la petició a la ruta <code>app_payment_checkout_plan</code> amb el codi de pla.
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">El servidor crea la Checkout Session en mode subscription</div>
+            Amb preu anual (22 € = <code>2200</code> cèntims), correu del titular i metadades <code>user_id</code> i <code>plan_code</code>.
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">L'usuari completa el pagament a Stripe Hosted Checkout</div>
+            Paga amb targeta o Apple Pay / Google Pay. En mode de prova: targeta <code>4242 4242 4242 4242</code>.
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <div class="step-title">Stripe emet el webhook checkout.session.completed</div>
+            El servidor verifica la signatura, desa <code>stripe_customer_id</code>, actualitza el pla de l'usuari a Plus i renova les quotes a 1 any vista.
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <div class="step-title">L'usuari torna a la pantalla /app/payment/success</div>
+            Troba el seu patrimoni actualitzat i el micro-badge de pla Plus actiu immediatament.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. FLUX B: CERTIFICAT SOLT -->
+    <section id="flux-b-certificat" class="guide-section">
+      <div class="guide-section-head">
+        <span class="guide-section-num">9.</span>
+        <h2 class="guide-section-title">Flux B · Compra de Certificat Oficial Solt (Pay-per-Value)</h2>
+      </div>
+
+      <p style="font-size: 14px; margin-bottom: 16px;">
+        Permet a un usuari Free obtenir un certificat oficial amb validesa legal eIDAS i blockchain per 5,90 € sense subscripció anual:
+      </p>
+
+      <div class="step-list">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">Clic a «Emetre Certificat Oficial» a la fitxa del bé moble</div>
+            Com que l'usuari Free no té quota oficial, s'obre el modal notarial explicant la taxa de 5,90 €.
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">Creació de Checkout Session en mode payment per 590 cèntims</div>
+            Amb metadades <code>transaction_type = 'official_certificate'</code> i <code>item_cui = {cui}</code>.
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">Stripe confirma el pagament via Webhook</div>
+            El servei <code>CertificateIssuerService</code> emet el PDF vectorial, crida Signaturit per al segellat de temps qualificat eIDAS del hash SHA-256 i encua l'ancoratge asíncron a Polygon PoS.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13. COM TRACTA L'APLICACIÓ ELS WEBHOOKS -->
+    <section id="arquitectura-webhooks" class="guide-section">
+      <div class="guide-section-head">
+        <span class="guide-section-num">13.</span>
+        <h2 class="guide-section-title">Com tracta l'aplicació els Webhooks (Arquitectura Hexagonal)</h2>
+      </div>
+
+      <div class="guide-card">
+        <p style="font-size: 13.5px; margin-bottom: 16px;">
+          El controlador de webhook fa exclusivament dues tasques en menys de 50 ms: **validar la signatura criptogràfica** i **desar l'esdeveniment a la base de dades** de forma idempotent. La feina de negoci la realitzen serveis de domini dedicats (patró Adapter / Hexagonal, D-144).
         </p>
 
         <table class="guide-table">
           <thead>
             <tr>
-              <th>Servei / Tràmit Notarial</th>
-              <th>Preu Cobrat a Client</th>
-              <th>Cost Stripe (1,5% + 0,25 €)</th>
-              <th>Cost Proveïdor Extern</th>
-              <th>Ingrés Net Registrals</th>
-              <th>Marge Brut (%)</th>
+              <th>Esdeveniment Stripe</th>
+              <th>Servei que el gestiona</th>
+              <th>Què fa a la base de dades</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td><strong>Traspàs C2C Solt</strong></td>
-              <td>2,90 €</td>
-              <td>0,29 €</td>
-              <td>&lt; 0,003 € (Polygon)</td>
-              <td><strong>2,60 €</strong></td>
-              <td><span class="pill pill-green">89,7%</span></td>
+              <td><code>checkout.session.completed</code></td>
+              <td><code>SubscriptionActivationService</code></td>
+              <td>Assigna pla Plus/Unlimited, data d'inici i venciment (+1 any), o autoritza el certificat oficial solt.</td>
             </tr>
             <tr>
-              <td><strong>Certificat Oficial Solt</strong></td>
-              <td>5,90 €</td>
-              <td>0,34 €</td>
-              <td>~0,10 € (Signaturit) + &lt;0,003 €</td>
-              <td><strong>5,45 €</strong></td>
-              <td><span class="pill pill-green">92,4%</span></td>
+              <td><code>invoice.payment_succeeded</code></td>
+              <td><code>SubscriptionRenewalService</code></td>
+              <td>Estén el venciment un any addicional i restableix quotes anuals d'IA i certificats.</td>
             </tr>
             <tr>
-              <td><strong>Pla Plus Anual (22 €)</strong></td>
-              <td>22,00 € / any</td>
-              <td>0,58 €</td>
-              <td>~1,00 € (10 certs + Polygon)</td>
-              <td><strong>20,42 €</strong></td>
-              <td><span class="pill pill-green">92,8%</span></td>
+              <td><code>customer.subscription.deleted</code></td>
+              <td><code>SubscriptionDowngradeService</code></td>
+              <td>Retorna l'usuari al Pla Free en finalitzar el període pagat.</td>
             </tr>
             <tr>
-              <td><strong>Pla Unlimited Anual (59 €)</strong></td>
-              <td>59,00 € / any</td>
-              <td>1,14 €</td>
-              <td>~2,50 € (estimat per ús)</td>
-              <td><strong>55,36 €</strong></td>
-              <td><span class="pill pill-green">93,8%</span></td>
+              <td><code>charge.dispute.created</code></td>
+              <td><code>FraudInvestigationService</code></td>
+              <td>Bloqueja cautelarment l'emissió de nous certificats i alerta l'administrador a <code>/admin</code>.</td>
             </tr>
           </tbody>
         </table>
 
-        <div class="grid-3" style="margin-top: 24px;">
-          <div style="background: var(--cream-50); padding: 18px; border-radius: 12px; border: 1px solid rgba(106, 134, 162, 0.2);">
-            <div style="font-weight: 700; font-size: 14px; color: var(--ink); margin-bottom: 6px;">Com donar-se d'alta a Stripe</div>
-            <ol style="font-size: 12px; color: var(--steel); padding-left: 16px; line-height: 1.6;">
-              <li>Crear compte a <a href="https://dashboard.stripe.com/register" target="_blank" style="color: var(--gold);">stripe.com</a>.</li>
-              <li>Accés instantani a Sandbox (claus <code>pk_test/sk_test</code>).</li>
-              <li>Per a Live: NIF/CIF fiscal, DNI de l'administrador i IBAN bancari (validat en 24-48h).</li>
-              <li>Configurar Webhook a <code>/webhook/stripe</code>.</li>
-            </ol>
-          </div>
-
-          <div style="background: var(--cream-50); padding: 18px; border-radius: 12px; border: 1px solid rgba(106, 134, 162, 0.2);">
-            <div style="font-weight: 700; font-size: 14px; color: var(--ink); margin-bottom: 6px;">Com donar-se d'alta a Signaturit</div>
-            <ol style="font-size: 12px; color: var(--steel); padding-left: 16px; line-height: 1.6;">
-              <li>Compte de desenvolupador a <a href="https://www.signaturit.com/" target="_blank" style="color: var(--gold);">signaturit.com</a>.</li>
-              <li>Generació de token Sandbox per a tests.</li>
-              <li>Contractació de paquet de segellats TSP eIDAS i crides eIDV amb l'equip de vendes.</li>
-              <li>Configuració de token Live a <code>SIGNATURIT_API_TOKEN</code>.</li>
-            </ol>
-          </div>
-
-          <div style="background: var(--cream-50); padding: 18px; border-radius: 12px; border: 1px solid rgba(106, 134, 162, 0.2);">
-            <div style="font-weight: 700; font-size: 14px; color: var(--ink); margin-bottom: 6px;">Com operar a Polygon PoS</div>
-            <ol style="font-size: 12px; color: var(--steel); padding-left: 16px; line-height: 1.6;">
-              <li><strong>Sense registre ni censura</strong> (xarxa descentralitzada).</li>
-              <li>Generar clau privada EVM i desar a <code>.env.local</code>.</li>
-              <li>Crear compte gratuït a <a href="https://www.alchemy.com/" target="_blank" style="color: var(--gold);">Alchemy</a> per a node RPC dedicat.</li>
-              <li>Ingressar 20 € en token <code>POL</code> (dona per a &gt; 7.000 notaritzacions).</li>
-            </ol>
-          </div>
+        <div class="callout-golden">
+          <div class="title">La divisió de responsabilitats (patró Adapter, D-144)</div>
+          <p><strong>Capa 3 (Adaptadors):</strong> <code>StripeGatewayService</code>, <code>SignaturitClient</code>, <code>PolygonAnchorClient</code>. Tradueixen crides d'API externes; no decideixen res.</p>
+          <p style="margin-top: 6px;"><strong>Capa 4 (Negoci / Domini):</strong> <code>CertificateIssuerService</code>, <code>ItemLifecycleService</code>, <code>PaymentTransactionManager</code>. Prenen les decisions: quan s'emet un certificat, quins límits s'apliquen, com es gestiona l'auditoria.</p>
+          <p style="margin-top: 6px; font-style: italic; color: var(--steel);">Si demà es canviés Stripe per Redsýs o un altre proveïdor, només es reescriurien els adaptadors de la Capa 3; cap classe de la Capa 4 de negoci es veuria afectada.</p>
         </div>
       </div>
     </section>
 
-    <!-- SECCIÓ 7: ALTERNATIVES -->
+    <!-- 14. PRODUCCIÓ, QUAN TOQUI -->
+    <section id="produccio" class="guide-section">
+      <div class="guide-section-head">
+        <span class="guide-section-num">14.</span>
+        <h2 class="guide-section-title">Producció, quan toqui</h2>
+      </div>
+
+      <div class="guide-card">
+        <p style="font-size: 14px; margin-bottom: 12px;">
+          Tot el que s'ha descrit es treballa en mode de prova. La passada a producció (*live*) no canvia cap línia de codi: canvien les claus, l'endpoint del webhook i les fons de gas.
+        </p>
+
+        <div class="checklist-box">
+          <div class="checklist-title">Llista de verificació de sortida a producció</div>
+          <div class="check-item"><span class="check-box-icon">[ ]</span> Perfil d'empresa i compte bancari IBAN completats i verificats per Stripe.</div>
+          <div class="check-item"><span class="check-box-icon">[ ]</span> Generada la clau live (<code>sk_live_...</code>) i desada a Symfony Secrets (D-082), no a l'entorn.</div>
+          <div class="check-item"><span class="check-box-icon">[ ]</span> El webhook d'Stripe apunta a la URL pública HTTPS de producció amb el secret <code>whsec_...</code> live.</div>
+          <div class="check-item"><span class="check-box-icon">[ ]</span> Token de producció de Signaturit configurat amb contracte QTSP eIDAS actiu.</div>
+          <div class="check-item"><span class="check-box-icon">[ ]</span> Hot Wallet de Polygon finançada amb 20 € - 50 € en token POL a Mainnet (Chain ID 137).</div>
+          <div class="check-item"><span class="check-box-icon">[ ]</span> Prova de pagament real de punta a punta abans d'obrir l'accés al públic general.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 15. RESPONSABILITATS -->
+    <section id="responsabilitats" class="guide-section">
+      <div class="guide-section-head">
+        <span class="guide-section-num">15.</span>
+        <h2 class="guide-section-title">Responsabilitats: qui fa què</h2>
+      </div>
+
+      <table class="guide-table">
+        <thead>
+          <tr>
+            <th>Aspecte</th>
+            <th>Registrals (Plataforma)</th>
+            <th>Usuari (Titular)</th>
+            <th>Proveïdor Extern (Stripe / Signaturit / Polygon)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Dades bancàries i targetes</strong></td>
+            <td>Mai no les veu ni les emmagatzema (PCI-DSS SAQ A)</td>
+            <td>Les introdueix a Stripe Checkout</td>
+            <td><strong>Stripe:</strong> Custodia les dades sota PCI-DSS Level 1</td>
+          </tr>
+          <tr>
+            <td><strong>Diners de les quotes</strong></td>
+            <td>Els rep al seu compte bancari</td>
+            <td>Paga la quota anual</td>
+            <td><strong>Stripe:</strong> Processa el cobrament i fa la transferència</td>
+          </tr>
+          <tr>
+            <td><strong>Segellat legal de temps</strong></td>
+            <td>Calcula el hash SHA-256 del PDF</td>
+            <td>Sol·licita el certificat</td>
+            <td><strong>Signaturit:</strong> Emet la prova qualificada davant tribunals (eIDAS)</td>
+          </tr>
+          <tr>
+            <td><strong>Ancoratge a Blockchain</strong></td>
+            <td>Despatxa el missatge asíncron</td>
+            <td>Consulta el rebut a Polygonscan</td>
+            <td><strong>Polygon PoS:</strong> Minadors que registren el bloc de forma immutable</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 16. ALTERNATIVES -->
     <section id="alternatives" class="guide-section">
-      <div class="guide-section-header">
-        <h2 class="guide-section-title">
-          <span class="guide-section-num">7</span>
-          <span>Anàlisi d'Alternatives Tecnològiques i Criteris de Decisió</span>
-        </h2>
-        <span class="pill pill-gold">Benchmarking de Mercat</span>
+      <div class="guide-section-head">
+        <span class="guide-section-num">16.</span>
+        <h2 class="guide-section-title">Anàlisi d'Alternatives de Mercat</h2>
       </div>
 
-      <!-- Alternatives Stripe -->
-      <div style="margin-bottom: 28px;">
-        <h3 style="font-family: var(--font-marcellus); font-size: 20px; color: var(--ink); margin-bottom: 14px;">
-          7.1. Alternatives a Stripe (Passarel·la de Pagaments)
-        </h3>
+      <table class="guide-table">
+        <thead>
+          <tr>
+            <th>Component</th>
+            <th>Solució Triada</th>
+            <th>Alternatives Avaluades</th>
+            <th>Criteri d'Elecció</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Pagaments</strong></td>
+            <td><span class="pill pill-green">Stripe</span></td>
+            <td>Redsýs (Bancs / Bizum), Paddle, Mollie</td>
+            <td>Stripe ofereix el millor Hosted Checkout i Customer Portal. Redsýs és el candidat futur per oferir Bizum en fase d'escala nacional.</td>
+          </tr>
+          <tr>
+            <td><strong>Segellat eIDAS</strong></td>
+            <td><span class="pill pill-green">Signaturit</span></td>
+            <td>Validated ID (VIDsigner), FNMT, DocuSign</td>
+            <td>Signaturit unifica segellat de temps qualificat i eIDV. Validated ID és el nostre pla B directe de redundància.</td>
+          </tr>
+          <tr>
+            <td><strong>Blockchain L2</strong></td>
+            <td><span class="pill pill-green">Polygon PoS</span></td>
+            <td>Base (Coinbase L2), Arbitrum, Ethereum L1</td>
+            <td>Polygon té blocs de 2s i cost marginal &lt; 0,003 €. Base és la millor alternativa commutable des del nostre adaptador.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
 
-        <div class="alt-card chosen">
-          <div class="alt-header">
-            <div class="alt-title">Stripe (Solució Oficial Triada)</div>
-            <span class="pill pill-green">Opció Oficial d'Entrada</span>
-          </div>
-          <p style="font-size: 13px; color: var(--ink); margin-bottom: 8px;">
-            L'estàndard mundial indiscutible en desenvolupament de programari: Hosted Checkout d'alta conversió, suport d'Apple Pay / Google Pay nadiu, Customer Portal automatitzat i gestió de subscripcions sense fricció.
-          </p>
-          <div style="font-size: 11.5px; color: var(--steel);">
-            <strong>Trade-off:</strong> Comissió del 1,5% + 0,25 € lleugerament superior a la banca tradicional, àmpliament compensada per l'estalvi d'hores de desenvolupament i la conversió mòbil.
-          </div>
-        </div>
-
-        <div class="alt-card">
-          <div class="alt-header">
-            <div class="alt-title">Redsýs / TPV Virtual Bancari (CaixaBank, Santander, BBVA)</div>
-            <span class="pill pill-blue">Candidat Futur per a Escala Nacional</span>
-          </div>
-          <p style="font-size: 13px; color: var(--ink); margin-bottom: 8px;">
-            Comissions molt inferiors (~0,3% a 0,5%) i compatibilitat directa amb <strong>Bizum</strong> a Espanya.
-          </p>
-          <div style="font-size: 11.5px; color: var(--steel);">
-            <strong>Trade-off:</strong> UX fragmentada amb redireccions feixugues del banc, gestió de subscripcions recurrents complexa i manual, sense Customer Portal. Recomanable quan Registrals superi els 100.000 € anuals de facturació per estalviar costos de comissió.
-          </div>
-        </div>
-
-        <div class="alt-card">
-          <div class="alt-header">
-            <div class="alt-title">Paddle / Lemon Squeezy (Merchant of Record)</div>
-            <span class="pill pill-red">Descartat</span>
-          </div>
-          <p style="font-size: 13px; color: var(--ink);">
-            Comissió abusiva (5% + 0,50 $ per càrrec) que fa inviables els microtransaccions de 2,90 € (deixaria més d'un 25% en comissions).
-          </p>
-        </div>
+    <!-- 17. DECISIONS I RISCOS -->
+    <section id="decisions-riscos" class="guide-section">
+      <div class="guide-section-head">
+        <span class="guide-section-num">17.</span>
+        <h2 class="guide-section-title">Registre de Decisions (D-xxx) i Riscos (R-xxx)</h2>
       </div>
 
-      <!-- Alternatives Signaturit -->
-      <div style="margin-bottom: 28px;">
-        <h3 style="font-family: var(--font-marcellus); font-size: 20px; color: var(--ink); margin-bottom: 14px;">
-          7.2. Alternatives a Signaturit (Segellat eIDAS & KYC)
-        </h3>
-
-        <div class="alt-card chosen">
-          <div class="alt-header">
-            <div class="alt-title">Signaturit Group (Solució Oficial Triada)</div>
-            <span class="pill pill-green">Opció Oficial d'Entrada</span>
-          </div>
-          <p style="font-size: 13px; color: var(--ink); margin-bottom: 8px;">
-            QTSP acreditat davant la UE. Unifica en una sola plataforma el segellat de temps qualificat legal (TSP) i la verificació documental/biomètrica (eIDV).
-          </p>
+      <div class="guide-card">
+        <div class="guide-card-head">
+          <div class="guide-card-title">Riscos Oberts i Mitigacions a la Data d'Aquest Document</div>
         </div>
-
-        <div class="alt-card">
-          <div class="alt-header">
-            <div class="alt-title">Validated ID (VIDsigner)</div>
-            <span class="pill pill-gold">Pla B Directe de Redundància</span>
-          </div>
-          <p style="font-size: 13px; color: var(--ink);">
-            Proveïdor qualificat eIDAS amb seu a Barcelona, d'excel·lent reputació tècnica i jurídica. És el nostre candidat immediat de substitució o redundància si fos necessari.
-          </p>
-        </div>
-
-        <div class="alt-card">
-          <div class="alt-header">
-            <div class="alt-title">FNMT (Fábrica Nacional de Moneda y Timbre) / Camerfirma</div>
-            <span class="pill pill-gray">Alternativa Institucional</span>
-          </div>
-          <p style="font-size: 13px; color: var(--ink);">
-            Màxim reconeixement estatal, però alta i contractació feixugues, burocràtiques i allunyades del model àgil SaaS.
-          </p>
-        </div>
+        <table class="guide-table">
+          <thead>
+            <tr>
+              <th>Ref.</th>
+              <th>Apunt del Risc</th>
+              <th>Impacte i Mitigació a Registrals</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>R-001</strong></td>
+              <td>Claus privades pujades per error a Git</td>
+              <td>Claus a <code>.env.local</code> (ignorat per git) i Symfony Secrets a producció (D-082).</td>
+            </tr>
+            <tr>
+              <td><strong>R-002</strong></td>
+              <td>Pèrdua de connexió durant el pagament</td>
+              <td>L'activació la fa exclusivament el webhook de Stripe de forma idempotent (D-080).</td>
+            </tr>
+            <tr>
+              <td><strong>R-003</strong></td>
+              <td>Retard o congestió del node RPC de Polygon</td>
+              <td>Desacoblament asíncron amb Symfony Messenger (<code>async_chain</code>); la web no s'atura (D-082).</td>
+            </tr>
+            <tr>
+              <td><strong>R-004</strong></td>
+              <td>Rebuig d'usuaris particulars al KYC biomètric</td>
+              <td>El KYC és 100% opcional; només per a la insígnia de Titular Verificat o béns &gt;10.000 €.</td>
+            </tr>
+            <tr>
+              <td><strong>R-005</strong></td>
+              <td>Formulari d'Stripe no traduït al català en algun navegador</td>
+              <td>Stripe Checkout amb <code>locale: 'auto'</code> i avís previ de passarel·la segura internacional.</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-
-      <!-- Alternatives Polygon -->
-      <div>
-        <h3 style="font-family: var(--font-marcellus); font-size: 20px; color: var(--ink); margin-bottom: 14px;">
-          7.3. Alternatives a Polygon PoS (Blockchain)
-        </h3>
-
-        <div class="alt-card chosen">
-          <div class="alt-header">
-            <div class="alt-title">Polygon PoS (Solució Oficial Triada)</div>
-            <span class="pill pill-green">Opció Oficial d'Entrada</span>
-          </div>
-          <p style="font-size: 13px; color: var(--ink); margin-bottom: 8px;">
-            Temps de bloc de 2 segons, cost de transacció &lt; 0,003 €, totalment compatible amb EVM i màxim suport d'eines d'auditoria pública (Polygonscan).
-          </p>
-        </div>
-
-        <div class="alt-card">
-          <div class="alt-header">
-            <div class="alt-title">Base (Layer 2 de Coinbase)</div>
-            <span class="pill pill-blue">Millor Alternativa L2</span>
-          </div>
-          <p style="font-size: 13px; color: var(--ink);">
-            Optimistic Rollup d'Ethereum recolzat per Coinbase. Comissions de fracció de cèntim gràcies a l'EIP-4844 d'Ethereum. Commutable fàcilment des del nostre port <code>BlockchainAnchorInterface</code>.
-          </p>
-        </div>
-
-        <div class="alt-card">
-          <div class="alt-header">
-            <div class="alt-title">Ethereum Mainnet (Layer 1)</div>
-            <span class="pill pill-red">Descartat per a Ancoratges Individuals</span>
-          </div>
-          <p style="font-size: 13px; color: var(--ink);">
-            Cost de gas d'entre 1 € i 15 € per transacció. Totalment incompatible amb el model Freemium i les microtransaccions.
-          </p>
-        </div>
-      </div>
-
     </section>
 
   </main>
 
   <script>
-    // Smooth scrolling & active links
+    // Smooth scroll i navegació activa a la sidebar
     document.querySelectorAll('.guide-nav-link').forEach(link => {
       link.addEventListener('click', function(e) {
         const href = this.getAttribute('href');
@@ -1218,14 +1200,14 @@
       });
     });
 
-    // Intersection Observer per actualitzar l'enllaç actiu durant el scroll
+    // Observer per actualitzar l'enllaç actiu durant el scroll
     const sections = document.querySelectorAll('.guide-section');
     const navLinks = document.querySelectorAll('.guide-nav-link');
 
     window.addEventListener('scroll', () => {
       let current = '';
       sections.forEach(section => {
-        const sectionTop = section.offsetTop - 120;
+        const sectionTop = section.offsetTop - 100;
         if (pageYOffset >= sectionTop) {
           current = section.getAttribute('id');
         }
