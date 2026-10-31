@@ -63,6 +63,9 @@
             "./bin/phpunit"
         ]
     },
+    "stripe/stripe-php": {
+        "version": "v22.1.0"
+    },
     "symfony/apache-pack": {
         "version": "1.0",
         "recipe": {

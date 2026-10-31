@@ -937,11 +937,15 @@
                   </button>
                 </form>
               {% else %}
-                <div class="space-y-1.5">
-                  <button type="button" onclick="if (window.RegistralsToast) { window.RegistralsToast.show('Pla Plus Requerit', 'El teu compte disposa del Pla Free. Pots contractar el Pla Plus o un certificat oficial solt (5,90 €) a la passarel·la Stripe (Iteració 7).', 'info'); }" class="w-full py-2 px-3 rounded-xl bg-ink/70 text-cream/80 hover:bg-ink font-bold text-xs uppercase tracking-wider transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer">
-                    <span>Pla Plus / 5,90 €</span>
+                <form action="{{ path('app_payment_certificate_checkout', {'cui': item.cui}) }}" method="POST">
+                  <input type="hidden" name="_token" value="{{ csrf_token('checkout_cert_' ~ item.cui) }}">
+                  <button type="submit" class="w-full py-2 px-3 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer">
+                    <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                    <span>Comprar Oficial (5,90 €)</span>
                   </button>
-                  <span class="block text-center text-[10px] text-steel">Inclòs a Plans Plus i Unlimited</span>
+                </form>
+                <div class="mt-1 text-center">
+                  <a href="{{ path('app_plan') }}" class="text-[10px] text-steel hover:text-gold transition-colors underline">O passa al Pla Plus per tenir-los inclosos</a>
                 </div>
               {% endif %}
             {% endif %}

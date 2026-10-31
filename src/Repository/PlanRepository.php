@@ -22,4 +22,9 @@ class PlanRepository extends ServiceEntityRepository
     {
         return $this->findOneBy(['code' => 'free', 'isActive' => true]);
     }
+
+    public function findByCode(string $code): ?Plan
+    {
+        return $this->findOneBy(['code' => $code, 'isActive' => true]);
+    }
 }

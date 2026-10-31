@@ -246,9 +246,24 @@ Cada subiteració segueix un flux d'enginyeria estricte:
   - [x] Interruptor global i per pla per activar o desactivar l'ús d'Assistència d'IA en calent (Feature Toggle d'IA des de Backoffice), amb gestió de quotes i consums per usuari.
   - [x] Parametrització geogràfica i monetària: abast operatiu inicial centrat a la Unió Europea (EUR); selecció i acotament de països admesos al registre de plans Plus i Unlimited amb moneda ISO associada gestionable des de Backoffice.
   - [x] Verificació final del 7.2: revisió de contingut, textos notarials, suport robust d'il·limitats (simbolització `∞` i tractament per a valors `-1` o `>= 9999`) i bateria de tests unitaris a [`AdminPlanControllerTest`](file:///d:/webs/Registrals/Registrals/tests/Controller/AdminPlanControllerTest.php) i [`AdminSettingsControllerTest`](file:///d:/webs/Registrals/Registrals/tests/Controller/AdminSettingsControllerTest.php) (46 tests, 300 assertions OK).
-- [ ] **Subiteració 7.3: Passarel·la de Pagament (Stripe)**
-  - [ ] Checkout per a subscripcions anuals (Pla Plus i Unlimited).
-  - [ ] Microtransaccions de pagament per ús (certificat oficial puntual de 6 € o traspàs de 2,90 €).
+- [x] **Subiteració 7.3: Passarel·la de Pagament (Stripe)** *(100% Completada)*
+  - [x] Instal·lació del client oficial `stripe/stripe-php` v22.1.0 i registre de serveis a [`config/services.yaml`](file:///d:/webs/Registrals/Registrals/config/services.yaml).
+  - [x] Model de dades i persistència:
+    - Enums [`PaymentType`](file:///d:/webs/Registrals/Registrals/src/Enum/PaymentType.php) (`subscription`, `certificate`, `transfer`) i [`PaymentStatus`](file:///d:/webs/Registrals/Registrals/src/Enum/PaymentStatus.php) (`pending`, `paid`, `failed`, `refunded`, `disputed`).
+    - Entitat [`PaymentTransaction`](file:///d:/webs/Registrals/Registrals/src/Entity/PaymentTransaction.php) amb suport per a UUID v7, idempotència per índex únic `stripe_event_id`, imports en cèntims (`amountCents`) i metadades JSON.
+    - Actualització de l'entitat [`User`](file:///d:/webs/Registrals/Registrals/src/Entity/User.php) amb camps `stripeCustomerId` (únic), `stripeSubscriptionId` i `subscriptionStatus`.
+    - Repositori [`PaymentTransactionRepository`](file:///d:/webs/Registrals/Registrals/src/Repository/PaymentTransactionRepository.php) amb consultes per sessió, intent, esdeveniment i usuari.
+    - Mètode `findByCode` afegit a [`PlanRepository`](file:///d:/webs/Registrals/Registrals/src/Repository/PlanRepository.php).
+  - [x] Arquitectura Hexagonal & Adaptadors (Capa 3 vs Capa 4):
+    - Port de domini [`PaymentGatewayInterface`](file:///d:/webs/Registrals/Registrals/src/Infrastructure/Adapter/Payment/PaymentGatewayInterface.php).
+    - Adaptador d'infraestructura [`StripeGatewayClient`](file:///d:/webs/Registrals/Registrals/src/Infrastructure/Adapter/Payment/StripeGatewayClient.php) per a Checkout (subscripcions i micropagaments), Customer Portal i verificació criptogràfica de Webhooks amb suport de mock local.
+    - Servei de domini [`PaymentManager`](file:///d:/webs/Registrals/Registrals/src/Service/Payment/PaymentManager.php) per al registre de transaccions pendents, gestió d'idempotència i transicions d'estat davant webhooks (`checkout.session.completed`, `invoice.payment_succeeded`, `invoice.payment_failed`, `customer.subscription.deleted`, `charge.refunded`).
+  - [x] Controladors & Vistes Web:
+    - [`PaymentController`](file:///d:/webs/Registrals/Registrals/src/Controller/PaymentController.php): endpoints POST protegits amb CSRF per a subscripcions de pla (`/app/plan/{code}/checkout`), compra de certificats solts de 5,90 € (`/app/items/{cui}/certificate-checkout`) i traspassos de 2,90 € (`/app/transfers/{token}/checkout`), accés al Customer Portal (`/app/payment/portal`) i pàgina de confirmació (`/app/payment/success`).
+    - [`StripeWebhookController`](file:///d:/webs/Registrals/Registrals/src/Controller/Webhook/StripeWebhookController.php): endpoint públic `POST /webhook/stripe` amb verificació de capçalera `Stripe-Signature`.
+    - Plantilla [`templates/payment/success.html.twig`](file:///d:/webs/Registrals/Registrals/templates/payment/success.html.twig) amb disseny notarial corporatiu i polling d'estat.
+    - Integració dels formularis de pagament a la graella de plans ([`templates/plan/index.html.twig`](file:///d:/webs/Registrals/Registrals/templates/plan/index.html.twig)) i a la fitxa del bé per a certificats oficials solts ([`templates/item/show.html.twig`](file:///d:/webs/Registrals/Registrals/templates/item/show.html.twig)).
+  - [x] Bateria de tests unitaris a [`PaymentControllerTest`](file:///d:/webs/Registrals/Registrals/tests/Controller/PaymentControllerTest.php) i [`StripeWebhookControllerTest`](file:///d:/webs/Registrals/Registrals/tests/Controller/StripeWebhookControllerTest.php) (53 tests, 326 assertions OK).
 - [ ] **Subiteració 7.4: Verificació & Validació HITL Final de l'MVP**
   - [ ] Test complet E2E des del registre, pagament, alta de bé amb IA, certificat oficial fins al traspàs.
 - [ ] **Subiteració 7.5: Validació Final Integral de tot el Backend & Arquitectura**

@@ -89,6 +89,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $planExpiresAt = null;
 
+    #[ORM\Column(type: 'string', length: 100, unique: true, nullable: true)]
+    private ?string $stripeCustomerId = null;
+
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    private ?string $stripeSubscriptionId = null;
+
+    #[ORM\Column(type: 'string', length: 50, nullable: true)]
+    private ?string $subscriptionStatus = null;
+
     #[ORM\Column(type: 'integer', options: ['default' => 0])]
     private int $aiUsageCount = 0;
 
@@ -444,5 +453,38 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getItems(): \Doctrine\Common\Collections\Collection
     {
         return $this->items;
+    }
+
+    public function getStripeCustomerId(): ?string
+    {
+        return $this->stripeCustomerId;
+    }
+
+    public function setStripeCustomerId(?string $stripeCustomerId): static
+    {
+        $this->stripeCustomerId = $stripeCustomerId;
+        return $this;
+    }
+
+    public function getStripeSubscriptionId(): ?string
+    {
+        return $this->stripeSubscriptionId;
+    }
+
+    public function setStripeSubscriptionId(?string $stripeSubscriptionId): static
+    {
+        $this->stripeSubscriptionId = $stripeSubscriptionId;
+        return $this;
+    }
+
+    public function getSubscriptionStatus(): ?string
+    {
+        return $this->subscriptionStatus;
+    }
+
+    public function setSubscriptionStatus(?string $subscriptionStatus): static
+    {
+        $this->subscriptionStatus = $subscriptionStatus;
+        return $this;
     }
 }

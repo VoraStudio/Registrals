@@ -1,0 +1,126 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Confirmació de Pagament — Registrals{% endblock %}
+{% block meta_description %}Estat de confirmació de la transacció de pagament a Registrals.{% endblock %}
+
+{% block body_class %}bg-cream text-ink min-h-screen flex flex-col justify-between selection:bg-gold selection:text-ink font-raleway{% endblock %}
+
+{% block body %}
+<div class="min-h-screen flex flex-col justify-between bg-cream">
+
+  {# Barra Superior Privada Unificada #}
+  {% include 'partials/_private_header.html.twig' %}
+
+  <main class="max-w-3xl mx-auto px-4 sm:px-6 py-10 w-full flex-1 flex items-center justify-center">
+
+    <div class="bg-white border border-gold/40 rounded-2xl shadow-xl w-full p-6 sm:p-10 text-center relative overflow-hidden">
+      <div class="h-1.5 bg-gradient-to-r from-transparent via-gold to-transparent absolute top-0 left-0 right-0"></div>
+
+      <div class="w-16 h-16 mx-auto mb-5 rounded-2xl bg-cream flex items-center justify-center text-gold border border-gold/30">
+        <svg class="w-8 h-8 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+
+      <h1 class="text-2xl sm:text-3xl font-marcellus text-ink mb-2">Pagament Rebut amb Èxit</h1>
+      
+      <p id="status-text" class="text-sm text-ink/75 max-w-md mx-auto mb-6">
+        Hem rebut la confirmació del pagament a través de la passarel·la segura. El sistema està sincronitzant els teus nous drets notarials.
+      </p>
+
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider mb-8 bg-green-100 text-green-800 border border-green-300" id="status-badge">
+        <span class="w-2 h-2 rounded-full bg-green-600 animate-pulse"></span>
+        <span id="status-label">Transacció Confirmada</span>
+      </div>
+
+      <div class="bg-cream/40 border border-steel/20 rounded-xl p-4 text-left max-w-lg mx-auto mb-8 space-y-2 text-xs">
+        <div class="flex justify-between items-center py-1 border-b border-steel/10">
+          <span class="text-ink/60">Concepte:</span>
+          <span class="font-bold text-ink">
+            {% if type == 'subscription' %}
+              Subscripció Anual de Pla
+            {% elseif type == 'certificate' %}
+              Emissió de Certificat Oficial
+            {% elseif type == 'transfer' %}
+              Taxa de Traspàs Notarial C2C
+            {% else %}
+              Transacció Notarial
+            {% endif %}
+          </span>
+        </div>
+
+        {% if transaction %}
+          <div class="flex justify-between items-center py-1 border-b border-steel/10">
+            <span class="text-ink/60">Import abonat:</span>
+            <span class="font-bold font-mono text-ink">{{ transaction.amountFormatted }}</span>
+          </div>
+          <div class="flex justify-between items-center py-1">
+            <span class="text-ink/60">Referència única:</span>
+            <span class="font-mono text-steel text-[11px]">{{ transaction.uuid.toRfc4122 }}</span>
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+        {% if type == 'subscription' %}
+          <a href="{{ path('app_plan') }}" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 text-xs font-bold font-raleway shadow-xs transition-all uppercase tracking-wider">
+            Revisar el meu Pla
+          </a>
+          <a href="{{ path('app_dashboard') }}" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-cream hover:bg-cream/80 text-ink text-xs font-semibold font-raleway transition-all">
+            Anar al Patrimoni
+          </a>
+        {% elseif type == 'certificate' %}
+          <a href="{{ path('app_user_certificates') }}" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 text-xs font-bold font-raleway shadow-xs transition-all uppercase tracking-wider">
+            Safata de Certificats
+          </a>
+          {% if cui %}
+            <a href="{{ path('app_item_show', {'cui': cui}) }}" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-cream hover:bg-cream/80 text-ink text-xs font-semibold font-raleway transition-all">
+              Tornar a la Fitxa del Bé
+            </a>
+          {% endif %}
+        {% elseif type == 'transfer' %}
+          {% if token %}
+            <a href="{{ path('app_transfer_claim', {'token': token}) }}" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 text-xs font-bold font-raleway shadow-xs transition-all uppercase tracking-wider">
+              Revisar Traspàs
+            </a>
+          {% endif %}
+          <a href="{{ path('app_dashboard') }}" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-cream hover:bg-cream/80 text-ink text-xs font-semibold font-raleway transition-all">
+            Anar al Patrimoni
+          </a>
+        {% else %}
+          <a href="{{ path('app_dashboard') }}" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 text-xs font-bold font-raleway shadow-xs transition-all uppercase tracking-wider">
+            Tornar al Dashboard
+          </a>
+        {% endif %}
+      </div>
+
+    </div>
+
+  </main>
+</div>
+
+{% if sessionId %}
+<script>
+  // Polling suau cada 3 segons per sincronitzar l'estat si cal
+  const sessionId = '{{ sessionId|e("js") }}';
+  if (sessionId && !sessionId.startsWith('cs_mock_')) {
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/app/payment/status/${sessionId}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.paid) {
+            document.getElementById('status-badge').className = 'inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider mb-8 bg-green-100 text-green-800 border border-green-300';
+            document.getElementById('status-label').textContent = 'Transacció Confirmada';
+            clearInterval(interval);
+          }
+        }
+      } catch (e) {
+        console.error('Error consultant estat del pagament', e);
+      }
+    }, 3000);
+  }
+</script>
+{% endif %}
+
+{% endblock %}

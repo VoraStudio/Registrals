@@ -49,4 +49,14 @@ services:
             $apiToken: '%env(default::string:SIGNATURIT_API_TOKEN)%'
             $baseUrl: '%env(string:SIGNATURIT_BASE_URL)%'
 
+    App\Infrastructure\Adapter\Payment\PaymentGatewayInterface: '@App\Infrastructure\Adapter\Payment\StripeGatewayClient'
+
+    App\Infrastructure\Adapter\Payment\StripeGatewayClient:
+        arguments:
+            $secretKey: '%env(default::string:STRIPE_SECRET_KEY)%'
+            $webhookSecret: '%env(default::string:STRIPE_WEBHOOK_SECRET)%'
+            $pricePlusId: '%env(default::string:STRIPE_PRICE_PLUS)%'
+            $priceUnlimitedId: '%env(default::string:STRIPE_PRICE_UNLIMITED)%'
+
+
 
