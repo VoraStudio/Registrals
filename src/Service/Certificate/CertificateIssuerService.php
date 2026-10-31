@@ -48,10 +48,10 @@ class CertificateIssuerService
      * @param CertificateMode $mode Mode DRAFT (gratuït) o OFFICIAL (segellat)
      * @return Certificate L'entitat persistida amb el PDF custodiat
      */
-    public function issueCertificate(Item $item, User $issuer, CertificateMode $mode): Certificate
+    public function issueCertificate(Item $item, User $issuer, CertificateMode $mode, bool $isDirectPurchase = false): Certificate
     {
-        // 1. Validació de quotes i permisos per a la modalitat Oficial
-        if ($mode->isOfficial()) {
+        // 1. Validació de quotes i permisos per a la modalitat Oficial (només si no és compra directa)
+        if ($mode->isOfficial() && !$isDirectPurchase) {
             $plan = $issuer->getPlan();
             $isAdmin = in_array('ROLE_ADMIN', $issuer->getRoles(), true);
 

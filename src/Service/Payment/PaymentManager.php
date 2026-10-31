@@ -147,8 +147,8 @@ class PaymentManager
             $itemId = (int) ($metadata['item_id'] ?? 0);
             $item = $itemId > 0 ? $this->itemRepository->find($itemId) : null;
             if ($item !== null) {
-                // Emet el certificat oficial de pagament
-                $this->certificateIssuer->issueCertificate($item, $user, CertificateMode::OFFICIAL);
+                // Emet el certificat oficial de pagament (compra directa autoritzada)
+                $this->certificateIssuer->issueCertificate($item, $user, CertificateMode::OFFICIAL, true);
             }
         } elseif ($typeStr === 'transfer') {
             $transferId = (int) ($metadata['transfer_id'] ?? 0);
