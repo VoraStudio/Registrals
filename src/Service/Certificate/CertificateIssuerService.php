@@ -63,7 +63,7 @@ class CertificateIssuerService
 
             if (!$isAdmin && $plan !== null) {
                 $quota = $plan->getMonthlyCertificatesQuota();
-                if ($quota !== -1 && $issuer->getCertificatesIssuedCount() >= $quota) {
+                if ($quota !== -1 && $quota < 9999 && $issuer->getCertificatesIssuedCount() >= $quota) {
                     throw new RuntimeException(
                         sprintf('Has assolit el límit mensual de %d certificats oficials del teu pla.', $quota)
                     );

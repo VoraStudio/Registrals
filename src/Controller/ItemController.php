@@ -55,7 +55,7 @@ class ItemController extends AbstractController
             $activeItemsCount = $user->getLifetimeItemsRegistered();
             $maxAllowed = $user->getPlan()->getMaxActiveItems();
 
-            if ($maxAllowed !== -1 && $activeItemsCount >= $maxAllowed) {
+            if ($maxAllowed !== -1 && $maxAllowed < 9999 && $activeItemsCount >= $maxAllowed) {
                 $this->addFlash('error', sprintf(
                     'Has assolit el límit màxim de %d béns del teu pla %s. Passa a un pla superior per continuar protegint el teu patrimoni.',
                     $maxAllowed,
@@ -267,7 +267,7 @@ class ItemController extends AbstractController
         // 4. Guard de Quota de Crèdits IA segons el Pla
         $planQuota = $plan ? $plan->getAiAssistanceQuota() : -1;
         $usage = $user->getAiUsageCount();
-        $isUnlimited = ($planQuota === -1);
+        $isUnlimited = ($planQuota === -1 || $planQuota >= 9999);
         $remainingCredits = $isUnlimited ? 999999 : max(0, $planQuota - $usage);
 
         if (!$isUnlimited && $remainingCredits <= 0) {

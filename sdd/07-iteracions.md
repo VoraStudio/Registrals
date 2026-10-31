@@ -241,11 +241,11 @@ Cada subiteració segueix un flux d'enginyeria estricte:
   - [x] Distribució Geogràfica de Trànsit & Connexions (`/admin`):
     - Integració de mapa interactiu de coropletes **Google GeoChart** adaptat a la paleta notarial corporativa (`#FAF6F0`, `#CAA36C`, `#1D2F4B`).
     - Servei de resolució sobirana d'adreces IP ([`GeoLocationService`](file:///d:/webs/Registrals/Registrals/src/Service/GeoIp/GeoLocationService.php)) que agrega logs d'auditoria i telemetria per codi ISO-3166-1 amb rànquing de Top Territoris.
-- [ ] **Subiteració 7.2: Mòdul de Parametrització de Plans, Tarifes i Àmbit Geogràfic**
-  - [x] Formulari d'edició en calent dels paràmetres de cada pla des de Backoffice: màxim de béns actius (Free: 20, Plus: 100, Unlimited: -1 il·limitat), límit de fotografies per bé (Free: 1, Plus: 5, Unlimited: -1 il·limitat), límit de proves/evidències per bé (Free: 1, Plus: 5, Unlimited: -1 il·limitat), quotes de certificats oficials i assistència d'IA (Free: 20, Plus: 100, Unlimited: 9.999).
+- [x] **Subiteració 7.2: Mòdul de Parametrització de Plans, Tarifes i Àmbit Geogràfic** *(100% Completada)*
+  - [x] Formulari d'edició en calent dels paràmetres de cada pla des de Backoffice: màxim de béns actius (Free: 20, Plus: 100, Unlimited: -1 il·limitat), límit de fotografies per bé (Free: 1, Plus: 5, Unlimited: -1 il·limitat), límit de proves/evidències per bé (Free: 1, Plus: 5, Unlimited: -1 il·limitat), quotes de certificats oficials, assistència d'IA (Free: 20, Plus: 100, Unlimited: 9.999) i paràmetres de traspassos C2C (`transfersIncluded`, `extraTransferPriceCents`).
   - [x] Interruptor global i per pla per activar o desactivar l'ús d'Assistència d'IA en calent (Feature Toggle d'IA des de Backoffice), amb gestió de quotes i consums per usuari.
   - [x] Parametrització geogràfica i monetària: abast operatiu inicial centrat a la Unió Europea (EUR); selecció i acotament de països admesos al registre de plans Plus i Unlimited amb moneda ISO associada gestionable des de Backoffice.
-  - [ ] Verificació final del 7.2: revisió de contingut, textos notarials i ajust final dels últims paràmetres.
+  - [x] Verificació final del 7.2: revisió de contingut, textos notarials, suport robust d'il·limitats (simbolització `∞` i tractament per a valors `-1` o `>= 9999`) i bateria de tests unitaris a [`AdminPlanControllerTest`](file:///d:/webs/Registrals/Registrals/tests/Controller/AdminPlanControllerTest.php) i [`AdminSettingsControllerTest`](file:///d:/webs/Registrals/Registrals/tests/Controller/AdminSettingsControllerTest.php) (46 tests, 300 assertions OK).
 - [ ] **Subiteració 7.3: Passarel·la de Pagament (Stripe)**
   - [ ] Checkout per a subscripcions anuals (Pla Plus i Unlimited).
   - [ ] Microtransaccions de pagament per ús (certificat oficial puntual de 6 € o traspàs de 2,90 €).
@@ -281,6 +281,23 @@ Cada subiteració segueix un flux d'enginyeria estricte:
 
 ---
 
+### Iteració 9: Internacionalització & Multidioma d'Adquisició (i18n Landing Page & SEO)
+**Objectiu:** Desplegament de la capa multidioma orientada a l'adquisició i posicionament SEO per a la Landing Page i subpàgines públiques, mantenint l'àrea privada i el domini desacoblats.
+
+- [ ] **Subiteració 9.1: Enrutament Públic i Detecció de Locale (`/{_locale}/`)**
+  - [ ] Prefixes de ruta públics (`/ca/`, `/es/`, `/en/`) amb redirecció intel·ligent basada en la capçalera `Accept-Language` del navegador a la primera visita.
+  - [ ] Implementació d'etiquetes SEO `hreflang` i URLs canòniques a la capçalera HTML per evitar contingut duplicat als cercadors.
+  - [ ] Selector d'idioma discret i accessible integrat al Header públic i al peu de pàgina de la Landing.
+- [ ] **Subiteració 9.2: Catàlegs de Traducció YAML (`symfony/translation`)**
+  - [ ] Estructuració dels dominis de traducció a `translations/messages.{locale}.yaml` amb claus semàntiques jeràrquiques (`landing.hero.*`, `landing.features.*`, `landing.pricing.*`, etc.).
+  - [ ] Terminologia notarial rigorosa per a cada idioma (Català, Castellà, Anglès) revisada des del punt de vista legal i comercial.
+  - [ ] Refactorització de plantilles públiques Twig (`templates/page/` i parcials) mitjançant el filtre natiu `|trans`.
+- [ ] **Subiteració 9.3: Verificació & Validació HITL**
+  - [ ] Comprovació de persistència de navegació entre idiomes sense trencament de fil d'Ariadna ni pèrdua d'estils.
+  - [ ] Verificació de capçaleres HTTP, redireccions 302/301 i metadades SEO mitjançant inspecció web.
+
+---
+
 ## Taula Resum d'Iteracions i Estat
 
 | Macro-Iteració | Subiteracions | Dependències Clau | Estat |
@@ -292,5 +309,6 @@ Cada subiteració segueix un flux d'enginyeria estricte:
 | **Iteració 4** | 4.1 Model Blockchain <br> 4.2 Càlcul Hash & RPC <br> 4.3 Cua & UI Insígnia <br> 4.4 Validació HITL | Polygon/Base RPC, SHA-256 | **100% Completada** |
 | **Iteració 5** | 5.1 Model Certificats <br> 5.2 Motor PDF Vectorial <br> 5.3 eIDAS Signaturit & QR <br> 5.4 Validació HITL | Chromium Headless, Signaturit API | **100% Completada** |
 | **Iteració 6** | 6.1 Model Traspassos <br> 6.2 Symfony Workflow <br> 6.3 UI Traspàs Notarial <br> 6.4 Validació HITL | Symfony Workflow, Mailer | **100% Completada** |
-| **Iteració 7** | 7.1 Backoffice Admin <br> 7.2 Editor de Plans <br> 7.3 Passarel·la Stripe <br> 7.4 Validació HITL MVP <br> 7.5 Validació Backend | Symfony Admin, Stripe API, Messenger | En curs (7.1 feta, 7.2 pendent de revisió final) |
+| **Iteració 7** | 7.1 Backoffice Admin <br> 7.2 Editor de Plans <br> 7.3 Passarel·la Stripe <br> 7.4 Validació HITL MVP <br> 7.5 Validació Backend | Symfony Admin, Stripe API, Messenger | En curs (7.1 i 7.2 100% completades; 7.3 següent) |
 | **Iteració 8** | 8.1 Condicions Legals <br> 8.2 Privadesa RGPD <br> 8.3 Guia d'Ús i Manual <br> 8.4 Validació HITL | Twig, Guia d'Estils, Marc Normatiu | Pendent |
+| **Iteració 9** | 9.1 Enrutament Locale & SEO <br> 9.2 Catàlegs YAML <br> 9.3 Validació HITL | Symfony Translation, Twig, SEO | Pendent (Planificada) |

@@ -84,7 +84,7 @@
           <div>
             <div class="flex items-center justify-between text-xs text-ink/70 mb-1">
               <span class="font-semibold">Béns Actius</span>
-              <span class="font-mono text-xs">{{ activeItemsCount }} / {{ maxActive }}</span>
+              <span class="font-mono text-xs">{{ activeItemsCount }} / {{ maxActive >= 9999 or maxActive == -1 ? '∞' : maxActive }}</span>
             </div>
             <div class="text-xl font-bold font-mono text-ink mt-1">
               {{ activeItemsCount }} <span class="text-xs font-normal text-ink/60">béns registrats</span>
@@ -94,7 +94,7 @@
             <div class="w-full bg-steel/20 rounded-full h-2 overflow-hidden">
               <div class="bg-ink h-2 rounded-full transition-all duration-500" style="width: {{ itemsPct }}%;"></div>
             </div>
-            <span class="text-[10px] text-ink/50 mt-1 block text-right font-mono">{{ itemsPct }}% ocupat</span>
+            <span class="text-[10px] text-ink/50 mt-1 block text-right font-mono">{{ maxActive >= 9999 or maxActive == -1 ? 'Sense límit' : itemsPct ~ '% ocupat' }}</span>
           </div>
         </div>
 
@@ -103,17 +103,17 @@
           <div>
             <div class="flex items-center justify-between text-xs text-ink/70 mb-1">
               <span class="font-semibold">Consultes d'IA</span>
-              <span class="font-mono text-xs">{{ aiUsed }} / {{ maxAi }}</span>
+              <span class="font-mono text-xs">{{ aiUsed }} / {{ maxAi >= 9999 or maxAi == -1 ? '∞' : maxAi }}</span>
             </div>
             <div class="text-xl font-bold font-mono text-ink mt-1">
-              {{ aiUsed }} <span class="text-xs font-normal text-ink/60">de {{ maxAi }} anuals</span>
+              {{ aiUsed }} <span class="text-xs font-normal text-ink/60">de {{ maxAi >= 9999 or maxAi == -1 ? 'il·limitades' : maxAi ~ ' anuals' }}</span>
             </div>
           </div>
           <div class="mt-3">
             <div class="w-full bg-steel/20 rounded-full h-2 overflow-hidden">
               <div class="bg-gold h-2 rounded-full transition-all duration-500" style="width: {{ aiPct }}%;"></div>
             </div>
-            <span class="text-[10px] text-ink/50 mt-1 block text-right font-mono">{{ aiPct }}% consumit</span>
+            <span class="text-[10px] text-ink/50 mt-1 block text-right font-mono">{{ maxAi >= 9999 or maxAi == -1 ? 'Ús lliure' : aiPct ~ '% consumit' }}</span>
           </div>
         </div>
 
@@ -124,11 +124,11 @@
             <div class="text-sm font-bold text-ink mt-1 space-y-1">
               <div class="flex items-center justify-between">
                 <span class="text-xs text-ink/75">Fotografies:</span>
-                <span class="font-mono font-bold">{{ currentPlan.maxPhotosPerItem }} per bé</span>
+                <span class="font-mono font-bold">{{ currentPlan.maxPhotosPerItem >= 9999 or currentPlan.maxPhotosPerItem == -1 ? 'Il·limitades' : currentPlan.maxPhotosPerItem ~ ' per bé' }}</span>
               </div>
               <div class="flex items-center justify-between">
                 <span class="text-xs text-ink/75">Comprovants/Tiquets:</span>
-                <span class="font-mono font-bold">{{ currentPlan.maxDocumentsPerItem }} per bé</span>
+                <span class="font-mono font-bold">{{ currentPlan.maxEvidencesPerItem >= 9999 or currentPlan.maxEvidencesPerItem == -1 ? 'Il·limitats' : currentPlan.maxEvidencesPerItem ~ ' per bé' }}</span>
               </div>
             </div>
           </div>

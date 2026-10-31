@@ -79,6 +79,20 @@ class PlanType extends AbstractType
                     'class' => 'w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3.5 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white font-mono',
                 ],
             ])
+            ->add('transfersIncluded', IntegerType::class, [
+                'label' => 'Traspassos C2C Inclosos al Període',
+                'attr' => [
+                    'class' => 'w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3.5 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white font-mono',
+                ],
+                'help' => 'Free: 0, Plus: 5, Unlimited: 9999 o -1.',
+            ])
+            ->add('extraTransferPriceCents', IntegerType::class, [
+                'label' => 'Preu Traspàs Extra en Cèntims d\'Euro (ex: 290 = 2,90 €)',
+                'attr' => [
+                    'class' => 'w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3.5 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white font-mono',
+                ],
+                'help' => '0 per a traspassos gratuïts.',
+            ])
             ->add('allowOfficialCertificates', CheckboxType::class, [
                 'label' => 'Permetre Emissió de Certificats Oficials eIDAS / Blockchain',
                 'required' => false,

@@ -69,35 +69,42 @@
             <div class="flex items-center justify-between pb-2 border-b border-steel/10">
               <span class="text-ink/65">Béns actius màxims:</span>
               <span class="font-bold font-mono text-ink text-sm">
-                {{ plan.maxActiveItems == -1 ? 'Il·limitats (∞)' : plan.maxActiveItems }}
+                {{ plan.maxActiveItems == -1 or plan.maxActiveItems >= 9999 ? 'Il·limitats (∞)' : plan.maxActiveItems }}
               </span>
             </div>
 
             <div class="flex items-center justify-between pb-2 border-b border-steel/10">
               <span class="text-ink/65">Fotos per bé:</span>
               <span class="font-bold font-mono text-ink">
-                {{ plan.maxPhotosPerItem == -1 ? 'Il·limitades' : plan.maxPhotosPerItem }}
+                {{ plan.maxPhotosPerItem == -1 or plan.maxPhotosPerItem >= 9999 ? 'Il·limitades' : plan.maxPhotosPerItem }}
               </span>
             </div>
 
             <div class="flex items-center justify-between pb-2 border-b border-steel/10">
               <span class="text-ink/65">Proves / Factures per bé:</span>
               <span class="font-bold font-mono text-ink">
-                {{ plan.maxEvidencesPerItem == -1 ? 'Il·limitades' : plan.maxEvidencesPerItem }}
+                {{ plan.maxEvidencesPerItem == -1 or plan.maxEvidencesPerItem >= 9999 ? 'Il·limitades' : plan.maxEvidencesPerItem }}
               </span>
             </div>
 
             <div class="flex items-center justify-between pb-2 border-b border-steel/10">
               <span class="text-ink/65">Quota d'Assistència IA:</span>
               <span class="font-bold font-mono text-ink">
-                {{ plan.aiAssistanceQuota == -1 ? 'Il·limitada' : plan.aiAssistanceQuota ~ ' consultes' }}
+                {{ plan.aiAssistanceQuota == -1 or plan.aiAssistanceQuota >= 9999 ? 'Il·limitada' : plan.aiAssistanceQuota ~ ' consultes' }}
               </span>
             </div>
 
             <div class="flex items-center justify-between pb-2 border-b border-steel/10">
               <span class="text-ink/65">Certificats oficials eIDAS:</span>
               <span class="font-bold {{ plan.allowOfficialCertificates ? 'text-emerald-700' : 'text-steel' }}">
-                {{ plan.allowOfficialCertificates ? 'Permesos (' ~ plan.monthlyCertificatesQuota ~ '/mes)' : 'No inclosos (Draft)' }}
+                {{ plan.allowOfficialCertificates ? 'Permesos (' ~ (plan.monthlyCertificatesQuota >= 9999 or plan.monthlyCertificatesQuota == -1 ? '∞' : plan.monthlyCertificatesQuota) ~ '/mes)' : 'No inclosos (Draft)' }}
+              </span>
+            </div>
+
+            <div class="flex items-center justify-between pb-2 border-b border-steel/10">
+              <span class="text-ink/65">Traspassos C2C:</span>
+              <span class="font-bold font-mono text-ink">
+                {{ plan.transfersIncluded == -1 or plan.transfersIncluded >= 9999 ? 'Il·limitats' : (plan.transfersIncluded > 0 ? plan.transfersIncluded ~ ' inclosos' : (plan.extraTransferPriceCents / 100)|number_format(2, ',', '.') ~ ' €/u.') }}
               </span>
             </div>
 
