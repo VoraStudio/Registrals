@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}El meu Pla i Quotes — Registrals{% endblock %}
-{% block meta_description %}Estat de la subscripció, consum en calent de quotes i comparativa de plans a Registrals.{% endblock %}
+{% block title %}El meu Pla i Facturació — Registrals{% endblock %}
+{% block meta_description %}Estat de la subscripció, consum en calent de quotes, gestió de facturació i comparativa de plans a Registrals.{% endblock %}
 
 {% block body_class %}bg-cream text-ink min-h-screen flex flex-col justify-between selection:bg-gold selection:text-ink font-raleway{% endblock %}
 
@@ -19,19 +19,17 @@
         <div class="flex items-center gap-2 text-xs font-mono text-steel uppercase tracking-wider mb-1">
           <a href="{{ path('app_dashboard') }}" class="hover:text-gold transition-colors">Patrimoni</a>
           <span>/</span>
-          <span class="text-ink font-bold">Pla & Quotes</span>
+          <span class="text-ink font-bold">Pla & Facturació</span>
         </div>
-        <h1 class="text-2xl sm:text-3xl font-marcellus text-ink tracking-wide">El meu Pla i Quotes</h1>
-        <p class="text-xs sm:text-sm text-ink/75 mt-0.5">Seguiment del consum en calent de les teves quotes i gestió de la subscripció notarial.</p>
+        <h1 class="text-2xl sm:text-3xl font-marcellus text-ink tracking-wide">El meu Pla i Facturació</h1>
+        <p class="text-xs sm:text-sm text-ink/75 mt-0.5">Seguiment del consum en calent de quotes, gestió de la subscripció i historial de facturació notarial.</p>
       </div>
 
       <div class="flex items-center gap-2">
-        {% if user.stripeCustomerId %}
-          <a href="{{ path('app_payment_portal') }}" class="px-4 py-2 rounded-xl text-xs font-semibold bg-ink text-gold border border-gold/40 hover:bg-ink/90 shadow-2xs transition-all flex items-center gap-1.5">
-            <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-            <span>Facturació & Targeta</span>
-          </a>
-        {% endif %}
+        <a href="{{ path('app_plan_billing') }}" class="px-4 py-2 rounded-xl text-xs font-semibold bg-ink text-gold border border-gold/40 hover:bg-ink/90 shadow-2xs transition-all flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+          <span>Facturació & Targeta</span>
+        </a>
         <a href="{{ path('app_profile') }}" class="px-4 py-2 rounded-xl text-xs font-semibold bg-white border border-steel/30 text-ink hover:border-gold hover:text-gold shadow-2xs transition-all flex items-center gap-1.5">
           <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
           <span>El meu Perfil</span>
@@ -53,18 +51,29 @@
             {% endif %}
           </div>
           <div>
-            <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2">
               <h2 class="font-marcellus text-xl sm:text-2xl text-ink">{{ currentPlan.name }}</h2>
               <span class="px-2 py-0.5 rounded-md font-mono text-[10px] font-bold uppercase tracking-wider {{ currentPlan.code == 'plus' ? 'bg-ink text-gold border border-gold/40' : (currentPlan.code == 'unlimited' ? 'bg-gold text-ink' : 'bg-cream text-steel border border-steel/20') }}">
                 {{ currentPlan.code|upper }}
               </span>
+              {% if currentPlan.code != 'free' %}
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 text-[10px] font-mono font-bold border border-emerald-200">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Renovació Automàtica Activa
+                </span>
+              {% endif %}
             </div>
-            <p class="text-xs text-ink/65 mt-0.5">
-              Actiu des del {{ user.planStartedAt|date('d/m/Y') }} 
+            <p class="text-xs text-ink/65 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+              <span>Actiu des del <strong>{{ user.planStartedAt ? user.planStartedAt|date('d/m/Y') : user.createdAt|date('d/m/Y') }}</strong></span>
               {% if user.planExpiresAt %}
-                · Renovació el {{ user.planExpiresAt|date('d/m/Y') }}
+                <span>·</span>
+                <span>Pròxim cobrament anual: <strong>{{ user.planExpiresAt|date('d/m/Y') }}</strong></span>
               {% else %}
-                · Modalitat permanent
+                <span>·</span>
+                <span>Modalitat permanent (sense quotes)</span>
+              {% endif %}
+              {% if user.taxId %}
+                <span>·</span>
+                <span>Facturat a NIF: <strong>{{ user.taxId }}</strong></span>
               {% endif %}
             </p>
           </div>

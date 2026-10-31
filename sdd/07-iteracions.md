@@ -263,7 +263,10 @@ Cada subiteració segueix un flux d'enginyeria estricte:
     - [`StripeWebhookController`](file:///d:/webs/Registrals/Registrals/src/Controller/Webhook/StripeWebhookController.php): endpoint públic `POST /webhook/stripe` amb verificació de capçalera `Stripe-Signature`.
     - Plantilla [`templates/payment/success.html.twig`](file:///d:/webs/Registrals/Registrals/templates/payment/success.html.twig) amb disseny notarial corporatiu i polling d'estat.
     - Integració dels formularis de pagament a la graella de plans ([`templates/plan/index.html.twig`](file:///d:/webs/Registrals/Registrals/templates/plan/index.html.twig)) i a la fitxa del bé per a certificats oficials solts ([`templates/item/show.html.twig`](file:///d:/webs/Registrals/Registrals/templates/item/show.html.twig)).
-  - [x] Bateria de tests unitaris a [`PaymentControllerTest`](file:///d:/webs/Registrals/Registrals/tests/Controller/PaymentControllerTest.php) i [`StripeWebhookControllerTest`](file:///d:/webs/Registrals/Registrals/tests/Controller/StripeWebhookControllerTest.php) (53 tests, 326 assertions OK).
+  - [x] Bateria de tests unitaris a [`PaymentControllerTest`](file:///d:/webs/Registrals/Registrals/tests/Controller/PaymentControllerTest.php), [`StripeWebhookControllerTest`](file:///d:/webs/Registrals/Registrals/tests/Controller/StripeWebhookControllerTest.php) i [`ProfileControllerTest`](file:///d:/webs/Registrals/Registrals/tests/Controller/ProfileControllerTest.php) (57 tests, 369 assertions OK).
+  - [ ] **Tasca de Negoci & Domini (Pendent Validació Albert): Gestió de Cancel·lacions i Downgrades (Plus/Unlimited -> Free):**
+    - Quan s'executa un downgrade per cancel·lació (`customer.subscription.deleted`) i l'usuari té més béns que el límit Free (20):
+    - *Proposta de Custòdia en Fred:* Mai eliminar cap registre ni prova. Mantenir els 20 primers actius i passar la resta a estat de «Custòdia en Fred» (*Frozen / Read-Only*): es poden consultar i descarregar certificats, però queden blocats per a edició o nous certificats fins a reactivar la subscripció.
 - [ ] **Subiteració 7.4: Verificació & Validació HITL Final de l'MVP**
   - [ ] Test complet E2E des del registre, pagament, alta de bé amb IA, certificat oficial fins al traspàs.
 - [ ] **Subiteració 7.5: Validació Final Integral de tot el Backend & Arquitectura**

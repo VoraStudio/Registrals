@@ -382,6 +382,21 @@ Quan un cobrament de renovació anual falla (per exemple, per targeta caducada o
 3. Es manté l'estat de l'usuari en `PAST_DUE` durant un període de gràcia de **7 dies**. L'aplicació mostra una barra d'avís solemne: *"No hem pogut renovar la teva subscripció. Si us plau, actualitza el teu mètode de pagament abans de 7 dies per mantenir els teus límits actius"*.
 4. Si després dels reintents la factura queda com a impagada, Stripe emet `customer.subscription.deleted`, i l'aplicació degrada automàticament l'usuari al Pla Free.
 
+### Gestió de Cancel·lacions de Subscripció (`customer.subscription.deleted`)
+1. **Cancel·lació al final del període (`cancel_at_period_end = true`):** Quan l'usuari cancel·la des del Customer Portal de Stripe, la subscripció no es talla a l'acte sinó que continua activa amb tots els drets fins a la data límit del període anual pagat.
+2. **Efectivitat del Downgrade a Pla Free:** En arribar la data de finalització, Stripe emet l'esdeveniment `customer.subscription.deleted`. L'aplicació degrada l'usuari al Pla Free (màxim 20 béns).
+
+### Política de Downgrades i Béns en Custòdia en Fred / Arxivats (Proposta a validar amb l'Albert)
+> [!IMPORTANT]
+> **Principi Notarial d'Integritat:** Mai s'elimina cap bé ni cap prova documental d'un titular quan aquest redueix el seu pla (d'Unlimited a Plus, o de Plus/Unlimited a Free). Esborrar proves violaria la continuïtat de la custòdia i la validesa dels certificats emesos.
+>
+> **Mecanisme de «Custòdia en Fred» (Béns Congelats / Read-Only):**
+> 1. **Béns Actius dins de Quota:** Els primers 20 béns (segons criteri d'antiguitat o triats pel titular) mantenen totes les funcionalitats operatives del Pla Free.
+> 2. **Béns Excedents Congelats (`is_frozen = true` / `ARCHIVED`):**
+>    - **Integritat i descàrrega intactes:** L'usuari continua veient el bé al seu inventari, pot consultar les seves fotografies/factures custodiades a Flysystem i descarregar o verificar els certificats PDF emesos anteriorment.
+>    - **Operacions bloquejades:** No es poden editar camps essencials, no es poden afegir noves fotografies ni factures, no es poden emetre nous certificats ni traspassar la titularitat fins que no torni a estar actiu.
+>    - **Reactivació transparent:** Si el titular torna a contractar el Pla Plus o Unlimited, tots els béns en custòdia en fred es descongelen immediatament recuperant la plena capacitat operativa.
+
 ### Gestió de Devolucions (*Refunds*)
 1. Si un administrador autoritza una devolució (des del panell `/admin/payments`), es crida l'API:
    ```php

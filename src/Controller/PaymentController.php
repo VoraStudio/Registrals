@@ -224,18 +224,21 @@ class PaymentController extends AbstractController
     }
 
     #[Route('/app/payment/portal', name: 'app_payment_portal', methods: ['GET'])]
-    public function customerPortal(): Response
+    public function customerPortal(?Request $request = null): Response
     {
         /** @var User $user */
         $user = $this->getUser();
-        $returnUrl = $this->generateUrl('app_plan', [], UrlGeneratorInterface::ABSOLUTE_URL);
+        $returnParam = (string) ($request?->query->get('return') ?? 'app_plan_billing');
+        $validRoutes = ['app_plan_billing', 'app_plan', 'app_profile'];
+        $targetRoute = in_array($returnParam, $validRoutes, true) ? $returnParam : 'app_plan_billing';
+        $returnUrl = $this->generateUrl($targetRoute, [], UrlGeneratorInterface::ABSOLUTE_URL);
 
         try {
             $portalUrl = $this->paymentGateway->createCustomerPortalSession($user, $returnUrl);
             return $this->redirect($portalUrl);
         } catch (\Throwable $e) {
             $this->addFlash('error', 'No s\'ha pogut accedir al portal de client: ' . $e->getMessage());
-            return $this->redirectToRoute('app_plan');
+            return $this->redirectToRoute($targetRoute);
         }
     }
 

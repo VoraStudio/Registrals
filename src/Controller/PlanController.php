@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Entity\Item;
 use App\Entity\User;
+use App\Repository\PaymentTransactionRepository;
 use App\Repository\PlanRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,7 +21,10 @@ class PlanController extends AbstractController
     {
         /** @var User $user */
         $user = $this->getUser();
-        $currentPlan = $user->getPlan();
+        $currentPlan = $user->getPlan() ?? $planRepository->findByCode('free');
+        if ($currentPlan === null) {
+            throw $this->createNotFoundException('Pla de sistema no trobat.');
+        }
 
         // Càlcul de consums actius
         $activeItemsCount = $user->getItems()->filter(function (Item $item): bool {
@@ -53,6 +57,27 @@ class PlanController extends AbstractController
             'maxAi' => $maxAi,
             'aiPct' => $aiPct,
             'allPlans' => $allPlans,
+        ]);
+    }
+
+    #[Route('/app/plan/billing', name: 'app_plan_billing', methods: ['GET'])]
+    public function billing(
+        PlanRepository $planRepository,
+        PaymentTransactionRepository $transactionRepository
+    ): Response {
+        /** @var User $user */
+        $user = $this->getUser();
+        $currentPlan = $user->getPlan() ?? $planRepository->findByCode('free');
+        if ($currentPlan === null) {
+            throw $this->createNotFoundException('Pla de sistema no trobat.');
+        }
+
+        $transactions = $transactionRepository->findByUser($user, 25);
+
+        return $this->render('plan/billing.html.twig', [
+            'user' => $user,
+            'currentPlan' => $currentPlan,
+            'transactions' => $transactions,
         ]);
     }
 }
