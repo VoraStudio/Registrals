@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Benvingut a Registrals — El teu espai segur de custòdia{% endblock %}
-{% block meta_description %}Comença a protegir el teu patrimoni moble amb certificació digital de propietat i tecnologia notarial avançada.{% endblock %}
+{% block meta_description %}Comença a protegir el teu patrimoni moble amb certificació digital de propietat i tecnologia de certificació avançada.{% endblock %}
 
 {% block body_class %}bg-cream text-ink min-h-screen flex flex-col justify-between selection:bg-gold selection:text-ink font-raleway{% endblock %}
 
@@ -25,7 +25,7 @@
   {# Contingut Central Onboarding #}
   <main class="w-full max-w-4xl mx-auto my-auto py-8 px-4 sm:px-6 lg:px-8 space-y-8">
     
-    {# Banner de Benvinguda Notarial #}
+    {# Banner de Benvinguda Institucional #}
     <div class="text-center space-y-3">
       <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-ink text-gold border border-gold/40 shadow-md mb-1">
         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
@@ -52,7 +52,7 @@
         <div>
           <span class="text-xs font-bold font-mono text-gold bg-gold/10 px-2 py-0.5 rounded">PAS 2</span>
           <h2 class="font-marcellus text-base text-ink mt-2 font-normal">CUI Únic i Segellat</h2>
-          <p class="text-xs text-ink/70 mt-1 leading-relaxed">L'assistent d'IA extreu les dades i s'emet el teu codi d'identificació notarial únic CUI.</p>
+          <p class="text-xs text-ink/70 mt-1 leading-relaxed">L'assistent d'IA extreu les dades i s'emet el teu codi únic d'identificació CUI.</p>
         </div>
       </div>
 
@@ -103,33 +103,37 @@
           </div>
         </div>
 
-        {# Card Plus (Pròximament) #}
-        <div class="border border-steel/20 rounded-2xl p-5 bg-white/60 relative flex flex-col justify-between opacity-80 hover:opacity-100 transition-opacity">
+        {# Card Plus (Actiu) #}
+        <div class="border border-gold/40 rounded-2xl p-5 bg-white relative flex flex-col justify-between shadow-xs hover:border-gold transition-all">
           <div>
             <h3 class="font-marcellus text-xl text-ink">Plus</h3>
             <p class="text-xs text-ink/70 mt-0.5">Col·leccionistes i usuaris actius</p>
             <div class="mt-3 text-2xl font-bold text-ink">22 € <span class="text-xs font-normal text-ink/60">/ any</span></div>
             <ul class="mt-4 space-y-2 text-xs text-ink/70">
               <li class="flex items-center gap-2">
-                <svg class="text-steel shrink-0" style="width: 14px; height: 14px; min-width: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                <svg class="text-gold shrink-0" style="width: 14px; height: 14px; min-width: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                 <span>Fins a <strong>100 béns</strong></span>
               </li>
               <li class="flex items-center gap-2">
-                <svg class="text-steel shrink-0" style="width: 14px; height: 14px; min-width: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                <svg class="text-gold shrink-0" style="width: 14px; height: 14px; min-width: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                 <span>Certificats oficials eIDAS</span>
               </li>
               <li class="flex items-center gap-2">
-                <svg class="text-steel shrink-0" style="width: 14px; height: 14px; min-width: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                <svg class="text-gold shrink-0" style="width: 14px; height: 14px; min-width: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                <span>Identificació de titular (Namirial)</span>
+              </li>
+              <li class="flex items-center gap-2">
+                <svg class="text-gold shrink-0" style="width: 14px; height: 14px; min-width: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                 <span>Traspassos de propietat C2C</span>
               </li>
             </ul>
           </div>
-          <button type="button" onclick="if (window.RegistralsToast) { window.RegistralsToast.show('Pla Plus', 'La contractació d\'aquest pla estarà disponible properament. Gaudeix ara del teu Pla Free!', 'info', 4500); }" class="mt-5 w-full py-2 px-3 bg-cream/60 hover:bg-cream text-ink text-xs font-semibold rounded-xl border border-steel/30 transition-all cursor-pointer">
-            Pròximament
-          </button>
+          <a href="{{ path('app_plan') }}" class="mt-5 w-full py-2 px-3 bg-ink hover:bg-ink/90 text-gold text-xs font-bold rounded-xl border border-gold/40 transition-all text-center block shadow-2xs">
+            Contractar Pla Plus
+          </a>
         </div>
 
-        {# Card Unlimited (Pròximament) #}
+        {# Card Unlimited (Properament) #}
         <div class="border border-steel/20 rounded-2xl p-5 bg-white/60 relative flex flex-col justify-between opacity-80 hover:opacity-100 transition-opacity">
           <div>
             <h3 class="font-marcellus text-xl text-ink">Unlimited</h3>
@@ -151,7 +155,7 @@
             </ul>
           </div>
           <button type="button" onclick="if (window.RegistralsToast) { window.RegistralsToast.show('Pla Unlimited', 'La contractació d\'aquest pla estarà disponible properament. Gaudeix ara del teu Pla Free!', 'info', 4500); }" class="mt-5 w-full py-2 px-3 bg-cream/60 hover:bg-cream text-ink text-xs font-semibold rounded-xl border border-steel/30 transition-all cursor-pointer">
-            Pròximament
+            Properament
           </button>
         </div>
 

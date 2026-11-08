@@ -321,4 +321,10 @@ class ItemTransfer
         }
         $this->cancelledAt = new DateTimeImmutable();
     }
+
+    public function expire(): void
+    {
+        $this->status = TransferStatus::EXPIRED;
+        $this->completedAt = new DateTimeImmutable();
+    }
 }

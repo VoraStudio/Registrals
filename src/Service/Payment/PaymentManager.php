@@ -21,7 +21,9 @@ use App\Repository\ItemTransferRepository;
 use App\Repository\PaymentTransactionRepository;
 use App\Repository\PlanRepository;
 use App\Repository\UserRepository;
+use App\Infrastructure\Adapter\Payment\PaymentGatewayInterface;
 use App\Service\Certificate\CertificateIssuerService;
+use App\Service\Plan\PlanDowngradeService;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -37,7 +39,8 @@ class PaymentManager
         private readonly CertificateRepository $certificateRepository,
         private readonly EntityManagerInterface $entityManager,
         private readonly LoggerInterface $logger,
-        private readonly ?UserActivityLogger $activityLogger = null
+        private readonly ?UserActivityLogger $activityLogger = null,
+        private readonly ?PlanDowngradeService $planDowngradeService = null
     ) {
     }
 
@@ -60,6 +63,40 @@ class PaymentManager
         $this->entityManager->flush();
 
         return $transaction;
+    }
+
+    /**
+     * Cancel·la la subscripció d'un usuari: notifica la passarel·la i rebaixa el compte a Pla Free.
+     */
+    public function cancelUserSubscription(User $user, ?PaymentGatewayInterface $gateway = null): bool
+    {
+        if ($gateway !== null) {
+            $gateway->cancelSubscription($user);
+        }
+
+        if ($this->planDowngradeService !== null) {
+            $this->planDowngradeService->downgradeUserToFree($user);
+        } else {
+            $freePlan = $this->planRepository->findByCode('free');
+            if ($freePlan !== null) {
+                $user->setPlan($freePlan);
+            }
+            $user->setSubscriptionStatus('canceled');
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
+        }
+
+        $this->activityLogger?->log(
+            $user,
+            UserActivityAction::SUBSCRIPTION_CANCELLED,
+            'Subscripció cancel·lada per petició directa de l\'usuari. Retorn al Pla Free.',
+            [
+                'subscription_id' => (string) ($user->getStripeSubscriptionId() ?? ''),
+                'customer_id' => (string) ($user->getStripeCustomerId() ?? ''),
+            ]
+        );
+
+        return true;
     }
 
     /**
@@ -148,6 +185,7 @@ class PaymentManager
                     $user->setStripeSubscriptionId($session['subscription']);
                 }
                 $this->entityManager->persist($user);
+                $this->planDowngradeService?->unfreezeUserItems($user);
 
                 $this->activityLogger?->log(
                     $user,
@@ -308,13 +346,17 @@ class PaymentManager
 
         $user = $this->userRepository->findOneBy(['stripeCustomerId' => $customerId]);
         if ($user !== null) {
-            $freePlan = $this->planRepository->findByCode('free');
-            if ($freePlan !== null) {
-                $user->setPlan($freePlan);
+            if ($this->planDowngradeService !== null) {
+                $this->planDowngradeService->downgradeUserToFree($user);
+            } else {
+                $freePlan = $this->planRepository->findByCode('free');
+                if ($freePlan !== null) {
+                    $user->setPlan($freePlan);
+                }
+                $user->setSubscriptionStatus('canceled');
+                $this->entityManager->persist($user);
+                $this->entityManager->flush();
             }
-            $user->setSubscriptionStatus('canceled');
-            $this->entityManager->persist($user);
-            $this->entityManager->flush();
 
             $this->activityLogger?->log(
                 $user,

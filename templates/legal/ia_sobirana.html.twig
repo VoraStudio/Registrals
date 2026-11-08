@@ -4,9 +4,9 @@
 {% block meta_description %}Compromís sobirà de privadesa per disseny, aïllament d'inferència local SGLang, marc Human-in-the-Loop (Art. 22 RGPD) i compliment de l'AI Act a Registrals.{% endblock %}
 {% block canonical_url %}https://www.registrals.com/legal/ia-sobirana{% endblock %}
 {% block og_title %}Transparència d'IA Sobirana Local & Marc Legal — Registrals{% endblock %}
-{% block og_description %}Protocol notarial de lectura assistida per IA sobirana i governança d'integritat documental.{% endblock %}
+{% block og_description %}Protocol de certificació i lectura assistida per IA sobirana i governança d'integritat documental.{% endblock %}
 
-{% block body_class %}bg-cream font-raleway text-ink antialiased selection:bg-gold/30 selection:text-ink min-h-screen flex flex-col justify-between{% endblock %}
+{% block body_class %}{{ app.user ? 'bg-cream-50' : 'bg-cream' }} font-raleway text-ink antialiased selection:bg-gold/30 selection:text-ink min-h-screen flex flex-col justify-between{% endblock %}
 
 {% block body %}
     <a
@@ -19,70 +19,31 @@
       {# Capçalera Privada Unificada #}
       {% include 'partials/_private_header.html.twig' %}
     {% else %}
-      {# Capçalera Corporativa Solemne Pública #}
-      <header class="bg-ink px-4 py-6 border-b border-gold/30 sticky top-0 z-50 shadow-md">
-        <div class="mx-auto flex max-w-7xl items-center justify-between gap-4">
-          <div class="flex items-center gap-3">
-            <a href="{{ path('app_home') }}" class="font-marcellus text-2xl tracking-wider text-cream hover:text-gold transition-colors">REGISTRALS</a>
-            <span class="hidden sm:inline-block text-[11px] font-mono uppercase tracking-widest text-gold/80 px-2.5 py-0.5 rounded-full border border-gold/30 bg-gold/10">IA Sobirana</span>
-          </div>
-          <div class="flex items-center gap-3">
-            <a href="{{ path('app_home') }}" class="rounded-full bg-cream px-4 py-2 text-xs font-bold font-raleway text-ink hover:bg-cream/90 transition-colors shadow-2xs">
-              Inici
-            </a>
-          </div>
-        </div>
-      </header>
+      {# Capçalera Pública Unificada #}
+      {% include 'partials/_public_subpage_header.html.twig' %}
     {% endif %}
 
-    <main id="main" class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3.5 sm:py-5 flex-1 w-full">
-      {# Capçalera Notarial Unificada de Subpàgina #}
-      <div class="mb-5 sm:mb-6 pb-3 sm:pb-4 border-b border-gold/20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          {% if app.user %}
-            <nav class="flex items-center gap-1.5 text-xs font-mono text-steel uppercase tracking-wider mb-1.5" aria-label="Fil d'Ariadna">
-              <a href="{{ path('app_dashboard') }}" class="hover:text-gold transition-colors">Patrimoni</a>
-              <span class="text-steel/50">/</span>
-              <span class="text-ink font-bold">IA Sobirana</span>
-            </nav>
-          {% endif %}
-          <div class="flex items-center gap-3">
-            {% if app.user %}
-              <a href="{{ path('app_dashboard') }}" class="w-8 h-8 rounded-lg bg-white border border-steel/25 text-steel hover:text-ink hover:border-gold flex items-center justify-center transition-all shadow-2xs shrink-0 cursor-pointer" aria-label="Tornar al Patrimoni" title="Tornar al Patrimoni">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-              </a>
-            {% endif %}
-            <div>
-              <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-gold/15 border border-gold/40 text-ink text-[11px] font-semibold mb-1">
-                <span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
-                <span>Node Privat Local (SGLang + Qwen VL)</span>
-              </div>
-              <h1 class="text-xl sm:text-2xl font-marcellus text-ink tracking-wide leading-tight">
-                Transparència d'IA Sobirana Local & Marc Legal
-              </h1>
-              <p class="text-xs text-ink/70 mt-0.5 font-raleway">
-                Marc de governança tecnològica, protecció fonamental de la privadesa (RGPD) i compliment de l'AI Act europeu.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {% if app.user %}
-          <div class="flex items-center gap-2 self-start sm:self-center">
-            <a href="{{ path('app_item_new') }}" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-ink text-gold border border-gold/40 hover:bg-ink/90 shadow-2xs transition-all flex items-center gap-1.5">
-              <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-              <span>Registrar Nou Bé</span>
-            </a>
-            <a href="{{ path('app_profile') }}" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white border border-steel/30 text-ink hover:border-gold hover:text-gold shadow-2xs transition-all flex items-center gap-1.5">
-              <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-              <span>El meu Perfil</span>
-            </a>
-          </div>
-        {% endif %}
-      </div>
+    <main id="main" class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-3.5 sm:py-5 flex-1 w-full {{ app.user ? 'pb-20 md:pb-8' : 'pb-12' }}">
+      {# Capçalera Notarial Canònica de Subpàgina #}
+      {% include 'partials/_subpage_header.html.twig' with {
+        breadcrumbs: app.user ? [
+          { label: 'Inici', url: path('app_dashboard') },
+          { label: 'IA Sobirana' }
+        ] : [
+          { label: 'Inici', url: path('app_home') },
+          { label: 'Legal', url: path('app_legal') },
+          { label: 'IA Sobirana' }
+        ],
+        title: 'Transparència d\'IA Sobirana Local & Marc Legal',
+        subtitle: 'Marc de governança tecnològica, protecció fonamental de la privadesa (RGPD) i compliment de l\'AI Act europeu.',
+        badge: '<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white border border-gold/40 text-ink text-[11px] font-semibold shadow-2xs"><span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>Node Privat Local</span>',
+        action_url: app.user ? path('app_item_new') : null,
+        action_label: 'Registrar Nou Bé',
+        action_icon: '<svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>'
+      } %}
 
       {# Caixa Notarial d'Assumpció de Compromís #}
-      <div class="guide-note p-4 sm:p-5 text-xs sm:text-sm leading-relaxed mb-8 shadow-xs">
+      <div class="guide-note p-4 sm:p-5 text-xs sm:text-sm leading-relaxed mb-6 shadow-2xs">
         <div class="font-bold text-ink text-sm sm:text-base flex items-center gap-2">
           <span class="text-gold text-base">🛡️</span>
           <span>Principi Fonamental: Assistència de Lectura Sobirana</span>
@@ -92,10 +53,10 @@
         </p>
       </div>
 
-      <div class="space-y-8">
+      <div class="space-y-6">
         {# Secció 1: Sobirania Tecnològica i Aïllament Local #}
-        <section class="bg-white rounded-2xl border border-gold/30 p-5 sm:p-6 shadow-xs">
-          <div class="flex items-center gap-2.5 pb-3 border-b border-gold/20">
+        <section class="bg-white rounded-2xl border border-steel/20 p-5 sm:p-6 shadow-2xs">
+          <div class="flex items-center gap-2.5 pb-3 border-b border-steel/15">
             <span class="w-7 h-7 rounded-lg bg-ink text-gold flex items-center justify-center font-bold text-sm font-mono">1</span>
             <h2 class="font-marcellus text-lg sm:text-xl text-ink">Aïllament en Node Privat i No-Transferència a Tercers</h2>
           </div>
@@ -112,8 +73,8 @@
         </section>
 
         {# Secció 2: Governança Human-in-the-Loop (Art. 22 RGPD) #}
-        <section class="bg-white rounded-2xl border border-gold/30 p-5 sm:p-6 shadow-xs">
-          <div class="flex items-center gap-2.5 pb-3 border-b border-gold/20">
+        <section class="bg-white rounded-2xl border border-steel/20 p-5 sm:p-6 shadow-2xs">
+          <div class="flex items-center gap-2.5 pb-3 border-b border-steel/15">
             <span class="w-7 h-7 rounded-lg bg-ink text-gold flex items-center justify-center font-bold text-sm font-mono">2</span>
             <h2 class="font-marcellus text-lg sm:text-xl text-ink">Governança "Human-in-the-Loop" (Art. 22 RGPD)</h2>
           </div>
@@ -121,10 +82,10 @@
             <p>
               D'acord amb l'article 22 del Reglament General de Protecció de Dades (RGPD), tot interessat té dret a no ser objecte d'una decisió basada únicament en el tractament automatitzat que produeixi efectes jurídics:
             </p>
-            <div class="p-3.5 rounded-xl bg-cream/40 border border-gold/30 text-xs text-ink/85 space-y-1.5">
+            <div class="p-3.5 rounded-xl bg-cream-50/70 border border-steel/20 text-xs text-ink/85 space-y-1.5">
               <div class="font-bold text-ink">Validació Jurídica Exclusiva del Titular:</div>
               <p>
-                Els camps inferits per l'assistent d'IA es presenten com a meres <strong>propostes d'auto-completat</strong> marcades visualment (amb un anell daurat <em>ring-gold</em>). La responsabilitat notarial i la validesa registral depenen estrictament de la confirmació, revisió i signatura expressa de l'usuari humà ("Dades validades pel titular").
+                Els camps inferits per l'assistent d'IA es presenten com a meres <strong>propostes d'auto-completat</strong> marcades visualment (amb un anell daurat <em>ring-gold</em>). La responsabilitat jurídica i la validesa registral depenen estrictament de la confirmació, revisió i signatura expressa de l'usuari humà ("Dades validades pel titular").
               </p>
             </div>
             <p>
@@ -134,8 +95,8 @@
         </section>
 
         {# Secció 3: Protecció Anti-Frau C2PA i Verificacions Deterministes #}
-        <section class="bg-white rounded-2xl border border-gold/30 p-5 sm:p-6 shadow-xs">
-          <div class="flex items-center gap-2.5 pb-3 border-b border-gold/20">
+        <section class="bg-white rounded-2xl border border-steel/20 p-5 sm:p-6 shadow-2xs">
+          <div class="flex items-center gap-2.5 pb-3 border-b border-steel/15">
             <span class="w-7 h-7 rounded-lg bg-ink text-gold flex items-center justify-center font-bold text-sm font-mono">3</span>
             <h2 class="font-marcellus text-lg sm:text-xl text-ink">Protecció Anti-Frau Documental & Filtres C2PA</h2>
           </div>
@@ -144,7 +105,7 @@
               Per preservar el valor probatori davant tribunals, companyies asseguradores i cossos policials, Registrals implementa un doble filtre d'integritat documental:
             </p>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-              <div class="p-3 rounded-xl border border-steel/20 bg-cream/20 space-y-1">
+              <div class="p-3 rounded-xl border border-steel/20 bg-cream-50/70 space-y-1">
                 <div class="font-bold text-ink text-xs flex items-center gap-1.5">
                   <span class="text-gold font-bold">✓</span>
                   <span>Filtre C2PA Anti-Sintètic</span>
@@ -153,7 +114,7 @@
                   Detecció i rebuig instantani de fitxers que contenen manifestos de generadors d'IA (DALL·E, Midjourney, Adobe Firefly, Google Media Processing o Stable Diffusion).
                 </p>
               </div>
-              <div class="p-3 rounded-xl border border-steel/20 bg-cream/20 space-y-1">
+              <div class="p-3 rounded-xl border border-steel/20 bg-cream-50/70 space-y-1">
                 <div class="font-bold text-ink text-xs flex items-center gap-1.5">
                   <span class="text-gold font-bold">✓</span>
                   <span>Validació Fiscal Determinista</span>
@@ -170,8 +131,8 @@
         </section>
 
         {# Secció 4: Traçabilitat Forense i Auditoria #}
-        <section class="bg-white rounded-2xl border border-gold/30 p-5 sm:p-6 shadow-xs">
-          <div class="flex items-center gap-2.5 pb-3 border-b border-gold/20">
+        <section class="bg-white rounded-2xl border border-steel/20 p-5 sm:p-6 shadow-2xs">
+          <div class="flex items-center gap-2.5 pb-3 border-b border-steel/15">
             <span class="w-7 h-7 rounded-lg bg-ink text-gold flex items-center justify-center font-bold text-sm font-mono">4</span>
             <h2 class="font-marcellus text-lg sm:text-xl text-ink">Traçabilitat Forense i Segellat Criptogràfic</h2>
           </div>
@@ -180,7 +141,7 @@
               Totes les consultes d'extracció registren el model utilitzat, la data/hora exacta, el grau de confiança i la resposta en brut a la base de dades per a integritat legal.
             </p>
             <p>
-              El resultat final validat pel titular s'ancora de forma immutable mitjançant el càlcul d'un hash <strong>SHA-256 mestre</strong>, combinant les dades de propietat, les fotografies custodiades a Flysystem i el segellat de temps legal eIDAS via Signaturit i Polygon Blockchain Layer 2.
+              El resultat final validat pel titular s'ancora de forma immutable mitjançant el càlcul d'un hash <strong>SHA-256 mestre</strong>, combinant les dades de propietat, les fotografies custodiades a Flysystem i el segellat de temps legal eIDAS via Signaturit (Grup Namirial) i Polygon Blockchain Layer 2.
             </p>
           </div>
         </section>
@@ -189,12 +150,19 @@
       {# Peu de Pàgina de Compromís #}
       <div class="mt-10 pt-6 border-t border-gold/30 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-ink/70">
         <div>
-          Registrals — Plataforma de Propietat i Fe Notarial Digital de Béns Mobles.
+          Registrals — Plataforma de Propietat i Certificació Digital de Béns Mobles.
         </div>
         <div class="flex items-center gap-4">
-          <a href="{{ path('app_legal') }}" class="hover:text-ink font-semibold underline decoration-gold/50">Avís Legal & Privadesa</a>
-          <a href="{{ path('app_item_new') }}" class="font-bold text-ink hover:text-gold transition-colors">Alta de Bé →</a>
+          <a href="{{ path('app_legal') }}" class="hover:text-ink font-semibold underline decoration-gold/50">Avís Legal & Privadesa</a>          
         </div>
       </div>
     </main>
+
+    {% if not app.user %}
+      {# Footer Corporatiu Públic Unificat #}
+      {{ include('page/home/_footer.html.twig') }}
+    {% else %}
+      {# Barra Inferior Dinàmica PWA per a Mòbil (< md) #}
+      {% include 'partials/_pwa_bottom_nav.html.twig' with { active_tab: 'profile' } %}
+    {% endif %}
 {% endblock %}

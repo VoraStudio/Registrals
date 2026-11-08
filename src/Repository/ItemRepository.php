@@ -33,7 +33,65 @@ class ItemRepository extends ServiceEntityRepository
             ->addSelect('d')
             ->andWhere('i.owner = :owner')
             ->andWhere('i.parent IS NULL')
+            ->andWhere('i.status != :frozenStatus')
             ->setParameter('owner', $owner)
+            ->setParameter('frozenStatus', \App\Enum\ItemStatus::FROZEN)
+            ->orderBy('i.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Retorna els béns en custòdia en fred (congelats) del propietari, paginats.
+     *
+     * @return list<Item>
+     */
+    public function findFrozenItemsByOwner(User $owner, int $page = 1, int $limit = 20): array
+    {
+        return $this->createQueryBuilder('i')
+            ->leftJoin('i.category', 'c')
+            ->addSelect('c')
+            ->andWhere('i.owner = :owner')
+            ->andWhere('i.status = :status')
+            ->setParameter('owner', $owner)
+            ->setParameter('status', \App\Enum\ItemStatus::FROZEN)
+            ->orderBy('i.createdAt', 'DESC')
+            ->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function countFrozenByOwner(User $owner): int
+    {
+        return (int) $this->createQueryBuilder('i')
+            ->select('COUNT(i.id)')
+            ->andWhere('i.owner = :owner')
+            ->andWhere('i.status = :status')
+            ->setParameter('owner', $owner)
+            ->setParameter('status', \App\Enum\ItemStatus::FROZEN)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    /**
+     * Retorna tots els béns d'un usuari aptes per a la tria d'adequació del Pla Free (actius o congelats).
+     *
+     * @return list<Item>
+     */
+    public function findAllForDowngradeSelection(User $owner): array
+    {
+        return $this->createQueryBuilder('i')
+            ->leftJoin('i.category', 'c')
+            ->addSelect('c')
+            ->leftJoin('i.certificates', 'cert')
+            ->addSelect('cert')
+            ->leftJoin('i.documents', 'doc')
+            ->addSelect('doc')
+            ->andWhere('i.owner = :owner')
+            ->andWhere('i.status IN (:statuses)')
+            ->setParameter('owner', $owner)
+            ->setParameter('statuses', [\App\Enum\ItemStatus::ACTIVE, \App\Enum\ItemStatus::FROZEN])
             ->orderBy('i.createdAt', 'DESC')
             ->getQuery()
             ->getResult();
@@ -68,6 +126,16 @@ class ItemRepository extends ServiceEntityRepository
     {
         return (int) $this->createQueryBuilder('i')
             ->select('COUNT(i.id)')
+            ->andWhere('i.status = :status')
+            ->setParameter('status', \App\Enum\ItemStatus::ACTIVE)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function sumTotalDeclaredValue(): int
+    {
+        return (int) $this->createQueryBuilder('i')
+            ->select('COALESCE(SUM(i.declaredValueCents), 0)')
             ->andWhere('i.status = :status')
             ->setParameter('status', \App\Enum\ItemStatus::ACTIVE)
             ->getQuery()

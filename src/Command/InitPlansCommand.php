@@ -78,6 +78,7 @@ class InitPlansCommand extends Command
                 'maxDocumentsPerItem' => 9999,
                 'maxPhotosPerItem' => 9999,
                 'maxEvidencesPerItem' => 9999,
+                'isActive' => false,
             ],
         ];
 
@@ -104,7 +105,7 @@ class InitPlansCommand extends Command
                 ->setMaxDocumentsPerItem($data['maxDocumentsPerItem'])
                 ->setMaxPhotosPerItem($data['maxPhotosPerItem'])
                 ->setMaxEvidencesPerItem($data['maxEvidencesPerItem'])
-                ->setIsActive(true);
+                ->setIsActive($data['isActive'] ?? true);
         }
 
         $this->entityManager->flush();

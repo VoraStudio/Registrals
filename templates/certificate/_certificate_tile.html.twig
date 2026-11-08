@@ -12,14 +12,14 @@
 {% set status = cert.status.value %}
 {% set itemName = cert.item.name|length > 18 ? cert.item.name|slice(0, 17) ~ '…' : cert.item.name %}
 
-<div class="cert-tile relative group flex flex-col items-center w-[210px] focus:outline-none" tabindex="0" title="{{ cert.certificateNumber }} · {{ cert.item.name }}">
+<div class="cert-tile relative group flex flex-col items-center w-full max-w-[115px] sm:max-w-none sm:w-[170px] lg:w-[190px] focus:outline-none" tabindex="0" title="{{ cert.certificateNumber }} · {{ cert.item.name }}">
 
   {# Document clickable: obre directament el PDF al visor natiu #}
   <a href="{{ path('app_certificate_direct_download', { uuid: cert.uuid }) }}" target="_blank" rel="noopener noreferrer"
      class="cert-tile__paper block transition-transform duration-300 ease-out group-hover:scale-[1.03] group-hover:-translate-y-1 cursor-pointer"
      title="Obrir certificat PDF {{ cert.certificateNumber }}">
 
-    <svg viewBox="0 0 200 208" width="210" height="218" class="block" role="img"
+    <svg viewBox="0 0 200 208" class="w-full h-auto max-w-[115px] sm:max-w-none sm:w-[170px] sm:h-[177px] lg:w-[190px] lg:h-[198px] block" role="img"
          aria-label="Certificat {{ cert.certificateNumber }} — {{ cert.item.name }}">
       <defs>
         <linearGradient id="{{ uid }}-paper" x1="0" y1="0" x2="0" y2="1">
@@ -161,7 +161,7 @@
 
   {# Actions: només visibles en passar el cursor (hover) o fer focus sobre aquest certificat #}
   <div class="cert-tile__actions -mt-1.5 transition-all duration-200 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:opacity-100 group-focus-within:pointer-events-auto transform translate-y-1 group-hover:-translate-y-1 z-10">
-    <div class="cert-tile__buttons inline-flex items-center gap-1.5 p-1 bg-white/95 rounded-full border border-gold/40 shadow-md backdrop-blur-xs">
+    <div class="cert-tile__buttons inline-flex items-center gap-1 sm:gap-1.5 p-0.5 sm:p-1 bg-white/95 rounded-full border border-gold/40 shadow-md backdrop-blur-xs scale-90 sm:scale-100 origin-top">
       <a href="{{ path('app_certificate_direct_download', { uuid: cert.uuid }) }}" target="_blank"
          class="cert-tile__btn w-8 h-8 rounded-full flex items-center justify-center text-ink hover:text-gold hover:bg-ink transition-all duration-150 cursor-pointer"
          title="Descarregar PDF" aria-label="Descarregar PDF {{ cert.certificateNumber }}">

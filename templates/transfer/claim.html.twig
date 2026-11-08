@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Traspàs Notarial de Propietat — Registrals{% endblock %}
+{% block title %}Traspàs Certificat C2C de Propietat — Registrals{% endblock %}
 {% block meta_description %}Recepció i acceptació de traspàs de titularitat del bé {{ item.name }} ({{ item.cui }}).{% endblock %}
 
 {% block body_class %}bg-cream text-ink min-h-screen flex flex-col justify-between selection:bg-gold selection:text-ink font-raleway{% endblock %}
@@ -40,7 +40,7 @@
           document.addEventListener('DOMContentLoaded', function() {
             if (window.RegistralsToast) {
               window.RegistralsToast.show(
-                '{{ label == 'error' ? 'Avís de Seguretat' : (label == 'warning' ? 'Atenció' : 'Notificació Notarial') }}',
+                '{{ label == 'error' ? 'Avís de Seguretat' : (label == 'warning' ? 'Atenció' : 'Notificació del Traspàs') }}',
                 '{{ message|e('js') }}',
                 '{{ label == 'error' ? 'error' : (label == 'warning' ? 'info' : 'info') }}',
                 5000
@@ -132,7 +132,7 @@
               <div class="space-y-1.5">
                 <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-cream text-ink text-[11px] font-bold border border-gold/40">
                   <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
-                  <span>Procediment Notarial C2C</span>
+                  <span>Traspàs Certificat C2C</span>
                 </div>
                 <h1 class="font-marcellus text-2xl sm:text-3xl text-ink font-bold">Invitació de Traspàs de Titularitat</h1>
                 <p class="text-xs text-steel leading-relaxed">
@@ -147,7 +147,7 @@
                   <strong class="font-mono text-ink text-xs">{{ transfer.recipientEmail }}</strong>
                 </div>
                 <div class="flex items-center justify-between">
-                  <span class="text-steel">Taxa notarial de segellat L2:</span>
+                  <span class="text-steel">Taxa de segellat L2:</span>
                   <span class="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">Abonada per l'emissor (0,00 €)</span>
                 </div>
                 <div class="flex items-center justify-between pt-1 border-t border-steel/15 text-[11px]">
@@ -167,7 +167,7 @@
                     {% if transfer.securityCode %}
                       <div class="p-3.5 rounded-xl border border-gold/40 bg-gold/10 space-y-1.5">
                         <label for="security_code" class="block text-xs font-bold uppercase tracking-wider text-ink">
-                          Codi PIN de Seguretat Notarial (Requerit)
+                          Codi PIN de Seguretat del Traspàs (Requerit)
                         </label>
                         <p class="text-[11px] text-steel">
                           L'emissor ha definit un codi de seguretat de 6 dígits.

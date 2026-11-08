@@ -24,6 +24,9 @@
 }
 
 @layer base {
+  html {
+    scrollbar-gutter: stable;
+  }
   :focus-visible {
     outline: 2px solid var(--color-gold);
     outline-offset: 3px;
@@ -112,7 +115,21 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 210px;
+  width: 100%;
+  max-width: 115px;
+}
+
+@media (min-width: 640px) {
+  .cert-tile {
+    width: 170px;
+    max-width: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .cert-tile {
+    width: 190px;
+  }
 }
 
 .cert-tile__paper {

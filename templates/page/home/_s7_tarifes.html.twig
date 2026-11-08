@@ -4,54 +4,85 @@
   aria-labelledby="s7-title"
   class="relative z-10 -mt-8 overflow-hidden rounded-t-[2rem] bg-cream px-4 pt-16 pb-24 md:pt-24 md:pb-32"
 >
+  {% set planFree = plans['free']|default(null) %}
+  {% set planPlus = plans['plus']|default(null) %}
+  {% set planUnlimited = plans['unlimited']|default(null) %}
+
   <div class="mx-auto max-w-6xl">
     <h2 id="s7-title" class="font-marcellus text-4xl md:text-5xl">Transparent des del primer dia</h2>
     <p data-reveal="description" class="mt-4 max-w-3xl text-xl text-ink/80">La seguretat bàsica és un dret, no un producte de pagament.</p>
     <div class="mt-12 grid grid-cols-1 items-end gap-6 md:grid-cols-3">
+      
+      {# 1. PLA FREE #}
       <article class="flex flex-col rounded-3xl border border-gold/40 bg-ink p-8 text-cream md:mt-28">
         <h3 class="font-marcellus text-4xl">Free</h3>
         <p class="mt-1 text-base text-cream/90">Per descobrir la plataforma</p>
-        <p class="mt-4 text-3xl font-bold">0€</p>
+        <p class="mt-4 text-3xl font-bold">{{ planFree and planFree.priceCents > 0 ? (planFree.priceCents / 100)|number_format(0, ',', '.') ~ '€' : '0€' }}</p>
         <ul class="mt-6 list-disc space-y-2 pl-5 text-base text-cream marker:text-gold">
-          <li>Fins a 20 béns registrats</li>
+          <li>Fins a {{ planFree ? planFree.maxActiveItems : 20 }} béns registrats</li>
           <li>Certificat digital bàsic</li>
           <li>Verificació pública per QR</li>
           <li>Suport per correu electrònic</li>
         </ul>
-        <a href="#contacte" class="mt-8 rounded-full bg-gold px-6 py-3 text-center text-sm font-medium text-ink hover:bg-gold/90"
+        <a href="{{ path('app_register', {'plan': 'free'}) }}" class="mt-8 rounded-full bg-gold px-6 py-3 text-center text-sm font-medium text-ink hover:bg-gold/90 transition-all active:scale-[0.99]"
           >COMENÇA GRATIS</a
         >
       </article>
+
+      {# 2. PLA PLUS #}
       <article class="flex flex-col rounded-3xl bg-gold p-8 text-ink md:mt-12">
         <h3 class="font-marcellus text-4xl">Plus</h3>
         <p class="mt-1 text-base text-ink/90">Per a col·leccionistes i usuaris actius</p>
-        <p class="mt-4 text-3xl font-bold">22€</p>
-        <p class="text-sm text-ink/90">per any: 1,83€/mes</p>
+        {% set plusPriceEuros = planPlus ? (planPlus.priceCents / 100) : 22 %}
+        <p class="mt-4 text-3xl font-bold">{{ plusPriceEuros|number_format(0, ',', '.') }}€</p>
+        <p class="text-sm text-ink/90">per any: {{ (plusPriceEuros / 12)|number_format(2, ',', '.') }}€/mes</p>
         <ul class="mt-6 list-disc space-y-2 pl-5 text-base text-ink marker:text-ink">
-          <li>Fins a 100 béns registrats</li>
+          <li>Fins a {{ planPlus ? planPlus.maxActiveItems : 100 }} béns registrats</li>
           <li>Certificats d'alta seguretat</li>
+          <li>Identificació de titular eIDAS (Namirial)</li>
           <li>Transferència de propietat</li>
           <li>Informe assegurador inclòs</li>
           <li>Suport prioritari 24h</li>
         </ul>
-        <button type="button" onclick="if (window.RegistralsToast) { window.RegistralsToast.show('Pla Plus', 'La contractació d\'aquest pla estarà disponible properament. Pots començar de franc amb el Pla Free!', 'info', 4500); }" class="mt-8 rounded-full bg-cream-50 hover:bg-white active:scale-[0.99] px-6 py-3 text-sm font-semibold text-ink cursor-pointer transition-all">
-          PRÒXIMAMENT
-        </button>
+        {% if app.user %}
+          <a href="{{ path('app_plan') }}" class="mt-8 rounded-full bg-ink hover:bg-ink-light px-6 py-3 text-center text-sm font-bold text-gold shadow-xs transition-all active:scale-[0.99] block">
+            CONTRACTAR PLA PLUS
+          </a>
+        {% else %}
+          <a href="{{ path('app_register', {'plan': 'plus'}) }}" class="mt-8 rounded-full bg-ink hover:bg-ink-light px-6 py-3 text-center text-sm font-bold text-gold shadow-xs transition-all active:scale-[0.99] block">
+            CONTRACTAR PLA PLUS
+          </a>
+        {% endif %}
       </article>
-      <article class="flex flex-col rounded-3xl border border-gold/40 bg-ink p-8 text-cream">
-        <h3 class="font-marcellus text-4xl">Unlimited</h3>
-        <p class="mt-1 text-base text-cream/90">Per a patrimoni d'alt valor</p>
-        <p class="mt-16 text-3xl font-bold">A consultar</p>
-        <p class="text-sm text-cream/90">preu segons el patrimoni</p>
-        <ul class="mt-6 list-disc space-y-2 pl-5 text-base text-cream marker:text-gold">
-          <li>Béns de més de 5.000€</li>
-          <li>Ítems il·limitats</li>
-          <li>Verificació reforçada</li>
-          <li>Gestor personal assignat</li>
-          <li>Certificat d'alta seguretat</li>
-        </ul>
-        <button type="button" onclick="if (window.RegistralsToast) { window.RegistralsToast.show('Pla Unlimited', 'La contractació d\'aquest pla estarà disponible properament. Pots començar de franc amb el Pla Free!', 'info', 4500); }" class="mt-8 rounded-full bg-gold hover:bg-gold-light active:scale-[0.99] px-6 py-3 text-sm font-semibold text-ink cursor-pointer transition-all">
-          PRÒXIMAMENT
+
+      {# 3. PLA UNLIMITED (PROPERAMENT) #}
+      <article class="flex flex-col justify-between rounded-3xl border border-gold/40 bg-ink p-8 text-cream md:min-h-[570px] relative opacity-90">
+        <div>
+          <div class="flex items-center justify-between gap-2">
+            <h3 class="font-marcellus text-4xl">Unlimited</h3>
+            <span class="px-2.5 py-0.5 rounded-full bg-gold/20 text-gold border border-gold/40 text-[10px] font-mono font-bold uppercase tracking-wider">
+              Properament
+            </span>
+          </div>
+          <p class="mt-1 text-base text-cream/90">Per a patrimoni d'alt valor</p>
+          {% set unlPriceEuros = planUnlimited ? (planUnlimited.priceCents / 100) : 0 %}
+          {% if unlPriceEuros > 0 %}
+            <p class="mt-16 text-3xl font-bold text-cream/80">{{ unlPriceEuros|number_format(0, ',', '.') }}€</p>
+            <p class="text-sm text-cream/70">per any: {{ (unlPriceEuros / 12)|number_format(2, ',', '.') }}€/mes</p>
+          {% else %}
+            <p class="mt-16 text-3xl font-bold text-cream/80">A consultar</p>
+            <p class="text-sm text-cream/70">preu segons el patrimoni</p>
+          {% endif %}
+          <ul class="mt-6 list-disc space-y-2 pl-5 text-base text-cream/80 marker:text-gold/60">
+            <li>Béns de més de 5.000€</li>
+            <li>{{ planUnlimited and planUnlimited.maxActiveItems >= 9999 ? 'Ítems il·limitats' : (planUnlimited ? 'Fins a ' ~ planUnlimited.maxActiveItems ~ ' béns' : 'Ítems il·limitats') }}</li>
+            <li>Verificació reforçada</li>
+            <li>Gestor personal assignat</li>
+            <li>Certificat d'alta seguretat</li>
+          </ul>
+        </div>
+        <button type="button" onclick="if (window.RegistralsToast) { window.RegistralsToast.show('Pla Unlimited', 'La contractació d\'aquest pla per a grans patrimonis estarà disponible properament. Pots activar ara el Pla Plus!', 'info', 4500); }" class="mt-8 rounded-full bg-cream/15 text-cream/60 border border-steel/30 hover:bg-cream/20 px-6 py-3 text-sm font-semibold cursor-pointer transition-all">
+          PROPERAMENT
         </button>
       </article>
     </div>

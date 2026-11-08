@@ -29,9 +29,11 @@
     <div
       class="relative border-cream border-2 z-10 flex items-center gap-12 rounded-xl bg-cream px-6 py-1 transition-colors duration-500 group-data-past-hero:bg-ink"
     >
-      <a href="#s1" class="font-marcellus text-2xl tracking-wider text-ink transition-colors duration-500 group-data-past-hero:text-cream"
-        >REGISTRALS</a
-      >
+      <a href="#s1" class="group/brand flex items-center gap-2.5 font-marcellus text-2xl tracking-wider text-ink transition-colors duration-500 group-data-past-hero:text-cream">
+        <img src="{{ asset('img/logos/Isotip/1-transparent.svg') }}" alt="Registrals" class="w-6 h-6 object-contain block group-data-past-hero:hidden transition-transform duration-300 group-hover/brand:scale-105" />
+        <img src="{{ asset('img/logos/Isotip/3-transparent.svg') }}" alt="Registrals" class="w-6 h-6 object-contain hidden group-data-past-hero:block transition-transform duration-300 group-hover/brand:scale-105" />
+        <span>REGISTRALS</span>
+      </a>
       <button
         id="menu-toggle"
         type="button"

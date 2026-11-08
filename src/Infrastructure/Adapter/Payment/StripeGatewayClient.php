@@ -9,6 +9,7 @@ use App\Entity\ItemTransfer;
 use App\Entity\Plan;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Stripe\Exception\SignatureVerificationException;
 use Stripe\StripeClient;
 use Stripe\Webhook;
@@ -22,7 +23,8 @@ class StripeGatewayClient implements PaymentGatewayInterface
         private readonly string $webhookSecret,
         private readonly string $pricePlusId,
         private readonly string $priceUnlimitedId,
-        private readonly EntityManagerInterface $entityManager
+        private readonly EntityManagerInterface $entityManager,
+        private readonly ?LoggerInterface $logger = null
     ) {
         if (!empty($this->secretKey) && !str_contains($this->secretKey, 'mock')) {
             $this->stripe = new StripeClient($this->secretKey);
@@ -220,6 +222,29 @@ class StripeGatewayClient implements PaymentGatewayInterface
         ]);
 
         return $session->url;
+    }
+
+    public function cancelSubscription(User $user): bool
+    {
+        $subId = $user->getStripeSubscriptionId();
+        if ($subId === null || $subId === '') {
+            $this->logger?->info(sprintf('Cancel·lació de subscripció sense ID de Stripe per a usuari %d (mode mock o manual)', $user->getId() ?? 0));
+            return true;
+        }
+
+        if (str_contains($this->secretKey, 'mock')) {
+            $this->logger?->info(sprintf('[Mock] Cancel·lació simulada de subscripció Stripe %s per a usuari %d', $subId, $user->getId() ?? 0));
+            return true;
+        }
+
+        try {
+            $this->getClient()->subscriptions->cancel($subId);
+            $this->logger?->info(sprintf('Subscripció Stripe %s cancel·lada correctament per a usuari %d', $subId, $user->getId() ?? 0));
+            return true;
+        } catch (\Throwable $e) {
+            $this->logger?->error(sprintf('Error en cancel·lar subscripció Stripe %s: %s', $subId, $e->getMessage()));
+            return false;
+        }
     }
 
     public function parseAndVerifyWebhook(string $rawPayload, string $signatureHeader): array

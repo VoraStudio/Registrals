@@ -158,4 +158,24 @@ class CertificateRepository extends ServiceEntityRepository
 
         return sprintf('%s%06d', $prefix, $count + 1);
     }
+
+    public function countValid(): int
+    {
+        return (int) $this->createQueryBuilder('c')
+            ->select('COUNT(c.id)')
+            ->andWhere('c.status = :status')
+            ->setParameter('status', \App\Enum\CertificateStatus::VALID)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function countDistinctCertifiedItems(): int
+    {
+        return (int) $this->createQueryBuilder('c')
+            ->select('COUNT(DISTINCT c.item)')
+            ->andWhere('c.status = :status')
+            ->setParameter('status', \App\Enum\CertificateStatus::VALID)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }

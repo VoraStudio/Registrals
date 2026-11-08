@@ -1,6 +1,6 @@
 {% extends 'admin/layout.html.twig' %}
 
-{% block title %}Inspecció Notarial: {{ item.name }} ({{ item.cui }}) — Administració Registrals{% endblock %}
+{% block title %}Inspecció de Certificació: {{ item.name }} ({{ item.cui }}) — Administració Registrals{% endblock %}
 
 {% block admin_content %}
 <div class="space-y-6">
@@ -23,7 +23,7 @@
     <div>
       <h1 class="font-marcellus text-2xl sm:text-3xl text-ink tracking-tight font-medium">Fitxa del Bé</h1>
       <p class="font-raleway text-xs sm:text-sm text-ink/70 mt-1">
-        Inspecció notarial, integritat probatòria, hashes deterministes i traçabilitat forense.
+        Inspecció de certificació, integritat probatòria, hashes deterministes i traçabilitat forense.
       </p>
     </div>
 
@@ -31,7 +31,7 @@
     <div class="flex items-center gap-2.5">
       <button type="button" onclick="openStatusModal()" class="px-4 py-2 rounded-xl bg-ink text-gold border border-gold/40 text-xs font-bold hover:bg-ink/90 transition-all shadow-xs cursor-pointer flex items-center gap-1.5">
         <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-        <span>Modificar Estat Notarial</span>
+        <span>Modificar Estat de Certificació</span>
       </button>
     </div>
   </div>
@@ -248,7 +248,7 @@
       <div class="bg-white rounded-2xl border border-steel/20 p-5 shadow-xs space-y-4">
         <div class="pb-3 border-b border-steel/15">
           <h2 class="font-marcellus text-sm font-bold text-ink uppercase tracking-wider text-gold">
-            Garantia Notarial & Criptogràfica
+            Garantia de Certificació & Criptogràfica
           </h2>
         </div>
 
@@ -262,7 +262,7 @@
           </div>
 
           <div class="p-3 rounded-xl bg-cream-50 border border-gold/30 space-y-1.5">
-            <span class="text-[10px] uppercase font-mono tracking-wider text-steel font-bold block">Segellat eIDAS (Signaturit)</span>
+            <span class="text-[10px] uppercase font-mono tracking-wider text-steel font-bold block">Segellat eIDAS (Signaturit / Namirial)</span>
             <div class="flex items-center gap-2">
               <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
               <span class="text-xs font-bold text-ink">Segell Qualificat de Temps</span>

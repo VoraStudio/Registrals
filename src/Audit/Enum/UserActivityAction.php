@@ -21,11 +21,16 @@ enum UserActivityAction: string
     case TRANSFER_ACCEPTED = 'transfer_accepted';
     case TRANSFER_CANCELLED = 'transfer_cancelled';
     case TRANSFER_REJECTED = 'transfer_rejected';
+    case TRANSFER_EXPIRED = 'transfer_expired';
     case PAYMENT_COMPLETED = 'payment_completed';
     case PAYMENT_FAILED = 'payment_failed';
     case SUBSCRIPTION_STARTED = 'subscription_started';
     case SUBSCRIPTION_CANCELLED = 'subscription_cancelled';
     case REFUND_PROCESSED = 'refund_processed';
+    case LEGAL_TERMS_ACCEPTED = 'legal_terms_accepted';
+    case KYC_INITIATED = 'kyc_initiated';
+    case KYC_APPROVED = 'kyc_approved';
+    case KYC_REJECTED = 'kyc_rejected';
 
     public function label(): string
     {
@@ -45,11 +50,16 @@ enum UserActivityAction: string
             self::TRANSFER_ACCEPTED => 'Acceptació de traspàs',
             self::TRANSFER_CANCELLED => 'Cancel·lació de traspàs',
             self::TRANSFER_REJECTED => 'Rebuig de traspàs',
+            self::TRANSFER_EXPIRED => 'Caducitat de traspàs',
             self::PAYMENT_COMPLETED => 'Pagament completat',
             self::PAYMENT_FAILED => 'Pagament fallit',
             self::SUBSCRIPTION_STARTED => 'Subscripció activada',
             self::SUBSCRIPTION_CANCELLED => 'Subscripció cancel·lada',
             self::REFUND_PROCESSED => 'Reemborsament processat',
+            self::LEGAL_TERMS_ACCEPTED => 'Acceptació de clàusules legals',
+            self::KYC_INITIATED => 'Inici de verificació eIDV',
+            self::KYC_APPROVED => 'Identitat verificada eIDV',
+            self::KYC_REJECTED => 'Verificació eIDV rebutjada',
         };
     }
 
@@ -61,6 +71,10 @@ enum UserActivityAction: string
             self::LOGOUT => 'bg-slate-100 text-slate-700 border-slate-300',
             self::REGISTER => 'bg-indigo-50 text-indigo-800 border-indigo-300',
             self::PASSWORD_CHANGED => 'bg-amber-50 text-amber-800 border-amber-300',
+            self::LEGAL_TERMS_ACCEPTED => 'bg-blue-50 text-blue-800 border-blue-300 font-medium',
+            self::KYC_INITIATED => 'bg-amber-50 text-amber-800 border-amber-300',
+            self::KYC_APPROVED => 'bg-emerald-50 text-emerald-800 border-emerald-300 font-bold',
+            self::KYC_REJECTED => 'bg-rose-100 text-rose-900 border-rose-300 font-bold',
             self::ITEM_CREATED => 'bg-cyan-50 text-cyan-800 border-cyan-300',
             self::ITEM_UPDATED => 'bg-blue-50 text-blue-800 border-blue-300',
             self::ITEM_DELETED => 'bg-rose-50 text-rose-800 border-rose-300',
@@ -68,7 +82,7 @@ enum UserActivityAction: string
             self::CERTIFICATE_ISSUED => 'bg-gold/20 text-ink border-gold/40',
             self::CERTIFICATE_VERIFIED => 'bg-emerald-50 text-emerald-800 border-emerald-300',
             self::TRANSFER_INITIATED, self::TRANSFER_ACCEPTED => 'bg-purple-50 text-purple-800 border-purple-300',
-            self::TRANSFER_CANCELLED, self::TRANSFER_REJECTED => 'bg-slate-100 text-slate-700 border-slate-300',
+            self::TRANSFER_CANCELLED, self::TRANSFER_REJECTED, self::TRANSFER_EXPIRED => 'bg-slate-100 text-slate-700 border-slate-300',
             self::PAYMENT_COMPLETED, self::SUBSCRIPTION_STARTED => 'bg-emerald-50 text-emerald-800 border-emerald-300 font-medium',
             self::PAYMENT_FAILED, self::SUBSCRIPTION_CANCELLED => 'bg-rose-50 text-rose-800 border-rose-300',
             self::REFUND_PROCESSED => 'bg-amber-50 text-amber-800 border-amber-300',
@@ -83,7 +97,11 @@ enum UserActivityAction: string
             self::LOGOUT,
             self::REGISTER,
             self::PASSWORD_CHANGED,
-            self::STATUS_CHANGED => 'Usuaris & Seguretat',
+            self::STATUS_CHANGED,
+            self::LEGAL_TERMS_ACCEPTED,
+            self::KYC_INITIATED,
+            self::KYC_APPROVED,
+            self::KYC_REJECTED => 'Usuaris & Seguretat',
 
             self::ITEM_CREATED,
             self::ITEM_UPDATED,
@@ -95,7 +113,8 @@ enum UserActivityAction: string
             self::TRANSFER_INITIATED,
             self::TRANSFER_ACCEPTED,
             self::TRANSFER_CANCELLED,
-            self::TRANSFER_REJECTED => 'Transmissions C2C',
+            self::TRANSFER_REJECTED,
+            self::TRANSFER_EXPIRED => 'Transmissions C2C',
 
             self::PAYMENT_COMPLETED,
             self::PAYMENT_FAILED,
@@ -120,6 +139,10 @@ enum UserActivityAction: string
                 self::REGISTER,
                 self::PASSWORD_CHANGED,
                 self::STATUS_CHANGED,
+                self::LEGAL_TERMS_ACCEPTED,
+                self::KYC_INITIATED,
+                self::KYC_APPROVED,
+                self::KYC_REJECTED,
             ],
             'Patrimoni & Béns' => [
                 self::ITEM_CREATED,
@@ -135,6 +158,7 @@ enum UserActivityAction: string
                 self::TRANSFER_ACCEPTED,
                 self::TRANSFER_CANCELLED,
                 self::TRANSFER_REJECTED,
+                self::TRANSFER_EXPIRED,
             ],
             'Facturació & Pagaments' => [
                 self::PAYMENT_COMPLETED,

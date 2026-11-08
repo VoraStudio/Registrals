@@ -19,7 +19,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_USER')]
 class InstallAppController extends AbstractController
 {
-    #[Route('/profile/install-app', name: 'app_profile_install_app')]
+    #[Route('/app/perfil/instal-lar-app', name: 'app_profile_install_app')]
+    #[Route('/profile/install-app', name: 'app_profile_install_app_legacy')]
     public function index(Request $request): Response
     {
         $user = $this->getUser();

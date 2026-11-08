@@ -568,6 +568,16 @@ class Item
         return null;
     }
 
+    public function hasOfficialCertificate(): bool
+    {
+        return $this->getLatestCertificate(\App\Enum\CertificateMode::OFFICIAL) !== null;
+    }
+
+    public function hasAnyCertificate(): bool
+    {
+        return !$this->certificates->isEmpty();
+    }
+
     /**
      * @return Collection<int, ItemTransfer>
      */

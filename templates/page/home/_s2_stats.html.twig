@@ -10,15 +10,15 @@
       <dl class="mt-10 max-w-2xl space-y-4">
         <div data-reveal="pill" class="flex items-center justify-between gap-4 rounded-full bg-cream-50 py-1 pr-1.5 pl-5">
           <dt class="font-semibold">Usuaris registrats</dt>
-          <dd class="min-w-32 rounded-3xl bg-ink px-6 py-1 text-center text-cream font-semibold">9</dd>
+          <dd class="min-w-32 rounded-3xl bg-ink px-6 py-1 text-center text-cream font-semibold">{{ stats.registeredUsers|default(0) }}</dd>
         </div>
         <div data-reveal="pill" class="flex items-center justify-between gap-4 rounded-full bg-cream-50 py-1 pr-1.5 pl-5">
           <dt class="font-semibold">Articles certificats</dt>
-          <dd class="min-w-32 rounded-3xl bg-ink px-6 py-1.5 text-center text-cream font-semibold">25</dd>
+          <dd class="min-w-32 rounded-3xl bg-ink px-6 py-1.5 text-center text-cream font-semibold">{{ stats.certifiedItems|default(0) }}</dd>
         </div>
         <div data-reveal="pill" class="flex items-center justify-between gap-4 rounded-full bg-cream-50 py-1.5 pr-1.5 pl-5">
           <dt class="font-semibold">Valor total registrat</dt>
-          <dd class="min-w-32 rounded-3xl bg-ink px-6 py-1.5 text-center text-cream font-semibold">1.210€</dd>
+          <dd class="min-w-32 rounded-3xl bg-ink px-6 py-1.5 text-center text-cream font-semibold">{{ stats.totalDeclaredValueFormatted|default('0€') }}</dd>
         </div>
       </dl>
     </div>

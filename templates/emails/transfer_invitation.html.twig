@@ -2,7 +2,7 @@
 <html lang="ca">
 <head>
   <meta charset="UTF-8">
-  <title>Traspàs Notarial de Propietat — Registrals</title>
+  <title>Traspàs Certificat C2C de Propietat — Registrals</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #FAF6F0; font-family: 'Raleway', Helvetica, Arial, sans-serif; color: #1D2F4B;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #FAF6F0; padding: 30px 15px;">
@@ -19,7 +19,7 @@
           <tr>
             <td style="padding: 30px 40px 20px; text-align: center; border-bottom: 1px solid rgba(106, 134, 162, 0.15);">
               <h1 style="font-family: 'Marcellus', Georgia, serif; font-size: 26px; color: #1D2F4B; margin: 0 0 5px; letter-spacing: 1px;">REGISTRALS</h1>
-              <p style="font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #CAA36C; font-weight: bold; margin: 0;">Plataforma Notarial Digital</p>
+              <p style="font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #CAA36C; font-weight: bold; margin: 0;">Plataforma de Certificació Digital</p>
             </td>
           </tr>
 
@@ -35,7 +35,7 @@
               </p>
 
               <p style="font-size: 14px; line-height: 1.6; color: #1D2F4B; margin: 0 0 25px;">
-                <strong>{{ sender.fullName }}</strong> ({{ sender.email }}) ha iniciat el traspàs notarial de titularitat del següent bé custodiat a la plataforma <strong>Registrals</strong> a favor vostre:
+                <strong>{{ sender.fullName }}</strong> ({{ sender.email }}) ha iniciat el traspàs certificat C2C de titularitat del següent bé custodiat a la plataforma <strong>Registrals</strong> a favor vostre:
               </p>
 
               {# Fitxa Resum del Bé #}
@@ -67,7 +67,7 @@
 
               {% if transfer.securityCode %}
                 <p style="font-size: 12px; text-align: center; color: #6A86A2; margin: 0 0 20px;">
-                  Codi de Seguretat Notarial: <strong style="font-family: monospace; font-size: 15px; color: #1D2F4B; background-color: #FAF6F0; padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(202, 163, 108, 0.3);">{{ transfer.securityCode }}</strong>
+                  Codi PIN de Seguretat: <strong style="font-family: monospace; font-size: 15px; color: #1D2F4B; background-color: #FAF6F0; padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(202, 163, 108, 0.3);">{{ transfer.securityCode }}</strong>
                 </p>
               {% endif %}
 
@@ -85,7 +85,7 @@
           {# Peu de Pàgina #}
           <tr>
             <td style="padding: 20px 40px; background-color: #FAF6F0; text-align: center; border-top: 1px solid rgba(106, 134, 162, 0.15); font-size: 11px; color: #6A86A2;">
-              <p style="margin: 0 0 5px;">Plataforma Notarial Digital Registrals · Doble Custòdia Legal eIDAS & Blockchain L2</p>
+              <p style="margin: 0 0 5px;">Plataforma de Certificació Digital Registrals · Doble Custòdia Legal eIDAS & Blockchain L2</p>
               <p style="margin: 0;">Aquest és un missatge automàtic transaccional certificat.</p>
             </td>
           </tr>

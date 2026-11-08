@@ -1,33 +1,31 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Registrar Nou Bé — Registrals{% endblock %}
-{% block meta_description %}Afegeix un nou bé moble al teu espai segur de custòdia notarial.{% endblock %}
+{% block meta_description %}Afegeix un nou bé moble al teu espai segur de custòdia i certificació digital.{% endblock %}
 
-{% block body_class %}bg-cream text-ink min-h-screen flex flex-col justify-between selection:bg-gold selection:text-ink font-raleway{% endblock %}
+{% block body_class %}bg-cream-50 text-ink min-h-screen flex flex-col justify-between selection:bg-gold selection:text-ink font-raleway{% endblock %}
 
 {% block body %}
-<div class="min-h-screen flex flex-col justify-between bg-cream">
+<div class="min-h-screen flex flex-col justify-between bg-cream-50">
 
   {# Barra Superior Privada Unificada (Fons Blanc + Línia Tènue + Avatar amb Micro-Badge) #}
   {% include 'partials/_private_header.html.twig' with { back_to_dashboard: true } %}
 
   {# Contingut Principal en Format Panoràmic 16:9 #}
-  <main class="w-full max-w-7xl mx-auto py-3 px-3 sm:px-6 lg:px-8 space-y-3">
+  <main class="max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 py-2 w-full flex-1 space-y-2">
 
-    {# Capçalera del Bé i CUI Preassignat (Compacta a mòbil) #}
-    <div class="flex items-center justify-between sm:justify-center gap-4 pb-1">
-      <div>
-        <h1 class="text-lg sm:text-xl font-marcellus text-ink tracking-wide">Registra un Nou Bé</h1>
-        <p class="text-xs text-ink/70 font-raleway hidden sm:block mt-0.5">
-          Introdueix les dades i proves documentals per immutabilitzar la titularitat notarial.
-        </p>
-      </div>
-
-      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cream/70 border border-gold/40 text-[11px] sm:text-xs font-mono text-ink shrink-0 shadow-2xs">
-        <span class="w-2 h-2 rounded-full bg-gold animate-pulse"></span>
-        <span>CUI: <strong class="font-bold text-ink">{{ cui }}</strong></span>
-      </div>
-    </div>
+    {# Capçalera Notarial Canònica de Subpàgina #}
+    {% include 'partials/_subpage_header.html.twig' with {
+      breadcrumbs: [
+        { label: 'Inici', url: path('app_dashboard') },
+        { label: 'Bé', url: path('app_dashboard') },
+        { label: 'Nou' }
+      ],
+      title: 'Registra un Nou Bé',
+      badge: '<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-gold/40 text-[11px] font-mono text-ink shadow-2xs"><span class="w-2 h-2 rounded-full bg-gold animate-pulse"></span><span>CUI: <strong class="font-bold text-ink">' ~ cui ~ '</strong></span></div>',
+      mb_class: 'mb-2 sm:mb-2.5',
+      pb_class: 'pb-2 sm:pb-2.5'
+    } %}
 
     {# Indicador de Passos del Wizard en Mòbil (< lg) #}
     <div class="lg:hidden bg-white/95 backdrop-blur-xs border border-gold/30 rounded-2xl p-1 flex items-center justify-between text-xs font-semibold shadow-xs gap-0.5">
@@ -49,9 +47,7 @@
     </div>
 
     {# Targeta Patró Clar Notarial (2 Columnes en Desktop / Slider Horitzontal en Mòbil) #}
-    <div class="bg-white/95 backdrop-blur-md border border-gold/40 rounded-2xl p-4 sm:p-5 lg:p-6 shadow-xl shadow-ink/10 relative overflow-hidden text-ink">
-      {# Lluentor daurada superior #}
-      <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent opacity-90"></div>
+    <div class="bg-whitef border border-gold/30 rounded-2xl p-4 sm:p-5 lg:p-6 shadow-2xs relative text-ink">
 
       <style>
         @media (min-width: 1024px) {
@@ -78,8 +74,8 @@
                 <h2 class="font-marcellus text-sm sm:text-base text-ink">Fotografia Principal</h2>
               </div>
 
-              {# Marc Càrrega Foto Principal 16:9 (Contenidor DIV interactiu amb suport natiu de Drag & Drop i Clic) #}
-              <div id="photo-drop-zone" class="relative overflow-hidden border-2 border-dashed border-gold/50 hover:border-gold rounded-xl p-3 text-center bg-cream/25 hover:bg-cream/45 transition-all flex flex-col justify-center items-center group focus-within:ring-2 focus-within:ring-gold w-full aspect-[16/9] min-h-[175px] cursor-pointer">
+              {# Marc Càrrega Foto Principal 16:9 (Contenidor DIV interactiu amb alçada adaptada) #}
+              <div id="photo-drop-zone" class="relative overflow-hidden border-2 border-dashed border-gold/50 hover:border-gold rounded-xl p-2.5 text-center bg-cream/25 hover:bg-cream/45 transition-all flex flex-col justify-center items-center group focus-within:ring-2 focus-within:ring-gold w-full aspect-video max-h-[155px] sm:max-h-[170px] xl:max-h-[180px] cursor-pointer">
                 {{ form_widget(form.primaryPhoto) }}
                 {# Input Ocult amb Càmera en Directe per a Mòbil #}
                 <input type="file" id="primary-photo-camera" accept="image/*" capture="environment" class="hidden" />
@@ -115,9 +111,9 @@
                   </button>
                 </div>
 
-                <div id="photo-empty-state" class="relative z-1 flex flex-col justify-center items-center w-full h-full py-2 gap-2 pointer-events-auto">
-                  <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-cream border border-gold/40 text-gold flex items-center justify-center group-hover:scale-105 transition-transform cursor-pointer">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <div id="photo-empty-state" class="relative z-1 flex flex-col justify-center items-center w-full h-full py-1 gap-1.5 pointer-events-auto">
+                  <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-cream border border-gold/40 text-gold flex items-center justify-center group-hover:scale-105 transition-transform cursor-pointer">
+                    <svg class="w-4 h-4 sm:w-4.5 sm:h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                   </div>
                   <div class="space-y-0.5 text-center">
                     <div class="text-xs sm:text-sm font-bold text-ink" id="photo-label">Fotografia Principal de l'Objecte</div>
@@ -210,7 +206,7 @@
                 {# Overlay d'anàlisi d'IA de factura en curs #}
                 <div id="invoice-ai-loading" class="hidden absolute inset-0 bg-ink/90 backdrop-blur-xs rounded-xl flex flex-col items-center justify-center p-3 text-center text-cream z-20 transition-all pointer-events-none">
                   <div class="w-7 h-7 rounded-full border-2 border-gold/40 border-t-gold animate-spin mb-1.5"></div>
-                  <div class="text-xs font-bold text-gold font-marcellus">OCR Notarial d'IA</div>
+                  <div class="text-xs font-bold text-gold font-marcellus">OCR d'IA de Certificació</div>
                   <div class="text-[10px] text-cream/80 mt-0.5">Extraient import fiscal, comerç i dades de compra...</div>
                 </div>
 
@@ -255,8 +251,8 @@
               {# Estat de Concordança i Lectura de la Prova #}
               <div id="invoice-feedback-container" class="hidden transition-all"></div>
 
-              {# Nota d'informació sobre la custòdia (Guia d'Estils condensada) #}
-              <div id="custody-note" class="guide-note text-[10px] sm:text-[11px] py-1.5 px-2.5 leading-snug">
+              {# Nota d'informació sobre la custòdia en mòbil #}
+              <div class="lg:hidden guide-note text-[10px] sm:text-[11px] py-1.5 px-2.5 leading-snug">
                 <strong>Custòdia de Proves:</strong> Fitxers xifrats fora de l'arrel web i vinculats al hash <code>SHA-256</code> mestre.
               </div>
 
@@ -365,7 +361,7 @@
             {# ============================================================== #}
             {# PAS 4: ORIGEN, TRAÇABILITAT I TANCAMENT                        #}
             {# ============================================================== #}
-            <div id="step-panel-4" class="w-full shrink-0 flex-none space-y-2.5 px-0.5 lg:w-auto lg:shrink lg:px-0 lg:col-start-6 lg:col-span-7 lg:row-start-2">
+            <div id="step-panel-4" class="w-full shrink-0 flex-none space-y-2.5 px-0.5 lg:w-auto lg:shrink lg:px-0 lg:col-start-6 lg:col-span-7 lg:row-start-2 flex flex-col justify-start">
               <div class="flex items-center gap-2 pb-1 border-b border-gold/20">
                 <span class="w-5 h-5 rounded-full bg-ink text-gold flex items-center justify-center font-bold text-[11px] font-mono">4</span>
                 <h2 class="font-marcellus text-sm sm:text-base text-ink">Origen & Traçabilitat</h2>
@@ -395,7 +391,7 @@
 
                 {# Avís Notarial de Segellat Inicial en Mòbil (a desktop es mostra al footer) #}
                 <div class="guide-note lg:hidden text-[10px] sm:text-[11px] mt-1 py-1.5 px-2.5 leading-snug">
-                  <strong>Segellat Notarial Inicial:</strong> En confirmar l'alta es generarà la versió <code>v1</code> immutable vinculada al hash <code>SHA-256</code>.
+                  <strong>Segellat de Certificació Inicial:</strong> En confirmar l'alta es generarà la versió <code>v1</code> immutable vinculada al hash <code>SHA-256</code>.
                 </div>
               </div>
 
@@ -414,19 +410,22 @@
           </div>
         </div>
 
-        {# Botó d'Acció Final en Escriptori (Visible només a lg:) amb Garantia Integrada #}
-        <div class="hidden lg:flex pt-3.5 border-t border-gold/25 items-center justify-between gap-4">
-          <a href="{{ path('app_dashboard') }}" class="text-xs text-ink/70 hover:text-ink font-semibold transition-colors">
-            ← Cancel·lar
-          </a>
-
-          <div class="flex items-center gap-2 text-[11px] text-ink/75 font-raleway">
-            <span class="w-1.5 h-1.5 rounded-full bg-gold"></span>
-            <span>Segellat Notarial Inicial: es generarà la versió <code class="font-mono text-gold bg-ink px-1 py-0.5 rounded text-[10px]">v1</code> immutable (SHA-256).</span>
-            <div id="submit-guard-badge" class="ml-2 inline-flex items-center"></div>
+        {# Fila Unificada Notarial en Desktop: 1. Custòdia de Proves | 2. Segellat Inicial | 3. Botó Confirmar #}
+        <div class="hidden lg:flex items-center justify-between gap-4 pt-2.5 w-full">
+          {# 1. Custòdia de Proves #}
+          <div id="custody-note" class="guide-note text-[11px] py-1.5 px-2.5 leading-snug shrink-0">
+            <strong>Custòdia de Proves:</strong> Fitxers xifrats fora de l'arrel web i vinculats al hash <code>SHA-256</code> mestre.
           </div>
 
-          <button type="submit" id="btn-submit-item-desktop" style="background-color: #1D2F4B; color: #FAF6F0;" class="w-auto py-2.5 px-6 rounded-xl shadow-md hover:bg-ink/90 active:scale-[0.99] font-bold text-xs sm:text-sm font-raleway cursor-pointer transition-all flex items-center justify-center gap-2">
+          {# 2. Segellat Notarial Inicial #}
+          <div class="flex items-center gap-2 text-xs text-ink/75 font-raleway truncate">
+            <span class="w-1.5 h-1.5 rounded-full bg-gold shrink-0"></span>
+            <span class="truncate">Segellat de Certificació Inicial: es generarà la versió <code class="font-mono text-gold bg-ink px-1 py-0.5 rounded text-[10px]">v1</code> immutable (SHA-256).</span>
+            <div id="submit-guard-badge" class="ml-1 inline-flex items-center shrink-0"></div>
+          </div>
+
+          {# 3. Botó Confirmar i Registrar Bé #}
+          <button type="submit" id="btn-submit-item-desktop" style="background-color: #1D2F4B; color: #FAF6F0;" class="w-auto py-2.5 px-6 rounded-xl shadow-md hover:bg-ink/90 active:scale-[0.99] font-bold text-xs sm:text-sm font-raleway cursor-pointer transition-all flex items-center justify-center gap-2 shrink-0">
             <span>Confirmar i Registrar Bé</span>
             <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
           </button>
@@ -437,11 +436,6 @@
     </div>
 
   </main>
-
-  {# Peu de pàgina discret #}
-  <footer class="w-full max-w-5xl mx-auto py-4 text-center text-xs text-ink/60">
-    <p>&copy; {{ "now"|date("Y") }} Registrals &middot; Custòdia protegida i xifrada en repòs.</p>
-  </footer>
 
 </div>
 
@@ -610,7 +604,7 @@
         <div class="p-3 rounded-xl bg-red-50/95 border-l-[3.5px] border-red-600 text-xs text-red-900 leading-snug shadow-xs space-y-2">
           <div class="flex items-center gap-2 font-bold text-red-800">
             <span class="text-sm">⚠️</span>
-            <span>Document Rebutjat per Seguretat Notarial</span>
+            <span>Document Rebutjat per Seguretat de Certificació</span>
           </div>
           <div class="text-[10px] text-red-700 leading-tight">
             ${escapeHtml(reason)}
@@ -1116,7 +1110,7 @@
             <div class="rounded-xl border border-steel/25 bg-steel/5 p-2 text-[11px] text-steel flex items-start gap-2">
               <span class="text-steel font-bold text-sm leading-none mt-0.5">ℹ️</span>
               <div class="text-[10px] text-steel/90 leading-tight">
-                No s'han pogut extreure dades fiscals automàtiques. El fitxer es custodiarà xifrat per a la fe notarial del registre.
+                No s'han pogut extreure dades fiscals automàtiques. El fitxer es custodiarà xifrat per a la certificació digital del registre.
               </div>
             </div>`;
         }

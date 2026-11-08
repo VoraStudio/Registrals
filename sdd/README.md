@@ -1,6 +1,6 @@
 # Especificacions SDD (Spec-Driven Development) — Registrals
 
-Aquest directori conté el conjunt d'especificacions tècniques, de producte, de dades i de disseny per a la plataforma **Registrals** (desenvolupament sobre Symfony 7, Doctrine ORM, MySQL 8, SGLang IA local, Signaturit eIDAS i notarització Polygon Blockchain).
+Aquest directori conté el conjunt d'especificacions tècniques, de producte, de dades i de disseny per a la plataforma **Registrals** (desenvolupament sobre Symfony 7, Doctrine ORM, MySQL 8, SGLang IA local, Signaturit / Grup Namirial eIDAS i notarització Polygon Blockchain).
 
 ## Índex de Documents SDD
 
@@ -13,22 +13,24 @@ Aquest directori conté el conjunt d'especificacions tècniques, de producte, de
 | 05 | **Disseny UI/UX i Sistema d'Interacció** | [`05-disseny-ui-ux.md`](05-disseny-ui-ux.md) | Principis d'interacció, disseny responsive mobile-first, components de l'àrea privada, gestió d'estats buits i nudging visual. |
 | 05-B | **Arquitectura de Pantalles & Guia d'Interfícies** | [`05-guia-interficies.md`](05-guia-interficies.md) | Catàleg exhaustiu d'estructures de pantalla, paleta, targetes notarials, safates i PDF. |
 | 06 | **Backend, Seguretat, Serveis i Endpoints** | [`06-backend-seguretat-serveis.md`](06-backend-seguretat-serveis.md) | Catàleg complet d'endpoints REST/Twig, voters de seguretat (ItemVoter), MediaController segur, integració SGLang i Polygon. |
-| 06-B | **Guia d'Integracions Externes (Marc Global)** | [`06-integracions-externes.md`](06-integracions-externes.md) | Especificació marc dels 3 components externs: Stripe, Signaturit i Polygon PoS. |
+| 06-B | **Guia d'Integracions Externes (Marc Global)** | [`06-integracions-externes.md`](06-integracions-externes.md) | Especificació marc dels 3 components externs: Stripe, Signaturit (Grup Namirial) i Polygon PoS. |
 | 06-A | **Monogràfic Stripe (16 capítols)** | [`06a-stripe.md`](06a-stripe.md) | Manual d'enginyeria exhaustiu per a Stripe Billing (Subscripcions Plus/Unlimited), Checkout, Webhooks, Idempotència i Customer Portal. |
 | 06-B.1 | **Monogràfic Signaturit (12 capítols)** | [`06b-signaturit.md`](06b-signaturit.md) | Manual de Segellat Qualificat de Temps eIDAS (RFC 3161) amb privadesa per disseny i Verificació d'Identitat Biomètrica (eIDV). |
 | 06-C | **Monogràfic Polygon PoS (12 capítols)** | [`06c-polygon.md`](06c-polygon.md) | Manual d'Ancoratge Criptogràfic Layer 2 en Calldata (0 POL), gestió de Hot Wallet aïllada, Amoy Testnet i Gas EIP-1559. |
-| 07 | **Full de Ruta i Iteracions d'Execució** | [`07-iteracions.md`](07-iteracions.md) | Desglossament ordenat per iteracions (Iteracions 0 a 6 tancades, Iteració 7: Monetització & Stripe, etc.). |
+| 07 | **Full de Ruta i Iteracions d'Execució** | [`07-iteracions.md`](07-iteracions.md) | Desglossament ordenat per iteracions (Iteracions 0 a 6 tancades, Iteració 7 tancada al 90%, etc.). |
 | 08 | **Annexes i Decisions Estratègiques** | [`08-annexes.md`](08-annexes.md) | Document íntegre de referència d'annexes: estratègia PLG/Freemium detallada, anàlisi de costos, abast legal territorial i snippets d'implementació Symfony. |
 
-## Estat d'Execució i Progrés (Subiteracions)
+## Estat d'Execució i Progrés (Estat Real del Codi)
 
 - **Iteració 0: Landing Page Corporativa:** 100% Completada.
-- **Iteració 1: Nucli d'Autenticació, Sessions i Onboarding:**
-  - `[x]` **1.1:** Model de dades `User` + `Plan`, Enum `KycStatus`, MySQL 8.4 i Seeder de plans.
-  - `[x]` **1.2:** Autenticació Nativa (`/register`, `/login`, hashing contrasenyes i estils segons Guia d'Estils).
-  - `[ ]` **1.3:** OAuth2 Social Login & Galeta de dispositiu.
-  - `[ ]` **1.4:** Onboarding i accés a l'àrea privada.
-- **Iteracions 2 a 7:** Desglossades en cicles atòmics de 4 passos a [`07-iteracions.md`](07-iteracions.md).
+- **Iteració 1: Nucli d'Autenticació, Sessions, Perfil i PWA:** 100% Completada (Auth nativa, Google OAuth2, cookie de dispositiu, gestió de perfil, quotes i instal·lació PWA).
+- **Iteració 2: El Patrimoni Personal (CRUD, CUI i Flysystem):** 100% Completada (Arbre de categories, Flysystem aïllat, ItemVoter, wizard d'alta i fitxa 2x2).
+- **Iteració 3: Integració d'IA Local (SGLang + Qwen VL):** 90% Completada (Cues Messenger, OCR tiquets, visió de fotos, protecció C2PA/EXIF, pont QR i transparència IA).
+- **Iteració 4: Immutabilitat a Blockchain (Polygon L2):** 100% Completada (Model `BlockchainReceipt`, hash determinista SHA-256, cua `async_chain` i insígnia a la fitxa).
+- **Iteració 5: Emissió de Certificats i Segellat eIDAS:** 100% Completada (Motor PDF Chromium headless, eIDAS Signaturit/Namirial, QR i safata global `/app/certificats`).
+- **Iteració 6: Traspàs entre Particulars (C2C) i Workflow:** 100% Completada (Symfony Workflow, token de 72h, PIN, invitació per correu i traçabilitat forense a `registrals_audit`).
+- **Iteració 7: Panell d'Administració, Editor de Plans, Stripe i Verificació Pública:** 90% Completada (Backoffice 7.1, Editor en calent 7.2, Stripe sandbox 7.3 i Verificació pública `/verify/{uuid}` amb enllaç a Polygonscan 7.4 100% completades; pendent 7.5 credencials live).
+- **Iteració 8: Marc Legal Notarial, RGPD i Manual d'Ús:** 80% Completada (Subiteració 8.1 tancada: pàgines `/legal/*`, persistència forense a `users` i bloqueig d'accés «Legal Gate» actiu; pendent 8.2 manual d'ajuda).
 
 ## Recursos Addicionals
 - **Guia d'Estils Viva:** [`web/guia-destils.html`](../web/guia-destils.html) (disponible en local a [http://127.0.0.1:8004/guia-destils.html](http://127.0.0.1:8004/guia-destils.html)).

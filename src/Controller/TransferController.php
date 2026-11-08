@@ -37,6 +37,8 @@ class TransferController extends AbstractController
         private readonly ItemLifecycleService $lifecycleService,
         private readonly EntityManagerInterface $entityManager,
         private readonly MailerInterface $mailer,
+        private readonly \App\Service\Transfer\TransferExpirationService $transferExpirationService,
+        private readonly \App\Service\Plan\PlanDowngradeService $planDowngradeService,
         private readonly ?UserActivityLogger $activityLogger = null,
         private readonly ?LoggerInterface $logger = null
     ) {
@@ -51,6 +53,9 @@ class TransferController extends AbstractController
     {
         /** @var User $user */
         $user = $this->getUser();
+
+        // Concilia traspassos caducats abans de carregar la safata
+        $this->transferExpirationService->expireTransfers($user);
 
         $pendingReceived = $this->itemTransferRepository->findPendingReceivedByEmail($user->getEmail());
         $pendingSent = $this->itemTransferRepository->findPendingSentByUser($user);
@@ -223,7 +228,15 @@ class TransferController extends AbstractController
 
             $this->addFlash('info', 'El traspàs ha estat cancel·lat correctament. El bé continua custodiat al vostre patrimoni.');
         } else {
-            $this->addFlash('warning', 'No s\'ha trobat cap traspàs pendent per a aquest bé.');
+            // Comprova si hi ha un traspàs pendent vençut per conciliar
+            $pendingTransfer = $this->itemTransferRepository->findOneBy(['item' => $item, 'status' => TransferStatus::PENDING]);
+            if ($pendingTransfer && $pendingTransfer->isExpired()) {
+                $this->transferExpirationService->expireSingleTransfer($pendingTransfer);
+                $this->entityManager->flush();
+                $this->addFlash('info', 'El traspàs havia superat el termini de 72 hores i s\'ha marcat com a caducat. El bé torna a estar al vostre patrimoni.');
+            } else {
+                $this->addFlash('warning', 'No s\'ha trobat cap traspàs pendent per a aquest bé.');
+            }
         }
 
         return $this->redirectToRoute('app_item_show', ['cui' => $item->getCui()]);
@@ -383,6 +396,9 @@ class TransferController extends AbstractController
         $this->lifecycleService->completeTransfer($item, $currentUser);
         $this->entityManager->flush();
 
+        // Comprova la invariant de quota del nou titular i activa període de gràcia si cal
+        $this->planDowngradeService->checkAndEnforceQuota($currentUser);
+
         // Registre a la base d'auditoria forense (registrals_audit)
         $this->activityLogger?->log(
             user: $currentUser,
@@ -397,10 +413,22 @@ class TransferController extends AbstractController
             ]
         );
 
-        $this->addFlash('success', sprintf(
-            'Enhorabona! La titularitat de "%s" s\'ha transmès satisfactòriament al vostre compte i s\'ha registrat a la cadena de blocs Polygon L2.',
-            $item->getName()
-        ));
+        $activeCount = $this->itemRepository->countActiveByOwner($currentUser);
+        $maxAllowed = $currentUser->getPlan()?->getMaxActiveItems() ?? 20;
+
+        if ($maxAllowed > 0 && $activeCount > $maxAllowed) {
+            $this->addFlash('warning', sprintf(
+                'Titularitat transmesa! En incorporar "%s", teniu %d béns actius (el límit del vostre pla és de %d). Disposeu d\'un període d\'adequació de 7 dies per triar quins conserveu o ampliar al Pla Plus.',
+                $item->getName(),
+                $activeCount,
+                $maxAllowed
+            ));
+        } else {
+            $this->addFlash('success', sprintf(
+                'Enhorabona! La titularitat de "%s" s\'ha transmès satisfactòriament al vostre compte i s\'ha registrat a la cadena de blocs Polygon L2.',
+                $item->getName()
+            ));
+        }
 
         return $this->redirectToRoute('app_item_show', ['cui' => $item->getCui()]);
     }

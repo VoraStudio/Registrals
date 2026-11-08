@@ -3,46 +3,30 @@
 {% block title %}Safata de Traspassos — Registrals{% endblock %}
 {% block meta_description %}Gestió de traspassos de titularitat de béns mobles rebuts i enviats a Registrals.{% endblock %}
 
-{% block body_class %}bg-cream text-ink min-h-screen flex flex-col justify-between selection:bg-gold selection:text-ink font-raleway{% endblock %}
+{% block body_class %}bg-cream-50 text-ink min-h-screen flex flex-col font-raleway antialiased selection:bg-gold selection:text-ink{% endblock %}
 
 {% block body %}
-<div class="min-h-screen flex flex-col justify-between bg-cream">
-
   {# Barra Superior Privada Unificada #}
   {% include 'partials/_private_header.html.twig' %}
 
   {# Contingut Principal #}
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 sm:py-5 w-full flex-1 pb-20 md:pb-6">
+  <main class="max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 py-2.5 sm:py-3.5 w-full flex-1 pb-20 md:pb-5">
 
-    {# Sub-barra de Navegació Superior per a PC #}
-    <div class="hidden md:flex items-center justify-between pb-3.5 mb-3.5 border-b border-gold/20">
-      <nav class="flex items-center gap-2 font-raleway">
-        <a href="{{ path('app_dashboard') }}" class="px-4 py-2 rounded-xl font-semibold text-xs uppercase tracking-wider bg-white/70 hover:bg-white text-ink/80 hover:text-ink border border-steel/25 hover:border-gold/40 shadow-2xs transition-all flex items-center gap-2">
-          <svg class="w-4 h-4 text-steel" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-          <span>El meu Patrimoni</span>
-        </a>
-        <a href="{{ path('app_certificates_index') }}" class="px-4 py-2 rounded-xl font-semibold text-xs uppercase tracking-wider bg-white/70 hover:bg-white text-ink/80 hover:text-ink border border-steel/25 hover:border-gold/40 shadow-2xs transition-all flex items-center gap-2">
-          <svg class="w-4 h-4 text-steel" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-          <span>Certificats</span>
-        </a>
-        <a href="{{ path('app_transfers_index') }}" class="px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider bg-ink text-gold border border-gold/40 shadow-xs flex items-center gap-2">
-          <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
-          <span>Traspassos</span>
-        </a>
-      </nav>
+    {# 1. Línia de Ruta Mínima #}
+    <nav class="flex items-center gap-1.5 text-[11px] font-mono text-steel uppercase tracking-wider mb-2" aria-label="Ruta de navegació">
+      <a href="{{ path('app_dashboard') }}" class="hover:text-gold transition-colors">Inici</a>
+      <span class="text-steel/40">/</span>
+      <span class="text-ink font-bold">Traspassos</span>
+    </nav>
 
-      <a href="{{ path('app_dashboard') }}" class="py-2 px-4 rounded-xl border border-steel/30 bg-white hover:bg-cream/40 text-ink font-semibold text-xs uppercase tracking-wider transition-all flex items-center gap-2">
-        <svg class="w-4 h-4 text-steel" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-        <span>Tornar al Patrimoni</span>
-      </a>
-    </div>
-
-    {# Capçalera de Pàgina #}
-    <div class="mb-5 sm:mb-6 pb-3 border-b border-gold/15">
-      <h1 class="text-xl sm:text-3xl font-marcellus text-ink tracking-wide">Safata de Traspassos de Titularitat</h1>
-      <p class="text-xs sm:text-sm text-ink/75 mt-0.5 font-raleway">
-        Supervisió de transmissions de propietat C2C, custòdia notarial i segellat a Polygon Blockchain.
-      </p>
+    {# 2. Capçalera de Pàgina #}
+    <div class="mb-3.5 sm:mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2.5 sm:pb-3.5 border-b border-gold/15">
+      <div>
+        <h1 class="text-xl sm:text-3xl font-marcellus text-ink tracking-wide">Safata de Traspassos de Titularitat</h1>
+        <p class="text-xs sm:text-sm text-ink/75 mt-0.5 font-raleway">
+          Supervisió de traspassos certificats C2C, custòdia de proves i segellat a Polygon Blockchain.
+        </p>
+      </div>
     </div>
 
     {# Missatges Flash via Notarial Toast Oficial #}
@@ -52,7 +36,7 @@
           document.addEventListener('DOMContentLoaded', function() {
             if (window.RegistralsToast) {
               window.RegistralsToast.show(
-                '{{ label == 'error' ? 'Avís de Seguretat' : (label == 'warning' ? 'Atenció' : 'Notificació Notarial') }}',
+                '{{ label == 'error' ? 'Avís de Seguretat' : (label == 'warning' ? 'Atenció' : 'Notificació del Traspàs') }}',
                 '{{ message|e('js') }}',
                 '{{ label == 'error' ? 'error' : (label == 'warning' ? 'info' : 'info') }}',
                 5000
@@ -63,8 +47,29 @@
       {% endfor %}
     {% endfor %}
 
-    {# Graella Notarial 2x2: 4 Blocs Harmonitzats (2 Superiors Pendents + 2 Inferiors Històrics) #}
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+    {# Selector de Safata per a Mòbil (< lg): Condensa l'alçada en dues pestanyes notarials #}
+    {% set totalPending = pendingReceived|length + pendingSent|length %}
+    {% set totalHistory = historyReceived|length + historySent|length %}
+    <div class="lg:hidden flex items-center p-1 bg-cream/50 border border-steel/20 rounded-xl mb-3.5 text-xs font-semibold">
+      <button type="button" id="tab-btn-pending" onclick="switchTransferTab('pending')" class="flex-1 py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all bg-ink text-gold border border-gold/40 shadow-2xs font-bold min-h-[40px]">
+        <span>Pendents en Curs</span>
+        <span class="px-1.5 py-0.2 rounded-full font-mono text-[10px] {{ totalPending > 0 ? 'bg-amber-500 text-ink font-bold' : 'bg-cream text-steel border border-steel/20' }}">
+          {{ totalPending }}
+        </span>
+      </button>
+      <button type="button" id="tab-btn-history" onclick="switchTransferTab('history')" class="flex-1 py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all text-ink/70 hover:text-ink min-h-[40px]">
+        <span>Històric de Traspassos</span>
+        <span class="px-1.5 py-0.2 rounded-full font-mono text-[10px] bg-steel/15 text-steel">
+          {{ totalHistory }}
+        </span>
+      </button>
+    </div>
+
+    {# Graella Notarial 2x2 a PC / Pestanyes Condensades a Mòbil #}
+    <div class="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-4 items-start">
+
+      {# Bloc Grup Pendents (Bloc 1 + Bloc 2) #}
+      <div id="transfer-group-pending" class="space-y-4 lg:space-y-0 lg:contents">
 
       {# ==================================================================== #}
       {# FILA 1, COL 1: BLOC 1 - REBUTS PENDENTS D'ACCEPTAR                  #}
@@ -181,6 +186,11 @@
           <span class="font-mono text-steel">Codi PIN opcional</span>
         </div>
       </div>
+
+      </div>
+
+      {# Bloc Grup Històric (Bloc 3 + Bloc 4) #}
+      <div id="transfer-group-history" class="hidden lg:contents space-y-4 lg:space-y-0">
 
       {# ==================================================================== #}
       {# FILA 2, COL 1: BLOC 3 - HISTÒRIC DE REBUTS (EXECUTATS)               #}
@@ -320,8 +330,9 @@
     {# MODALS NOTARIALS DE DETALL DE TRASPÀS EN CURS                       #}
     {# ==================================================================== #}
     {% for transfer in pendingSent %}
-      <div id="modal-transfer-{{ transfer.id }}" class="fixed inset-0 z-50 bg-ink/65 backdrop-blur-xs hidden items-center justify-center p-4 transition-opacity">
-        <div class="bg-white rounded-3xl border border-gold/50 shadow-2xl flex flex-col overflow-hidden w-full max-w-lg max-h-[92vh] animate-in fade-in zoom-in-95 duration-200">
+      <div id="modal-transfer-{{ transfer.id }}" class="fixed inset-0 z-50 bg-ink/65 backdrop-blur-xs hidden items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity">
+        <div class="bg-white rounded-t-3xl sm:rounded-3xl border-t sm:border border-gold/50 shadow-2xl flex flex-col overflow-hidden w-full max-w-lg max-h-[90vh] sm:max-h-[92vh] animate-in slide-in-from-bottom sm:zoom-in-95 duration-200">
+          <div class="sm:hidden w-10 h-1 bg-cream/30 rounded-full mx-auto mt-2 -mb-1 shrink-0"></div>
           
           {# Capçalera del Modal #}
           <div class="px-5 py-3.5 sm:px-6 sm:py-4 bg-ink text-cream border-b border-gold/30 flex items-center justify-between gap-4">
@@ -433,6 +444,35 @@
         }
       });
 
+      function switchTransferTab(tab) {
+        const btnPending = document.getElementById('tab-btn-pending');
+        const btnHistory = document.getElementById('tab-btn-history');
+        const groupPending = document.getElementById('transfer-group-pending');
+        const groupHistory = document.getElementById('transfer-group-history');
+        if (!btnPending || !btnHistory || !groupPending || !groupHistory) return;
+
+        if (tab === 'pending') {
+          btnPending.className = 'flex-1 py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all bg-ink text-gold border border-gold/40 shadow-2xs font-bold min-h-[40px]';
+          btnHistory.className = 'flex-1 py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all text-ink/70 hover:text-ink min-h-[40px]';
+          groupPending.classList.remove('hidden');
+          groupHistory.classList.add('hidden');
+        } else {
+          btnHistory.className = 'flex-1 py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all bg-ink text-gold border border-gold/40 shadow-2xs font-bold min-h-[40px]';
+          btnPending.className = 'flex-1 py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all text-ink/70 hover:text-ink min-h-[40px]';
+          groupHistory.classList.remove('hidden');
+          groupPending.classList.add('hidden');
+        }
+      }
+
+      // Si no hi ha pendents però hi ha històric, obre directament l'històric a mòbil
+      document.addEventListener('DOMContentLoaded', function() {
+        {% if totalPending == 0 and totalHistory > 0 %}
+          if (window.innerWidth < 1024) {
+            switchTransferTab('history');
+          }
+        {% endif %}
+      });
+
       document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('[id^="modal-transfer-"]').forEach(modal => {
           modal.addEventListener('click', function(e) {
@@ -448,13 +488,7 @@
 
   </main>
 
-  {# Peu de pàgina privat #}
-  <footer class="border-t border-gold/30 py-5 text-center text-xs text-ink/65 bg-whitef hidden md:block">
-    <p>&copy; {{ "now"|date("Y") }} Registrals &middot; Àrea privada de custòdia de patrimoni moble.</p>
-  </footer>
-
   {# Barra Inferior Dinàmica PWA per a Mòbil (< md) #}
   {% include 'partials/_pwa_bottom_nav.html.twig' with {'active_tab': 'transfers'} %}
 
-</div>
 {% endblock %}

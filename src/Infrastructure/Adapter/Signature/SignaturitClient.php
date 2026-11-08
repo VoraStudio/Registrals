@@ -59,7 +59,7 @@ class SignaturitClient implements SignaturitTimestampInterface
                 return new SignaturitTimestampDto(
                     tokenId: $tokenId,
                     timestamp: $timestamp,
-                    provider: 'Signaturit Qualified Trust Service Provider (eIDAS EU 910/2014)',
+                    provider: 'Signaturit (Grup Namirial) Qualified Trust Service Provider (eIDAS EU 910/2014)',
                     isCertified: true,
                     rawResponse: json_encode($data) ?: null
                 );
@@ -81,7 +81,7 @@ class SignaturitClient implements SignaturitTimestampInterface
         return new SignaturitTimestampDto(
             tokenId: $simulatedToken,
             timestamp: $now,
-            provider: 'Signaturit Qualified Trust Service Provider (Simulador eIDAS Sandbox)',
+            provider: 'Signaturit (Grup Namirial) Qualified Trust Service Provider (Simulador eIDAS Sandbox)',
             isCertified: true,
             rawResponse: null
         );

@@ -1,7 +1,7 @@
 {# Capçalera Privada Unificada Registrals (Suport per a tema clar o blau marí Ink) #}
 {% set isDark = dark_theme|default(false) %}
-<header class="border-b {{ isDark ? 'border-white/10 bg-ink shadow-md' : 'border-steel/20 bg-white shadow-xs' }} sticky top-0 z-50">
-  <div class="{{ full_width|default(false) ? 'w-full px-4 sm:px-6 lg:px-8' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8' }} h-16 sm:h-20 flex items-center justify-between">
+<header class="{{ isDark ? 'bg-ink' : 'border-b border-steel/20 bg-white shadow-xs' }} sticky top-0 z-50">
+  <div class="{{ full_width|default(false) ? 'w-full px-4 sm:px-6 lg:px-8' : 'max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8' }} h-16 sm:h-18 flex items-center justify-between">
     
     {# Esquerra: Logotip Solemne Registrals #}
     <div class="flex items-center gap-2.5 sm:gap-4">
@@ -10,6 +10,41 @@
         <span class="font-marcellus tracking-widest uppercase text-lg sm:text-2xl {{ isDark ? 'text-white' : 'text-ink' }} font-medium">Registrals</span>
       </a>
     </div>
+
+    {# Centre: Càpsula Notarial de Navegació (Pestanyes Principals a PC - Només per a usuaris particulars, no ROL ADMIN) #}
+    {% if not is_granted('ROLE_ADMIN') and not (hide_nav|default(false)) and not (app.request.pathInfo starts with '/admin') %}
+    {% set currentRoute = app.request.attributes.get('_route') %}
+    <nav class="hidden md:flex items-center p-1 rounded-full bg-cream/40 border border-gold/30 shadow-2xs font-raleway text-xs" aria-label="Navegació principal">
+      {# 1. El meu Patrimoni #}
+      {% set isPatrimoni = currentRoute in ['app_dashboard', 'app_item_show', 'app_item_new', 'app_item_edit'] %}
+      <a href="{{ path('app_dashboard') }}" class="px-3.5 py-1.5 rounded-full uppercase tracking-wider transition-all flex items-center gap-1.5 {{ isPatrimoni ? 'bg-ink text-gold border border-gold/40 font-bold shadow-xs' : 'text-ink/75 hover:text-ink hover:bg-white/60 font-semibold' }}">
+        <svg class="w-3.5 h-3.5 {{ isPatrimoni ? 'text-gold' : 'text-steel' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+        <span>El meu Patrimoni</span>
+      </a>
+
+      {# 2. Certificats #}
+      {% set isCertificats = currentRoute in ['app_certificates_index', 'app_item_certificate_issue'] %}
+      <a href="{{ path('app_certificates_index') }}" class="px-3.5 py-1.5 rounded-full uppercase tracking-wider transition-all flex items-center gap-1.5 {{ isCertificats ? 'bg-ink text-gold border border-gold/40 font-bold shadow-xs' : 'text-ink/75 hover:text-ink hover:bg-white/60 font-semibold' }}">
+        <svg class="w-3.5 h-3.5 {{ isCertificats ? 'text-gold' : 'text-steel' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        <span>Certificats</span>
+      </a>
+
+      {# 3. Traspassos #}
+      {% set isTraspassos = currentRoute in ['app_transfers_index', 'app_transfer_show', 'app_item_transfer_initiate'] %}
+      <a href="{{ path('app_transfers_index') }}" class="px-3.5 py-1.5 rounded-full uppercase tracking-wider transition-all flex items-center gap-1.5 {{ isTraspassos ? 'bg-ink text-gold border border-gold/40 font-bold shadow-xs' : 'text-ink/75 hover:text-ink hover:bg-white/60 font-semibold' }}">
+        <div class="relative">
+          <svg class="w-3.5 h-3.5 {{ isTraspassos ? 'text-gold' : 'text-steel' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+          {% if pendingIncomingTransfers is defined and pendingIncomingTransfers|length > 0 %}
+            <span class="absolute -top-1 -right-1 w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+          {% endif %}
+        </div>
+        <span>Traspassos</span>
+        {% if pendingIncomingTransfers is defined and pendingIncomingTransfers|length > 0 %}
+          <span class="px-1.5 py-0.2 rounded-full bg-amber-200 text-amber-900 font-bold text-[9px]">{{ pendingIncomingTransfers|length }}</span>
+        {% endif %}
+      </a>
+    </nav>
+    {% endif %}
 
     {# Dreta: Avatar d'Usuari amb Micro-Badge de Pla i Desplegable #}
     <div class="flex items-center gap-3">
@@ -52,8 +87,8 @@
             </div>
           </button>
 
-          {# Menú Desplegable Notarial #}
-          <div id="user-menu-dropdown" class="hidden absolute right-0 mt-2.5 w-64 sm:w-72 rounded-2xl bg-white border border-gold/40 shadow-2xl shadow-ink/20 py-3 z-50 animate-in fade-in zoom-in-95 duration-150">
+          {# Menú Desplegable Notarial per a Escriptori (>= md) #}
+          <div id="user-menu-dropdown" class="hidden md:absolute right-0 mt-2.5 w-64 sm:w-72 rounded-2xl bg-white border border-gold/40 shadow-2xl shadow-ink/20 py-3 z-50 animate-in fade-in zoom-in-95 duration-150">
             {% if is_granted('ROLE_ADMIN') or app.user.plan is null %}
               {# Capçalera Simplificada Exclusiva per a Administració #}
               <div class="px-4 py-3 border-b border-steel/15 bg-cream-50/60 rounded-t-2xl">
@@ -130,7 +165,7 @@
                   <span>IA Sobirana & Marc Legal</span>
                 </a>
 
-                <a href="#" class="flex items-center gap-3 px-4 py-2.5 hover:bg-cream/40 hover:text-ink transition-colors">
+                <a href="/guia-destils.html" target="_blank" class="flex items-center gap-3 px-4 py-2.5 hover:bg-cream/40 hover:text-ink transition-colors">
                   <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                   <span>Guia d'Ús i Manual</span>
                 </a>
@@ -145,6 +180,92 @@
               </div>
             {% endif %}
           </div>
+
+          {# Bottom Sheet Notarial per a Mòbil (< md) #}
+          <div id="user-menu-bottom-sheet" class="hidden fixed inset-0 z-50 bg-ink/75 backdrop-blur-xs flex items-end justify-center p-0 transition-opacity md:hidden">
+            <div class="bg-white rounded-t-3xl border-t border-gold/40 shadow-2xl w-full max-h-[85vh] flex flex-col overflow-hidden animate-in slide-in-from-bottom duration-200">
+              {# Nansa Tàctil Mòbil #}
+              <div class="w-10 h-1 bg-steel/30 rounded-full mx-auto mt-2.5 shrink-0"></div>
+
+              {# Capçalera de l'usuari #}
+              <div class="p-4 border-b border-steel/15 flex items-center justify-between">
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="w-10 h-10 rounded-full bg-cream border border-gold/40 text-ink flex items-center justify-center font-bold text-sm font-raleway shrink-0">
+                    {% if app.user.firstName and app.user.lastName %}
+                      {{ app.user.firstName|first|upper }}{{ app.user.lastName|first|upper }}
+                    {% else %}
+                      <svg class="w-5 h-5 text-ink/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    {% endif %}
+                  </div>
+                  <div class="min-w-0">
+                    <div class="text-sm font-bold text-ink truncate">{{ app.user.fullName }}</div>
+                    <div class="text-xs text-ink/65 truncate font-raleway">{{ app.user.email }}</div>
+                  </div>
+                </div>
+                <button type="button" onclick="closeUserMenuMobile()" class="w-8 h-8 rounded-full bg-cream/60 text-ink flex items-center justify-center text-sm font-bold hover:bg-cream cursor-pointer" aria-label="Tancar">
+                  ✕
+                </button>
+              </div>
+
+              {# Targeta de subscripció #}
+              <div class="px-4 py-2.5 bg-cream-50/70 border-b border-steel/10 flex items-center justify-between text-xs">
+                <div>
+                  <span class="text-[10px] uppercase font-mono tracking-wider text-ink/60 block">Pla Actiu</span>
+                  <span class="font-bold text-ink">{{ app.user.plan ? app.user.plan.name : 'Free' }}</span>
+                </div>
+                <span class="px-2 py-0.5 rounded-md font-mono text-[10px] font-bold {{ app.user.plan and app.user.plan.code == 'plus' ? 'bg-ink text-gold' : (app.user.plan and app.user.plan.code == 'unlimited' ? 'bg-gold text-ink' : 'bg-cream text-steel border border-steel/20') }}">
+                  {{ (app.user.plan ? app.user.plan.code : 'free')|upper }}
+                </span>
+              </div>
+
+              {# Llista de Navegació en Format Tàctil Notarial #}
+              <div class="py-2 overflow-y-auto divide-y divide-steel/10 text-xs font-semibold text-ink/85">
+                {% if is_granted('ROLE_ADMIN') %}
+                  <a href="{{ path('app_admin_dashboard') }}" class="flex items-center gap-3 px-4 py-3 bg-ink text-gold font-bold transition-colors">
+                    <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <span>Panell d'Administració</span>
+                  </a>
+                {% endif %}
+
+                <a href="{{ path('app_profile') }}" class="flex items-center gap-3 px-4 py-3 hover:bg-cream/40 transition-colors">
+                  <svg class="w-4 h-4 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                  <span>El meu Perfil & Dades</span>
+                </a>
+
+                <a href="{{ path('app_plan') }}" class="flex items-center gap-3 px-4 py-3 hover:bg-cream/40 transition-colors">
+                  <svg class="w-4 h-4 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                  <span>El meu Pla & Quotes</span>
+                </a>
+
+                <a href="{{ path('app_plan_billing') }}" class="flex items-center gap-3 px-4 py-3 hover:bg-cream/40 transition-colors">
+                  <svg class="w-4 h-4 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                  <span>Facturació & Pagaments</span>
+                </a>
+
+                <a href="{{ path('app_profile_install_app') }}" class="flex items-center gap-3 px-4 py-3 hover:bg-cream/40 transition-colors">
+                  <svg class="w-4 h-4 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                  <span>Instal·lar App Mòbil</span>
+                </a>
+
+                <a href="{{ path('app_legal_ai_sovereign') }}" class="flex items-center gap-3 px-4 py-3 hover:bg-cream/40 transition-colors">
+                  <svg class="w-4 h-4 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                  <span>IA Sobirana & Marc Legal</span>
+                </a>
+
+                <a href="/guia-destils.html" target="_blank" class="flex items-center gap-3 px-4 py-3 hover:bg-cream/40 transition-colors">
+                  <svg class="w-4 h-4 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                  <span>Guia d'Ús i Manual</span>
+                </a>
+
+                <div class="p-3">
+                  <a href="{{ path('app_logout') }}" class="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-red-50 text-red-700 font-bold text-xs border border-red-200 transition-colors">
+                    <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                    <span>Tancar Sessió</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       {% endif %}
     </div>
@@ -154,6 +275,20 @@
 
 <script>
   function toggleUserMenu() {
+    if (window.innerWidth < 768) {
+      const bottomSheet = document.getElementById('user-menu-bottom-sheet');
+      if (!bottomSheet) return;
+      const isHidden = bottomSheet.classList.contains('hidden');
+      if (isHidden) {
+        bottomSheet.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+      } else {
+        bottomSheet.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+      }
+      return;
+    }
+
     const dropdown = document.getElementById('user-menu-dropdown');
     const button = document.getElementById('user-menu-button');
     if (!dropdown || !button) return;
@@ -168,7 +303,15 @@
     }
   }
 
-  // Tancar el desplegable en fer clic fora
+  function closeUserMenuMobile() {
+    const bottomSheet = document.getElementById('user-menu-bottom-sheet');
+    if (bottomSheet) {
+      bottomSheet.classList.add('hidden');
+      document.body.classList.remove('overflow-hidden');
+    }
+  }
+
+  // Tancar el desplegable d'escriptori en fer clic fora
   document.addEventListener('click', function(event) {
     const container = document.getElementById('user-menu-container');
     const dropdown = document.getElementById('user-menu-dropdown');
@@ -178,6 +321,21 @@
     if (!container.contains(event.target)) {
       dropdown.classList.add('hidden');
       button.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  // Tancar Bottom Sheet mòbil amb ESC o clic al backdrop
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeUserMenuMobile();
+  });
+  document.addEventListener('DOMContentLoaded', function() {
+    const mobileSheet = document.getElementById('user-menu-bottom-sheet');
+    if (mobileSheet) {
+      mobileSheet.addEventListener('click', function(e) {
+        if (e.target === mobileSheet) {
+          closeUserMenuMobile();
+        }
+      });
     }
   });
 </script>

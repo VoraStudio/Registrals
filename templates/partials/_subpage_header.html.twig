@@ -1,0 +1,108 @@
+{# 
+  Capçalera Notarial Canònica de Subpàgina Registrals
+  Estètica Neutra de Certificats (Fons Cream-50 + Tipografia Marcellus + Ruta Canònica)
+  
+  Paràmetres:
+    - breadcrumbs: array d'elements [{ label: 'Inici', url: path(...) }, { label: 'Perfil' }]
+    - title: Títol principal de la pantalla (string)
+    - subtitle: Descripció breu d'una línia (string opcional)
+    - badge: Píndola o micro-badge opcional al costat del títol (html opcional)
+    - action_url: URL per al botó superior dret (opcional)
+    - action_label: Text per al botó superior dret (opcional)
+    - action_icon: SVG per al botó dret (opcional)
+    - action_modal_id: ID del modal si és una acció modal (opcional)
+    - action_raw_html: HTML lliure per a botons o accions compostes (opcional)
+#}
+
+<div class="{{ mb_class|default('mb-5 sm:mb-6') }} {{ pb_class|default('pb-3.5 sm:pb-4') }} border-b border-gold/15">
+  {# 1. Línia Superior Canònica: Ruta (Fil d'Ariadna) individual #}
+  {% if breadcrumbs is defined and breadcrumbs|length > 0 %}
+    <nav class="flex items-center gap-1.5 text-[11px] font-mono text-steel uppercase tracking-wider mb-2" aria-label="Ruta de navegació">
+      {% for crumb in breadcrumbs %}
+        {% if not loop.first %}
+          <span class="text-steel/40">/</span>
+        {% endif %}
+        {% if crumb.url is defined and crumb.url and not loop.last %}
+          <a href="{{ crumb.url }}" class="hover:text-gold transition-colors">{{ crumb.label }}</a>
+        {% else %}
+          <span class="text-ink font-bold">{{ crumb.label }}</span>
+        {% endif %}
+      {% endfor %}
+    </nav>
+  {% endif %}
+
+  {# 2. Línia Operativa: Títol Marcellus + Badge al centre + Acció Contextual a la dreta #}
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div class="flex items-center gap-3 flex-wrap min-w-0">
+      <h1 class="font-marcellus text-2xl sm:text-3xl text-ink tracking-tight font-medium">
+        {{ title }}
+      </h1>
+      {% if badge is defined and badge %}
+        <div class="shrink-0">{{ badge|raw }}</div>
+      {% endif %}
+    </div>
+
+    {# Bloc d'Acció Superior Dreta / Paginador Seqüencial de Compte #}
+    <div class="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-2 shrink-0">
+      {% if nav_prev_url is defined or nav_next_url is defined %}
+        <nav class="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-2.5" aria-label="Navegació de compte">
+          {# Botó Esquerra (Anterior / Inici) #}
+          {% if nav_prev_url is defined and nav_prev_url %}
+            <a href="{{ nav_prev_url }}"
+               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-steel/25 hover:border-gold/50 shadow-2xs text-xs font-semibold text-ink/80 hover:text-ink transition-all active:scale-[0.98]"
+               title="{{ nav_prev_label|default('Anterior') }}">
+              <svg class="w-3.5 h-3.5 text-steel" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15 19l-7-7 7-7"/></svg>
+              <span>{{ nav_prev_label|default('Anterior') }}</span>
+            </a>
+          {% else %}
+            <span class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-cream-50/70 border border-steel/15 text-xs font-semibold text-steel/30 cursor-not-allowed select-none">
+              <svg class="w-3.5 h-3.5 text-steel/25" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15 19l-7-7 7-7"/></svg>
+              <span class="text-[10px] font-mono uppercase tracking-wider">Inici</span>
+            </span>
+          {% endif %}
+
+          {# Botó Dreta (Següent / Final) #}
+          {% if nav_next_url is defined and nav_next_url %}
+            <a href="{{ nav_next_url }}"
+               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cream hover:bg-cream/80 border border-gold/40 hover:border-gold/70 shadow-2xs text-xs font-semibold text-ink transition-all active:scale-[0.98]"
+               title="{{ nav_next_label|default('Següent') }}">
+              <span>{{ nav_next_label|default('Següent') }}</span>
+              <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+          {% else %}
+            <span class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-cream-50/70 border border-steel/15 text-xs font-semibold text-steel/30 cursor-not-allowed select-none">
+              <span class="text-[10px] font-mono uppercase tracking-wider">Final</span>
+              <svg class="w-3.5 h-3.5 text-steel/25" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 5l7 7-7 7"/></svg>
+            </span>
+          {% endif %}
+        </nav>
+      {% endif %}
+
+      {% if action_raw_html is defined and action_raw_html %}
+        {{ action_raw_html|raw }}
+      {% elseif action_modal_id is defined and action_modal_id %}
+        <button type="button" onclick="document.getElementById('{{ action_modal_id }}').classList.remove('hidden')" class="py-2 px-4 sm:px-5 rounded-xl bg-ink text-gold border border-gold/40 shadow-xs hover:bg-ink/90 active:scale-[0.99] transition-all flex items-center gap-2 text-xs uppercase tracking-wider font-raleway font-semibold cursor-pointer">
+          {% if action_icon is defined and action_icon %}
+            {{ action_icon|raw }}
+          {% else %}
+            <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 4v16m8-8H4"/></svg>
+          {% endif %}
+          <span>{{ action_label|default('Acció') }}</span>
+        </button>
+      {% elseif action_url is defined and action_url %}
+        <a href="{{ action_url }}" class="py-2 px-4 sm:px-5 rounded-xl bg-ink text-gold border border-gold/40 shadow-xs hover:bg-ink/90 active:scale-[0.99] transition-all flex items-center gap-2 text-xs uppercase tracking-wider font-raleway font-semibold cursor-pointer">
+          {% if action_icon is defined and action_icon %}
+            {{ action_icon|raw }}
+          {% endif %}
+          <span>{{ action_label|default('Acció') }}</span>
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if subtitle is defined and subtitle %}
+    <p class="font-raleway text-xs sm:text-sm text-ink/70 mt-1.5 max-w-3xl leading-relaxed">
+      {{ subtitle }}
+    </p>
+  {% endif %}
+</div>

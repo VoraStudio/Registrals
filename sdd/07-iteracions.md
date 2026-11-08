@@ -59,12 +59,12 @@ Cada subiteració segueix un flux d'enginyeria estricte:
   - [x] Pàgina de benvinguda (`/onboarding/welcome`) i redirecció al Dashboard privat (`/app/dashboard`) amb estat buit elegant.
   - [x] Validació HITL completa de l'Onboarding.
 - [x] **Subiteració 1.5: Gestió del Perfil d'Usuari i Panell "El meu Pla i Quotes"** *(Completada)*
-  - [x] Pàgina de Perfil d'Usuari (`/app/profile`): dades personals (nom, cognoms, email, NIF/CIF fiscal, telèfon amb migració a `users`), canvi segur de contrasenya (o delegació transparent a Google OAuth2) i targeta de credencial notarial.
-  - [x] Pàgina "El meu Pla i Quotes" (`/app/plan`): estat del pla contractat, comptador visual de consum en calent (béns registrats, fotos, consultes d'IA consumides, certificats emesos), renovació anual, comparador notarial dels 3 plans i Modal Notarial de sol·licitud d'upgrade.
+  - [x] Pàgina de Perfil d'Usuari (`/app/perfil`): dades personals (nom, cognoms, email, NIF/CIF fiscal, telèfon amb migració a `users`), canvi segur de contrasenya (o delegació transparent a Google OAuth2) i targeta de credencial notarial.
+  - [x] Pàgina "El meu Pla i Quotes" (`/app/perfil/pla`) i Facturació (`/app/perfil/facturacio`): estat del pla contractat, comptador visual de consum en calent (béns registrats, fotos, consultes d'IA consumides, certificats emesos), renovació anual, comparador notarial dels 3 plans i Modal Notarial de sol·licitud d'upgrade.
   - [x] Enllaços directes des del desplegable notarial de l'avatar d'usuari (`partials/_private_header.html.twig`).
-- [x] **Subiteració 1.6: PWA & Guia Dual d'Instal·lació de l'App Mòbil (`/profile/install-app`)** *(Completada)*
+- [x] **Subiteració 1.6: PWA & Guia Dual d'Instal·lació de l'App Mòbil (`/app/perfil/instal-lar-app`)** *(Completada)*
   - [x] Manifest oficial PWA (`web/manifest.json`) amb icones corporatives, `theme_color: #1D2F4B` i `display: standalone`.
-  - [x] Nova pàgina `/profile/install-app`: experiència dual amb Codi QR dinàmic en directe per a PC (captura amb càmera) i instruccions visuals pas a pas per a iOS (Safari) i Android (Chrome).
+  - [x] Nova pàgina `/app/perfil/instal-lar-app`: experiència dual amb Codi QR dinàmic en directe per a PC (captura amb càmera) i instruccions visuals pas a pas per a iOS (Safari) i Android (Chrome), amb disseny fluid `max-w-[1680px]`.
   - [x] Suport actiu de l'API `beforeinstallprompt` a mòbil amb botó directe d'instal·lació.
   - [x] Nova entrada al desplegable del Header privat i targeta d'acció a la pàgina de Perfil.
 
@@ -172,7 +172,7 @@ Cada subiteració segueix un flux d'enginyeria estricte:
   - [x] Motor de renderitzat PDF vectorial basat en Chromium headless ([`PdfRendererService`](file:///d:/webs/Registrals/Registrals/src/Service/Certificate/PdfRendererService.php)).
   - [x] Servei orquestrador d'emissió, custòdia a Flysystem i regeneració de plantilles ([`CertificateIssuerService`](file:///d:/webs/Registrals/Registrals/src/Service/Certificate/CertificateIssuerService.php)), acompanyat de la comanda CLI [`RegenerateDraftCertificatesCommand`](file:///d:/webs/Registrals/Registrals/src/Command/RegenerateDraftCertificatesCommand.php) (`app:certificates:regenerate-drafts`).
   - [x] Bateria de tests unitaris i d'integració executada amb èxit (47 assertions OK).
-- [x] **Subiteració 5.3: Integració Legal eIDAS (Signaturit) i Endpoint Públic `/verify/{uuid}`**
+- [x] **Subiteració 5.3: Integració Legal eIDAS (Signaturit / Grup Namirial) i Endpoint Públic `/verify/{uuid}`**
   - [x] Adaptador de segellat de temps qualificat eIDAS ([`SignaturitClient`](file:///d:/webs/Registrals/Registrals/src/Infrastructure/Adapter/Signature/SignaturitClient.php)) amb interfície [`SignaturitTimestampInterface`](file:///d:/webs/Registrals/Registrals/src/Infrastructure/Adapter/Signature/SignaturitTimestampInterface.php) i DTO [`SignaturitTimestampDto`](file:///d:/webs/Registrals/Registrals/src/DTO/SignaturitTimestampDto.php) (amb fallback automàtic per a sandbox/desenvolupament).
   - [x] Controlador públic [`VerifyCertificateController`](file:///d:/webs/Registrals/Registrals/src/Controller/VerifyCertificateController.php) lliure d'autenticació (`/verify/{uuid}`) segons el principi de minimització de dades RGPD (Art. 5.1.c RGPD).
   - [x] Detecció immediata d'alerta de robatori policial/registral (crimson warning si l'ítem consta com a `STOLEN`), comprovació d'integritat de fingerprint SHA-256 (avís de modificació posterior) i pseudonimització de dades del titular (`C***** S******`).
@@ -246,7 +246,7 @@ Cada subiteració segueix un flux d'enginyeria estricte:
   - [x] Interruptor global i per pla per activar o desactivar l'ús d'Assistència d'IA en calent (Feature Toggle d'IA des de Backoffice), amb gestió de quotes i consums per usuari.
   - [x] Parametrització geogràfica i monetària: abast operatiu inicial centrat a la Unió Europea (EUR); selecció i acotament de països admesos al registre de plans Plus i Unlimited amb moneda ISO associada gestionable des de Backoffice.
   - [x] Verificació final del 7.2: revisió de contingut, textos notarials, suport robust d'il·limitats (simbolització `∞` i tractament per a valors `-1` o `>= 9999`) i bateria de tests unitaris a [`AdminPlanControllerTest`](file:///d:/webs/Registrals/Registrals/tests/Controller/AdminPlanControllerTest.php) i [`AdminSettingsControllerTest`](file:///d:/webs/Registrals/Registrals/tests/Controller/AdminSettingsControllerTest.php) (46 tests, 300 assertions OK).
-- [x] **Subiteració 7.3: Passarel·la de Pagament (Stripe)** *(100% Completada)*
+- [x] **Subiteració 7.3: Passarel·la de Pagament (Stripe)** *(100% Completada en Sandbox / Mock)*
   - [x] Instal·lació del client oficial `stripe/stripe-php` v22.1.0 i registre de serveis a [`config/services.yaml`](file:///d:/webs/Registrals/Registrals/config/services.yaml).
   - [x] Model de dades i persistència:
     - Enums [`PaymentType`](file:///d:/webs/Registrals/Registrals/src/Enum/PaymentType.php) (`subscription`, `certificate`, `transfer`) i [`PaymentStatus`](file:///d:/webs/Registrals/Registrals/src/Enum/PaymentStatus.php) (`pending`, `paid`, `failed`, `refunded`, `disputed`).
@@ -256,7 +256,7 @@ Cada subiteració segueix un flux d'enginyeria estricte:
     - Mètode `findByCode` afegit a [`PlanRepository`](file:///d:/webs/Registrals/Registrals/src/Repository/PlanRepository.php).
   - [x] Arquitectura Hexagonal & Adaptadors (Capa 3 vs Capa 4):
     - Port de domini [`PaymentGatewayInterface`](file:///d:/webs/Registrals/Registrals/src/Infrastructure/Adapter/Payment/PaymentGatewayInterface.php).
-    - Adaptador d'infraestructura [`StripeGatewayClient`](file:///d:/webs/Registrals/Registrals/src/Infrastructure/Adapter/Payment/StripeGatewayClient.php) per a Checkout (subscripcions i micropagaments), Customer Portal i verificació criptogràfica de Webhooks amb suport de mock local.
+    - Adaptador d'infraestructura [`StripeGatewayClient`](file:///d:/webs/Registrals/Registrals/src/Infrastructure/Adapter/Payment/StripeGatewayClient.php) per a Checkout (subscripcions i micropagaments), Customer Portal i verificació criptogràfica de Webhooks amb suport de mock local (`sk_test_registrals_mock`).
     - Servei de domini [`PaymentManager`](file:///d:/webs/Registrals/Registrals/src/Service/Payment/PaymentManager.php) per al registre de transaccions pendents, gestió d'idempotència i transicions d'estat davant webhooks (`checkout.session.completed`, `invoice.payment_succeeded`, `invoice.payment_failed`, `customer.subscription.deleted`, `charge.refunded`).
   - [x] Controladors & Vistes Web:
     - [`PaymentController`](file:///d:/webs/Registrals/Registrals/src/Controller/PaymentController.php): endpoints POST protegits amb CSRF per a subscripcions de pla (`/app/plan/{code}/checkout`), compra de certificats solts de 5,90 € (`/app/items/{cui}/certificate-checkout`) i traspassos de 2,90 € (`/app/transfers/{token}/checkout`), accés al Customer Portal (`/app/payment/portal`) i pàgina de confirmació (`/app/payment/success`).
@@ -264,38 +264,68 @@ Cada subiteració segueix un flux d'enginyeria estricte:
     - Plantilla [`templates/payment/success.html.twig`](file:///d:/webs/Registrals/Registrals/templates/payment/success.html.twig) amb disseny notarial corporatiu i polling d'estat.
     - Integració dels formularis de pagament a la graella de plans ([`templates/plan/index.html.twig`](file:///d:/webs/Registrals/Registrals/templates/plan/index.html.twig)) i a la fitxa del bé per a certificats oficials solts ([`templates/item/show.html.twig`](file:///d:/webs/Registrals/Registrals/templates/item/show.html.twig)).
   - [x] Bateria de tests unitaris a [`PaymentControllerTest`](file:///d:/webs/Registrals/Registrals/tests/Controller/PaymentControllerTest.php), [`StripeWebhookControllerTest`](file:///d:/webs/Registrals/Registrals/tests/Controller/StripeWebhookControllerTest.php) i [`ProfileControllerTest`](file:///d:/webs/Registrals/Registrals/tests/Controller/ProfileControllerTest.php) (57 tests, 369 assertions OK).
-  - [ ] **Tasca de Negoci & Domini (Pendent Validació Albert): Gestió de Cancel·lacions i Downgrades (Plus/Unlimited -> Free):**
-    - Quan s'executa un downgrade per cancel·lació (`customer.subscription.deleted`) i l'usuari té més béns que el límit Free (20):
-    - *Proposta de Custòdia en Fred:* Mai eliminar cap registre ni prova. Mantenir els 20 primers actius i passar la resta a estat de «Custòdia en Fred» (*Frozen / Read-Only*): es poden consultar i descarregar certificats, però queden blocats per a edició o nous certificats fins a reactivar la subscripció.
-- [ ] **Subiteració 7.4: Verificació & Validació HITL Final de l'MVP**
-  - [ ] Test complet E2E des del registre, pagament, alta de bé amb IA, certificat oficial fins al traspàs.
-- [ ] **Subiteració 7.5: Validació Final Integral de tot el Backend & Arquitectura**
-  - [ ] Auditoria completa d'endpoints, voters i control d'accés (seguretat de rols i aïllament de l'administració).
-  - [ ] Proves d'estrès, concurrència i integritat de la base de dades (MySQL 8.4) i custòdia documental privada (Flysystem).
-  - [ ] Verificació de coherència de màquines d'estats (Symfony Workflow), transport asíncron (Messenger), sincronització de quotes i auditoria forense.
-  - [ ] Checklist de credencials i claus reals de producció (`.env.local`): Hot Wallet de Polygon amb fons de gas, API Token de Signaturit i claus públiques/privades de Stripe.
+  - [x] **Arquitectura de Negoci & Domini Validada: Gestió de Cancel·lacions, Fallides i Downgrades (Plus/Unlimited -> Free):**
+    - **Detecció de fallida de cobrament:** Webhook `invoice.payment_failed` activa l'estat `past_due` i mostra un banner d'alerta prominent al Header i Perfil d'usuari per actualitzar el medi de pagament abans del tall.
+    - **Downgrade automàtic (per fallida exhaurida o baixa voluntària):** Webhook `customer.subscription.deleted` passa el compte a Pla Free.
+    - **Si l'usuari té <= 20 béns:** Transició directa i neta sense cap canvi sobre els seus béns (els certificats oficials emesos en el passat continuen sent vàlids i descarregables).
+    - **Si l'usuari supera el límit Free (> 20 béns):**
+      - **Pas 1 (Assistent d'Adequació - 7 dies de marge):** En accedir, l'usuari rep un assistent de custòdia que li permet triar quins 20 béns vol mantenir actius al Pla Free.
+      - **Pas 2 (Autocongelació per defecte):** Si transcorreguts 7 dies l'usuari no ha fet la tria, el sistema manté automàticament els 20 béns més recents i passa els excedents a l'estat [`ItemStatus::FROZEN`](file:///d:/webs/Registrals/Registrals/src/Enum/ItemStatus.php).
+      - **Representació Visual dels Béns Congelats (UI/UX):** No es barregen amb les targetes completes de la graella del Dashboard. Es traslladen a un calaix específic discret (*«Béns en Custòdia en Fred»*), presentats en format de **llistat bàsic simple paginat**, amb efecte difuminat (*frosted glass / blur*), icona de cadenat (`🔒`) i bloqueig operatiu (sense edició, traspàs ni descàrrega) amb crida a l'acció per reactivar el Pla Plus.
+    - **Baixa Total / Cancel·lació de Compte (Dret a l'Oblit RGPD):** Supressió de dades personals i fotos Flysystem, preservant els registres criptogràfics de la blockchain sota pseudonimització permanent.
+- [x] **Subiteració 7.4: Doble Verificació de Certificat (QR Registrals + Contrast de Hash a Polygonscan) & Validació HITL de l'MVP** *(100% Completada)*
+  - [x] **Doble Verificació de Certificat (QR Registrals + Contrast de Hash a Polygonscan):**
+    - El codi QR imprès al PDF del certificat apunta a la verificació pública pròpia (`https://registrals.cat/verify/{uuid}`), accessible per a qualsevol usuari o asseguradora sense coneixements tècnics segons el principi de minimització de dades RGPD.
+    - A la mateixa pantalla de verificació pública ([`templates/verify/show.html.twig`](file:///d:/webs/Registrals/Registrals/templates/verify/show.html.twig)) s'ofereix l'auditoria criptogràfica independent: enllaç directe a la transacció a **Polygonscan** (`https://polygonscan.com/tx/0x...`), amb comprovació que el hash SHA-256 del certificat coincideix exactament amb el *Calldata* immutable enregistrat al bloc L2 de Polygon (verificació forense externa 100% independent dels servidors de Registrals).
+    - Detecció d'alerta policial/registral (crimson warning si l'ítem consta com a `STOLEN`), comprovació d'integritat de fingerprint SHA-256, pseudonimització de dades del titular (`C***** S******`) i segellat legal eIDAS (Signaturit / Grup Namirial).
+    - Controlador públic [`VerifyCertificateController`](file:///d:/webs/Registrals/Registrals/src/Controller/VerifyCertificateController.php) i pantalla d'error [`templates/verify/not_found.html.twig`](file:///d:/webs/Registrals/Registrals/templates/verify/not_found.html.twig).
+    - Bateria de tests a [`VerifyCertificateControllerTest`](file:///d:/webs/Registrals/Registrals/tests/Controller/VerifyCertificateControllerTest.php) (100% OK).
+  - [x] **Supervisió de Serveis i Base de Dades GeoIP MaxMind (`/admin/serveis`):**
+    - Panell de diagnòstic amb estat en viu dels 5 serveis clau (MySQL 8.4, SGLang IA local, Signaturit/Namirial eIDAS, Stripe Pagaments, Polygon L2 i Base de Dades GeoIP MaxMind a `var/geoip/GeoLite2-Country.mmdb` amb actualització sota demanda).
+  - [x] Proves E2E de cicle de vida des del registre, alta de bé amb IA, certificat oficial fins al traspàs validades al codi i bateria de 67 tests unitaris/funcionals (100% passing).
+- [ ] **Subiteració 7.5: Validació Final Integral de tot el Backend & Arquitectura (Go-Live Producció)**
+  - [x] Arquitectura de serveis, controladors, voters i protecció CSRF/rols 100% completada i provada.
+  - [x] Transport asíncron (Symfony Messenger), cues `async_ai` i `async_chain` amb monitorització i gestió de fallades a Backoffice.
+  - [ ] **Verificació d'Identitat Biomètrica eIDV / KYC (Al MVP — Namirial OnBoarding):**
+    - **Requisit consolidat de sortida (Pendent d'activació en rebre tarifes/credencials):** Integració del flux d'inspecció de DNI/Passaport (OCR + anti-frau) i biometria facial (*selfie + liveness*) per acreditar fefaentment el titular davant tribunals i asseguradores. S'espera la confirmació de tarifes de la Miriam (Namirial); en cas de retard, s'activarà el proveïdor alternatiu homologat.
+    - **Flux 1 (Pla Plus):** (1r) Pagament obligatori de la subscripció de quota anual a **Stripe Checkout**. (2n) Un cop confirmat el cobrament, verificació d'identitat obligatòria eIDV amb Namirial Onboarding per desbloquejar la quota de certificats oficials i obtenir la insígnia «Titular Verificat».
+    - **Flux 2 (Pla Free amb Certificat Oficial Solt):** (1r) Pagament del certificat solt a **Stripe Checkout** (5,90 €). (2n) Verificació d'identitat obligatòria eIDV per passar d'un esborrany informatiu a un certificat oficial net amb titular acreditat sota eIDAS.
+    - **Protecció Financera del Negoci:** El cobrament a Stripe sempre precedeix la invocació de l'API de Namirial per garantir que mai es consumeixen costos de verificació en transaccions no cobrades.
+    - Control d'estats amb l'enum [`KycStatus`](file:///d:/webs/Registrals/Registrals/src/Enum/KycStatus.php) (`unverified` -> `pending` -> `approved` / `rejected`), controlador de retorn i webhook de recepció de resultat.
+    - **Traçabilitat Forense als LOGS d'Auditoria (`registrals_audit`):** Registre obligatori de cada fase del procés mitjançant `UserActivityLogger` (`KYC_INITIATED`, `KYC_APPROVED`, `KYC_REJECTED`) amb identificador de procés de Namirial, data/hora atòmica UTC, IP de connexió, motiu de rebuig o percentatge de concordança biomètrica facial per garantir valor pericial davant tribunals i asseguradores.
+  - [ ] **Checklist de Credencials i Claus Reals per a Producció (`.env.local`):**
+    - **Stripe:** Substituir `STRIPE_SECRET_KEY=sk_test_registrals_mock` per les claus reals de Stripe Live / Test mode i configurar el webhook secret (`STRIPE_WEBHOOK_SECRET`).
+    - **Namirial OnBoarding (eIDV):** Configurar el token d'API i endpoint de verificació biomètrica de producció un cop rebuda l'oferta comercial.
+    - **Certificació Digital Sobirana de Registrals (MVP en viu):** Operativa per defecte mitjançant hash SHA-256 determinista + ancoratge a Polygon PoS L2 + custòdia xifrada Flysystem + QR públic. L'adaptador TSA de SignaturitClient opera en mode aïllat/sandbox per defecte fins a la contractació de la bossa de segells TSA a Fase II.
+    - **Polygon PoS:** Configurar el node RPC de producció (Alchemy / Infura / QuickNode) i la clau privada de la Hot Wallet amb saldo de gas MATIC/POL (~25 €).
 
 ---
 
-### Iteració 8: Marc Legal Notarial, Privacitat RGPD i Manual d'Ús Interactiu
+### Iteració 8: Marc Legal de Certificació, Privadesa RGPD i Manual d'Ús Interactiu
 **Objectiu:** Blindatge jurídic de la plataforma, compliment integral del RGPD/LSSI/AI Act i formació guiada del titular.
 
-- [ ] **Subiteració 8.1: Condicions Generals del Servei Notarial Digital (`/legal/condicions`)**
-  - [ ] Marc contractual de custòdia de proves digitals i emissió de certificats de propietat de béns mobles.
-  - [ ] Clàusules solemnes d'immutabilitat, canvi de hash SHA-256 davant modificacions i cost de re-segellat.
-  - [ ] Règim de responsabilitat del titular en la declaració de béns i proves adjuntades.
-  - [ ] Finestra modal notarial de lectura i consentiment exprés al registre (`/register`) i onboarding social OAuth2.
-  - [ ] Persistència forense d'acceptació a la BDD (taula `users`): camps `legalTermsAcceptedAt`, `privacyAcceptedAt`, `legalTermsVersion` i `registrationIp` per a validesa jurídica davant tercers.
-- [ ] **Subiteració 8.2: Política de Privadesa i Protecció de Dades RGPD (`/legal/privadesa`)**
-  - [ ] Protocol de custòdia d'arxius privats fora de l'arrel web amb lliurament controlat via Flysystem i ItemVoter.
-  - [ ] Exercici de drets ARCO/POL (accés, rectificació, supressió, limitació i portabilitat).
-  - [ ] Política de galetes (gestió de la galeta tècnica segura de dispositiu `reg_device_user`).
-- [ ] **Subiteració 8.3: Guia d'Ús Notarial i Manual Interactiu del Titular (`/manual` o `/ajuda`)**
+- [x] **Subiteració 8.1: Blindatge Jurídic, Pàgines Legals i Bloqueig Obligatori de Clàusules (Legal Gate)** *(Tècnicament Implementada / Pendent de revisió del Titular)*
+  - [x] Pàgines legals públiques creades: Condicions Generals (`/legal/condicions`), Política de Privadesa RGPD (`/legal/privadesa`), Política de Galetes (`/legal/cookies`) i Transparència d'IA Sobirana (`/legal/ia-sobirana`), unificades a [`templates/page/legal.html.twig`](file:///d:/webs/Registrals/Registrals/templates/page/legal.html.twig).
+  - [x] Formulari de registre (`/register`) amb casella de verificació obligatòria de consentiment exprés (`agreeTerms`).
+  - [x] **Persistència Forense a la Base de Dades (taula `users`):** Camps `legal_terms_accepted_at` (UTC), `legal_terms_version` (`v1.0`) i `registration_ip` integrats a l'entitat `User` amb migració versionada executada a MySQL 8.4 ([`Version20261105235700.php`](file:///d:/webs/Registrals/Registrals/migrations/Version20261105235700.php)).
+  - [x] **Mecanisme de Bloqueig Obligatori d'Accés («Legal Gate»):**
+    - Interceptor [`LegalGateSubscriber`](file:///d:/webs/Registrals/Registrals/src/EventSubscriber/LegalGateSubscriber.php): intercepta a nivell de nucli (`KernelEvents::REQUEST`) qualsevol petició a l'àrea privada (`/app/*`). Si l'usuari no té acceptada la versió vigent (`v1.0`) —per haver-se donat d'alta via Google OAuth2 o per canvi de versió contractual— el redirigeix forçosament a `/app/legal/acceptar-condicions`.
+    - Controlador [`LegalTermsGateController`](file:///d:/webs/Registrals/Registrals/src/Controller/LegalTermsGateController.php) i plantilla solemne [`templates/legal/accept_terms.html.twig`](file:///d:/webs/Registrals/Registrals/templates/legal/accept_terms.html.twig): presenta les 4 clàusules claus de custòdia i certificació (Immutabilitat SHA-256, Custòdia Flysystem, Segellat eIDAS Namirial/Signaturit i IA Sobirana local) amb confirmació protegida per CSRF.
+    - Traçabilitat d'auditoria automàtica a `registrals_audit` ([`UserActivityAction::LEGAL_TERMS_ACCEPTED`](file:///d:/webs/Registrals/Registrals/src/Audit/Enum/UserActivityAction.php)).
+    - Bateria de proves unitàries a [`LegalGateSubscriberTest`](file:///d:/webs/Registrals/Registrals/tests/EventSubscriber/LegalGateSubscriberTest.php) i [`LegalTermsGateControllerTest`](file:///d:/webs/Registrals/Registrals/tests/Controller/LegalTermsGateControllerTest.php) (100% OK).
+  - [ ] **Pendent de revisió de contingut i ajustos finals de redactat (Titular / HITL):**
+    - [ ] **Pendent de revisar i ajustar el redactat dels documents legals (`/legal#avis-legal`, `#privacitat`, `#cookies`):** L'esborrany ampliat amb el màxim de detall legal i rigor ja està implementat a [`templates/page/legal.html.twig`](file:///d:/webs/Registrals/Registrals/templates/page/legal.html.twig), pendent de la revisió i ajustos finals de redacció per part del titular abans de donar-lo per definitiu.
+    - [x] **Arquitectura de Verificació & Segellat Resolta (MVP vs Fase II):** La Verificació Biomètrica d'Identitat (**Namirial OnBoarding / eIDV**) s'integra com a requisit consolidat al MVP per al Pla Plus i per a certificats oficials solts (5,90 €), garantint titulars acreditats amb presumpció legal des del llançament. La Certificació Sobirana del document s'executa amb hash determinista SHA-256 + Polygon PoS L2 + custòdia Flysystem; la contractació de la bossa de segells de temps TSA RFC 3161 queda per a Fase II.
+    - [x] **Revisió de Clàusules del Legal Gate Aprovada (Titular / HITL):** Textos refinats a [`templates/legal/accept_terms.html.twig`](file:///d:/webs/Registrals/Registrals/templates/legal/accept_terms.html.twig) eliminant termes reservats com fe pública, adaptant la Clàusula 3 a Polygon L2 i Namirial Onboarding eIDV, i validant la Clàusula 4 d'IA Sobirana (Art. 22 RGPD).
+    - [ ] Avaluar si les Condicions Generals i la Política de Privadesa es presenten juntes o separades a `/legal`.
+    - [ ] Revisió integral de la redacció d'IA Sobirana a `/legal/ia-sobirana`.
+    - [ ] Permetre selecció / canvi d'idioma a la pantalla de clàusules (enllaçat amb Iteració 9).
+- [ ] **Subiteració 8.2: Guia d'Ús i Manual Interactiu del Titular (`/manual` o `/ajuda`)**
   - [ ] Manual pràctic interactiu pas a pas: com preparar fotografies probatòries nítides, requisits de factures i tiquets, emetre certificats oficials i flux de traspàs C2C.
   - [ ] Accés directe des del desplegable d'usuari i des del peu de pàgina de l'aplicació.
-- [ ] **Subiteració 8.4: Verificació & Validació HITL**
+- [ ] **Subiteració 8.3: Verificació & Validació HITL Final del Marc Legal**
   - [ ] Auditoria de navegabilitat de totes les pàgines legals i manual al navegador.
-  - [ ] Validació del bloqueig de registre sense acceptació i comprovació dels registres d'auditoria d'acceptació a MySQL.
+  - [ ] Validació dels registres forenses d'auditoria d'acceptació a MySQL.
 
 ---
 
@@ -308,7 +338,7 @@ Cada subiteració segueix un flux d'enginyeria estricte:
   - [ ] Selector d'idioma discret i accessible integrat al Header públic i al peu de pàgina de la Landing.
 - [ ] **Subiteració 9.2: Catàlegs de Traducció YAML (`symfony/translation`)**
   - [ ] Estructuració dels dominis de traducció a `translations/messages.{locale}.yaml` amb claus semàntiques jeràrquiques (`landing.hero.*`, `landing.features.*`, `landing.pricing.*`, etc.).
-  - [ ] Terminologia notarial rigorosa per a cada idioma (Català, Castellà, Anglès) revisada des del punt de vista legal i comercial.
+  - [ ] Terminologia solemne i de certificació rigorosa per a cada idioma (Català, Castellà, Anglès) revisada des del punt de vista legal i comercial.
   - [ ] Refactorització de plantilles públiques Twig (`templates/page/` i parcials) mitjançant el filtre natiu `|trans`.
 - [ ] **Subiteració 9.3: Verificació & Validació HITL**
   - [ ] Comprovació de persistència de navegació entre idiomes sense trencament de fil d'Ariadna ni pèrdua d'estils.
@@ -325,8 +355,27 @@ Cada subiteració segueix un flux d'enginyeria estricte:
 | **Iteració 2** | 2.1 Model Ítems <br> 2.2 CUI & Flysystem <br> 2.3 Wizard & Dashboard <br> 2.4 Validació HITL | Flysystem, Symfony Voters, Twig | **100% Completada** |
 | **Iteració 3** | 3.1 Messenger Cues <br> 3.2 SGLang Client <br> 3.3 UI Assistència IA <br> 3.4 Validació HITL <br> 3.5 Transparència IA Sobirana <br> 3.6 Anti-Frau C2PA, EXIF & QR | SGLang, Qwen VL local, Messenger | **Subiteracions 3.1, 3.2, 3.3, 3.5 i 3.6 Fetes (90%)** |
 | **Iteració 4** | 4.1 Model Blockchain <br> 4.2 Càlcul Hash & RPC <br> 4.3 Cua & UI Insígnia <br> 4.4 Validació HITL | Polygon/Base RPC, SHA-256 | **100% Completada** |
-| **Iteració 5** | 5.1 Model Certificats <br> 5.2 Motor PDF Vectorial <br> 5.3 eIDAS Signaturit & QR <br> 5.4 Validació HITL | Chromium Headless, Signaturit API | **100% Completada** |
-| **Iteració 6** | 6.1 Model Traspassos <br> 6.2 Symfony Workflow <br> 6.3 UI Traspàs Notarial <br> 6.4 Validació HITL | Symfony Workflow, Mailer | **100% Completada** |
-| **Iteració 7** | 7.1 Backoffice Admin <br> 7.2 Editor de Plans <br> 7.3 Passarel·la Stripe <br> 7.4 Validació HITL MVP <br> 7.5 Validació Backend | Symfony Admin, Stripe API, Messenger | En curs (7.1 i 7.2 100% completades; 7.3 següent) |
-| **Iteració 8** | 8.1 Condicions Legals <br> 8.2 Privadesa RGPD <br> 8.3 Guia d'Ús i Manual <br> 8.4 Validació HITL | Twig, Guia d'Estils, Marc Normatiu | Pendent |
+| **Iteració 5** | 5.1 Model Certificats <br> 5.2 Motor PDF Vectorial <br> 5.3 eIDAS Signaturit/Namirial & QR <br> 5.4 Validació HITL | Chromium Headless, Signaturit API | **100% Completada** |
+| **Iteració 6** | 6.1 Model Traspassos <br> 6.2 Symfony Workflow <br> 6.3 UI Traspàs Certificat <br> 6.4 Validació HITL | Symfony Workflow, Mailer | **100% Completada** |
+| **Iteració 7** | 7.1 Backoffice Admin <br> 7.2 Editor de Plans <br> 7.3 Passarel·la Stripe (Sandbox) <br> 7.4 Doble Verificació QR + Polygonscan <br> 7.5 Validació Integral & Go-Live | Symfony Admin, Stripe API, Signaturit, Polygon RPC | **Subiteracions 7.1, 7.2, 7.3 i 7.4 100% Completades (90%)**; pendent 7.5 (validació final integral i credencials de producció reals). |
+| **Iteració 8** | 8.1 Blindatge & Legal Gate <br> 8.2 Guia d'Ús i Manual <br> 8.3 Validació HITL | Twig, Guia d'Estils, Marc Normatiu, EventSubscriber | **75% Completada** (Legal Gate tancat; esborrany ampliat de textos legals a templates pendent de revisió i ajustos finals pel titular; pendent 8.2 manual d'ajuda). |
 | **Iteració 9** | 9.1 Enrutament Locale & SEO <br> 9.2 Catàlegs YAML <br> 9.3 Validació HITL | Symfony Translation, Twig, SEO | Pendent (Planificada) |
+
+---
+
+## Fase II: Roadmap d'Escalabilitat & Ampliacions Post-MVP
+
+Aquesta secció centralitza les funcionalitats i integracions de serveis externs planificades per a la segona fase del projecte, un cop el MVP amb certificació sobirana (Polygon L2 + Flysystem) i verificació d'identitat eIDV (Namirial OnBoarding) estigui en producció:
+
+1. **Fase II.1 · Segellat de Temps Qualificat eIDAS (TSA RFC 3161):**
+   - Avaluació comparativa de proveïdors QTSP: **Namirial / Signaturit** (bossa de segells SaaS via Miriam) vs. **FNMT-RCM** (conveni directe CERES o canal majorista homologat com Funcionalia) per incrustar la presumpció legal europea eIDAS (Art. 41/42) a certificats oficials de gran valor.
+   - Activació del token de producció a l'adaptador RFC 3161 (`SignaturitClient` / `TimestampGatewayInterface`).
+2. **Fase II.2 · Mètodes de Pagament Ràpid Mòbil (Apple Pay & Google Pay):**
+   - Habilitació del *Payment Request Button* a Stripe Checkout per a la compra en un sol toc de certificats solts (5,90 €), taxes de traspàs (2,90 €) i subscripcions anuals des de Safari i Chrome.
+3. **Fase II.3 · Smart Contract Propi de Registrals a Polygon PoS:**
+   - Desplegament d'un contracte intel·ligent dedicat (ex: registre d'empremtes determinista o protocol ERC-721 per a patrimoni digital) per complementar l'actual model d'ancoratge per *Calldata*.
+4. **Fase II.4 · Empaquetament i Publicació a Botigues d'Apps (App Store & Google Play):**
+   - Evolució de la PWA actual cap a aplicació nativa empaquetada amb Capacitor / Trusted Web Activities (TWA) per tenir presència oficial a les botigues d'Apple i Google.
+5. **Fase II.5 · API B2B & Portal per a Asseguradores, Joieries i Perits:**
+   - Portal corporatiu per a entitats col·laboradores que permeti donar d'alta béns en el punt de venda (joieries, botigues de ciclisme) i comprovar automàticament números de sèrie en casos de denúncies i peritatges de robatori.
+

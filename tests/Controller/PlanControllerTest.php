@@ -10,6 +10,7 @@ use App\Entity\Plan;
 use App\Entity\User;
 use App\Enum\PaymentStatus;
 use App\Enum\PaymentType;
+use App\Repository\ItemRepository;
 use App\Repository\PaymentTransactionRepository;
 use App\Repository\PlanRepository;
 use PHPUnit\Framework\TestCase;
@@ -35,6 +36,10 @@ class PlanControllerTest extends TestCase
         $planRepo->method('findBy')->willReturn([$plan]);
         $planRepo->method('findByCode')->with('free')->willReturn($plan);
 
+        $itemRepo = $this->createMock(ItemRepository::class);
+        $itemRepo->method('countActiveByOwner')->with($user)->willReturn(5);
+        $itemRepo->method('countFrozenByOwner')->with($user)->willReturn(0);
+
         $twig = $this->createMock(Environment::class);
         $twig->expects($this->once())
             ->method('render')
@@ -43,6 +48,8 @@ class PlanControllerTest extends TestCase
                 $this->assertSame($plan, $context['currentPlan']);
                 $this->assertArrayHasKey('allPlans', $context);
                 $this->assertArrayHasKey('activeItemsCount', $context);
+                $this->assertSame(5, $context['activeItemsCount']);
+                $this->assertSame(0, $context['frozenCount']);
                 $this->assertArrayHasKey('itemsPct', $context);
                 return true;
             }))
@@ -65,7 +72,7 @@ class PlanControllerTest extends TestCase
         $controller = new PlanController();
         $controller->setContainer($container);
 
-        $response = $controller->index($planRepo);
+        $response = $controller->index($planRepo, $itemRepo);
 
         $this->assertInstanceOf(Response::class, $response);
         $this->assertSame(200, $response->getStatusCode());
@@ -86,7 +93,12 @@ class PlanControllerTest extends TestCase
         $transaction->setStatus(PaymentStatus::PAID);
 
         $planRepo = $this->createMock(PlanRepository::class);
-        $planRepo->method('findByCode')->with('free')->willReturn($plan);
+        $planRepo->method('findByCode')->willReturnCallback(function (string $code) use ($plan) {
+            return match ($code) {
+                'free', 'plus' => $plan,
+                default => null,
+            };
+        });
 
         $transactionRepo = $this->createMock(PaymentTransactionRepository::class);
         $transactionRepo->expects($this->once())

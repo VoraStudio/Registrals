@@ -119,6 +119,14 @@ class GoogleAuthenticator extends AbstractAuthenticator implements Authenticatio
             return new RedirectResponse($this->urlGenerator->generate('app_admin_dashboard'));
         }
 
+        if ($user instanceof User && $request->getSession()->get('intended_plan') === 'plus') {
+            if (!$user->hasAcceptedLegalTerms(\App\EventSubscriber\LegalGateSubscriber::CURRENT_TERMS_VERSION)) {
+                return new RedirectResponse($this->urlGenerator->generate('app_legal_accept_terms'));
+            }
+            $request->getSession()->remove('intended_plan');
+            return new RedirectResponse($this->urlGenerator->generate('app_plan'));
+        }
+
         if ($user instanceof User && !$user->isOnboardingCompleted()) {
             return new RedirectResponse($this->urlGenerator->generate('app_onboarding_welcome'));
         }

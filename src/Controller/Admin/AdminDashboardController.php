@@ -179,6 +179,7 @@ class AdminDashboardController extends AbstractController
             'geoChartData' => $geoData['chartData'],
             'topCountries' => $geoData['topCountries'],
             'totalGeoRequests' => $geoData['totalRequests'],
+            'geoDbStatus' => $geoLocationService->getDatabaseStatus(),
         ]);
     }
 }

@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Verificació Notarial {{ certificate.certificateNumber }} — Registrals{% endblock %}
+{% block title %}Verificació Certificada {{ certificate.certificateNumber }} — Registrals{% endblock %}
 {% block meta_description %}Consulta i verificació pública de validesa legal eIDAS i ancoratge criptogràfic Polygon d'un bé registrat a Registrals.{% endblock %}
 
 {% block body_class %}bg-cream-50 text-ink antialiased min-h-screen flex flex-col font-raleway{% endblock %}
@@ -16,7 +16,7 @@
     <div class="flex items-center gap-2">
       <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-ink text-gold border border-gold/30 shadow-xs">
         <span class="w-2 h-2 rounded-full bg-gold animate-pulse"></span>
-        Verificació Notarial
+        Verificació Certificada
       </span>
     </div>
   </div>
@@ -105,7 +105,7 @@
       <div class="p-6 bg-amber-50/70 border-b border-amber-200 text-xs sm:text-sm text-amber-900 leading-relaxed flex items-start gap-3">
         <svg class="w-5 h-5 text-amber-700 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
         <div>
-          <strong>Avís d'immutabilitat notarial:</strong> Les dades o fotografies d'aquest bé van ser modificades amb posterioritat a l'emissió d'aquest certificat. El document acreditat reflecteix la versió amb hash <code>{{ certificate.itemFingerprintAtIssue|slice(0, 16) }}...</code>, mentre que el bé compta actualment amb una nova versió en custòdia.
+          <strong>Avís d'immutabilitat de la certificació:</strong> Les dades o fotografies d'aquest bé van ser modificades amb posterioritat a l'emissió d'aquest certificat. El document acreditat reflecteix la versió amb hash <code>{{ certificate.itemFingerprintAtIssue|slice(0, 16) }}...</code>, mentre que el bé compta actualment amb una nova versió en custòdia.
         </div>
       </div>
     {% endif %}
@@ -179,14 +179,14 @@
               <div class="flex items-center justify-between mb-2">
                 <span class="text-xs font-bold uppercase tracking-wider text-ink flex items-center gap-1.5">
                   <span class="w-2 h-2 rounded-full bg-gold"></span>
-                  Capa 1 · Segellat eIDAS
+                  Capa 1 · Segellat eIDAS (Namirial / Signaturit)
                 </span>
                 <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-white border border-steel/20 text-steel">
                   TSP Qualificat
                 </span>
               </div>
               <p class="text-xs text-steel leading-relaxed mb-3">
-                Certificació de data certa i no-repudi jurídic sota el Reglament Europeu (UE) núm. 910/2014 (eIDAS) via Signaturit.
+                Certificació de data certa i no-repudi jurídic sota el Reglament Europeu (UE) núm. 910/2014 (eIDAS) via Signaturit (Grup Namirial).
               </p>
             </div>
             <div class="space-y-1.5 text-xs font-mono bg-white p-3 rounded-xl border border-steel/15">
@@ -280,7 +280,7 @@
   {# Enllaç de retorn o denúncia #}
   <div class="mt-8 text-center text-xs text-steel space-y-2">
     <p>
-      Plataforma Notarial Digital Registrals · Certificació Legal i Criptogràfica de Propietat
+      Plataforma de Certificació Digital Registrals · Certificació Legal i Criptogràfica de Propietat
     </p>
     <p>
       Per a consultes de verificació corporativa per a entitats asseguradores o pericials: <a href="mailto:perits@registrals.cat" class="text-ink underline hover:text-gold">perits@registrals.cat</a>

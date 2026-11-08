@@ -205,6 +205,82 @@
       </dl>
     </div>
 
+    {# Servei 5: Geolocalització & Telemetria (MaxMind GeoIP) #}
+    <div class="bg-white rounded-2xl border border-steel/20 p-6 shadow-xs md:col-span-2">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-3 border-b border-steel/15 mb-4 gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gold/20 text-ink flex items-center justify-center font-bold text-sm shadow-2xs">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div>
+            <h2 class="font-marcellus text-base text-ink font-bold">Base de Dades GeoIP (MaxMind GeoLite2-Country)</h2>
+            <p class="text-xs text-ink/65 font-raleway">Resolució territorial sobirana d'IPs sense dependència d'APIs externes</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          {% if geoDbStatus.exists and not geoDbStatus.is_stale %}
+            <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+              ACTIVA (&lt; 30 DIES)
+            </span>
+          {% elseif geoDbStatus.exists and geoDbStatus.is_stale %}
+            <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-amber-50 text-amber-800 border border-amber-200">
+              OBSOLETA ({{ geoDbStatus.age_days }} DIES)
+            </span>
+          {% else %}
+            <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-blue-50 text-blue-800 border border-blue-200">
+              FALLBACK LOCAL (RANGS)
+            </span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-raleway mb-4">
+        <dl class="space-y-2.5">
+          <div class="flex items-center justify-between">
+            <dt class="text-ink/70">Ubicació del fitxer:</dt>
+            <dd class="font-mono text-ink text-[11px] truncate max-w-[220px]" title="{{ geoDbStatus.path }}">var/geoip/GeoLite2-Country.mmdb</dd>
+          </div>
+          <div class="flex items-center justify-between">
+            <dt class="text-ink/70">Estat del binari:</dt>
+            <dd class="font-semibold {{ geoDbStatus.exists ? 'text-emerald-700' : 'text-amber-700' }}">
+              {{ geoDbStatus.exists ? 'Present (' ~ geoDbStatus.size_formatted ~ ')' : 'Inexistent (s\'aplica fallback)' }}
+            </dd>
+          </div>
+        </dl>
+        <dl class="space-y-2.5">
+          <div class="flex items-center justify-between">
+            <dt class="text-ink/70">Última actualització:</dt>
+            <dd class="font-mono text-ink">
+              {{ geoDbStatus.updated_at ? geoDbStatus.updated_at|date('d/m/Y H:i') ~ ' (fa ' ~ geoDbStatus.age_days ~ ' dies)' : 'Mai' }}
+            </dd>
+          </div>
+          <div class="flex items-center justify-between">
+            <dt class="text-ink/70">Clau MaxMind (.env):</dt>
+            <dd class="font-semibold {{ geoDbStatus.has_license_key ? 'text-emerald-700' : 'text-amber-700' }}">
+              {{ geoDbStatus.has_license_key ? 'Configurada' : 'Pendent de configurar' }}
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="pt-3 border-t border-steel/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs font-raleway">
+        <div class="text-ink/65">
+          {% if geoDbStatus.is_stale or not geoDbStatus.exists %}
+            <span>Recomanació: actualitza el fitxer si fa més de 30 dies o des de consola amb <code class="bg-cream px-1.5 py-0.5 rounded text-[11px] font-mono">php bin/console app:geoip:update</code></span>
+          {% else %}
+            <span class="text-emerald-700 font-semibold">La base de dades està al dia. No cal actualitzar-la fins passats 30 dies.</span>
+          {% endif %}
+        </div>
+        <form method="post" action="{{ path('app_admin_geoip_update') }}" class="inline">
+          <input type="hidden" name="_token" value="{{ csrf_token('admin_geoip_update') }}">
+          <button type="submit" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-ink text-white hover:bg-gold hover:text-ink transition-colors flex items-center gap-1.5 cursor-pointer">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            <span>Actualitzar ara sota demanda</span>
+          </button>
+        </form>
+      </div>
+    </div>
+
   </div>
 
   {# Secció Dedicada: Cues Asíncrones & Gestió d'Errors (Symfony Messenger) #}

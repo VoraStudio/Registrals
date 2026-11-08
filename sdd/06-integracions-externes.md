@@ -74,14 +74,14 @@ Registrals té dos fluxos operatius clarament diferenciats: el **flux econòmic 
 | :--- | :--- | :--- | :--- |
 | **Subscripcions Anuals** | Stripe Billing (Checkout Hosted) | Cobrament recurrent de plans Plus (22 €) i Unlimited (59 €) | Automàtic: Checkout + Webhooks de renovació |
 | **Micro-pagaments Puntuals** | Stripe Payments (Checkout Hosted) | Cobrament de certificats solts (5,90 €) i traspassos solts (2,90 €) | Automàtic: Checkout + Webhooks d'activació |
-| **Segellat de Temps Legal** | Signaturit API v3 (TSP) | Prova de data i hora fefaent davant tribunals i asseguradores (eIDAS) | Síncron/Asíncron mitjançant hash SHA-256 |
-| **Verificació d'Identitat (KYC)** | Signaturit eIDV | Validació biomètrica facial i OCR de documents oficials d'identitat | Redirecció a WebApp Signaturit + Webhook de resultat |
+| **Segellat de Temps Legal** | Signaturit / Grup Namirial (QTSP) | Prova de data i hora fefaent davant tribunals i asseguradores (eIDAS RFC 3161) | Síncron/Asíncron mitjançant hash SHA-256 |
+| **Verificació d'Identitat (KYC)** | Signaturit / Namirial eIDV | Validació biomètrica facial i OCR de documents oficials d'identitat | Redirecció a WebApp Signaturit + Webhook de resultat |
 | **Ancoratge Criptogràfic L2** | Polygon PoS (JSON-RPC) | Immutabilització pública i descentralitzada del fingerprint | Cua asíncrona de Symfony Messenger (`async_chain`) |
 
 > [!IMPORTANT]
 > ### Tres Regles d'Or Innegociables
 > 1. **La tornada d'Stripe mai no aprova el servei:** Per molt que la URL de tornada contingui `?session_id=cs_...`, el servei o pla només s'activa quan el webhook signat per Stripe (`checkout.session.completed`) ha estat rebut, verificat criptogràficament i processat pel servidor (Decisió `D-080`).
-> 2. **Privadesa des del disseny a Signaturit (Art. 25 RGPD):** A Signaturit només viatja el hash SHA-256 de 32 bytes del document PDF generat. Mai s'envia el contingut del document, ni imatges del bé moble, ni dades personals del titular (Decisió `D-081`).
+> 2. **Privadesa des del disseny a Signaturit / Namirial (Art. 25 RGPD):** A Signaturit només viatja el hash SHA-256 de 32 bytes del document PDF generat. Mai s'envia el contingut del document, ni imatges del bé moble, ni dades personals del titular (Decisió `D-081`).
 > 3. **Cap espera de xarxa per la Blockchain:** Un bloc a Polygon triga entre 2 i 3 segons a minar-se. La petició HTTP de l'usuari mai espera el bloc: el controlador desa l'ítem o certificat i despatxa un missatge asíncron a la cua `async_chain` de Symfony Messenger (Decisió `D-082`).
 
 ---
@@ -102,8 +102,8 @@ Aquesta taula es llegeix de dalt a baix: quan un concepte aparegui més endavant
 | **Secret de Signat (`whsec_...`)**| Clau secreta que Stripe utilitza per signar digitalment cada webhook que ens envia. | Permet verificar que la notificació prové realment de Stripe i no d'un atacant. |
 | **Consum Idempotent** | Patró de seguretat: processar el mateix webhook dues vegades produeix exactament el mateix efecte que una sola vegada. | Taula `payment_transactions` amb clau única `stripe_event_id`. |
 | **Import en Cèntims** | A les APIs financeres els imports sempre s'expressen com a enters en cèntims (mai amb decimals). | `2200` = 22,00 €; `590` = 5,90 €; `290` = 2,90 €. |
-| **Signaturit (QTSP)** | Prestador Qualificat de Serveis de Confiança reconegut oficialment per la Comissió Europea. | Emet el segellat de temps qualificat eIDAS amb validesa jurídica plena. |
-| **Segellat de Temps (TSP / RFC 3161)** | Certificat digital que demostra de manera inalterable que un hash existia en una data i hora exactes. | Secció 3 del Certificat Notarial PDF de Registrals. |
+| **Signaturit / Namirial (QTSP)** | Prestador Qualificat de Serveis de Confiança reconegut oficialment per la Comissió Europea (*Signaturit, a Namirial Company*). | Emet el segellat de temps qualificat eIDAS amb validesa jurídica plena a la UE. |
+| **Segell de Temps (TSP / RFC 3161)** | Certificat digital que demostra de manera inalterable que un hash existia en una data i hora exactes. | Secció 3 del Certificat Notarial PDF de Registrals. |
 | **eIDV (Identity Verification)** | Mòdul de validació d'identitat: comprovació OCR de documents oficials + prova de vida facial. | Flux de verificació d'identitat per a usuaris prèmium i certificats d'alta gamma. |
 | **Polygon PoS (Layer 2)** | Cadena de blocs pública compatible amb Ethereum que processa transaccions ràpides i econòmiques. | Xarxa on s'immutabilitza el fingerprint SHA-256 de cada bé moble. |
 | **Token POL** | Moneda nativa utilitzada per pagar el cost de computació (gas) a la xarxa Polygon. | Saldo que conté la Hot Wallet del sistema per pagar les transaccions d'ancoratge. |
@@ -214,6 +214,12 @@ Aquest secret `whsec_...` és el que es copia a `STRIPE_WEBHOOK_SECRET` a `.env.
 - [ ] `stripe listen` corre al terminal i rep peticions sense errors 400 ni 500.
 - [ ] El simulador de Signaturit respon amb DTOs vàlids quan el token és de proves.
 - [ ] La consulta de bloc RPC de Polygon (`eth_blockNumber`) retorna el número de bloc actual d'Amoy Testnet.
+
+> [!NOTE]
+> ### Estat Real del Codi dels 3 Serveis Externs a l'Arquitectura Hexagonal
+> 1. **Stripe ([`StripeGatewayClient.php`](../src/Infrastructure/Adapter/Payment/StripeGatewayClient.php)):** L'adaptador està 100% implementat (Checkout sessions de subscripció i pagament únic, Customer Portal, Webhooks amb verificació criptogràfica `Stripe-Signature` i gestió d'idempotència a `payment_transactions`). Amb `STRIPE_SECRET_KEY=sk_test_registrals_mock`, el client opera en mode sandbox/mock local (redirecciona a `/payment/success?mock=1`), permetent provar tot el flux d'usuari sense dependències externes.
+> 2. **Signaturit / Grup Namirial ([`SignaturitClient.php`](../src/Infrastructure/Adapter/Signature/SignaturitClient.php)):** L'adaptador està 100% implementat (crides HTTP Bearer per a segellat de temps qualificat RFC 3161). Quan `SIGNATURIT_API_TOKEN` no està definit a `.env.local`, genera un token determinista `eIDAS-SIG-...`, de manera que l'emissió de PDF notarial, el codi QR i la verificació pública a `/verify/{uuid}` funcionen 100% en local.
+> 3. **Polygon PoS ([`PolygonAnchorClient.php`](../src/Infrastructure/Adapter/Blockchain/PolygonAnchorClient.php)):** L'adaptador està 100% implementat (connexió JSON-RPC activa, comprovació d'`eth_blockNumber`, generació de *Calldata* amb prefix `0x52454749...`). Opera en mode sandbox local amb càlcul determinista fins que es dipositin fons de gas (POL) a la Hot Wallet configurada a `.env.local`.
 
 ---
 

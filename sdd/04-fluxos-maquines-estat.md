@@ -467,4 +467,16 @@ active --> lost : report_lost
 
 active --> archived : archive
 
+active --> frozen : freeze_downgrade
+frozen --> active : reactivate_plus
+
+### C. Cicle de Subscripcions i Downgrades (Stripe -> Free)
+
+1. **Fallida de Renovació:** `invoice.payment_failed` activa l'estat `past_due` i mostra un banner d'avís de targeta rebutjada durant el període de gràcia (7-14 dies).
+2. **Cancel·lació / Downgrade:** `customer.subscription.deleted` passa l'usuari a Pla Free.
+3. **Gestió de Quota Excedent (> 20 béns):**
+   - L'usuari disposa d'un **Assistent d'Adequació durant 7 dies** per triar quins 20 béns manté actius al Pla Free.
+   - Si no fa la tria en 7 dies, s'executa l'**autocongelació per defecte** (els 20 més recents queden com a `active` i la resta passen a `frozen`).
+   - Els béns `frozen` es mostren en una secció aïllada (*«Béns en Custòdia en Fred»*), en llistat bàsic simple paginat, amb efecte difuminat (*frosted glass*), icona de cadenat (`🔒`) i bloqueig operatiu fins a reactivar el Pla Plus.
+
 Aquesta estructura en taules i passos garanteix que el text mantingui l'ordre i la claredat en qualsevol document sense problemes de format o desplaçament de columnes.

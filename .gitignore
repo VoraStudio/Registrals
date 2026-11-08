@@ -25,3 +25,12 @@ docs/
 /web/assets/
 /assets/vendor/
 ###< symfony/asset-mapper ###
+
+# Local / IDE files
+.vscode/
+cookies.txt
+holding/
+web/videos/
+public/
+web/holding.html
+

@@ -51,12 +51,16 @@ Per optimitzar el flux recurrent de l'usuari i emular l'estàndard d'experiènci
    - **Usuaris OAuth (Google / Apple):** Es mostra el xip d'identitat i el botó primari esdevé l'acció directa en 1 clic: *"Desbloquejar amb Google"* (sense demanar cap contrasenya local inexistent).
    - **Canvi de compte:** Un botó accessible *"No ets tu? Inicia sessió amb un altre compte"* esborra la memòria del dispositiu i retorna al formulari complet.
 
-### 1.3. Regla Global de Capçaleres (Header Unificat Blanc)
+### 1.3. Regla Global de Capçaleres (Header Unificat Tripartit Notarial)
 
 A totes les pantalles de l'aplicació privada (Dashboard, Fitxa de Bé, Formularis d'Alta, etc.), el header es regeix per una estètica neta i institucional:
 - **Fons sempre blanc sòlid (`bg-white` / `bg-whitef`):** Mai fons transparents sobre el crema que puguin provocar col·lisions visuals de text.
-- **Posició:** Fixat a dalt (`sticky top-0 z-50`) amb una línia inferior tènue (`border-b border-steel/20`).
-- **Comportament adaptatiu:** Alçada de 64px (`h-16`) en mòbil amb reducció de mida del logotip i botó compacte *"El meu Patrimoni"*, i alçada de 80px (`h-20`) en tauleta i escriptori.
+- **Posició i Amplada:** Fixat a dalt (`sticky top-0 z-50`) amb una línia inferior tènue (`border-b border-steel/20`) i amplada fluida expansiva fins a 1.680px (`max-w-[1680px] w-full mx-auto px-4 sm:px-6 lg:px-8`).
+- **Estructura en 3 Zones a PC:**
+  - *Esquerra:* Isotip daurat + logotip `REGISTRALS`.
+  - *Centre:* **Càpsula Notarial de Navegació** (`Patrimoni | Certificats | Traspassos`) en estil píndola arrodonida amb la pestanya activa en Ink + Gold i comptador de traspassos en viu.
+  - *Dreta:* **Avatar d'usuari net amb Micro-Badge de Pla** i desplegable de perfil, sense botons d'acció intrusius.
+- **Comportament adaptatiu:** Alçada de 64px (`h-16`) en mòbil (amb la càpsula central amagada) i de 64-72px (`h-16 sm:h-18`) en tauleta i escriptori.
 
 ## 2. Arquitectura d'Informació i Disseny Adaptatiu (Responsive UX)
 
@@ -67,8 +71,8 @@ L'aplicació compta amb un disseny adaptatiu pensat principalment per a l'ús de
 | **Pantalla / Dispositiu** | **Menú / Navegació** | **Distribució de Béns** | **Formulari d'Alta de Bé** |
 | --- | --- | --- | --- |
 | **Mòbil (< 640px)** | **Bottom Navigation Bar** fixa a sota (Home, + Afegir, Certificats, Compte) + capçalera compacta amb el logotip i avatar. | 1 columna (targetes tipus feed visual gran amb foto protagonista). | Flux pas a pas (Wizard vertical) amb botons tàctils grans d'activació directa de càmera. |
-| **Tauleta (640px - 1024px)** | Capçalera flotant amb el **Pill Registrals** adaptat o barra lateral plegable (Sidebar *rail* només icones). | Graella de 2 columnes amb previsualització ràpida de documents. | Formulari en 2 columnes (columna esquerra càrrega mèdia/IA; columna dreta camps validats). |
-| **Escriptori (> 1024px)** | **Sidebar lateral esquerra** (guide-sidebar estesa) amb accessos ràpids, consum de quotes i estat del pla en temps real. | Graella flexible de 3 o 4 columnes o vista de taula densa amb ordenació per valor, data o estat. | Modal ampli o pàgina centrada amb inspecció documental cara a cara (split view PDF/Foto i dades). |
+| **Tauleta (640px - 1024px)** | Capçalera flotant amb la **Càpsula Registrals** central adaptada + avatar a la dreta. | Graella de 2 o 3 columnes amb previsualització ràpida de documents. | Formulari en 2 columnes (columna esquerra càrrega mèdia/IA; columna dreta camps validats). |
+| **Escriptori (> 1024px / 16:9)** | **Capçalera Tripartita amb Càpsula Notarial** (`Patrimoni | Certificats | Traspassos`) + Acció principal contextual (`[+ Registrar Nou Bé]`) alineada amb el títol H1. | Graella fluida fins a **5 columnes (`xl:grid-cols-5`)** en contenidor de 1.680px per visualitzar tot l'inventari sense scroll vertical. | Vista harmonitzada 50/50 en 2 columnes per a fitxes i formularis (split view). |
 
 ## 3. Sistemes de Feedback i Estats d'Interacció (UX)
 
@@ -106,16 +110,17 @@ Per garantir coherència visual absoluta a tota la plataforma, qualsevol notific
 
 Per mantenir la solemnitat jurídica i evitar trencaments d'experiència d'usuari:
 - **Prohibició de diàlegs natius:** Queda expressament prohibit l'ús de `window.confirm()` o `window.alert()` del navegador per a qualsevol flux del sistema.
-- **Anatomia Estàndard del Modal Notarial:**
-  - **Backdrop Solemne:** `fixed inset-0 z-50 bg-ink/65 backdrop-blur-xs flex items-center justify-center p-4 transition-opacity`.
-  - **Superfície Notarial:** `bg-white rounded-2xl border border-gold/40 shadow-2xl max-w-md w-full p-5 sm:p-6 text-ink relative overflow-hidden`.
+- **Anatomia Estàndard del Modal Notarial (PWA Dual / Bottom Sheet a Mòbil):**
+  - **Backdrop Solemne:** `fixed inset-0 z-50 bg-ink/75 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 transition-all duration-200`.
+  - **Superfície Notarial:** A mòbil actua com a *Bottom Sheet* (`rounded-t-3xl border-t sm:rounded-2xl sm:border border-gold/40`) i a PC com a caixa centrada. Fons blanc (`bg-white`), ombra profunda (`shadow-2xl`), amplada màxima canònica (`max-w-md w-full` o segons contingut), i alçada controlada (`max-h-[90vh] sm:max-h-[92vh] overflow-hidden`).
+  - **Nansa Tàctil Mòbil (Touch Drag Handle):** A pantalles tàctils petites (`< sm`), incorpora una barra superior tènue (`<div class="sm:hidden w-10 h-1 bg-cream/30 rounded-full mx-auto mt-2 -mb-1 shrink-0"></div>` o `bg-steel/30`) que reforça l'obertura com a panell inferior lliscable.
   - **Lluentor Notarial Superior:** Línia subtil de gradient daurat `absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent`.
   - **Capçalera:** Icona notarial (`text-gold` en confirmacions solemnes o `text-red-700` en accions destructives), títol en `font-marcellus text-lg text-ink`, i botó `✕` net a la cantonada superior dreta.
-  - **Cos:** Text explicatiu en `font-raleway text-xs sm:text-sm text-ink/80 leading-relaxed`. Si hi ha un advertiment legal o discrepància tècnica, s'incrusta un avís canònic `.guide-note`.
-  - **Botoier Inferior (Dual Action):**
+  - **Cos:** Text explicatiu en `font-raleway text-xs sm:text-sm text-ink/80 leading-relaxed overflow-y-auto`. Si hi ha un advertiment legal o discrepància tècnica, s'incrusta un avís canònic `.guide-note`.
+  - **Botoier Inferior (Dual Action):** Accessible amb el polze a mòbil.
     - Botó Secundari: `[ Cancel·lar ]` (`bg-cream hover:bg-cream/80 text-ink text-xs font-semibold px-4 py-2 rounded-xl transition-all`).
     - Botó Primari / Decisió: `[ Confirmar ]` (`bg-ink hover:bg-ink/90 text-gold font-bold text-xs px-4 py-2 rounded-xl border border-gold/40 shadow-sm transition-all`) o `[ Desvincular / Eliminar ]` (`bg-red-700 hover:bg-red-800 text-white font-bold text-xs px-4 py-2 rounded-xl shadow-sm transition-all`).
-  - **Accessibilitat:** Tancament amb la tecla `ESC`, tancament en clicar sobre el fons (*backdrop click*) i restauració del focus a l'element d'origen.
+  - **Accessibilitat & Gestió d'Scroll:** Tancament amb la tecla `ESC`, tancament en clicar sobre el fons (*backdrop click*) i bloqueig de desplaçament de fons (`document.body.classList.add('overflow-hidden')`).
 - **Casos d'Ús Canònics:**
   1. *Desvinculació o substitució de documents de prova quan la IA o l'usuari detecten discrepàncies.*
   2. *Baixa definitiva o arxiu d'un bé del patrimoni actiu.*

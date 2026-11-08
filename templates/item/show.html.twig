@@ -3,16 +3,14 @@
 {% block title %}{{ item.name }} ({{ item.cui }}) — Registrals{% endblock %}
 {% block meta_description %}Fitxa oficial de custòdia de {{ item.name }} a Registrals.{% endblock %}
 
-{% block body_class %}bg-cream text-ink min-h-screen flex flex-col justify-between selection:bg-gold selection:text-ink font-raleway{% endblock %}
+{% block body_class %}bg-cream-50 text-ink min-h-screen flex flex-col font-raleway antialiased selection:bg-gold selection:text-ink{% endblock %}
 
 {% block body %}
-<div class="min-h-screen flex flex-col justify-between bg-cream">
-
   {# Barra Superior Privada Unificada (Fons Blanc + Línia Tènue + Avatar) #}
   {% include 'partials/_private_header.html.twig' %}
 
   {# Contingut Principal de la Fitxa de Bé #}
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 w-full flex-1 pb-16 md:pb-3">
+  <main class="max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 py-2 w-full flex-1 pb-16 md:pb-3">
 
     {# ==================================================================== #}
     {# 1. VISTA MÒBIL (< lg): PWA HERO LAYOUT (Foto Primer + Accions a Mà) #}
@@ -109,7 +107,7 @@
             Fotos: <strong class="text-ink">{{ item.photos|length }}</strong>/{{ app.user.plan ? app.user.plan.maxPhotosPerItem : '∞' }} ({{ app.user.plan ? app.user.plan.code|upper : 'ADMIN' }})
           </span>
           <button type="button"
-            onclick="if (window.RegistralsToast) window.RegistralsToast.show('Funció del Pla PLUS', 'La custòdia de fins a 5 fotografies de detall (números de sèrie, contrastos) requereix el Pla PLUS o UNLIMITED.', 'info');"
+            onclick="if (window.RegistralsToast) window.RegistralsToast.show('Funció del Pla PLUS', 'La custòdia de fins a 5 fotografies de detall (números de sèrie, contrastos) requereix el Pla PLUS.', 'info');"
             class="px-2.5 py-1 rounded-xl bg-white border border-gold/40 text-ink text-[11px] font-semibold flex items-center gap-1.5 shadow-2xs active:scale-95 transition-all">
             <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             <span>Nova Foto</span>
@@ -173,7 +171,7 @@
             </span>
           </h2>
           <button type="button"
-            onclick="if (window.RegistralsToast) window.RegistralsToast.show('Funció del Pla PLUS', 'La custòdia de fins a 5 proves documentals addicionals (factures, tiquets, garanties) requereix el Pla PLUS o UNLIMITED.', 'info');"
+            onclick="if (window.RegistralsToast) window.RegistralsToast.show('Funció del Pla PLUS', 'La custòdia de fins a 5 proves documentals addicionals (factures, tiquets, garanties) requereix el Pla PLUS.', 'info');"
             class="px-2.5 py-1 rounded-xl bg-white border border-gold/40 text-ink text-[11px] font-semibold flex items-center gap-1.5 shadow-2xs active:scale-95 transition-all">
             <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             <span>Nova Prova</span>
@@ -209,7 +207,7 @@
             <div class="w-7 h-7 rounded-full bg-cream/10 border border-gold/40 text-gold flex items-center justify-center shrink-0">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
             </div>
-            <h3 class="font-marcellus text-base text-whitef">Garantia Notarial Registrals</h3>
+            <h3 class="font-marcellus text-base text-whitef">Garantia de Certificació Registrals</h3>
           </div>
           <span class="px-2 py-0.5 rounded-full bg-gold/15 border border-gold/40 text-gold font-mono font-bold text-[10px]">v1 (Vigent)</span>
         </div>
@@ -251,34 +249,73 @@
 
     {# ==================================================================== #}
     {# 2. VISTA ESCRIPTORI (>= lg): GRAELLA NOTARIAL 4 BLOCS HARMONITZATS   #}
-    {# =======================    {# ==================================================================== #}
-    {# 2. VISTA ESCRIPTORI (>= lg): GRAELLA NOTARIAL 4 BLOCS HARMONITZATS   #}
     {# ==================================================================== #}
     <div class="hidden lg:block space-y-3">
 
-      {# Sub-barra de Navegació Superior per a PC (Idèntica i Harmonitzada amb el Dashboard) #}
-      <div class="flex items-center justify-between pb-2 mb-2 border-b border-gold/20">
-        <nav class="flex items-center gap-2 font-raleway">
-          <a href="{{ path('app_dashboard') }}" class="px-3.5 py-1.5 rounded-xl font-bold text-xs uppercase tracking-wider bg-white/70 hover:bg-white text-ink/80 hover:text-ink border border-steel/25 hover:border-gold/40 shadow-2xs transition-all flex items-center gap-2">
-            <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-            <span>El meu Patrimoni</span>
-          </a>
-          <a href="#" class="px-3.5 py-1.5 rounded-xl font-semibold text-xs uppercase tracking-wider bg-white/70 hover:bg-white text-ink/80 hover:text-ink border border-steel/25 hover:border-gold/40 shadow-2xs transition-all flex items-center gap-2">
-            <svg class="w-3.5 h-3.5 text-steel" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-            <span>Certificats</span>
-          </a>
-          <a href="{{ path('app_transfers_index') }}" class="px-3.5 py-1.5 rounded-xl font-semibold text-xs uppercase tracking-wider bg-white/70 hover:bg-white text-ink/80 hover:text-ink border border-steel/25 hover:border-gold/40 shadow-2xs transition-all flex items-center gap-2">
-            <svg class="w-3.5 h-3.5 text-steel" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
-            <span>Traspassos</span>
-          </a>
-        </nav>
+      {# 1. Línia Superior Canònica: Ruta (Fil d'Ariadna) individual #}
+      <nav class="flex items-center gap-1.5 text-[11px] font-mono text-steel uppercase tracking-wider mb-2" aria-label="Ruta de navegació">
+        <a href="{{ path('app_dashboard') }}" class="hover:text-gold transition-colors">Inici</a>
+        <span class="text-steel/40">/</span>
+        <a href="{{ path('app_dashboard') }}" class="hover:text-gold transition-colors">Bé</a>
+        <span class="text-steel/40">/</span>
+        <span class="text-ink font-bold">{{ item.category.name }}{% if item.brand %} &middot; {{ item.brand }}{% endif %}</span>
+      </nav>
 
-        {# Accions Ràpides en PC: Al mateix lloc superior dret que el botó del Dashboard #}
-        <div class="flex items-center gap-2">
-          <button type="button" onclick="openCertificateModal()" class="py-1.5 px-4 rounded-xl shadow-md bg-ink text-gold border border-gold/40 hover:bg-ink/90 active:scale-[0.99] transition-all flex items-center gap-2 text-xs uppercase tracking-wider font-raleway font-semibold cursor-pointer">
-            <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-            <span>Emetre Certificat</span>
-          </button>
+      {# 2. Capçalera d'Identitat del Bé: Títol a l'esquerra, Estat al centre, Accions a la dreta #}
+      <div class="mb-2.5 flex flex-col md:flex-row md:items-center md:justify-between gap-3 pb-2.5 border-b border-gold/15">
+        <div class="flex items-center gap-3 flex-wrap">
+          <h1 class="text-xl sm:text-2xl font-marcellus text-ink leading-tight">{{ item.name }}</h1>
+
+          {# Metadades Notarials al Centre: CUI + Custodiat + Hash SHA-256 #}
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="bg-ink text-cream text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-lg shadow-xs border border-gold/40">
+              {{ item.cui }}
+            </span>
+
+            <span class="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full border bg-white shadow-2xs {{ item.status.badgeClasses }}">
+              {% if item.status.value == 'active' %}
+                <svg class="w-2.5 h-2.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                <span>Custodiat</span>
+              {% else %}
+                <span>{{ item.status.label }}</span>
+              {% endif %}
+            </span>
+
+            {% set latestReceipt = item.latestBlockchainReceipt %}
+            {% if latestReceipt %}
+              <a href="{{ latestReceipt.explorerUrl }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full border bg-emerald-50 text-emerald-700 border-emerald-300 shadow-2xs hover:bg-emerald-100 transition-colors" title="Segellat a Polygon L2 (Bloc #{{ latestReceipt.blockNumber }} | Tx: {{ latestReceipt.txHash }})">
+                <svg class="w-3 h-3 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                <span>Polygon L2 #{{ latestReceipt.blockNumber }}</span>
+              </a>
+            {% else %}
+              <span class="inline-flex items-center gap-1.5 text-[11px] font-mono px-2 py-0.5 rounded-full border bg-amber-50 text-amber-700 border-amber-200 shadow-2xs" title="Notarització a blockchain en segon pla">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                <span>Ancoratge L2 en curs</span>
+              </span>
+            {% endif %}
+
+            {% if item.mainPhoto %}
+              <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-white border border-steel/25 text-[11px] font-mono text-ink/75 shadow-2xs" title="SHA-256: {{ item.mainPhoto.sha256Hash }}">
+                <span class="w-1.5 h-1.5 rounded-full bg-gold"></span>
+                <span>SHA: {{ item.mainPhoto.sha256Hash|slice(0, 10) }}...</span>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        {# Accions Ràpides en PC: A la dreta de la Fila 2 #}
+        <div class="flex items-center gap-2 shrink-0">
+          {% if item.activeTransfer or item.status.value == 'transfer_pending' %}
+            <button type="button" onclick="openCertificateModal()" class="py-1.5 px-4 rounded-xl bg-amber-50 border border-amber-300 text-amber-800 shadow-2xs hover:bg-amber-100 active:scale-[0.99] transition-all flex items-center gap-2 text-xs uppercase tracking-wider font-raleway font-semibold cursor-pointer" title="L'emissió de certificats està blocada mentre hi hagi un traspàs en curs">
+              <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+              <span>Certificació Bloquejada</span>
+            </button>
+          {% else %}
+            <button type="button" onclick="openCertificateModal()" class="py-1.5 px-4 rounded-xl shadow-md bg-ink text-gold border border-gold/40 hover:bg-ink/90 active:scale-[0.99] transition-all flex items-center gap-2 text-xs uppercase tracking-wider font-raleway font-semibold cursor-pointer">
+              <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              <span>Emetre Certificat</span>
+            </button>
+          {% endif %}
 
           {% if item.activeTransfer %}
             <button type="button" onclick="openTransferModal()" class="py-1.5 px-4 rounded-xl bg-amber-50 border border-amber-300 text-amber-800 shadow-2xs hover:bg-amber-100 active:scale-[0.99] transition-all flex items-center gap-2 text-xs uppercase tracking-wider font-raleway font-semibold cursor-pointer">
@@ -290,57 +327,6 @@
               <svg class="w-3.5 h-3.5 text-steel" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
               <span>Traspassar</span>
             </button>
-          {% endif %}
-        </div>
-      </div>
-
-      {# Capçalera d'Identitat del Bé (Títol esquerra, CUI + Custodiat + Hash a la dreta) #}
-      <div class="mb-2.5 flex flex-col md:flex-row md:items-center md:justify-between gap-2 pb-2 border-b border-gold/15">
-        <div>
-          <div class="flex items-center gap-1.5 text-xs text-ink/60 font-semibold mb-0.5">
-            <a href="{{ path('app_dashboard') }}" class="hover:text-gold transition-colors flex items-center gap-1">
-              <span>El meu Patrimoni</span>
-            </a>
-            <span>/</span>
-            <span>{{ item.category.name }}</span>
-            {% if item.brand %}<span>&middot; {{ item.brand }}</span>{% endif %}
-          </div>
-          <h1 class="text-xl sm:text-2xl font-marcellus text-ink leading-tight">{{ item.name }}</h1>
-        </div>
-
-        {# Metadades Notarials a la Dreta: CUI + Custodiat + Hash SHA-256 #}
-        <div class="flex flex-wrap items-center gap-2 shrink-0">
-          <span class="bg-ink text-cream text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-lg shadow-xs border border-gold/40">
-            {{ item.cui }}
-          </span>
-
-          <span class="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full border bg-white shadow-2xs {{ item.status.badgeClasses }}">
-            {% if item.status.value == 'active' %}
-              <svg class="w-2.5 h-2.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-              <span>Custodiat</span>
-            {% else %}
-              <span>{{ item.status.label }}</span>
-            {% endif %}
-          </span>
-
-          {% set latestReceipt = item.latestBlockchainReceipt %}
-          {% if latestReceipt %}
-            <a href="{{ latestReceipt.explorerUrl }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full border bg-emerald-50 text-emerald-700 border-emerald-300 shadow-2xs hover:bg-emerald-100 transition-colors" title="Segellat a Polygon L2 (Bloc #{{ latestReceipt.blockNumber }} | Tx: {{ latestReceipt.txHash }})">
-              <svg class="w-3 h-3 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-              <span>Polygon L2 #{{ latestReceipt.blockNumber }}</span>
-            </a>
-          {% else %}
-            <span class="inline-flex items-center gap-1.5 text-[11px] font-mono px-2 py-0.5 rounded-full border bg-amber-50 text-amber-700 border-amber-200 shadow-2xs" title="Notarització a blockchain en segon pla">
-              <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-              <span>Ancoratge L2 en curs</span>
-            </span>
-          {% endif %}
-
-          {% if item.mainPhoto %}
-            <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-white border border-steel/25 text-[11px] font-mono text-ink/75 shadow-2xs" title="SHA-256: {{ item.mainPhoto.sha256Hash }}">
-              <span class="w-1.5 h-1.5 rounded-full bg-gold"></span>
-              <span>SHA: {{ item.mainPhoto.sha256Hash|slice(0, 10) }}...</span>
-            </div>
           {% endif %}
         </div>
       </div>
@@ -450,7 +436,7 @@
                   {{ item.photos|length }}/{{ app.user.plan ? app.user.plan.maxPhotosPerItem : '∞' }} foto ({{ app.user.plan ? app.user.plan.code|upper : 'ADMIN' }})
                 </span>
                 <button type="button"
-                  onclick="if (window.RegistralsToast) window.RegistralsToast.show('Funció del Pla PLUS', 'La custòdia de fins a 5 fotografies de detall (números de sèrie, contrastos) requereix el Pla PLUS o UNLIMITED.', 'info');"
+                  onclick="if (window.RegistralsToast) window.RegistralsToast.show('Funció del Pla PLUS', 'La custòdia de fins a 5 fotografies de detall (números de sèrie, contrastos) requereix el Pla PLUS.', 'info');"
                   class="px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs bg-white/90 border border-gold/40 text-ink/85 hover:bg-cream/40 active:scale-95 whitespace-nowrap"
                   title="Afegir nova fotografia">
                   <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -512,7 +498,7 @@
                 <div class="w-6 h-6 rounded-full bg-cream/10 border border-gold/40 text-gold flex items-center justify-center shrink-0">
                   <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
                 </div>
-                <h3 class="font-marcellus text-base text-whitef whitespace-nowrap">Garantia Notarial Registrals</h3>
+                <h3 class="font-marcellus text-base text-whitef whitespace-nowrap">Garantia de Certificació Registrals</h3>
               </div>
               <span class="px-2 py-0.5 rounded-full bg-gold/15 border border-gold/40 text-gold font-mono font-bold text-[10px] whitespace-nowrap">
                 Versió v1 (Vigent)
@@ -580,7 +566,7 @@
                   {{ item.evidenceDocuments|length }}/{{ app.user.plan ? app.user.plan.maxEvidencesPerItem : '∞' }} prova ({{ app.user.plan ? app.user.plan.code|upper : 'ADMIN' }})
                 </span>
                 <button type="button"
-                  onclick="if (window.RegistralsToast) window.RegistralsToast.show('Funció del Pla PLUS', 'La custòdia de fins a 5 proves documentals addicionals (factures, tiquets, garanties) requereix el Pla PLUS o UNLIMITED.', 'info');"
+                  onclick="if (window.RegistralsToast) window.RegistralsToast.show('Funció del Pla PLUS', 'La custòdia de fins a 5 proves documentals addicionals (factures, tiquets, garanties) requereix el Pla PLUS.', 'info');"
                   class="px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs bg-white/90 border border-gold/40 text-ink/85 hover:bg-cream/40 active:scale-95 whitespace-nowrap"
                   title="Afegir nova prova documental">
                   <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -638,11 +624,11 @@
       </a>
 
       {# 2. Emetre Certificat (Acció Notarial Destacada) #}
-      <button type="button" onclick="openCertificateModal()" class="flex flex-col items-center justify-center gap-1 text-ink hover:text-gold active:scale-95 transition-all py-1 cursor-pointer">
-        <svg class="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <button type="button" onclick="openCertificateModal()" class="flex flex-col items-center justify-center gap-1 {% if item.activeTransfer or item.status.value == 'transfer_pending' %}text-stone-400{% else %}text-ink hover:text-gold{% endif %} active:scale-95 transition-all py-1 cursor-pointer">
+        <svg class="w-5 h-5 {% if item.activeTransfer or item.status.value == 'transfer_pending' %}text-stone-400{% else %}text-gold{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
         </svg>
-        <span class="text-[10px] font-bold font-raleway">Certificat</span>
+        <span class="text-[10px] font-bold font-raleway">{% if item.activeTransfer or item.status.value == 'transfer_pending' %}Certificat (!){% else %}Certificat{% endif %}</span>
       </button>
 
       {# 3. Traspàs C2C #}
@@ -674,16 +660,10 @@
     </div>
   </nav>
 
-  {# Peu de pàgina privat per a PC (>= md) #}
-  <footer class="border-t border-gold/30 py-5 text-center text-xs text-ink/65 bg-whitef hidden md:block">
-    <p>&copy; {{ "now"|date("Y") }} Registrals &middot; Fitxa notarial protegida.</p>
-  </footer>
-
-</div>
-
 {# Modal Notarial de Previsualització de Documents de Custòdia #}
-<div id="modal-doc-preview" class="fixed inset-0 z-50 bg-ink/80 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-6 transition-all" onclick="if(event.target === this) closeDocPreview();">
-  <div class="bg-white rounded-3xl border border-gold/50 shadow-2xl flex flex-col overflow-hidden w-full max-w-4xl max-h-[92vh] animate-in fade-in zoom-in-95 duration-200">
+<div id="modal-doc-preview" class="fixed inset-0 z-50 bg-ink/80 backdrop-blur-sm hidden items-end sm:items-center justify-center p-0 sm:p-6 transition-all" onclick="if(event.target === this) closeDocPreview();">
+  <div class="bg-white rounded-t-3xl sm:rounded-3xl border-t sm:border border-gold/50 shadow-2xl flex flex-col overflow-hidden w-full max-w-4xl max-h-[92vh] animate-in slide-in-from-bottom sm:zoom-in-95 duration-200">
+    <div class="sm:hidden w-10 h-1 bg-cream/30 rounded-full mx-auto mt-2 -mb-1 shrink-0"></div>
     
     {# Capçalera del Modal #}
     <div class="px-5 py-3.5 sm:px-6 sm:py-4 bg-ink text-cream border-b border-gold/30 flex items-center justify-between gap-4">
@@ -725,8 +705,9 @@
 </div>
 
 {# Modal Notarial de Freemium Nudging — Assistent d'IA Pla Plus #}
-<div id="modal-ai-nudging" class="fixed inset-0 z-50 bg-ink/80 backdrop-blur-sm hidden items-center justify-center p-4 transition-all" onclick="if(event.target === this) closeAiNudgingModal();">
-  <div class="bg-whitef rounded-3xl border border-gold/50 shadow-2xl overflow-hidden w-full max-w-md animate-in fade-in zoom-in-95 duration-200">
+<div id="modal-ai-nudging" class="fixed inset-0 z-50 bg-ink/80 backdrop-blur-sm hidden items-end sm:items-center justify-center p-0 sm:p-4 transition-all" onclick="if(event.target === this) closeAiNudgingModal();">
+  <div class="bg-whitef rounded-t-3xl sm:rounded-3xl border-t sm:border border-gold/50 shadow-2xl overflow-hidden w-full max-w-md max-h-[90vh] animate-in slide-in-from-bottom sm:zoom-in-95 duration-200">
+    <div class="sm:hidden w-10 h-1 bg-cream/30 rounded-full mx-auto mt-2 -mb-1 shrink-0"></div>
     <div class="bg-ink text-cream p-5 border-b border-gold/30 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <div class="w-9 h-9 rounded-full bg-cream/15 text-gold flex items-center justify-center shrink-0">
@@ -781,8 +762,9 @@
 </div>
 
 {# Modal Notarial d'Emissió i Consulta de Certificats #}
-<div id="modal-issue-certificate" class="fixed inset-0 z-50 bg-ink/75 backdrop-blur-xs hidden items-center justify-center p-3 sm:p-6 transition-all" onclick="if(event.target === this) closeCertificateModal();">
-  <div class="bg-white rounded-3xl border border-gold/50 shadow-2xl flex flex-col overflow-hidden w-full max-w-xl max-h-[92vh] animate-in fade-in zoom-in-95 duration-200">
+<div id="modal-issue-certificate" class="fixed inset-0 z-50 bg-ink/75 backdrop-blur-xs hidden items-end sm:items-center justify-center p-0 sm:p-6 transition-all" onclick="if(event.target === this) closeCertificateModal();">
+  <div class="bg-white rounded-t-3xl sm:rounded-3xl border-t sm:border border-gold/50 shadow-2xl flex flex-col overflow-hidden w-full max-w-xl max-h-[92vh] animate-in slide-in-from-bottom sm:zoom-in-95 duration-200">
+    <div class="sm:hidden w-10 h-1 bg-cream/30 rounded-full mx-auto mt-2 -mb-1 shrink-0"></div>
     
     {# Capçalera del Modal #}
     <div class="px-5 py-3.5 sm:px-6 sm:py-4 bg-ink text-cream border-b border-gold/30 flex items-center justify-between gap-4">
@@ -870,87 +852,114 @@
           Gestió del Certificat per a la Versió Actual
         </h4>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          {# Opció 1: Esborrany Informatiu (Pla Free) #}
-          <div class="p-4 rounded-2xl border border-steel/25 bg-cream/20 flex flex-col justify-between">
-            <div>
-              <div class="flex items-center justify-between mb-1.5">
-                <span class="font-bold text-xs text-ink uppercase tracking-wider">Esborrany Informatiu</span>
-                <span class="px-2 py-0.5 bg-cream text-ink text-[10px] font-bold rounded-full border border-gold/30">Gratuït</span>
-              </div>
-              <p class="text-[11px] text-ink/75 leading-relaxed mb-3">
-                {% if activeCurrentDraft %}
-                  Ja disposes d'un esborrany vigent generat per a la versió actual.
-                {% else %}
-                  PDF oficial descarregable de franc amb marca d'aigua de seguretat i codi QR actiu per a verificació ràpida.
-                {% endif %}
-              </p>
+        {% if item.activeTransfer or item.status.value == 'transfer_pending' %}
+          <div class="p-4 rounded-2xl bg-amber-50/90 border border-amber-300 text-amber-900 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 text-amber-900">
+                <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                <span>Emissió de Certificats No Disponible</span>
+              </span>
+              <span class="text-[10px] font-mono bg-white px-2 py-0.5 rounded-md border border-amber-300 font-bold">Traspàs en Curs</span>
             </div>
-            
-            {% if activeCurrentDraft %}
-              <a href="{{ path('app_item_certificate_download', {'id': item.id, 'certId': activeCurrentDraft.id}) }}" target="_blank" class="w-full py-2 px-3 rounded-xl bg-ink text-gold font-bold text-xs uppercase tracking-wider transition-all shadow-2xs hover:bg-ink/90 flex items-center justify-center gap-1.5 cursor-pointer">
-                <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                <span>Descarregar Vigent ({{ activeCurrentDraft.certificateNumber }})</span>
-              </a>
-            {% else %}
-              <form action="{{ path('app_item_certificate_issue', {'id': item.id}) }}" method="POST" onsubmit="handleCertSubmit(this)">
-                <input type="hidden" name="_token" value="{{ csrf_token('issue_certificate_' ~ item.id) }}">
-                <input type="hidden" name="mode" value="draft">
-                <button type="submit" class="w-full py-2 px-3 rounded-xl bg-white border border-steel/30 hover:border-gold text-ink font-bold text-xs uppercase tracking-wider transition-all shadow-2xs hover:bg-cream/40 flex items-center justify-center gap-1.5 cursor-pointer">
-                  <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                  <span>Generar Esborrany</span>
-                </button>
-              </form>
-            {% endif %}
+            <p class="text-xs text-amber-800 leading-relaxed">
+              Aquest bé es troba actualment en procés de traspàs de titularitat C2C. Per garantir la seguretat jurídica i la cadena de custòdia, <strong>no es poden emetre nous certificats</strong> (ni esborranys ni oficials) mentre la sol·licitud estigui pendent d'acceptació.
+            </p>
+            <div class="text-[11px] text-amber-700/90 pt-1 border-t border-amber-200">
+              Per emetre un nou certificat, primer heu de <strong>cancel·lar el traspàs en curs</strong> o esperar que el receptor l'accepti o caduqui (72 h).
+            </div>
           </div>
-
-          {# Opció 2: Certificat Oficial Notarial #}
-          <div class="p-4 rounded-2xl border border-gold/50 bg-cream/40 flex flex-col justify-between">
-            <div>
-              <div class="flex items-center justify-between mb-1.5">
-                <span class="font-bold text-xs text-ink uppercase tracking-wider">Certificat Oficial</span>
-                <span class="px-2 py-0.5 bg-ink text-gold text-[10px] font-bold rounded-full border border-gold/40">eIDAS + L2</span>
-              </div>
-              <p class="text-[11px] text-ink/75 leading-relaxed mb-3">
-                {% if activeCurrentOfficial %}
-                  Ja disposes del certificat oficial eIDAS registrat per a aquesta versió.
-                {% else %}
-                  Segellat de temps qualificat eIDAS via Signaturit i Polygon PoS. Sense marca d'aigua, apte per a asseguradores.
-                {% endif %}
-              </p>
+        {% elseif item.status.value == 'frozen' %}
+          <div class="p-4 rounded-2xl bg-stone-100 border border-stone-300 text-stone-800 space-y-1.5">
+            <div class="font-bold text-xs uppercase tracking-wider text-stone-900 flex items-center gap-1.5">
+              <span>❄️ Bé en Custòdia en Fred</span>
             </div>
-
-            {% if activeCurrentOfficial %}
-              <a href="{{ path('app_item_certificate_download', {'id': item.id, 'certId': activeCurrentOfficial.id}) }}" target="_blank" class="w-full py-2 px-3 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer">
-                <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                <span>Descarregar Oficial ({{ activeCurrentOfficial.certificateNumber }})</span>
-              </a>
-            {% else %}
-              {% set canIssueOfficial = is_granted('ROLE_ADMIN') or (app.user.plan and app.user.plan.allowOfficialCertificates) %}
-              {% if canIssueOfficial %}
+            <p class="text-xs text-stone-700 leading-relaxed">
+              Aquest bé està en mode només de lectura amb integritat protegida per sobre de la quota del Pla Free. Per emetre nous certificats, reactiveu el bé o passeu al Pla Plus.
+            </p>
+          </div>
+        {% else %}
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            {# Opció 1: Esborrany Informatiu (Pla Free) #}
+            <div class="p-4 rounded-2xl border border-steel/25 bg-cream/20 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="font-bold text-xs text-ink uppercase tracking-wider">Esborrany Informatiu</span>
+                  <span class="px-2 py-0.5 bg-cream text-ink text-[10px] font-bold rounded-full border border-gold/30">Gratuït</span>
+                </div>
+                <p class="text-[11px] text-ink/75 leading-relaxed mb-3">
+                  {% if activeCurrentDraft %}
+                    Ja disposes d'un esborrany vigent generat per a la versió actual.
+                  {% else %}
+                    PDF oficial descarregable de franc amb marca d'aigua de seguretat i codi QR actiu per a verificació ràpida.
+                  {% endif %}
+                </p>
+              </div>
+              
+              {% if activeCurrentDraft %}
+                <a href="{{ path('app_item_certificate_download', {'id': item.id, 'certId': activeCurrentDraft.id}) }}" target="_blank" class="w-full py-2 px-3 rounded-xl bg-ink text-gold font-bold text-xs uppercase tracking-wider transition-all shadow-2xs hover:bg-ink/90 flex items-center justify-center gap-1.5 cursor-pointer">
+                  <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                  <span>Descarregar Vigent ({{ activeCurrentDraft.certificateNumber }})</span>
+                </a>
+              {% else %}
                 <form action="{{ path('app_item_certificate_issue', {'id': item.id}) }}" method="POST" onsubmit="handleCertSubmit(this)">
                   <input type="hidden" name="_token" value="{{ csrf_token('issue_certificate_' ~ item.id) }}">
-                  <input type="hidden" name="mode" value="official">
-                  <button type="submit" class="w-full py-2 px-3 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer">
-                    <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                    <span>Emetre Oficial</span>
+                  <input type="hidden" name="mode" value="draft">
+                  <button type="submit" class="w-full py-2 px-3 rounded-xl bg-white border border-steel/30 hover:border-gold text-ink font-bold text-xs uppercase tracking-wider transition-all shadow-2xs hover:bg-cream/40 flex items-center justify-center gap-1.5 cursor-pointer">
+                    <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    <span>Generar Esborrany</span>
                   </button>
                 </form>
-              {% else %}
-                <form action="{{ path('app_payment_certificate_checkout', {'cui': item.cui}) }}" method="POST">
-                  <input type="hidden" name="_token" value="{{ csrf_token('checkout_cert_' ~ item.cui) }}">
-                  <button type="submit" class="w-full py-2 px-3 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer">
-                    <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-                    <span>Comprar Oficial (5,90 €)</span>
-                  </button>
-                </form>
-                <div class="mt-1 text-center">
-                  <a href="{{ path('app_plan') }}" class="text-[10px] text-steel hover:text-gold transition-colors underline">O passa al Pla Plus per tenir-los inclosos</a>
-                </div>
               {% endif %}
-            {% endif %}
+            </div>
+
+            {# Opció 2: Certificat Oficial Notarial #}
+            <div class="p-4 rounded-2xl border border-gold/50 bg-cream/40 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="font-bold text-xs text-ink uppercase tracking-wider">Certificat Oficial</span>
+                  <span class="px-2 py-0.5 bg-ink text-gold text-[10px] font-bold rounded-full border border-gold/40">eIDAS + L2</span>
+                </div>
+                <p class="text-[11px] text-ink/75 leading-relaxed mb-3">
+                  {% if activeCurrentOfficial %}
+                    Ja disposes del certificat oficial eIDAS registrat per a aquesta versió.
+                  {% else %}
+                    Segellat de temps qualificat eIDAS via Signaturit (Grup Namirial) i Polygon PoS. Sense marca d'aigua, apte per a asseguradores.
+                  {% endif %}
+                </p>
+              </div>
+
+              {% if activeCurrentOfficial %}
+                <a href="{{ path('app_item_certificate_download', {'id': item.id, 'certId': activeCurrentOfficial.id}) }}" target="_blank" class="w-full py-2 px-3 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer">
+                  <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                  <span>Descarregar Oficial ({{ activeCurrentOfficial.certificateNumber }})</span>
+                </a>
+              {% else %}
+                {% set canIssueOfficial = is_granted('ROLE_ADMIN') or (app.user.plan and app.user.plan.allowOfficialCertificates) %}
+                {% if canIssueOfficial %}
+                  <form action="{{ path('app_item_certificate_issue', {'id': item.id}) }}" method="POST" onsubmit="handleCertSubmit(this)">
+                    <input type="hidden" name="_token" value="{{ csrf_token('issue_certificate_' ~ item.id) }}">
+                    <input type="hidden" name="mode" value="official">
+                    <button type="submit" class="w-full py-2 px-3 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer">
+                      <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                      <span>Emetre Oficial</span>
+                    </button>
+                  </form>
+                {% else %}
+                  <form action="{{ path('app_payment_certificate_checkout', {'cui': item.cui}) }}" method="POST">
+                    <input type="hidden" name="_token" value="{{ csrf_token('checkout_cert_' ~ item.cui) }}">
+                    <button type="submit" class="w-full py-2 px-3 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer">
+                      <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                      <span>Comprar Oficial (5,90 €)</span>
+                    </button>
+                  </form>
+                  <div class="mt-1 text-center">
+                    <a href="{{ path('app_plan') }}" class="text-[10px] text-steel hover:text-gold transition-colors underline">O passa al Pla Plus per tenir-los inclosos</a>
+                  </div>
+                {% endif %}
+              {% endif %}
+            </div>
           </div>
-        </div>
+        {% endif %}
       </div>
 
       {# Avís Notarial d'Immutabilitat #}
@@ -970,8 +979,9 @@
 </div>
 
 {# Modal Notarial de Traspàs C2C de Titularitat #}
-<div id="modal-item-transfer" class="fixed inset-0 z-50 bg-ink/75 backdrop-blur-xs hidden items-center justify-center p-3 sm:p-6 transition-all" onclick="if(event.target === this) closeTransferModal();">
-  <div class="bg-white rounded-3xl border border-gold/50 shadow-2xl flex flex-col overflow-hidden w-full max-w-lg max-h-[92vh] animate-in fade-in zoom-in-95 duration-200">
+<div id="modal-item-transfer" class="fixed inset-0 z-50 bg-ink/75 backdrop-blur-xs hidden items-end sm:items-center justify-center p-0 sm:p-6 transition-all" onclick="if(event.target === this) closeTransferModal();">
+  <div class="bg-white rounded-t-3xl sm:rounded-3xl border-t sm:border border-gold/50 shadow-2xl flex flex-col overflow-hidden w-full max-w-lg max-h-[92vh] animate-in slide-in-from-bottom sm:zoom-in-95 duration-200">
+    <div class="sm:hidden w-10 h-1 bg-cream/30 rounded-full mx-auto mt-2 -mb-1 shrink-0"></div>
     
     {# Capçalera del Modal #}
     <div class="px-5 py-3.5 sm:px-6 sm:py-4 bg-ink text-cream border-b border-gold/30 flex items-center justify-between gap-4">
@@ -1062,7 +1072,7 @@
 
             <div class="space-y-1.5">
               <label for="security_code" class="block font-bold text-ink uppercase tracking-wider text-[11px]">
-                PIN de Seguretat Notarial (Opcional)
+                PIN de Seguretat del Traspàs (Opcional)
               </label>
               <input type="text" id="security_code" name="security_code" maxlength="10" placeholder="Ex: 849201" class="w-full max-w-xs px-3.5 py-2 rounded-xl border border-steel/30 focus:border-gold focus:ring-1 focus:ring-gold bg-white text-ink text-xs font-mono">
               <p class="text-[10px] text-steel">

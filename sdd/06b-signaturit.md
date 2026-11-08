@@ -1,32 +1,39 @@
-# 06b - Signaturit: Guia d'Ús, Arquitectura i Segellat Legal eIDAS (SDD)
+# 06b - Signaturit / Grup Namirial: Guia d'Ús, Arquitectura i Segellat Legal eIDAS (SDD)
 
 ```
 <Registrals/>
 SEGELLAT DE TEMPS QUALIFICAT eIDAS (TSP) · VERIFICACIÓ D'IDENTITAT (eIDV)
-Registrals — Signaturit: Guia d'ús, arquitectura i configuració
-Com integrar Signaturit com a Prestador Qualificat de Serveis de Confiança (QTSP):
+Registrals — Signaturit / Grup Namirial: Guia d'ús, arquitectura i configuració
+Com integrar Signaturit (Grup Namirial) com a Prestador Qualificat de Serveis de Confiança (QTSP):
 segellat de certificats PDF, verificació d'identitat, credencials de sandbox,
 webhooks i custòdia de proves conforme al Reglament UE 910/2014.
-v1.0 · Base: disseny aprovat (D-025, D-055, D-082) · Implementació: Iteració 7 (Etapa 7.4)
+v1.0 · Base: disseny aprovat (D-025, D-055, D-082) · Implementació: Iteració 5 (Subiteració 5.3 en Sandbox) & Iteració 7 (Subiteració 7.5: Verificació d'Identitat eIDV per a Plus i Certificats Solts al MVP) · Activació de Bossa de Segells TSA: Fase II
 ```
 
 | Camp | Detall |
 | :--- | :--- |
-| **Versió** | v1.0 |
-| **Data** | 2026-10-31 |
+| **Versió** | v1.1 (Actualització Namirial & Estat del Codi) |
+| **Data** | 2026-11-05 |
 | **Àmbit** | Seguretat Jurídica — Segellat de Temps Qualificat (RFC 3161) i Verificació Biomètrica (eIDV) |
 | **Entitat** | Registrals (Vora Studio) |
+| **Proveïdor QTSP** | Signaturit Group, a Namirial Company |
 | **Document de referència** | Document confidencial · Ús intern de l'equip tècnic |
 
 ---
 
 ## 1. Estat del Document
 
-Aquesta guia explica **com configurar i utilitzar l'API de Signaturit a Registrals pas a pas, per a qui parteix de zero: no cal saber res de criptografia de clau pública ni de normativa eIDAS per llegir-la**.
+> [!NOTE]
+> **Adquisició Corporativa i Identitat de Marca (Namirial / Signaturit):**
+> L'1 de juliol de 2025, el grup italià **Namirial** (líder paneuropeu en serveis de confiança digital) va completar l'adquisició oficial de **Signaturit Group** (*Signaturit, a Namirial Company*).
+> A efectes d'aquesta arquitectura i de la plataforma **Registrals**, la condició de **Prestador Qualificat de Serveis de Confiança (QTSP)** acreditat sota el Reglament eIDAS (UE 910/2014) es manté plenament vigent i harmonitzada a tota la Unió Europea.
+> L'API v3 (`https://api.signaturit.com/v3` i sandbox `https://api.sandbox.signaturit.com/v3`) continua operativa i retrocompatible. A la interfície d'usuari, certificats PDF i panell d'administració es referència oficialment com **«Signaturit (Grup Namirial)»** o **«Namirial / Signaturit»**.
+
+Aquesta guia explica **com configurar i utilitzar l'API de Signaturit / Namirial a Registrals pas a pas, per a qui parteix de zero: no cal saber res de criptografia de clau pública ni de normativa eIDAS per llegir-la**.
 
 Recull el que ja està decidit al projecte (Decisions d'Arquitectura `D-xxx` i Riscos `R-xxx`) i ho separa estrictament en dues capes:
 * **Capa Estable (es pot configurar ja):** tot el que passa a la banda de Signaturit — el compte al portal de desenvolupador, l'obtenció del token d'accés, la configuració del Sandbox de proves i els webhooks de resultat.
-* **Capa d'Aplicació (implementació Symfony):** com ho consumeix Registrals — adaptadors de servei (`SignaturitGatewayService`), clients HTTP de Symfony (`HttpClientInterface`), gestió d'errors mitjançant cua asíncrona (`async_chain`) i emmagatzematge segur de fitxers de proves a Flysystem.
+* **Capa d'Aplicació (implementació Symfony):** com ho consumeix Registrals — client hexagonal ([`SignaturitClient.php`](../src/Infrastructure/Adapter/Signature/SignaturitClient.php)), interfície de domini ([`SignaturitTimestampInterface.php`](../src/Infrastructure/Adapter/Signature/SignaturitTimestampInterface.php)), DTO normalitzat ([`SignaturitTimestampDto.php`](../src/DTO/SignaturitTimestampDto.php)), emissor de certificats ([`CertificateIssuerService.php`](../src/Service/Certificate/CertificateIssuerService.php)), gestió de fallades i custòdia de proves a Flysystem.
 
 ### On està cada informació a l'arquitectura SDD
 
@@ -37,7 +44,7 @@ Recull el que ja està decidit al projecte (Decisions d'Arquitectura `D-xxx` i R
 | [`sdd/03-model-dades.md`](03-model-dades.md) | Camps `signaturit_timestamp_id`, `signaturit_sealed_at`, `timestamp_token_path` a l'entitat `Certificate`. |
 | [`sdd/04-fluxos-maquines-estat.md`](04-fluxos-maquines-estat.md) | Cua asíncrona de segellat (`async_chain`) i transició d'estats del certificat. |
 | [`sdd/05-guia-interficies.md`](05-guia-interficies.md) | Disseny del PDF notarial amb les insígnies oficials de garantia eIDAS i codi QR de validació. |
-| [`sdd/07-iteracions.md`](07-iteracions.md) | Subiteració 7.4: Integració de Segellat Qualificat de Temps i verificació eIDV. |
+| [`sdd/07-iteracions.md`](07-iteracions.md) | Subiteració 7.5 (Verificació d'Identitat eIDV al MVP per a Plus i Certificats Solts) & Fase II (Segellat TSA RFC 3161). |
 | [`sdd/08-annexes.md`](08-annexes.md) | Marc jurídic europeu eIDAS (Reglament UE 910/2014, Art. 41 i 42) i valor probatori en judici. |
 
 ---
@@ -106,7 +113,12 @@ Registrals integra Signaturit com a **Prestador Qualificat de Serveis de Confian
 
 # 5. Entorn i mode de prova (Desenvolupament local)
 
-Tot el desenvolupament i execució de tests automatitzats a Registrals es realitza contra el Sandbox oficial o mitjançant adaptadors simulats (*Null/Mock Adapters*).
+Tot el desenvolupament i execució de tests automatitzats a Registrals es realitza contra el Sandbox oficial o mitjançant el mecanisme integrat de fallback deterministic (*Local Mock Mode*).
+
+> [!TIP]
+> **Comportament de Fallback Automàtic (`SignaturitClient`):**
+> A l'adaptador [`src/Infrastructure/Adapter/Signature/SignaturitClient.php`](../src/Infrastructure/Adapter/Signature/SignaturitClient.php), si la variable `SIGNATURIT_API_TOKEN` no està configurada a `.env.local` o conté una clau buida/mock, el client **no llança cap excepció ni bloqueja l'execució**.
+> Genera automàticament un token simulat determinista (`eIDAS-SIG-[hash-8]-[timestamp]`) amb l'emissor `Signaturit (Grup Namirial) Qualified Trust Service Provider (eIDAS EU 910/2014)`. Això permet provar tota la cadena d'emissió de certificats en PDF, generació de codis QR i comprovació pública a `/verify/{uuid}` en local sense dependre d'accés a internet ni de credencials de pagament.
 
 ### 5.1 · Variables d'entorn a `.env.local`
 
@@ -200,11 +212,15 @@ Data atòmica UTC: 2026-10-31T10:14:02Z
 
 # 7. Flux B · Verificació d'Identitat Biomètrica (eIDV / KYC)
 
-**Objectiu:** Validar la identitat d'un usuari mitjançant DNI/Passaport i reconeixement facial de prova de vida (*Liveness*) abans d'autoritzar operacions d'alt valor patrimonial o sol·licitar un perfil certificat.
+**Objectiu:** Validar la identitat fefaent d'un usuari mitjançant DNI/Passaport i reconeixement facial de prova de vida (*Liveness*) sota eIDAS. Aquest procés s'integra com a requisit consolidat al MVP per a:
+1. **Pla Plus:** Activació obligatòria després del cobrament de la quota anual a Stripe Checkout per gaudir de la quota de certificats oficials i obtenir la insígnia «Titular Verificat».
+2. **Pla Free amb Certificat Solt:** Activació obligatòria després del pagament de 5,90 € a Stripe per convertir l'esborrany informatiu en un certificat oficial net i acreditat.
+
+> **Regla Financera d'Or:** El cobrament a Stripe sempre precedeix la crida d'OnBoarding per garantir que mai es consumeixen costos de verificació en transaccions no cobrades.
 
 ### Seqüència Pas a Pas
 
-1. **Inici del procés:** L'usuari accedeix a la seva àrea de seguretat (`/perfil/verificacio`) i fa clic a *"Verificar la meva Identitat Oficial"*.
+1. **Inici del procés:** L'usuari completa el pagament a Stripe o accedeix a `/app/perfil/verificacio` i fa clic a *"Verificar la meva Identitat Oficial"*.
 2. **Creació del procés eIDV via API:** El controlador crida `SignaturitGatewayService::createIdentityVerification($user)`:
    * `POST /v3/identity-verifications.json`
    * Paràmetres:

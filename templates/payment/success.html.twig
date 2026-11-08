@@ -25,7 +25,7 @@
       <h1 class="text-2xl sm:text-3xl font-marcellus text-ink mb-2">Pagament Rebut amb Èxit</h1>
       
       <p id="status-text" class="text-sm text-ink/75 max-w-md mx-auto mb-6">
-        Hem rebut la confirmació del pagament a través de la passarel·la segura. El sistema està sincronitzant els teus nous drets notarials.
+        Hem rebut la confirmació del pagament a través de la passarel·la segura. El sistema està sincronitzant els teus nous drets de certificació.
       </p>
 
       <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider mb-8 bg-green-100 text-green-800 border border-green-300" id="status-badge">
@@ -42,9 +42,9 @@
             {% elseif type == 'certificate' %}
               Emissió de Certificat Oficial
             {% elseif type == 'transfer' %}
-              Taxa de Traspàs Notarial C2C
+              Taxa de Traspàs Certificat C2C
             {% else %}
-              Transacció Notarial
+              Transacció de Certificació
             {% endif %}
           </span>
         </div>
@@ -60,6 +60,13 @@
           </div>
         {% endif %}
       </div>
+
+      {% if type == 'subscription' %}
+        {# Nota informativa de Següent Pas: Verificació Namirial #}
+        <div class="guide-note mb-6 text-left max-w-lg mx-auto">
+          <strong>Següent Pas (Acreditació de Titularitat):</strong> Per a l'emissió de certificats oficials eIDAS d'alta seguretat, podràs completar la verificació d'identitat oficial amb <strong>Namirial Onboarding</strong> des del teu perfil en qualsevol moment.
+        </div>
+      {% endif %}
 
       <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
         {% if type == 'subscription' %}

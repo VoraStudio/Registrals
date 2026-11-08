@@ -15,6 +15,8 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
+use App\Service\GeoIp\GeoIpDatabaseManager;
+use App\Service\GeoIp\GeoLocationService;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -28,8 +30,10 @@ class AdminSystemController extends AbstractController
     public function services(
         ManagerRegistry $doctrine,
         SystemSettingRepository $settingRepository,
-        HttpClientInterface $httpClient
+        HttpClientInterface $httpClient,
+        ?GeoLocationService $geoLocationService = null
     ): Response {
+        $geoLocationService ??= new GeoLocationService();
         // 1. Comprovació MySQL DB 'default' (registrals)
         $defaultDbStatus = false;
         $defaultDbError = null;
@@ -87,7 +91,34 @@ class AdminSystemController extends AbstractController
             'diskTotal' => $diskTotal ?: 1,
             'messengerStats' => $messengerData['stats'],
             'failedMessages' => $messengerData['failedMessages'],
+            'geoDbStatus' => $geoLocationService->getDatabaseStatus(),
         ]);
+    }
+
+    #[Route('/serveis/geoip/update', name: 'app_admin_geoip_update', methods: ['POST'])]
+    public function updateGeoIpDatabase(
+        Request $request,
+        GeoIpDatabaseManager $geoIpDatabaseManager
+    ): Response {
+        if (!$this->isCsrfTokenValid('admin_geoip_update', (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Token de seguretat CSRF invàlid.');
+            return $this->redirectToRoute('app_admin_dashboard');
+        }
+
+        $res = $geoIpDatabaseManager->updateDatabase(force: true);
+
+        if ($res['success']) {
+            $this->addFlash('success', $res['message']);
+        } else {
+            $this->addFlash('warning', $res['message']);
+        }
+
+        $referer = $request->headers->get('referer');
+        if ($referer && str_contains($referer, '/admin')) {
+            return $this->redirect($referer);
+        }
+
+        return $this->redirectToRoute('app_admin_dashboard');
     }
 
     #[Route('/serveis/messenger/retry/{id}', name: 'app_admin_messenger_retry', methods: ['POST'])]

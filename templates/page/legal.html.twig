@@ -2,13 +2,13 @@
 
 {% set cookie_policy_href = '#cookies' %}
 
-{% block title %}Informació legal — Registrals{% endblock %}
-{% block meta_description %}Avís legal, política de privacitat i política de cookies de Registrals.{% endblock %}
+{% block title %}Informació Legal, Privadesa i Cookies — Registrals{% endblock %}
+{% block meta_description %}Avís legal, condicions generals d'ús i custòdia, política de privadesa integral (RGPD) i política tècnica de cookies de Registrals.{% endblock %}
 {% block canonical_url %}https://www.registrals.com/legal{% endblock %}
-{% block og_title %}Informació legal — Registrals{% endblock %}
-{% block og_description %}Avís legal, política de privacitat i política de cookies de Registrals.{% endblock %}
+{% block og_title %}Informació Legal, Privadesa i Cookies — Registrals{% endblock %}
+{% block og_description %}Avís legal, condicions generals d'ús i custòdia, política de privadesa integral (RGPD) i política tècnica de cookies de Registrals.{% endblock %}
 
-{% block body_class %}bg-cream font-raleway text-ink antialiased{% endblock %}
+{% block body_class %}{{ app.user ? 'bg-cream-50' : 'bg-cream' }} font-raleway text-ink antialiased selection:bg-gold/30 selection:text-ink min-h-screen flex flex-col justify-between{% endblock %}
 
 {% block body %}
     <a
@@ -17,144 +17,607 @@
       >Salta al contingut</a
     >
 
-    <header class="bg-ink px-4 py-6">
-      <div class="mx-auto flex max-w-3xl items-center justify-between gap-4">
-        <a href="{{ path('app_home') }}" class="font-marcellus text-2xl tracking-wider text-cream">REGISTRALS</a>
-        <a href="{{ path('app_home') }}" class="rounded-full bg-cream px-5 py-2.5 text-sm font-medium text-ink hover:bg-cream/90">TORNA A L'INICI</a>
-      </div>
-    </header>
+    {% if app.user %}
+      {# Capçalera Privada Unificada #}
+      {% include 'partials/_private_header.html.twig' %}
+    {% else %}
+      {# Capçalera Pública Unificada #}
+      {% include 'partials/_public_subpage_header.html.twig' %}
+    {% endif %}
 
-    <main id="main" class="mx-auto max-w-3xl px-4 py-12 md:py-16">
-      <h1 class="font-marcellus text-4xl md:text-5xl">Informació legal</h1>
-      <nav aria-label="Seccions" class="mt-6">
-        <ul class="flex flex-col gap-1 sm:flex-row sm:gap-6">
-          <li><a href="#avis-legal" class="block py-1.5 font-semibold underline decoration-gold decoration-2 underline-offset-4 hover:text-steel">Avís legal</a></li>
-          <li><a href="#privacitat" class="block py-1.5 font-semibold underline decoration-gold decoration-2 underline-offset-4 hover:text-steel">Privacitat</a></li>
-          <li><a href="#cookies" class="block py-1.5 font-semibold underline decoration-gold decoration-2 underline-offset-4 hover:text-steel">Cookies</a></li>
+    <main id="main" class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-3.5 sm:py-5 flex-1 w-full {{ app.user ? 'pb-20 md:pb-8' : 'pb-12' }}">
+      {# Capçalera Institucional de Subpàgina #}
+      {% include 'partials/_subpage_header.html.twig' with {
+        breadcrumbs: app.user ? [
+          { label: 'Inici', url: path('app_dashboard') },
+          { label: 'Informació legal' }
+        ] : [
+          { label: 'Inici', url: path('app_home') },
+          { label: 'Informació legal' }
+        ],
+        title: 'Informació Legal & Privadesa',
+        subtitle: 'Avís legal, condicions de custòdia, protecció de dades (RGPD) i política tècnica de cookies de Registrals.'
+      } %}
+
+      {# Navegació per Seccions #}
+      <nav aria-label="Seccions legals" class="mt-4 mb-6">
+        <ul class="flex flex-wrap items-center gap-2 text-xs font-semibold">
+          <li>
+            <a href="#avis-legal" class="px-3.5 py-1.5 rounded-full bg-white border border-steel/20 text-ink hover:border-gold hover:text-gold transition-colors shadow-2xs">
+              Avís legal &amp; Condicions d'Ús
+            </a>
+          </li>
+          <li>
+            <a href="#privacitat" class="px-3.5 py-1.5 rounded-full bg-white border border-steel/20 text-ink hover:border-gold hover:text-gold transition-colors shadow-2xs">
+              Política de privadesa (RGPD)
+            </a>
+          </li>
+          <li>
+            <a href="#cookies" class="px-3.5 py-1.5 rounded-full bg-white border border-steel/20 text-ink hover:border-gold hover:text-gold transition-colors shadow-2xs">
+              Política de cookies
+            </a>
+          </li>
+          <li>
+            <a href="{{ path('app_legal_ai_sovereign') }}" class="px-3.5 py-1.5 rounded-full bg-ink text-gold border border-gold/40 hover:bg-ink/90 transition-all shadow-2xs flex items-center gap-1.5">
+              <span>IA Sobirana &amp; AI Act</span>
+              <span>→</span>
+            </a>
+          </li>
         </ul>
       </nav>
 
-      <section id="avis-legal" aria-labelledby="avis-legal-title" class="mt-12 scroll-mt-8">
-        <h2 id="avis-legal-title" class="font-marcellus text-3xl">Avís legal</h2>
-        <h3 class="mt-6 font-bold">Titular del lloc web</h3>
-        <p class="mt-2 text-ink/90">
-          En compliment de la Llei 34/2002, de serveis de la societat de la informació i de comerç electrònic, s'informa que el titular d'aquest web
-          és:
-        </p>
-        <ul class="mt-3 list-disc space-y-1 pl-5 text-ink/90 marker:text-gold">
-          <li>Denominació social: [Raó social]</li>
-          <li>NIF: [NIF]</li>
-          <li>Domicili: [Adreça postal completa]</li>
-          <li>Dades d'inscripció registral: [Registre Mercantil, volum, foli i full]</li>
-          <li>Correu electrònic: <a href="mailto:info@registrals.com" class="underline decoration-gold decoration-2 underline-offset-4 hover:text-steel">info@registrals.com</a></li>
-        </ul>
-        <h3 class="mt-6 font-bold">Condicions d'ús</h3>
-        <p class="mt-2 text-ink/90">
-          L'accés i l'ús d'aquest web atribueixen la condició d'usuari i impliquen l'acceptació d'aquestes condicions. L'usuari es compromet a fer-ne
-          un ús lícit i a no utilitzar-lo per a fins contraris a la llei, a la bona fe o a l'ordre públic.
-        </p>
-        <h3 class="mt-6 font-bold">Propietat intel·lectual</h3>
-        <p class="mt-2 text-ink/90">
-          Els textos, imatges, vídeos, logotips i el disseny d'aquest web pertanyen al titular o aquest en disposa de la llicència corresponent. En
-          queda prohibida la reproducció, distribució o transformació sense autorització expressa.
-        </p>
-        <h3 class="mt-6 font-bold">Responsabilitat</h3>
-        <p class="mt-2 text-ink/90">
-          El titular no garanteix la disponibilitat contínua del web ni es fa responsable dels danys derivats d'interrupcions, errors o de l'ús de
-          la informació publicada. El contingut té caràcter informatiu i no constitueix assessorament legal.
-        </p>
-        <h3 class="mt-6 font-bold">Legislació aplicable</h3>
-        <p class="mt-2 text-ink/90">
-          Aquest avís es regeix per la legislació espanyola. Per a qualsevol controvèrsia, les parts se sotmeten als jutjats i tribunals que
-          correspongui segons la normativa aplicable: [Jurisdicció pendent de confirmar].
-        </p>
-      </section>
+      <div class="space-y-8">
+        {# ========================================================================= #}
+        {# Secció 1: Avís Legal i Condicions Generals d'Ús i Custòdia #}
+        {# ========================================================================= #}
+        <section id="avis-legal" aria-labelledby="avis-legal-title" class="bg-white rounded-2xl border border-steel/20 p-6 sm:p-8 shadow-2xs scroll-mt-24 space-y-6">
+          <div class="border-b border-steel/15 pb-4">
+            <h2 id="avis-legal-title" class="font-marcellus text-2xl sm:text-3xl text-ink">Avís Legal i Condicions Generals d'Ús</h2>
+            <p class="mt-1 text-xs sm:text-sm text-steel">Marc regulador de la prestació de serveis de la societat de la informació, custòdia digital i emissió de certificats.</p>
+          </div>
 
-      <section id="privacitat" aria-labelledby="privacitat-title" class="mt-16 scroll-mt-8">
-        <h2 id="privacitat-title" class="font-marcellus text-3xl">Política de privacitat</h2>
-        <p class="mt-4 text-ink/90">
-          Informació sobre el tractament de dades personals, d'acord amb el Reglament (UE) 2016/679 (RGPD) i la Llei orgànica 3/2018 (LOPDGDD).
-        </p>
-        <dl class="mt-6 space-y-4 text-ink/90">
-          <div>
-            <dt class="font-bold">Responsable</dt>
-            <dd>[Raó social], NIF [NIF], [Adreça postal]. Contacte: info@registrals.com</dd>
+          {# 1.1 Identificació del Titular #}
+          <div class="space-y-3">
+            <h3 class="font-bold text-sm sm:text-base text-ink flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-ink text-gold flex items-center justify-center text-xs font-mono font-bold shrink-0">1</span>
+              Identificació del Titular del Lloc Web (Art. 10 LSSI-CE)
+            </h3>
+            <p class="text-xs sm:text-sm text-ink/85 leading-relaxed">
+              En compliment de l'article 10 de la Llei 34/2002, d'11 de juliol, de serveis de la societat de la informació i de comerç electrònic (LSSI-CE), s'informa a tots els usuaris que la plataforma tecnològica <strong>Registrals</strong> (accessible a través del domini <code>registrals.com</code> i els seus subdominis associats) és propietat i està gestionada per:
+            </p>
+            <div class="p-4 rounded-xl bg-cream-50/70 border border-steel/20 text-xs sm:text-sm text-ink/85 space-y-1.5">
+              <p><strong>Denominació social:</strong> VORA DATA &amp; STUDIO, S.L. (en endavant, <em>«Registrals»</em> o <em>«el Prestador»</em>).</p>
+              <p><strong>NIF / Identificació Fiscal:</strong> B-[Pendent d'assignació definitiva / NIF d'empresa en constitució/activa]</p>
+              <p><strong>Domicili social i operatiu:</strong> Barcelona, Catalunya (Espanya).</p>
+              <p><strong>Dades d'inscripció registral:</strong> Inscrita al Registre Mercantil de Barcelona, Volum [X], Foli [X], Full B-[X].</p>
+              <p><strong>Canal general de comunicació:</strong> <a href="mailto:info@registrals.com" class="underline decoration-gold decoration-2 underline-offset-4 hover:text-steel font-medium">info@registrals.com</a></p>
+              <p><strong>Departament jurídic i compliment normatiu:</strong> <a href="mailto:legal@registrals.com" class="underline decoration-gold decoration-2 underline-offset-4 hover:text-steel font-medium">legal@registrals.com</a></p>
+              <p><strong>Canal de protecció de dades (DPO):</strong> <a href="mailto:privacitat@registrals.com" class="underline decoration-gold decoration-2 underline-offset-4 hover:text-steel font-medium">privacitat@registrals.com</a></p>
+            </div>
+            <p class="text-xs sm:text-sm text-ink/85 leading-relaxed">
+              Totes les comunicacions per part dels usuaris es consideraran vàlides i eficaces a tots els efectes quan es dirigeixin a les adreces electròniques oficials indicades anteriorment (Art. 28 LSSI-CE).
+            </p>
           </div>
-          <div>
-            <dt class="font-bold">Finalitat</dt>
-            <dd>Atendre les consultes i sol·licituds enviades a través del formulari de contacte.</dd>
-          </div>
-          <div>
-            <dt class="font-bold">Base jurídica</dt>
-            <dd>Consentiment de la persona interessada (art. 6.1.a RGPD), que s'atorga en marcar la casella del formulari.</dd>
-          </div>
-          <div>
-            <dt class="font-bold">Dades tractades</dt>
-            <dd>Nom, correu electrònic, assumpte i missatge que l'usuari introdueix voluntàriament.</dd>
-          </div>
-          <div>
-            <dt class="font-bold">Conservació</dt>
-            <dd>Durant el temps necessari per atendre la consulta i, després, bloquejades durant els terminis legals de prescripció.</dd>
-          </div>
-          <div>
-            <dt class="font-bold">Destinataris</dt>
-            <dd>No es cedeixen dades a tercers, tret d'obligació legal. Poden accedir-hi proveïdors que presten serveis al responsable (allotjament, correu) com a encarregats del tractament: [llista de proveïdors pendent].</dd>
-          </div>
-          <div>
-            <dt class="font-bold">Drets</dt>
-            <dd>
-              Pots exercir els drets d'accés, rectificació, supressió, oposició, limitació del tractament i portabilitat escrivint a
-              info@registrals.com. Pots retirar el consentiment en qualsevol moment. Si consideres que el tractament no és correcte, pots presentar una
-              reclamació davant l'Agència Espanyola de Protecció de Dades (<a href="https://www.aepd.es" rel="noopener" class="underline decoration-gold decoration-2 underline-offset-4 hover:text-steel">www.aepd.es</a>).
-            </dd>
-          </div>
-        </dl>
-      </section>
 
-      <section id="cookies" aria-labelledby="cookies-title" class="mt-16 scroll-mt-8">
-        <h2 id="cookies-title" class="font-marcellus text-3xl">Política de cookies</h2>
-        <p class="mt-4 text-ink/90">
-          Una cookie és un petit fitxer que el web desa al teu dispositiu. Aquest web <strong>no utilitza cookies analítiques, publicitàries ni de
-          seguiment</strong>.
-        </p>
-        <div class="mt-6 overflow-x-auto">
-          <table class="w-full min-w-[32rem] border-collapse text-left text-sm">
-            <caption class="sr-only">Emmagatzematge utilitzat pel web</caption>
-            <thead>
-              <tr class="border-b border-ink/30">
-                <th scope="col" class="py-2 pr-4">Nom</th>
-                <th scope="col" class="py-2 pr-4">Tipus</th>
-                <th scope="col" class="py-2 pr-4">Finalitat</th>
-                <th scope="col" class="py-2">Durada</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="border-b border-ink/10">
-                <td class="py-2 pr-4"><code>registrals-cookie-consent</code></td>
-                <td class="py-2 pr-4">Tècnic (emmagatzematge local)</td>
-                <td class="py-2 pr-4">Recordar la teva elecció sobre cookies</td>
-                <td class="py-2">Fins que l'esborris</td>
-              </tr>
-            </tbody>
-          </table>
+          {# 1.2 Glossari i Definicions #}
+          <div class="space-y-3">
+            <h3 class="font-bold text-sm sm:text-base text-ink flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-ink text-gold flex items-center justify-center text-xs font-mono font-bold shrink-0">2</span>
+              Glossari Tècnic i Definicions Contractuals
+            </h3>
+            <p class="text-xs sm:text-sm text-ink/85 leading-relaxed">
+              Als efectes d'interpretar les presents Condicions Generals, els termes següents tindran el significat que s'indica a continuació:
+            </p>
+            <dl class="grid grid-cols-1 gap-2.5 text-xs sm:text-sm text-ink/85">
+              <div class="p-3 rounded-lg bg-cream-50/50 border border-steel/15">
+                <dt class="font-bold text-ink">Plataforma / Registrals:</dt>
+                <dd class="mt-0.5">El programari, entorn web, interfície d'usuari i serveis al núvol operats per VORA DATA &amp; STUDIO, S.L.</dd>
+              </div>
+              <div class="p-3 rounded-lg bg-cream-50/50 border border-steel/15">
+                <dt class="font-bold text-ink">Titular / Usuari:</dt>
+                <dd class="mt-0.5">La persona física o jurídica degudament registrada que utilitza la plataforma per inventariar, custodiar proves i certificar béns mobles sota la seva titularitat o possessió legítima.</dd>
+              </div>
+              <div class="p-3 rounded-lg bg-cream-50/50 border border-steel/15">
+                <dt class="font-bold text-ink">Fingerprint Determinista SHA-256:</dt>
+                <dd class="mt-0.5">L'empremta matemàtica criptogràfica unívoca de 64 caràcters hexadecimals (32 bytes), calculada de manera determinista a partir de les metadades essencials del bé, fotografies i comprovants documentals custodiats.</dd>
+              </div>
+              <div class="p-3 rounded-lg bg-cream-50/50 border border-steel/15">
+                <dt class="font-bold text-ink">Custòdia Aïllada d'Arxius (Flysystem):</dt>
+                <dd class="mt-0.5">Arquitectura d'emmagatzematge que manté les proves documentals i fotografies fora de l'arrel pública del servidor web, accessibles exclusivament mitjançant controladors d'autorització estricta (Voters de seguretat).</dd>
+              </div>
+              <div class="p-3 rounded-lg bg-cream-50/50 border border-steel/15">
+                <dt class="font-bold text-ink">Ancoratge Blockchain Polygon PoS (Layer 2):</dt>
+                <dd class="mt-0.5">Inclusió de l'empremta SHA-256 a la calldata d'una transacció a la xarxa descentralitzada Polygon, proporcionant testimoni matemàtic immutable de data certa i inalterabilitat pública.</dd>
+              </div>
+              <div class="p-3 rounded-lg bg-cream-50/50 border border-steel/15">
+                <dt class="font-bold text-ink">Certificat Oficial Segellat:</dt>
+                <dd class="mt-0.5">Document en format PDF d'alta resolució, signat digitalment i vinculat a la verificació biomètrica d'identitat del titular i a l'ancoratge descentralitzat, apte com a prova documental privada en judici.</dd>
+              </div>
+              <div class="p-3 rounded-lg bg-cream-50/50 border border-steel/15">
+                <dt class="font-bold text-ink">Custòdia en Fred (Estat FROZEN):</dt>
+                <dd class="mt-0.5">Estat de protecció xifrada i preservació en què queden els béns mobles que superen la quota del Pla Free arran d'una baixa o fallida de renovació de subscripció, assegurant que cap dada s'esborri mai.</dd>
+              </div>
+              <div class="p-3 rounded-lg bg-cream-50/50 border border-steel/15">
+                <dt class="font-bold text-ink">Assistència d'IA Sobirana:</dt>
+                <dd class="mt-0.5">Eina d'intel·ligència artificial de visió (Qwen VL) executada en node privat local (SGLang), exclusivament orientada a l'assistència de lectura documental sense transmissió de dades a tercers.</dd>
+              </div>
+            </dl>
+          </div>
+
+          {# 1.3 Naturalesa Jurídica i Delimitació respecte a Funcions Públiques Oficials #}
+          <div class="space-y-3">
+            <h3 class="font-bold text-sm sm:text-base text-ink flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-ink text-gold flex items-center justify-center text-xs font-mono font-bold shrink-0">3</span>
+              Naturalesa Jurídica, Eficàcia Probatòria i Delimitació respecte a Funcions Públiques Oficials
+            </h3>
+            <p class="text-xs sm:text-sm text-ink/85 leading-relaxed">
+              Registrals és un servei tecnològic privat de custòdia de proves i emissió de certificats digitals d'acreditació de propietat privada sobre béns mobles d'alt valor (rellotges, joieria, art, tecnologia, bicicletes, instruments musicals i vehicles personals).
+            </p>
+
+            <div class="border-l-[3.5px] border-gold bg-gold/10 p-4 rounded-r-xl text-xs sm:text-sm text-ink/85 leading-relaxed space-y-2">
+              <strong class="font-bold text-ink block text-sm">Advertiment Legal d'Exclusió de Funcions Públiques d'Atestació Oficial:</strong>
+              <p>
+                <strong>Registrals és una entitat privada mercantil i tecnològica. En cap cas Registrals és una corporació de dret públic, no exerceix funcions fedatàries públiques o judicials reservades en exclusiva als cossos de funcionaris de l'Estat, ni constitueix un registre públic administratiu estatal de la propietat o de béns mobles</strong> (institucions legalment reservades a funcionaris públics i registradors d'acord amb la legislació hipotecària i mercantil vigent).
+              </p>
+              <p>
+                Els certificats digitals, informes patrimonials i empremtes criptogràfiques generats per la plataforma tenen la naturalesa jurídica de <strong>documents electrònics privats amb suport tecnològic d'alta robustesa</strong>, dotats de presumpció d'integritat matemàtica i data certa immutable, amb plena eficàcia probatòria en judici d'acord amb:
+              </p>
+              <ul class="list-disc pl-5 space-y-1 text-xs text-ink/90 marker:text-gold">
+                <li><strong>Article 299.2 de la Llei d'Enjudiciament Civil (LEC):</strong> Admissibilitat com a mitjans de prova dels instruments de filmació, enregistrament i constància de dades mitjançant sistemes informàtics.</li>
+                <li><strong>Articles 326.3 i 326.4 de la LEC:</strong> Força probatòria dels documents electrònics i inversió de la càrrega de la prova davant impugnacions quan s'acrediti la integritat del sistema.</li>
+                <li><strong>Article 1227 del Codi Civil:</strong> Eficàcia de la data certa d'instruments privats davant de tercers mitjançant constància fefaent en suport immutable.</li>
+                <li><strong>Reglament (UE) 910/2014 (eIDAS):</strong> Articles 25 (efectes jurídics dels documents electrònics), 41 i 42 (segells de temps electrònics qualificats).</li>
+                <li><strong>Llei 6/2020, d'11 de novembre:</strong> Reguladora de determinats aspectes dels serveis electrònics de confiança.</li>
+              </ul>
+            </div>
+          </div>
+
+          {# 1.4 Accés, Capacitat Contractual i Consentiment Obligatori (Legal Gate) #}
+          <div class="space-y-3">
+            <h3 class="font-bold text-sm sm:text-base text-ink flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-ink text-gold flex items-center justify-center text-xs font-mono font-bold shrink-0">4</span>
+              Capacitat Contractual, Registre d'Usuari i Consentiment Obligatori («Legal Gate»)
+            </h3>
+            <p class="text-xs sm:text-sm text-ink/85 leading-relaxed">
+              Poden registrar-se i operar a Registrals únicament les persones físiques <strong>majors de 18 anys</strong> amb plena capacitat d'obrar i persones jurídiques degudament constituïdes actuant a través dels seus representants legals acreditats.
+            </p>
+            <p class="text-xs sm:text-sm text-ink/85 leading-relaxed">
+              Per imperatiu del Reglament (UE) 2016/679 (RGPD), de l'AI Act i per garantir la validesa probatòria davant tribunals, <strong>cap usuari pot accedir ni operar a l'àrea privada de la plataforma sense haver acceptat de forma expressa, prèvia i informada la versió vigent de les Condicions de Custòdia i Certificació</strong> (mecanisme tecnològic de control conegut com a <em>«Legal Gate»</em>).
+            </p>
+            <p class="text-xs sm:text-sm text-ink/85 leading-relaxed">
+              Tota acceptació enregistra de manera indeleble a la base de dades la data i hora exacta UTC (<code>legalTermsAcceptedAt</code>), la versió contractual acceptada (<code>legalTermsVersion</code>), l'adreça IP d'origen (<code>registrationIp</code>) i una traça forense d'auditoria a <code>registrals_audit</code>.
+            </p>
+          </div>
+
+          {# 1.5 Obligacions del Titular, Veracitat i Prohibició de Béns Il·lícits #}
+          <div class="space-y-3">
+            <h3 class="font-bold text-sm sm:text-base text-ink flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-ink text-gold flex items-center justify-center text-xs font-mono font-bold shrink-0">5</span>
+              Obligacions del Titular, Veracitat Documental i Prohibició Estricta de Béns Il·lícits
+            </h3>
+            <p class="text-xs sm:text-sm text-ink/85 leading-relaxed">
+              L'ús de la plataforma està subjecte a les següents obligacions incondicionals:
+            </p>
+            <ul class="list-disc pl-5 space-y-2 text-xs sm:text-sm text-ink/85 marker:text-gold leading-relaxed">
+              <li><strong>Declaració de Titularitat Legítima:</strong> El Titular manifesta sota la seva exclusiva i directa responsabilitat que és el legítim propietari o posseïdor de bona fe (Art. 464 Codi Civil) dels béns registrats, i que les fotografies, factures, tiquets de compra i números de bastidor/sèrie aportats són autèntics, fidedignes i no han estat manipulats digitalment ni físicament.</li>
+              <li><strong>Prohibició Estricta d'Objectes Il·lícits:</strong> Queda terminantment prohibit registrar objectes sostrets, furtats, robats, d'origen fraudulent, producte de blanqueig de capitals o receptació (Art. 298 Codi Penal), sotmesos a embargament o sobre els quals existeixi una disputa judicial o policíaca no declarada.</li>
+              <li><strong>Infracció Penal per Falsedat Documental:</strong> L'aportació de factures falses o documents alterats pot constituir un delicte de falsedat documental (Art. 390 i ss. del Codi Penal) o estafa (Art. 248 del Codi Penal). Registrals es reserva el dret de bloquejar cautelarment qualsevol compte sospitós i col·laborar immediatament amb els Cossos i Forces de Seguretat de l'Estat i l'Autoritat Judicial aportant totes les traces forenses disponibles.</li>
+              <li><strong>Custòdia de Credencials d'Accés:</strong> L'usuari és l'únic responsable de mantenir en secret les seves claus d'accés, contrasenyes i dispositius vinculats. Qualsevol operació duta a terme des de la seva sessió privada es presumirà executada pel titular.</li>
+            </ul>
+          </div>
+
+          {# 1.6 Immutabilitat del Hash Determinista SHA-256 #}
+          <div class="space-y-3">
+            <h3 class="font-bold text-sm sm:text-base text-ink flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-ink text-gold flex items-center justify-center text-xs font-mono font-bold shrink-0">6</span>
+              Regla Tècnica de Seguretat d'Immutabilitat del Hash SHA-256 i Canvis de Versió
+            </h3>
+            <p class="text-xs sm:text-sm text-ink/85 leading-relaxed">
+              El titular reconeix i accepta el principi criptogràfic fonamental sobre el qual s'erigeix Registrals:
+            </p>
+            <div class="p-4 rounded-xl bg-cream-50/70 border border-steel/20 text-xs sm:text-sm text-ink/85 space-y-2">
+              <p>
+                El fingerprint mestre d'un bé moble és un hash matemàtic determinista <code>SHA-256 de 32 bytes</code> calculat combinant les metadades essencials de l'objecte (marca, model, número de sèrie, categoria) amb el contingut binari de la fotografia principal i dels documents de prova custodiats.
+              </p>
+              <p>
+                <strong>Qualsevol modificació posterior de les dades del bé</strong> —com ara canviar el títol, afegir o eliminar fotografies, reordenar quina és la foto principal, o afegir noves factures— <strong>altera de manera inevitable i matemàtica el hash SHA-256 mestre</strong>. Aquest canvi crea automàticament una nova versió immutable a l'històric d'auditoria (<code>ItemHistoryLog</code>) i invalida el segellat de la versió anterior, exigint un nou ancoratge criptogràfic i legal per gaudir de plena cobertura certificada.
+              </p>
+            </div>
+          </div>
+
+          {# 1.7 Condicions Econòmiques, Fallides de Pagament i Custòdia en Fred #}
+          <div class="space-y-3">
+            <h3 class="font-bold text-sm sm:text-base text-ink flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-ink text-gold flex items-center justify-center text-xs font-mono font-bold shrink-0">7</span>
+              Modalitats de Contractació, Tarifes, Fallides de Renovació i Custòdia en Fred
+            </h3>
+            <p class="text-xs sm:text-sm text-ink/85 leading-relaxed">
+              Registrals opera sota un model híbrid de custòdia freemium i pagament per valor (subscripcions anuals i adquisició de certificats solts):
+            </p>
+            <ul class="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-ink/85 marker:text-gold leading-relaxed">
+              <li><strong>Pla Free (Custòdia Bàsica):</strong> Gratuït per defecte, limitat a 20 béns actius, 1 fotografia principal, 1 evidència documental per bé i 20 consultes d'IA. Els certificats emesos en aquest pla tenen la condició d'<em>«Esborrany d'Inventari»</em> (sense validesa probatòria oficial eIDAS).</li>
+              <li><strong>Pla Plus (Modalitat de Pagament Activa):</strong> Atorga quotes ampliades de fins a 100 béns actius, 5 fotografies de detall i 5 proves documentals per bé, 100 consultes d'IA sobirana i emissió de <em>«Certificats Oficials Segellats»</em> vinculats a la verificació biomètrica d'identitat (eIDV). Es cobra mitjançant quota anual de 22 € renovable automàticament a través de Stripe Payments Europe Ltd.</li>
+              <li><strong>Pla Unlimited (En preparació / Properament):</strong> Modalitat per a grans patrimonis i col·leccions corporatives amb quotes il·limitades de béns i proves, actualment desactivat i en fase de pre-llançament (no disponible per a contractació en línia).</li>
+              <li><strong>Dret de Desistiment (Art. 102 i ss. TRLGDCU):</strong> L'usuari consumidor disposa d'un termini de 14 dies naturals per desistir de la contractació del pla sense necessitat de justificació. No obstant això, d'acord amb l'article 103.m del Reial Decret Legislatiu 1/2007, <strong>el dret de desistiment no serà aplicable</strong> a l'emissió de certificats digitals oficials ni a la gravació d'ancoratges a la blockchain un cop executats amb el consentiment exprés de l'usuari, per tractar-se de subministrament de contingut digital no prestat en suport material executat de manera immediata i irreversible.</li>
+              <li><strong>Protocol de Fallida de Renovació i Política de «Custòdia en Fred» (Frozen Items):</strong>
+                En cas que la renovació anual no pugui cobrar-se per targeta caducada o fons insuficients (estat <code>past_due</code> a Stripe), s'obre un període de gràcia de 7 dies amb avís destacat a l'àrea privada. Si transcorregut el termini no s'actualitza el medi de pagament, el compte passa a Pla Free. En cas que l'usuari tingui més de 20 béns registrats:
+                <ul class="list-circle pl-5 mt-1 space-y-1 text-xs text-ink/80">
+                  <li>S'activa l'<strong>Assistent d'Adequació</strong> perquè el titular triï durant 7 dies quins 20 béns manté actius.</li>
+                  <li>Si no efectua cap selecció, el sistema manté actius els 20 béns més recents i desplaça la resta a l'estat <strong>FROZEN (Custòdia en Fred)</strong>.</li>
+                  <li><strong>Garantia d'Integritat:</strong> Cap bé ni document és eliminat mai. Els béns congelats queden protegits sota custòdia xifrada, visibles amb cadenat i efecte difuminat, i es reactiven immediatament en renovar la subscripció.</li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+
+          {# 1.8 Propietat Intel·lectual i Industrial #}
+          <div class="space-y-3">
+            <h3 class="font-bold text-sm sm:text-base text-ink flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-ink text-gold flex items-center justify-center text-xs font-mono font-bold shrink-0">8</span>
+              Propietat Intel·lectual i Industrial
+            </h3>
+            <p class="text-xs sm:text-sm text-ink/85 leading-relaxed">
+              Tots els continguts de la plataforma Registrals —incloent sense limitació el codi font, arquitectura de programari, algoritmes de concordança de visió per computador, disseny gràfic, plantilles vectorials de certificats PDF, logotips, isotips, marques denominatives i bases de dades (dret <em>sui generis</em> del fabricant de bases de dades)— són propietat exclusiva de VORA DATA &amp; STUDIO, S.L. o de llicenciants tercers.
+            </p>
+            <p class="text-xs sm:text-sm text-ink/85 leading-relaxed">
+              Queda expressament prohibida la reproducció, distribució, transformació, enginyeria inversa, descompilació o extracció automatitzada (scraping) de qualsevol element de la plataforma sense el consentiment exprés i per escrit del titular.
+            </p>
+          </div>
+
+          {# 1.9 Limitació de Responsabilitat, Indemnitat i Jurisdicció #}
+          <div class="space-y-3">
+            <h3 class="font-bold text-sm sm:text-base text-ink flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-ink text-gold flex items-center justify-center text-xs font-mono font-bold shrink-0">9</span>
+              Limitació de Responsabilitat, Clàusula d'Indemnitat i Fur Judicial
+            </h3>
+            <p class="text-xs sm:text-sm text-ink/85 leading-relaxed">
+              El Prestador implementa els estàndards més exigents d'alta disponibilitat i seguretat de la informació. No obstant això, Registrals no es fa responsable de: (a) la inexactitud, engany o falsedat de les dades i documents aportats pels usuaris; (b) fallades o retards atribuïbles a la xarxa descentralitzada Polygon Blockchain o operadors de telecomunicacions; (c) sostracció de credencials imputable a negligència de l'usuari.
+            </p>
+            <p class="text-xs sm:text-sm text-ink/85 leading-relaxed">
+              <strong>Clàusula d'Indemnitat:</strong> L'usuari mantindrà indemne a Registrals, als seus administradors i empleats respecte a qualsevol sanció, dany o reclamació judicial o extrajudicial de tercers derivada de l'incompliment de la legalitat vigent o de la inscripció de béns mobles sobre els quals no ostenti la titularitat legítima.
+            </p>
+            <p class="text-xs sm:text-sm text-ink/85 leading-relaxed">
+              Aquestes Condicions es regeixen íntegrament per la <strong>legislació espanyola i el dret de la Unió Europea</strong>. Per a la resolució de qualsevol litigi o controvèrsia, les parts se sotmeten als <strong>Jutjats i Tribunals de la ciutat de Barcelona</strong>, amb renúncia a qualsevol altre fur (sens perjudici del fur imperatiu que correspongui als consumidors). Així mateix, s'informa als consumidors sobre la plataforma de resolució de litigis en línia de la Comissió Europea accessible a <a href="https://ec.europa.eu/consumers/odr" rel="noopener" target="_blank" class="underline decoration-gold decoration-2 underline-offset-4 hover:text-steel">ec.europa.eu/consumers/odr</a>.
+            </p>
+          </div>
+        </section>
+
+        {# ========================================================================= #}
+        {# Secció 2: Política de Privacitat Integral (RGPD & LOPDGDD) #}
+        {# ========================================================================= #}
+        <section id="privacitat" aria-labelledby="privacitat-title" class="bg-white rounded-2xl border border-steel/20 p-6 sm:p-8 shadow-2xs scroll-mt-24 space-y-6">
+          <div class="border-b border-steel/15 pb-4">
+            <h2 id="privacitat-title" class="font-marcellus text-2xl sm:text-3xl text-ink">Política de Privadesa i Protecció de Dades</h2>
+            <p class="mt-1 text-xs sm:text-sm text-steel">Tractament de dades personals conforme al Reglament (UE) 2016/679 (RGPD) i la Llei Orgànica 3/2018 (LOPDGDD).</p>
+          </div>
+
+          <p class="text-xs sm:text-sm text-ink/85 leading-relaxed">
+            La sobirania de la informació i la privadesa per disseny són els fonaments de Registrals. Aquesta Política detalla amb absoluta transparència com tractem, protegim i custodiem les teves dades personals i documentals.
+          </p>
+
+          {# 2.1 Responsable del Tractament #}
+          <div class="p-4 rounded-xl bg-cream-50/70 border border-steel/20 space-y-1.5 text-xs sm:text-sm text-ink/85">
+            <h3 class="font-bold text-ink text-sm">1. Responsable del Tractament de Dades</h3>
+            <p><strong>Identitat corporativa:</strong> VORA DATA &amp; STUDIO, S.L.</p>
+            <p><strong>Domicili:</strong> Barcelona, Catalunya (Espanya).</p>
+            <p><strong>Correu d'atenció per a drets de privadesa:</strong> <a href="mailto:privacitat@registrals.com" class="underline decoration-gold decoration-2 underline-offset-4 hover:text-steel font-medium">privacitat@registrals.com</a></p>
+            <p><strong>Delegat de Protecció de Dades (DPO) / Responsable de Compliment:</strong> Les consultes i sol·licituds sobre la present política o l'exercici de drets seran ateses pel nostre equip de compliment a través del canal esmentat.</p>
+          </div>
+
+          {# 2.2 Principis del Tractament #}
+          <div class="space-y-2">
+            <h3 class="font-bold text-sm sm:text-base text-ink">2. Principis Fonamentals Aplicables al Tractament (Art. 5 RGPD)</h3>
+            <p class="text-xs sm:text-sm text-ink/85 leading-relaxed">
+              Tots els tractaments s'executen sota els principis de: <strong>Licitud, lleialtat i transparència</strong> davant l'interessat; <strong>Limitació de la finalitat</strong> per als serveis contractats; <strong>Minimització de dades</strong> estrictament pertinents; <strong>Exactitud</strong> i actualització; <strong>Limitació del termini de conservació</strong>; <strong>Integritat i confidencialitat</strong> mitjançant xifrat avançat; i <strong>Responsabilitat proactiva (*accountability*)</strong> amb traçabilitat forense comprovable.
+            </p>
+          </div>
+
+          {# 2.3 Categories de Dades #}
+          <div class="space-y-3">
+            <h3 class="font-bold text-sm sm:text-base text-ink">3. Categories de Dades Personals Tractades</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs sm:text-sm">
+              <div class="p-4 rounded-xl bg-white border border-steel/20 space-y-1.5">
+                <strong class="font-bold text-ink block">Dades identificatives i de contacte:</strong>
+                <p class="text-ink/80">Nom complet, cognoms, adreça de correu electrònic, número de telèfon mòbil i NIF/NIE/Passaport fiscal (camp <code>taxId</code>).</p>
+              </div>
+              <div class="p-4 rounded-xl bg-white border border-steel/20 space-y-1.5">
+                <strong class="font-bold text-ink block">Dades forenses i de seguretat tècnica:</strong>
+                <p class="text-ink/80">Adreça IP de connexió (registrada a l'alta i a cada acceptació de termes del Legal Gate), agent d'usuari (User-Agent), timestamps UTC i traces d'auditoria d'accés a <code>registrals_audit</code>.</p>
+              </div>
+              <div class="p-4 rounded-xl bg-white border border-steel/20 space-y-1.5">
+                <strong class="font-bold text-ink block">Dades patrimonials i de custòdia de béns:</strong>
+                <p class="text-ink/80">Denominació d'objectes, categories, números de bastidor o sèrie, valor estimat declarat, documents fiscals de compra (factures, tiquets) i fotografies custodiades a Flysystem.</p>
+              </div>
+              <div class="p-4 rounded-xl bg-white border border-steel/20 space-y-1.5">
+                <strong class="font-bold text-ink block">Dades econòmiques i de facturació:</strong>
+                <p class="text-ink/80">Historial de contractació de plans o certificats solts, identificador unívoc de client de Stripe (<code>stripeCustomerId</code>) i dades per a factures fiscals. Registrals mai emmagatzema números complets de targetes.</p>
+              </div>
+            </div>
+            <div class="p-4 rounded-xl bg-cream-50/60 border border-steel/20 text-xs sm:text-sm text-ink/85 space-y-1.5">
+              <strong class="font-bold text-ink block">Dades de Verificació d'Identitat Biomètrica (eIDV - Categoria Especial Art. 9 RGPD):</strong>
+              <p>
+                Per a l'emissió de certificats oficials segellats o la subscripció al Pla Plus, el prestador de serveis de confiança qualificat eIDAS <strong>Namirial Onboarding / Signaturit</strong> processa de manera aïllada la imatge del document oficial d'identitat i dades biomètriques de reconeixement facial (*selfie amb prova de vida*).
+              </p>
+              <p>
+                <strong>Garantia de No Emmagatzematge Biomètric:</strong> Registrals <strong>mai emmagatzema les mostres biomètriques facials als seus servidors</strong>. Registrals únicament rep el certificat d'auditoria de Namirial, la data de verificació i l'estat d'aprovació unívoc (<code>KycStatus::APPROVED</code>).
+              </p>
+            </div>
+          </div>
+
+          {# 2.4 Taula de Finalitats i Bases Jurídiques #}
+          <div class="space-y-3">
+            <h3 class="font-bold text-sm sm:text-base text-ink">4. Finalitats del Tractament, Bases Jurídiques i Terminis de Conservació</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full border-collapse text-left text-xs">
+                <thead>
+                  <tr class="border-b border-steel/20 text-ink bg-cream-50/50">
+                    <th class="py-2.5 px-3 font-bold">Finalitat del Tractament</th>
+                    <th class="py-2.5 px-3 font-bold">Base Jurídica (RGPD)</th>
+                    <th class="py-2.5 px-3 font-bold">Termini de Conservació</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-steel/15 text-ink/80">
+                  <tr>
+                    <td class="py-2.5 px-3 font-medium text-ink">Alta, gestió de compte, accés a l'àrea privada i inventari de béns.</td>
+                    <td class="py-2.5 px-3"><strong>Execució del contracte</strong> (Art. 6.1.b RGPD).</td>
+                    <td class="py-2.5 px-3">Mentre el compte estigui actiu.</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2.5 px-3 font-medium text-ink">Càlcul d'empremtes SHA-256, custòdia xifrada d'arxius i emissió de certificats digitals.</td>
+                    <td class="py-2.5 px-3"><strong>Execució contractual</strong> (Art. 6.1.b RGPD).</td>
+                    <td class="py-2.5 px-3">Vigència del bé o del certificat emès.</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2.5 px-3 font-medium text-ink">Verificació biomètrica d'identitat (eIDV via Namirial Onboarding).</td>
+                    <td class="py-2.5 px-3"><strong>Consentiment explícit</strong> per a categories especials (Art. 9.2.a RGPD).</td>
+                    <td class="py-2.5 px-3">Prescrit per la normativa de confiança eIDAS.</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2.5 px-3 font-medium text-ink">Gestió de facturació, pagaments Stripe i compliment tributari.</td>
+                    <td class="py-2.5 px-3"><strong>Obligació legal mercantil i fiscal</strong> (Art. 6.1.c RGPD).</td>
+                    <td class="py-2.5 px-3">Entre 4 i 6 anys per obligació tributària/mercantil.</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2.5 px-3 font-medium text-ink">Assistència d'IA Sobirana per a lectura òptica de proves en node local.</td>
+                    <td class="py-2.5 px-3"><strong>Consentiment exprés</strong> i petició voluntària (Art. 6.1.a RGPD).</td>
+                    <td class="py-2.5 px-3">S'esborra de la memòria d'inferència en finalitzar.</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2.5 px-3 font-medium text-ink">Prevenció del frau, traçabilitat forense i seguretat de sistemes.</td>
+                    <td class="py-2.5 px-3"><strong>Interès legítim</strong> en la seguretat de la informació (Art. 6.1.f RGPD).</td>
+                    <td class="py-2.5 px-3">5 anys (termini de prescripció de responsabilitats civils).</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {# 2.5 Blockchain Polygon PoS Layer 2 i Dret a l'Oblit #}
+          <div class="space-y-3">
+            <h3 class="font-bold text-sm sm:text-base text-ink">5. Pseudonimització Criptogràfica a Blockchain (Polygon Layer 2) i Dret a l'Oblit</h3>
+            <p class="text-xs sm:text-sm text-ink/85 leading-relaxed">
+              D'acord amb el principi de <strong>Privadesa per Disseny i per Defecte (Art. 25 RGPD)</strong>, a la xarxa descentralitzada pública Polygon Blockchain <strong>mai s'enregistra cap dada de caràcter personal</strong>. Ni el nom de l'usuari, ni el seu document d'identitat, ni fotografies, ni números de sèrie en clar són transmesos a la xarxa descentralitzada.
+            </p>
+            <div class="p-4 rounded-xl bg-cream-50/70 border border-steel/20 text-xs sm:text-sm text-ink/85 space-y-2">
+              <p>
+                A la cadena de blocs únicament s'ancora el hash matemàtic determinista <code>SHA-256 de 32 bytes</code> (una cadena alfanumèrica unívoca i estrictament unidireccional). Aquest hash no permet la reconstrucció de cap informació personal ni original sense disposar de les dades de partida.
+              </p>
+              <p>
+                <strong>Garantia del Dret a l'Oblit (Art. 17 RGPD):</strong> Quan un usuari sol·licita la cancel·lació del seu compte i l'exercici del seu dret a la supressió de dades personals, Registrals elimina de forma permanent totes les seves dades personals, imatges i documents dels seus servidors centrals. Com a resultat matemàtic, l'empremta SHA-256 present a la blockchain esdevé una dada completament òrfena i irreversible, impossible de vincular mai més amb cap persona física determinada o determinable, consolidant-se com a informació plenament anònima fora de l'abast del RGPD (Considerant 26 RGPD).
+              </p>
+            </div>
+          </div>
+
+          {# 2.6 Garanties d'IA Sobirana #}
+          <div class="space-y-3">
+            <h3 class="font-bold text-sm sm:text-base text-ink">6. Marc Legal de la Intel·ligència Artificial Sobirana (AI Act &amp; Art. 22 RGPD)</h3>
+            <p class="text-xs sm:text-sm text-ink/85 leading-relaxed">
+              Registrals garanteix el compliment escrupolós del marc regulador europeu d'intel·ligència artificial (Reglament de la UE 2024/1689 - AI Act) i les salvaguardes del RGPD:
+            </p>
+            <ul class="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-ink/85 marker:text-gold leading-relaxed">
+              <li><strong>Execució en Node Privat Aïllat (Zero Transferències):</strong> El model de visió i lectura (Qwen VL) s'executa estrictament en servidors locals propis (SGLang) dins de l'Espai Econòmic Europeu. Cap imatge, factura o dada personal s'envia a proveïdors externs comercials (com OpenAI, Anthropic o Google) ni a servidors situats fora de la UE.</li>
+              <li><strong>Prohibició de Re-entrenament:</strong> Cap imatge o document introduït per l'usuari s'utilitza mai per re-entrenar models fundacionals d'IA ni per a finalitats d'aprenentatge automàtic col·lectiu.</li>
+              <li><strong>Governança «Human-in-the-Loop» (Art. 22 RGPD):</strong> L'assistent d'IA és una eina d'assistència tècnica i d'extracció òptica (OCR). Mai adopta decisions automatitzades que produeixin efectes jurídics o afectin significativament a l'usuari. La validació jurídica de les dades és atribució exclusiva de la persona titular (<em>«Dades validades pel titular»</em>).</li>
+            </ul>
+          </div>
+
+          {# 2.7 Destinataris i Transferències Internacionals #}
+          <div class="space-y-3">
+            <h3 class="font-bold text-sm sm:text-base text-ink">7. Destinataris de les Dades i Transferències Internacionals</h3>
+            <p class="text-xs sm:text-sm text-ink/85 leading-relaxed">
+              Registrals <strong>no comercialitza ni transfereix dades personals a tercers amb fins publicitaris o comercials</strong>. L'accés a determinades dades queda estrictament limitat als següents encarregats del tractament indispensables (Art. 28 RGPD):
+            </p>
+            <ul class="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-ink/85 marker:text-gold leading-relaxed">
+              <li><strong>Proveïdors d'Allotjament i Infraestructura:</strong> Servidors dedicats i aïllats operant exclusivament en centres de dades situats a la Unió Europea.</li>
+              <li><strong>Passarel·la de Pagaments:</strong> Stripe Payments Europe Ltd. (amb seu a Irlanda / UE), operant sota la certificació de seguretat bancària PCI-DSS nivell 1.</li>
+              <li><strong>Serveis de Confiança Qualificats eIDAS:</strong> Namirial S.p.A. / Signaturit Solutions S.L. (entitats qualificades registrades a la UE per a identificació i segellat de temps).</li>
+              <li><strong>Cossos i Forces de Seguretat de l'Estat:</strong> Únicament davant requeriment formal i motivat de l'Autoritat Judicial o policial en l'exercici de les seves competències legals.</li>
+            </ul>
+          </div>
+
+          {# 2.8 Mesures de Seguretat Tècniques i Organitzatives #}
+          <div class="space-y-3">
+            <h3 class="font-bold text-sm sm:text-base text-ink">8. Mesures Tècniques i Organitzatives de Seguretat (Art. 32 RGPD)</h3>
+            <p class="text-xs sm:text-sm text-ink/85 leading-relaxed">
+              En aplicació del principi de seguretat del tractament, Registrals implementa mesures tècniques d'última generació:
+            </p>
+            <ul class="list-disc pl-5 space-y-1 text-xs sm:text-sm text-ink/85 marker:text-gold leading-relaxed">
+              <li>Xifratge de les comunicacions en trànsit mitjançant protocols criptogràfics TLS 1.3 d'alta seguretat.</li>
+              <li>Custòdia privada d'arxius fora de l'arrel pública del servidor web (Flysystem), amb control d'accés supeditat a Voters de seguretat Symfony.</li>
+              <li>Xifratge de claus i contrasenyes d'accés mitjançant algoritmes d'última generació (Argon2id / Bcrypt).</li>
+              <li>Registre d'auditoria forense unívoc a la base de dades (<code>registrals_audit</code>) per detectar accessos no autoritzats.</li>
+              <li>Còpies de seguretat automatitzades, xifrades i segregades per a la recuperació de dades davant d'incidències tècniques.</li>
+            </ul>
+          </div>
+
+          {# 2.9 Drets ARSOPOL #}
+          <div class="p-4 rounded-xl bg-cream-50/70 border border-steel/20 space-y-2 text-xs sm:text-sm text-ink/85">
+            <h3 class="font-bold text-ink text-sm">9. Exercici dels Drets de l'Interessat (Drets ARSOPOL)</h3>
+            <p>
+              L'usuari té dret a exercir en qualsevol moment i de manera gratuïta els seus drets d'<strong>Accés</strong>, <strong>Rectificació</strong>, <strong>Supressió (*Oblit*)</strong>, <strong>Limitació del tractament</strong>, <strong>Portabilitat de les dades</strong> en format estructurat, <strong>Oposició</strong> i dret a <strong>no ser objecte de decisions individuals automatitzades</strong>.
+            </p>
+            <p>
+              Per exercir qualsevol d'aquests drets, l'interessat pot adreçar una sol·licitud escrita acompanyada de còpia del seu document d'identitat (per verificar la legitimitat de la petició) al correu electrònic oficial <a href="mailto:privacitat@registrals.com" class="underline decoration-gold decoration-2 underline-offset-4 hover:text-steel font-medium">privacitat@registrals.com</a>.
+            </p>
+            <p>
+              El termini legal màxim de resposta és d'<strong>un mes</strong> a comptar des de la recepció de la sol·licitud. Si l'usuari considera que els seus drets no han estat degudament atesos, té dret a presentar una reclamació davant l'autoritat de control competent: l'<strong>Agència Espanyola de Protecció de Dades (AEPD)</strong>, C/ Jorge Juan 6, 28001 Madrid (<a href="https://www.aepd.es" rel="noopener" target="_blank" class="underline decoration-gold decoration-2 underline-offset-4 hover:text-steel">www.aepd.es</a>).
+            </p>
+          </div>
+        </section>
+
+        {# ========================================================================= #}
+        {# Secció 3: Política Tècnica de Galetes (Cookies) i Emmagatzematge Local #}
+        {# ========================================================================= #}
+        <section id="cookies" aria-labelledby="cookies-title" class="bg-white rounded-2xl border border-steel/20 p-6 sm:p-8 shadow-2xs scroll-mt-24 space-y-6">
+          <div class="border-b border-steel/15 pb-4">
+            <h2 id="cookies-title" class="font-marcellus text-2xl sm:text-3xl text-ink">Política de Galetes i Emmagatzematge Local</h2>
+            <p class="mt-1 text-xs sm:text-sm text-steel">Informació tècnica transparent sobre l'ús de cookies i emmagatzematge conforme a l'article 22.2 de la LSSI-CE.</p>
+          </div>
+
+          {# 3.1 Declaració de Principi Ètic #}
+          <div class="border-l-[3.5px] border-gold bg-gold/10 p-4 rounded-r-xl text-xs sm:text-sm text-ink/85 leading-relaxed space-y-1.5">
+            <strong class="font-bold text-ink block text-sm">Declaració de Principi Ètic i Absència de Rastreig Publicitari:</strong>
+            <p>
+              Registrals <strong>no utilitza cap galeta de seguiment publicitari, ni de perfilat comercial, ni mecanismes de retargeting, ni píxels de xarxes socials</strong> (zero píxels de Meta, TikTok, Google Ads o xarxes d'anuncis invasives).
+            </p>
+            <p>
+              La plataforma empra exclusivament galetes tècniques imprescindibles per al funcionament segur de la sessió privada de l'usuari i galetes de seguretat financera de Stripe per a la prevenció del frau en pagaments amb targeta (mandat europeu PSD2).
+            </p>
+          </div>
+
+          {# 3.2 Definició #}
+          <div class="space-y-2">
+            <h3 class="font-bold text-sm sm:text-base text-ink">1. Què és una Galeta (*Cookie*) i l'Emmagatzematge Local?</h3>
+            <p class="text-xs sm:text-sm text-ink/85 leading-relaxed">
+              Una galeta (*cookie*) és un petit fitxer de text que el servidor web envia al navegador de l'usuari per registrar dades operatives essencials (com ara mantenir la sessió iniciada mentre es navega entre pantalles privades). L'emmagatzematge local (*localStorage*) permet desar preferències essencials (com la confirmació del consentiment de galetes) sense transmetre dades a cada petició de xarxa.
+            </p>
+          </div>
+
+          {# 3.3 Inventari Exhaustiu #}
+          <div class="space-y-3">
+            <h3 class="font-bold text-sm sm:text-base text-ink">2. Inventari Exhaustiu de Galetes i Tecnologies d'Emmagatzematge</h3>
+            <p class="text-xs sm:text-sm text-ink/85 leading-relaxed">
+              En compliment de l'article 22.2 de la LSSI-CE i les directrius de l'Agència Espanyola de Protecció de Dades (AEPD), s'informa del llistat detallat de tecnologies utilitzades:
+            </p>
+
+            <div class="overflow-x-auto">
+              <table class="w-full min-w-[36rem] border-collapse text-left text-xs sm:text-sm">
+                <caption class="sr-only">Inventari oficial de galetes tècniques i d'emmagatzematge de Registrals</caption>
+                <thead>
+                  <tr class="border-b border-ink/20 text-ink bg-cream-50/50">
+                    <th scope="col" class="py-3 px-3 font-bold">Identificador</th>
+                    <th scope="col" class="py-3 px-3 font-bold">Titular</th>
+                    <th scope="col" class="py-3 px-3 font-bold">Tipologia</th>
+                    <th scope="col" class="py-3 px-3 font-bold">Finalitat Tècnica Exacta</th>
+                    <th scope="col" class="py-3 px-3 font-bold">Caducitat</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-steel/15 text-ink/85">
+                  <tr>
+                    <td class="py-3 px-3 font-mono text-xs font-semibold text-ink"><code>PHPSESSID</code></td>
+                    <td class="py-3 px-3">Pròpia</td>
+                    <td class="py-3 px-3">Tècnica Essencial</td>
+                    <td class="py-3 px-3">Identificador natiu de sessió PHP/Symfony per mantenir l'usuari autenticat de forma segura a l'àrea privada.</td>
+                    <td class="py-3 px-3">Sessió (s'elimina en tancar el navegador)</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 px-3 font-mono text-xs font-semibold text-ink"><code>_token</code> / CSRF</td>
+                    <td class="py-3 px-3">Pròpia</td>
+                    <td class="py-3 px-3">Seguretat Criptogràfica</td>
+                    <td class="py-3 px-3">Protecció contra atacs de falsificació de peticions creuades (*Cross-Site Request Forgery*) en formularis.</td>
+                    <td class="py-3 px-3">Sessió</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 px-3 font-mono text-xs font-semibold text-ink"><code>reg_device_user</code></td>
+                    <td class="py-3 px-3">Pròpia (HttpOnly, Secure)</td>
+                    <td class="py-3 px-3">Seguretat d'Accés</td>
+                    <td class="py-3 px-3">Reconeixement de dispositiu conegut per agilitzar l'inici de sessió segur i alertar sobre accessos desconeguts no autoritzats.</td>
+                    <td class="py-3 px-3">1 any</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 px-3 font-mono text-xs font-semibold text-ink"><code>registrals-cookie-consent</code></td>
+                    <td class="py-3 px-3">Pròpia (localStorage)</td>
+                    <td class="py-3 px-3">Tècnica de Preferències</td>
+                    <td class="py-3 px-3">Preserva l'estat d'acceptació i configuració del bàner de cookies per evitar mostrar-lo reiteradament.</td>
+                    <td class="py-3 px-3">Permanent (fins a l'esborrament manual de dades)</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 px-3 font-mono text-xs font-semibold text-ink"><code>__stripe_mid</code></td>
+                    <td class="py-3 px-3">Stripe Payments Europe Ltd.</td>
+                    <td class="py-3 px-3">Seguretat Financera Anti-frau</td>
+                    <td class="py-3 px-3">Identificació de dispositius per a prevenció de frau en pagaments amb targeta i compliment del mandat 3D Secure 2 / PSD2.</td>
+                    <td class="py-3 px-3">1 any</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 px-3 font-mono text-xs font-semibold text-ink"><code>__stripe_sid</code></td>
+                    <td class="py-3 px-3">Stripe Payments Europe Ltd.</td>
+                    <td class="py-3 px-3">Seguretat Financera Anti-frau</td>
+                    <td class="py-3 px-3">Identificador de sessió bancària de curta durada per validar la seguretat en processos de checkout actius.</td>
+                    <td class="py-3 px-3">30 minuts</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="text-xs text-steel leading-relaxed">
+              * Nota legal: D'acord amb l'article 22.2 de la LSSI-CE i el criteri consolidat del Comitè Europeu de Protecció de Dades (CEPD), les galetes tècniques d'estricta necessitat per a la prestació d'un servei expressament sol·licitat per l'usuari (autenticació i seguretat) estan exemptes de l'obligació de recollir consentiment previ.
+            </p>
+          </div>
+
+          {# 3.4 Desactivació i Configuració del Navegador #}
+          <div class="space-y-3 pt-2">
+            <h3 class="font-bold text-sm sm:text-base text-ink">3. Com gestionar, bloquejar o eliminar les galetes des del teu navegador</h3>
+            <p class="text-xs sm:text-sm text-ink/85 leading-relaxed">
+              Atès que les galetes de Registrals són estrictament tècniques i de seguretat, la seva desactivació pot provocar que no puguis iniciar sessió, que l'àrea privada no funcioni o que el procés de pagament segur quedi bloquejat. Si tot i així desitges eliminar-les o configurar els permisos del teu navegador, pots seguir les guies oficials:
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-ink/80">
+              <div class="p-3 rounded-lg bg-cream-50/50 border border-steel/15">
+                <strong class="font-bold text-ink block">Google Chrome:</strong>
+                <span>Configuració &gt; Privadesa i seguretat &gt; Galetes i altres dades de llocs web.</span>
+              </div>
+              <div class="p-3 rounded-lg bg-cream-50/50 border border-steel/15">
+                <strong class="font-bold text-ink block">Mozilla Firefox:</strong>
+                <span>Opcions &gt; Privadesa i seguretat &gt; Galetes i dades del lloc web.</span>
+              </div>
+              <div class="p-3 rounded-lg bg-cream-50/50 border border-steel/15">
+                <strong class="font-bold text-ink block">Apple Safari:</strong>
+                <span>Ajustos &gt; Safari &gt; Privadesa i seguretat &gt; Bloqueja totes les galetes.</span>
+              </div>
+              <div class="p-3 rounded-lg bg-cream-50/50 border border-steel/15">
+                <strong class="font-bold text-ink block">Microsoft Edge:</strong>
+                <span>Configuració &gt; Permisos del lloc &gt; Galetes i dades emmagatzemades.</span>
+              </div>
+            </div>
+          </div>
+
+          {# 3.5 Botoier de Configuració #}
+          <div class="pt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-steel/15 pt-4">
+            <p class="text-xs text-ink/75">
+              Pots tornar a mostrar el panell de selecció de galetes en qualsevol moment fent clic a:
+            </p>
+            <button type="button" data-cookie="settings" class="inline-flex items-center gap-2 rounded-xl bg-ink px-5 py-2.5 text-xs font-bold text-gold hover:bg-ink-light transition-all tracking-wider shadow-2xs border border-gold/40 cursor-pointer shrink-0">
+              <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              CONFIGURAR GALETES
+            </button>
+          </div>
+        </section>
+      </div>
+
+      {# Peu de Pàgina de Vinculació amb IA Sobirana #}
+      <div class="mt-10 pt-6 border-t border-gold/30 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-ink/70">
+        <div>
+          Registrals — Plataforma de Propietat i Certificació Digital de Béns Mobles.
         </div>
-        <h3 class="mt-6 font-bold">Serveis de tercers</h3>
-        <p class="mt-2 text-ink/90">
-          Algunes llibreries (Tailwind CSS i GSAP) es carreguen des de la xarxa de distribució de continguts jsDelivr. En fer-ho, aquest proveïdor
-          rep tècnicament la teva adreça IP. Les tipografies s'allotgen al propi web i no es consulten a tercers.
-        </p>
-        <h3 class="mt-6 font-bold">Com gestionar les cookies</h3>
-        <p class="mt-2 text-ink/90">
-          Pots canviar la teva elecció en qualsevol moment des de l'enllaç «Configurar cookies» del peu de pàgina, i esborrar les dades del web
-          des de la configuració del teu navegador.
-        </p>
-        <button type="button" data-cookie="settings" class="mt-4 rounded-full bg-ink px-6 py-2.5 text-sm font-medium text-cream hover:bg-ink/90">
-          CONFIGURAR COOKIES
-        </button>
-      </section>
+        <div class="flex items-center gap-4">
+          <a href="{{ path('app_legal_ai_sovereign') }}" class="font-bold text-ink hover:text-gold transition-colors">Transparència d'IA Sobirana &amp; AI Act →</a>
+        </div>
+      </div>
     </main>
 
-    <footer class="bg-ink px-4 py-8 text-center text-sm text-cream/80">
-      <p>2026. Tots els drets reservats · Made by Vora <a href="https://www.voradata.cat" target="_blank" rel="noopener noreferrer" class="hover:underline hover:text-cream">Data</a> &amp; <a href="https://www.vorastudio.cat" target="_blank" rel="noopener noreferrer" class="hover:underline hover:text-cream">Studio</a></p>
-    </footer>
+    {% if not app.user %}
+      {# Footer Corporatiu Públic Unificat #}
+      {{ include('page/home/_footer.html.twig') }}
+    {% else %}
+      {# Barra Inferior Dinàmica PWA per a Mòbil (< md) #}
+      {% include 'partials/_pwa_bottom_nav.html.twig' with { active_tab: 'profile' } %}
+    {% endif %}
 {% endblock %}

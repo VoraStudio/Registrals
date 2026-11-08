@@ -32,6 +32,11 @@ interface PaymentGatewayInterface
     public function createCustomerPortalSession(User $user, string $returnUrl): string;
 
     /**
+     * Cancel·la la subscripció vigent a Stripe (immediatament o a final de període).
+     */
+    public function cancelSubscription(User $user): bool;
+
+    /**
      * @return array<string, mixed> Event payload
      */
     public function parseAndVerifyWebhook(string $rawPayload, string $signatureHeader): array;

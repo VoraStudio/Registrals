@@ -18,7 +18,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_USER')]
 class ProfileController extends AbstractController
 {
-    #[Route('/app/profile', name: 'app_profile', methods: ['GET', 'POST'])]
+    #[Route('/app/perfil', name: 'app_profile', methods: ['GET', 'POST'])]
+    #[Route('/app/profile', name: 'app_profile_legacy', methods: ['GET', 'POST'])]
     public function index(
         Request $request,
         EntityManagerInterface $entityManager,

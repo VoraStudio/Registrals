@@ -9,7 +9,7 @@
         <div class="md:col-span-4 lg:col-span-4">
           <img data-reveal="item" src="{{ asset('img/logos/Isotip/1-transparent.svg') }}" width="80" height="80" alt="Registrals" class="size-20" />
           <p data-reveal="item" class="mt-6 font-bold">Mantén-te al dia de l'evolució de la propietat digital</p>
-          <a data-reveal="item" href="#contacte" class="mt-4 inline-block rounded-full bg-ink px-6 py-2.5 font-bold text-cream hover:bg-ink/90"
+          <a data-reveal="item" href="{{ path('app_contact') }}" class="mt-4 inline-block rounded-full bg-ink px-6 py-2.5 font-bold text-cream hover:bg-ink/90"
             >Subscriure'm</a
           >
         </div>
@@ -21,20 +21,20 @@
               <p class="font-bold text-ink font-marcellus text-base tracking-wide">Producte</p>
               <ul class="space-y-1.5 text-xs font-raleway">
                 <li><a href="{{ path('app_producte') }}#que-es" class="block text-ink/75 hover:text-ink hover:underline">Què és Registrals?</a></li>
-                <li><a href="{{ path('app_producte') }}#proposit" class="block text-ink/75 hover:text-ink hover:underline">Propòsit</a></li>
-                <li><a href="{{ path('app_producte') }}#diferencia" class="block text-ink/75 hover:text-ink hover:underline">Què ens diferencia?</a></li>
-                <li><a href="{{ path('app_producte') }}#plataformes" class="block text-ink/75 hover:text-ink hover:underline">Plataformes</a></li>
+                <li><a href="{{ path('app_home') }}#s4" class="block text-ink/75 hover:text-ink hover:underline">Solucions</a></li>
+                <li><a href="{{ path('app_home') }}#s7" class="block text-ink/75 hover:text-ink hover:underline">Tarifes</a></li>
+                <li><a href="{{ path('app_producte') }}#plataformes" class="block text-ink/75 hover:text-ink hover:underline">Plataformes &amp; PWA</a></li>
               </ul>
             </div>
 
-            {# Columna 2: Aplicació (Sense Home) #}
+            {# Columna 2: Tecnologia #}
             <div data-reveal="item" class="space-y-2">
-              <p class="font-bold text-ink font-marcellus text-base tracking-wide">Aplicació</p>
+              <p class="font-bold text-ink font-marcellus text-base tracking-wide">Tecnologia</p>
               <ul class="space-y-1.5 text-xs font-raleway">
-                <li><a href="{{ path('app_home') }}#s4" class="block text-ink/75 hover:text-ink hover:underline">Solucions</a></li>
-                <li><a href="{{ path('app_home') }}#s7" class="block text-ink/75 hover:text-ink hover:underline">Tarifes</a></li>
-                <li><a href="{{ path('app_home') }}#s8" class="block text-ink/75 hover:text-ink hover:underline">FAQS</a></li>
-                <li><a href="{{ path('app_contact') }}" class="block text-ink/75 hover:text-ink hover:underline">Contacte</a></li>
+                <li><a href="{{ path('app_legal_ai_sovereign') }}" class="block text-ink/75 hover:text-ink hover:underline">IA Sobirana &amp; AI Act</a></li>
+                <li><a href="{{ path('app_producte') }}#diferencia" class="block text-ink/75 hover:text-ink hover:underline">Segellat eIDAS de Certificació</a></li>
+                <li><a href="{{ path('app_producte') }}#diferencia" class="block text-ink/75 hover:text-ink hover:underline">Blockchain Polygon L2</a></li>
+                <li><a href="{{ path('app_home') }}#s8" class="block text-ink/75 hover:text-ink hover:underline">FAQ</a></li>
               </ul>
             </div>
 
@@ -43,9 +43,8 @@
               <p class="font-bold text-ink font-marcellus text-base tracking-wide">Sobre nosaltres</p>
               <ul class="space-y-1.5 text-xs font-raleway">
                 <li><a href="{{ path('app_about') }}" class="block text-ink/75 hover:text-ink hover:underline">Qui som?</a></li>
-                <li><a href="{{ path('app_press') }}" class="block text-ink/75 hover:text-ink hover:underline">Premsa</a></li>
                 <li><a href="{{ path('app_histories') }}" class="block text-ink/75 hover:text-ink hover:underline">Històries</a></li>
-                <li><a href="{{ path('app_blog') }}" class="block text-ink/75 hover:text-ink hover:underline">Blog</a></li>
+                <li><a href="{{ path('app_press') }}" class="block text-ink/75 hover:text-ink hover:underline">Premsa</a></li>
                 <li><a href="{{ path('app_contact') }}" class="block text-ink/75 hover:text-ink hover:underline">Contacte</a></li>
               </ul>
             </div>

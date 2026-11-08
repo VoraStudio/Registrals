@@ -133,6 +133,26 @@
             </span>
           </dd>
         </div>
+        <div class="flex items-center justify-between pt-2 border-t border-steel/10">
+          <dt class="text-ink/65">Clàusules de Certificació:</dt>
+          <dd>
+            {% if user.legalTermsAcceptedAt %}
+              <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-50 text-emerald-800 border border-emerald-200">
+                Acceptades {{ user.legalTermsVersion }} ({{ user.legalTermsAcceptedAt|date('d/m/Y H:i') }})
+              </span>
+            {% else %}
+              <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-50 text-amber-800 border border-amber-200">
+                Pendent
+              </span>
+            {% endif %}
+          </dd>
+        </div>
+        {% if user.registrationIp %}
+          <div class="flex items-center justify-between">
+            <dt class="text-ink/65">IP d'acceptació:</dt>
+            <dd class="font-mono text-xs text-ink">{{ user.registrationIp }}</dd>
+          </div>
+        {% endif %}
       </dl>
     </div>
 
@@ -272,7 +292,7 @@
 
         {# Filtre d'Estat #}
         <div class="sm:col-span-4">
-          <label for="item-status" class="block text-[11px] font-bold text-ink/75 mb-1.5 font-raleway uppercase tracking-wider">Estat Notarial</label>
+          <label for="item-status" class="block text-[11px] font-bold text-ink/75 mb-1.5 font-raleway uppercase tracking-wider">Estat de Certificació</label>
           <select id="item-status" name="status" class="w-full bg-white border border-steel/30 rounded-xl px-3 py-2 text-xs sm:text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold transition-all font-raleway shadow-2xs">
             <option value="">Tots els estats</option>
             {% for st in statuses %}
@@ -523,7 +543,7 @@
     if (isCurrentlyActive) {
       title.textContent = 'Suspendre Compte d\'Usuari';
       subtitle.textContent = fullName + ' (' + email + ')';
-      note.innerHTML = '<strong>Atenció Notarial:</strong> En suspendre aquest compte, l\'usuari no podrà iniciar sessió ni emetre certificats de béns.';
+      note.innerHTML = '<strong>Atenció de Seguretat:</strong> En suspendre aquest compte, l\'usuari no podrà iniciar sessió ni emetre certificats de béns.';
       reasonGroup.classList.remove('hidden');
       submitBtn.textContent = 'Suspendre Compte';
       submitBtn.className = 'px-4 py-2 rounded-xl text-xs font-semibold text-white bg-red-700 hover:bg-red-800 transition-colors shadow-xs cursor-pointer';

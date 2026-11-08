@@ -168,6 +168,23 @@
             </div>
           </div>
 
+          {# GeoIP #}
+          <div class="flex items-center justify-between p-2 rounded-xl bg-cream-50/50">
+            <span class="text-ink/75 font-semibold">Geolocalització (GeoIP)</span>
+            <div class="flex items-center gap-2 font-mono text-[11px]">
+              {% if geoDbStatus.exists and not geoDbStatus.is_stale %}
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span class="text-emerald-700 font-bold">MaxMind (fa {{ geoDbStatus.age_days }}d)</span>
+              {% elseif geoDbStatus.exists and geoDbStatus.is_stale %}
+                <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                <span class="text-amber-700 font-bold">Obsoleta (fa {{ geoDbStatus.age_days }}d)</span>
+              {% else %}
+                <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                <span class="text-blue-700 font-bold">Rangs Locals (Fallback)</span>
+              {% endif %}
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -422,11 +439,25 @@
         </div>
         <div>
           <h2 class="font-marcellus text-lg text-ink font-bold">Distribució Geogràfica de Trànsit & Connexions</h2>
-          <p class="text-xs text-ink/70 font-raleway mt-0.5">Mapeig de sessions, operacions notarials i telemetria segons país d'origen (ISO-3166-1).</p>
+          <p class="text-xs text-ink/70 font-raleway mt-0.5">Mapeig de sessions, operacions de certificació i telemetria segons país d'origen (ISO-3166-1).</p>
         </div>
       </div>
-      <div class="flex items-center gap-2">
-        <span class="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1.5">
+      <div class="flex flex-wrap items-center gap-2">
+        {% if geoDbStatus.exists and not geoDbStatus.is_stale %}
+          <span class="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1.5" title="Base MaxMind actualitzada (fa {{ geoDbStatus.age_days }} dies)">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            GeoIP MaxMind (fa {{ geoDbStatus.age_days }}d)
+          </span>
+        {% else %}
+          <form method="post" action="{{ path('app_admin_geoip_update') }}" class="inline">
+            <input type="hidden" name="_token" value="{{ csrf_token('admin_geoip_update') }}">
+            <button type="submit" class="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-amber-50 text-amber-900 border border-amber-300 hover:bg-amber-100 transition-colors flex items-center gap-1.5 cursor-pointer" title="{{ geoDbStatus.exists ? 'La base té més de 30 dies. Clica per actualitzar sota demanda.' : 'S\'utilitza resolució de rangs locals. Clica per descarregar base MaxMind oficial.' }}">
+              <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+              <span>{% if geoDbStatus.exists %}↻ Actualitzar GeoIP ({{ geoDbStatus.age_days }}d){% else %}↻ Descarregar MaxMind GeoIP{% endif %}</span>
+            </button>
+          </form>
+        {% endif %}
+        <span class="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-cream border border-gold/40 text-ink flex items-center gap-1.5">
           <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
           {{ totalGeoRequests }} Peticions Geolocalitzades
         </span>
@@ -534,7 +565,7 @@
         <div>
           <div class="flex items-center justify-between text-steel mb-1.5">
             <span class="text-[11px] font-bold uppercase tracking-wider text-ink font-mono">Certificat Oficial</span>
-            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">Signaturit eIDAS</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">Signaturit / Namirial</span>
           </div>
           <div class="font-marcellus text-2xl font-bold text-ink mb-1">6,00 € <span class="text-xs font-normal text-ink/60 font-raleway">/ unitat</span></div>
           <p class="text-[11px] text-ink/70 leading-relaxed">Taxa de segellat legal eIDAS per a usuaris Free.</p>

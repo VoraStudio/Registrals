@@ -4,19 +4,20 @@ Aquest document estableix les **regles oficials d'arquitectura d'interfície (UI
 
 ---
 
-## 1. Capçalera Unificada Neta (Global Header)
+## 1. Capçalera Unificada Tripartita (Global Header Notarial)
 
 A totes les pantalles de l'aplicació privada:
 - **Fons:** Sempre blanc sòlid (`bg-white`), fixat a la part superior (`sticky top-0 z-50`) amb una línia inferior tènue (`border-b border-steel/20`).
-- **Neteja visual:** S'eliminen menús de navegació i botons de tancar sessió aïllats per mantenir la capçalera purament institucional.
-- **Estructura:**
+- **Amplada Mestra:** Fluid expansiu fins a 1.680px (`max-w-[1680px] w-full mx-auto px-4 sm:px-6 lg:px-8`).
+- **Estructura en 3 Zones:**
   - **Esquerra:** Isotip daurat + logotip solemne `REGISTRALS`.
-  - **Dreta:** **Avatar d'usuari amb Micro-Badge de Pla** + Menú Desplegable integrat.
+  - **Centre (La Càpsula Notarial):** Píndola arrodonida (`rounded-full bg-cream/40 border border-gold/30`) amb els 3 accessos mare (`El meu Patrimoni | Certificats | Traspassos`). La secció activa es ressalta en **Ink + Gold** (reproduint l'estètica càpsula de la landing page) amb comptador de traspassos actiu. A mòbil s'amaga (`hidden md:flex`) perquè la navegació es trasllada a la Bottom Bar PWA.
+  - **Dreta:** **Avatar d'usuari net amb Micro-Badge de Pla** + Menú Desplegable integrat (sense botons d'acció intrusius, reservat per a notificacions futures).
 
 ```
-┌────────────────────────────────────────────────────────────────────────────┐
-│ [R] REGISTRALS                                              [Avatar | PLAN]│
-└────────────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│ [R] REGISTRALS       ( [🏛️ Patrimoni] [📜 Certificats] [⇄ Traspassos] )  [Avatar | PLAN] │
+└────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -40,9 +41,11 @@ En fer clic sobre l'avatar s'obre un desplegable solemne (`bg-white shadow-2xl b
 1. **Capçalera d'Identitat:**
    - Nom complet de l'usuari + Adreça de correu electrònic.
    - Píndola de resum del pla: Quota consumida (ex. `4 / 20 béns actius`).
-2. **Seccions de Gestió:**
-   - **El meu Perfil:** Accés a les dades personals, DNI/NIE fiscal i verificació KYC.
-   - **El meu Pla i Quotes:** Detall de prestacions actives (béns, fotos, evidències, certificats oficials) amb opció de millora a *Plus* o *Unlimited*.
+2. **Seccions de Gestió (Rutes Canòniques `/app/perfil/*` en 1680px):**
+   - **El meu Perfil & Dades (`/app/perfil`):** Accés a les dades personals, DNI/NIE fiscal i credencials de seguretat.
+   - **El meu Pla i Quotes (`/app/perfil/pla`):** Detall de prestacions actives (béns, fotos, evidències, certificats oficials) amb opció de millora de pla.
+   - **Facturació & Pagaments (`/app/perfil/facturacio`):** Historial notarial de pagaments, descàrrega de factures amb IVA i portal Stripe.
+   - **Instal·lar App Mòbil (`/app/perfil/instal-lar-app`):** Guia dual PWA amb codi QR notarial per a PC i afegir a inici a iOS/Android.
    - **Guia d'Ús i Manual:** Accés directe al manual ràpid per registrar béns, verificar proves i emetre certificats.
 3. **Acció Final:**
    - **Tancar Sessió:** Botó vermellós/tinta separat per un filet daurat tènue (`border-t border-gold/20`).
@@ -54,17 +57,18 @@ En fer clic sobre l'avatar s'obre un desplegable solemne (`bg-white shadow-2xl b
 Les 3 funcions principals de la plataforma són **El meu Patrimoni**, **Certificats** i **Traspassos**. L'experiència s'adapta al suport sense trencar el model mental:
 
 ```
-[ VISTA PC / ESCRIPTORI ]
-┌────────────────────────────────────────────────────────────────────────────┐
-│ [R] REGISTRALS                                              [Avatar | PLAN]│ <- Header Blanc Net
-├────────────────────────────────────────────────────────────────────────────┤
-│                                                                            │
-│   [ 🏛️ El meu Patrimoni ]   [ 📜 Certificats ]   [ ⇄ Traspassos ]            │ <- Sub-barra Pestanyes
-│                                                                            │
-│   ┌───────────────────────────────┐   ┌───────────────────────────────┐    │
-│   │ [✓] 📸 Foto  Rellotge Omega   │   │ [ ] 📸 Foto  Bicicleta Canyon │    │ <- Grid Respirem
-│   └───────────────────────────────┘   └───────────────────────────────┘    │
-└────────────────────────────────────────────────────────────────────────────┘
+[ VISTA PC / ESCRIPTORI (Fluid fins a 1.680px) ]
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│ [R] REGISTRALS       ( [🏛️ Patrimoni] [📜 Certificats] [⇄ Traspassos] )  [Avatar | PLAN] │ <- Header Càpsula
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│ INICI / EL MEU PATRIMONI                                                               │ <- Ruta Mínima (18px)
+│                                                                                        │
+│ El meu Patrimoni                                                 [+ REGISTRAR NOU BÉ]  │ <- H1 + Acció
+│                                                                                        │
+│ ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐             │
+│ │ 📸 Foto 1  │ │ 📸 Foto 2  │ │ 📸 Foto 3  │ │ 📸 Foto 4  │ │ 📸 Foto 5  │             │ <- Grid 5 Columnes
+│ └────────────┘ └────────────┘ └────────────┘ └────────────┘ └────────────┘             │
+└────────────────────────────────────────────────────────────────────────────────────────┘
 
 [ VISTA MÒBIL PWA ]
 ┌───────────────────────────┐
@@ -224,6 +228,24 @@ Per preservar el rigor d'auditoria i la productivitat de l'administrador:
   - Composició en 2 columnes paral·leles: taula d'especificacions tècniques a l'esquerra i miniatura fotogràfica del bé a la dreta (`48mm x 38mm`).
   - Marc daurat de custòdia Flysystem amb verificació de fingerprint SHA-256 integrat.
 - **Regeneració en Calent d'Esborranys:** Els certificats en mode esborrany es regeneren automàticament davant canvis de plantilla tant al vol a través de `UserCertificateController` com mitjançant la comanda CLI `app:certificates:regenerate-drafts`.
+
+---
+
+## 9. Calaix de Béns en Custòdia en Fred (`ItemStatus::FROZEN`)
+
+Quan un compte passa a Pla Free i supera el límit de 20 béns actius, els elements excedents es gestionen sota el patró de **Calaix de Custòdia en Fred**:
+
+1. **Aïllament de la Graella Principal:**
+   - Els béns congelats **mai es barregen com a targetes completes** amb el patrimoni actiu per no desordenar el Dashboard del Pla Free.
+   - S'ubiquen en una secció inferior o pestanya secundària discreta: *«Béns en Custòdia en Fred (N)»*.
+2. **Format de Llistat Bàsic Simple Paginat:**
+   - Format en files d'alta densitat d'1 sola línia (Nom del bé, CUI, data de registre i indicador d'estat).
+   - Paginació compacte de 10 o 20 ítems per pàgina per garantir màxima rapidesa de renderitzat.
+3. **Estètica Solemne Difuminada amb Cadenat:**
+   - Capa d'estil translúcida difuminada (`backdrop-blur-xs opacity-75 bg-cream/30 border border-steel/20 rounded-xl`).
+   - Icona prominent de cadenat daurat (`🔒`) al costat de cada ítem per reforçar la sensació de seguretat i custòdia bloquejada.
+4. **Interacció & Paywall de Certificació:**
+   - En fer clic sobre qualsevol ítem congelat, s'obre el **Modal Certificat de Reactivació**: s'explica que el bé està salvaguardat de forma immutable i s'ofereix el botó directe per reactivar la subscripció al Pla Plus a través de Stripe Checkout.
 
 
 

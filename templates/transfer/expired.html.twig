@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Estat del Traspàs Notarial — Registrals{% endblock %}
+{% block title %}Estat del Traspàs Certificat C2C — Registrals{% endblock %}
 {% block meta_description %}Informació sobre l'estat d'una sol·licitud de traspàs a Registrals.{% endblock %}
 
 {% block body_class %}bg-cream text-ink min-h-screen flex flex-col justify-between selection:bg-gold selection:text-ink font-raleway{% endblock %}
@@ -84,7 +84,7 @@
 
           <p class="text-xs sm:text-sm text-steel leading-relaxed max-w-md mx-auto">
             {% if reason == 'expired' %}
-              El termini notarial màxim de 72 hores per acceptar aquesta transmissió de titularitat ha vençut. El bé roman sota la custòdia del titular original.
+              El termini màxim de 72 hores per acceptar aquesta transmissió de titularitat ha vençut. El bé roman sota la custòdia del titular original.
             {% elseif reason == 'cancelled' %}
               L'usuari remitent ha retirat la petició de traspàs abans de la seva acceptació.
             {% elseif reason in ['just_rejected', 'rejected'] %}

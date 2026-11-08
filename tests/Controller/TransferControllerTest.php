@@ -16,6 +16,8 @@ use App\Enum\TransferStatus;
 use App\Repository\ItemRepository;
 use App\Repository\ItemTransferRepository;
 use App\Service\Item\ItemLifecycleService;
+use App\Service\Plan\PlanDowngradeService;
+use App\Service\Transfer\TransferExpirationService;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -33,6 +35,25 @@ use Twig\Environment;
 
 class TransferControllerTest extends TestCase
 {
+    private function createController(
+        $itemRepo,
+        $transferRepo,
+        $lifecycle,
+        $em,
+        $mailer,
+        ?TransferExpirationService $transferExpiration = null,
+        ?PlanDowngradeService $planDowngrade = null
+    ): TransferController {
+        return new TransferController(
+            $itemRepo,
+            $transferRepo,
+            $lifecycle,
+            $em,
+            $mailer,
+            $transferExpiration ?? $this->createMock(TransferExpirationService::class),
+            $planDowngrade ?? $this->createMock(PlanDowngradeService::class)
+        );
+    }
     private function createItem(User $owner, string $cui = 'CAT-TEST-001', ItemStatus $status = ItemStatus::ACTIVE): Item
     {
         $category = new Category('Test Category', 'test-cat');
@@ -158,7 +179,7 @@ class TransferControllerTest extends TestCase
             }))
             ->willReturn('<html>Transfers Index</html>');
 
-        $controller = new TransferController($itemRepo, $transferRepo, $lifecycle, $em, $mailer);
+        $controller = $this->createController($itemRepo, $transferRepo, $lifecycle, $em, $mailer);
         $this->setupControllerContainer($controller, $user, true, $twig);
 
         $response = $controller->index();
@@ -185,7 +206,7 @@ class TransferControllerTest extends TestCase
             }))
             ->willReturn('<html>Expired</html>');
 
-        $controller = new TransferController($itemRepo, $transferRepo, $lifecycle, $em, $mailer);
+        $controller = $this->createController($itemRepo, $transferRepo, $lifecycle, $em, $mailer);
         $this->setupControllerContainer($controller, null, true, $twig);
 
         $response = $controller->claim('invalid-token');
@@ -223,7 +244,7 @@ class TransferControllerTest extends TestCase
             }))
             ->willReturn('<html>Claim Page</html>');
 
-        $controller = new TransferController($itemRepo, $transferRepo, $lifecycle, $em, $mailer);
+        $controller = $this->createController($itemRepo, $transferRepo, $lifecycle, $em, $mailer);
         $this->setupControllerContainer($controller, null, true, $twig);
 
         $response = $controller->claim($transfer->getToken());
@@ -263,7 +284,7 @@ class TransferControllerTest extends TestCase
             'security_code' => '998877',
         ]);
 
-        $controller = new TransferController($itemRepo, $transferRepo, $lifecycle, $em, $mailer);
+        $controller = $this->createController($itemRepo, $transferRepo, $lifecycle, $em, $mailer);
         $this->setupControllerContainer($controller, $sender, true, null, $request);
 
         $response = $controller->initiate('CAT-INITIATE-001', $request);
@@ -300,7 +321,7 @@ class TransferControllerTest extends TestCase
 
         $request = new Request([], ['_token' => 'valid-csrf-token']);
 
-        $controller = new TransferController($itemRepo, $transferRepo, $lifecycle, $em, $mailer);
+        $controller = $this->createController($itemRepo, $transferRepo, $lifecycle, $em, $mailer);
         $this->setupControllerContainer($controller, $sender, true, null, $request);
 
         $response = $controller->cancel('CAT-CANCEL-001', $request);
@@ -344,7 +365,7 @@ class TransferControllerTest extends TestCase
             'security_code' => '123456',
         ]);
 
-        $controller = new TransferController($itemRepo, $transferRepo, $lifecycle, $em, $mailer);
+        $controller = $this->createController($itemRepo, $transferRepo, $lifecycle, $em, $mailer);
         $this->setupControllerContainer($controller, $receiver, true, null, $request);
 
         $response = $controller->accept($transfer->getToken(), $request);
@@ -394,7 +415,7 @@ class TransferControllerTest extends TestCase
             'reason' => 'No és el meu rellotge',
         ]);
 
-        $controller = new TransferController($itemRepo, $transferRepo, $lifecycle, $em, $mailer);
+        $controller = $this->createController($itemRepo, $transferRepo, $lifecycle, $em, $mailer);
         $this->setupControllerContainer($controller, null, true, $twig, $request);
 
         $response = $controller->reject($transfer->getToken(), $request);
@@ -435,7 +456,7 @@ class TransferControllerTest extends TestCase
             }))
             ->willReturn('<html>Transfers Index</html>');
 
-        $controller = new TransferController($itemRepo, $transferRepo, $lifecycle, $em, $mailer);
+        $controller = $this->createController($itemRepo, $transferRepo, $lifecycle, $em, $mailer);
         $this->setupControllerContainer($controller, $user, true, $twig);
 
         $response = $controller->index();

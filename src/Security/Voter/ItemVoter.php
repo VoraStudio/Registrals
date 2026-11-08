@@ -44,22 +44,33 @@ class ItemVoter extends Voter
         $item = $subject;
 
         return match ($attribute) {
-            self::VIEW, self::CERTIFY => $this->canViewOrCertify($item, $user),
+            self::VIEW => $this->canView($item, $user),
+            self::CERTIFY => $this->canCertify($item, $user),
             self::EDIT, self::DELETE => $this->canEditOrDelete($item, $user),
             self::TRANSFER => $this->canTransfer($item, $user),
             default => false,
         };
     }
 
-    private function canViewOrCertify(Item $item, User $user): bool
+    private function canView(Item $item, User $user): bool
     {
-        // El propietari sempre pot veure i certificar el seu bé
+        // El propietari sempre pot consultar el seu bé (fins i tot congelat en mode lectura)
         return $item->getOwner()->getId() === $user->getId();
+    }
+
+    private function canCertify(Item $item, User $user): bool
+    {
+        // Només es poden certificar béns actius del propietari (mai congelats ni en traspàs)
+        if ($item->getOwner()->getId() !== $user->getId()) {
+            return false;
+        }
+
+        return $item->getStatus() === \App\Enum\ItemStatus::ACTIVE;
     }
 
     private function canEditOrDelete(Item $item, User $user): bool
     {
-        // Només el propietari pot editar o donar de baixa, sempre que no estigui en traspàs o ja traspassat
+        // Només el propietari pot editar o donar de baixa, sempre que no estigui en traspàs, traspassat o congelat
         if ($item->getOwner()->getId() !== $user->getId()) {
             return false;
         }
@@ -67,6 +78,7 @@ class ItemVoter extends Voter
         return !in_array($item->getStatus(), [
             \App\Enum\ItemStatus::TRANSFER_PENDING,
             \App\Enum\ItemStatus::TRANSFERRED,
+            \App\Enum\ItemStatus::FROZEN,
         ], true);
     }
 

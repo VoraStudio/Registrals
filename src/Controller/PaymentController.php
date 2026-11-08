@@ -52,6 +52,11 @@ class PaymentController extends AbstractController
             return $this->redirectToRoute('app_plan');
         }
 
+        if (!$plan->isActive() || strtolower($code) === 'unlimited') {
+            $this->addFlash('warning', 'El Pla Unlimited estarà disponible properament per a grans patrimonis. Pots activar el Pla Plus.');
+            return $this->redirectToRoute('app_plan');
+        }
+
         $successUrl = $this->generateUrl('app_payment_success', [
             'type' => 'subscription',
             'session_id' => '{CHECKOUT_SESSION_ID}',
@@ -113,6 +118,11 @@ class PaymentController extends AbstractController
         $item = $this->itemRepository->findOneByCui($cui);
         if ($item === null || $item->getOwner()->getId() !== $user->getId()) {
             throw $this->createNotFoundException('Bé no trobat o accés denegat.');
+        }
+
+        if ($item->getStatus() !== \App\Enum\ItemStatus::ACTIVE) {
+            $this->addFlash('warning', 'No es pot emetre ni contractar un certificat per a un bé en traspàs o no actiu.');
+            return $this->redirectToRoute('app_item_show', ['cui' => $cui]);
         }
 
         $amountCents = 590; // 5,90 €
@@ -240,6 +250,38 @@ class PaymentController extends AbstractController
             $this->addFlash('error', 'No s\'ha pogut accedir al portal de client: ' . $e->getMessage());
             return $this->redirectToRoute($targetRoute);
         }
+    }
+
+    #[Route('/app/perfil/facturacio/cancel-subscripcio', name: 'app_payment_cancel_subscription', methods: ['POST'])]
+    public function cancelSubscription(Request $request): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if (!$this->isCsrfTokenValid('cancel_subscription', (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'El testimoni de seguretat CSRF no és vàlid.');
+            return $this->redirectToRoute('app_plan_billing');
+        }
+
+        if ($user->getPlan()?->getCode() === 'free' && $user->getSubscriptionStatus() !== 'active') {
+            $this->addFlash('info', 'El teu compte ja està assignat al Pla Free.');
+            return $this->redirectToRoute('app_plan_billing');
+        }
+
+        // Cancel·la a Stripe i rebaixa el compte a Pla Free aplicant el període de gràcia
+        $this->paymentManager->cancelUserSubscription($user, $this->paymentGateway);
+
+        if ($user->isInDowngradeGracePeriod()) {
+            $maxFree = $user->getPlan()?->getMaxActiveItems() ?? 20;
+            $this->addFlash('warning', sprintf(
+                'La teva subscripció s\'ha cancel·lat. Com que superes el límit de béns actius del Pla Free (%d), disposes de 7 dies de període de gràcia per triar quins béns vols mantenir operatius.',
+                $maxFree
+            ));
+            return $this->redirectToRoute('app_downgrade_adequacy');
+        }
+
+        $this->addFlash('success', 'La teva subscripció s\'ha cancel·lat correctament i el teu compte ha passat al Pla Free.');
+        return $this->redirectToRoute('app_plan_billing');
     }
 
     #[Route('/app/payment/success', name: 'app_payment_success', methods: ['GET'])]

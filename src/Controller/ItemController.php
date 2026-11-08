@@ -131,7 +131,7 @@ class ItemController extends AbstractController
                         'name' => $item->getName(),
                         'category' => $item->getCategory()?->getName(),
                         'brand' => $item->getBrand(),
-                        'estimated_value' => $item->getEstimatedValueCents() !== null ? ($item->getEstimatedValueCents() / 100) : null,
+                        'estimated_value' => $item->getDeclaredValueEuros(),
                     ]
                 );
 
@@ -164,12 +164,20 @@ class ItemController extends AbstractController
     public function show(
         string $cui,
         ItemRepository $itemRepository,
-        \App\Service\ItemFingerprintCalculator $fingerprintCalculator
+        \App\Service\ItemFingerprintCalculator $fingerprintCalculator,
+        \App\Service\Transfer\TransferExpirationService $transferExpirationService
     ): Response {
         $item = $itemRepository->findOneByCui($cui);
 
         if (!$item) {
             throw $this->createNotFoundException('El bé sol·licitat no existeix.');
+        }
+
+        // Si el bé està en estat de traspàs, verifica si el traspàs ha vençut (>72h) i concilia'l
+        if ($item->getStatus() === \App\Enum\ItemStatus::TRANSFER_PENDING) {
+            $transferExpirationService->expireTransfers($item->getOwner());
+            // Recarrega l'estat actualitzat del bé
+            $item = $itemRepository->findOneByCui($cui) ?? $item;
         }
 
         if (!$this->isGranted(ItemVoter::VIEW, $item)) {

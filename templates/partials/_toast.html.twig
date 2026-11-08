@@ -18,6 +18,12 @@
   .reg-toast-card.toast-error {
     border-color: rgba(239, 68, 68, 0.6);
   }
+  .reg-toast-card.toast-warning {
+    border-color: rgba(245, 158, 11, 0.7);
+  }
+  .reg-toast-card.toast-success {
+    border-color: rgba(16, 185, 129, 0.7);
+  }
 </style>
 
 <script>
@@ -28,7 +34,15 @@
 
       const toast = document.createElement('div');
       const isError = type === 'error';
-      toast.className = `reg-toast-card ${isError ? 'toast-error' : ''} pointer-events-auto transform -translate-y-4 opacity-0 font-raleway`;
+      const isWarning = type === 'warning';
+      const isSuccess = type === 'success';
+
+      let typeClass = '';
+      if (isError) typeClass = 'toast-error';
+      else if (isWarning) typeClass = 'toast-warning';
+      else if (isSuccess) typeClass = 'toast-success';
+
+      toast.className = `reg-toast-card ${typeClass} pointer-events-auto transform -translate-y-4 opacity-0 font-raleway`;
 
       let iconHtml = `
         <div class="w-8 h-8 rounded-full bg-gold/20 border border-gold/40 text-gold flex items-center justify-center shrink-0 mt-0.5">
@@ -42,16 +56,38 @@
             <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           </div>
         `;
+      } else if (isWarning) {
+        iconHtml = `
+          <div class="w-8 h-8 rounded-full bg-amber-500/20 border border-amber-400/50 text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          </div>
+        `;
+      } else if (isSuccess) {
+        iconHtml = `
+          <div class="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-400/50 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          </div>
+        `;
       }
+
+      let titleColor = 'text-cream';
+      if (isError) titleColor = 'text-red-200';
+      else if (isWarning) titleColor = 'text-amber-200';
+      else if (isSuccess) titleColor = 'text-emerald-200';
+
+      let barGradient = 'via-gold';
+      if (isError) barGradient = 'via-red-400';
+      else if (isWarning) barGradient = 'via-amber-400';
+      else if (isSuccess) barGradient = 'via-emerald-400';
 
       toast.innerHTML = `
         ${iconHtml}
         <div class="flex-1 pr-1 text-xs">
-          <div class="font-bold ${isError ? 'text-red-200' : 'text-cream'} text-[13px] tracking-wide mb-0.5">${title}</div>
+          <div class="font-bold ${titleColor} text-[13px] tracking-wide mb-0.5">${title}</div>
           <div class="text-cream/80 text-[11px] leading-snug">${description}</div>
         </div>
         <button type="button" class="text-cream/50 hover:text-cream text-base leading-none p-1 shrink-0 cursor-pointer" aria-label="Tancar">&times;</button>
-        <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent ${isError ? 'via-red-400' : 'via-gold'} to-transparent opacity-80"></div>
+        <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent ${barGradient} to-transparent opacity-80"></div>
       `;
 
       container.appendChild(toast);

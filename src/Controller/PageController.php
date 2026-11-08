@@ -12,8 +12,11 @@ use Symfony\Component\Routing\Attribute\Route;
 final class PageController extends AbstractController
 {
     #[Route('/', name: 'app_home', methods: ['GET', 'HEAD'])]
-    public function home(\Symfony\Component\HttpFoundation\Request $request): Response
-    {
+    public function home(
+        \Symfony\Component\HttpFoundation\Request $request,
+        \App\Service\PlatformStatsService $statsService,
+        \App\Repository\PlanRepository $planRepository
+    ): Response {
         // 1. Si ja té sessió activa, entra directament al dashboard
         if ($this->getUser()) {
             return $this->redirectToRoute('app_dashboard');
@@ -24,8 +27,17 @@ final class PageController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        // 3. Visitant nou o sessió desconeguda: mostra la Landing Page corporativa
-        return $this->render('page/home.html.twig');
+        // 3. Plans actius per a la secció de tarifes parametritzada des de backoffice
+        $plans = [];
+        foreach ($planRepository->findBy(['isActive' => true]) as $plan) {
+            $plans[$plan->getCode()] = $plan;
+        }
+
+        // 4. Visitant nou o sessió desconeguda: mostra la Landing Page corporativa amb mètriques reals
+        return $this->render('page/home.html.twig', [
+            'stats' => $statsService->getHomeStats(),
+            'plans' => $plans,
+        ]);
     }
 
     #[Route('/legal', name: 'app_legal', methods: ['GET', 'HEAD'])]
@@ -44,6 +56,15 @@ final class PageController extends AbstractController
     public function producte(): Response
     {
         return $this->render('page/producte.html.twig');
+    }
+
+    #[Route('/properament', name: 'app_holding', methods: ['GET', 'HEAD'])]
+    public function holding(): Response
+    {
+        $filePath = $this->getParameter('kernel.project_dir') . '/holding/index.html';
+        $html = file_exists($filePath) ? (string) file_get_contents($filePath) : 'Properament';
+
+        return new Response($html, Response::HTTP_OK, ['Content-Type' => 'text/html; charset=utf-8']);
     }
 
     #[Route('/sobre-nosaltres', name: 'app_about', methods: ['GET', 'HEAD'])]

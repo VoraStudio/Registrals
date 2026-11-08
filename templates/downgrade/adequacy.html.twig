@@ -1,0 +1,286 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Adequació de Patrimoni — Registrals{% endblock %}
+{% block meta_description %}Selecció de béns actius i custòdia en fred per al Pla Free a Registrals.{% endblock %}
+
+{% block body_class %}bg-cream-50 text-ink min-h-screen flex flex-col font-raleway antialiased selection:bg-gold selection:text-ink{% endblock %}
+
+{% block body %}
+<div class="min-h-screen flex flex-col justify-between bg-cream-50">
+
+  {# Barra Superior Privada Unificada #}
+  {% include 'partials/_private_header.html.twig' %}
+
+  <main class="max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 py-3.5 sm:py-5 w-full flex-1 pb-24 md:pb-8">
+
+    {# Capçalera Institucional #}
+    {% include 'partials/_subpage_header.html.twig' with {
+      breadcrumbs: [
+        { label: 'Inici', url: path('app_dashboard') },
+        { label: 'Adequació de Patrimoni' }
+      ],
+      title: 'Adequació de Patrimoni Actiu',
+      subtitle: 'Configura quins béns mobles vols mantenir operatius sota el límit del Pla Free.',
+      badge: '<span class="px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-amber-100 text-amber-900 border border-amber-300">Límit: ' ~ maxFreeItems ~ ' béns actius</span>'
+    } %}
+
+    {# Avís Institucional Canònic (.guide-note) #}
+    <div class="mb-6 p-4 sm:p-5 rounded-2xl bg-gold/10 border-l-[3.5px] border-gold text-ink text-xs sm:text-sm font-raleway leading-relaxed shadow-2xs space-y-2">
+      <div class="flex items-center gap-2">
+        <svg class="w-4 h-4 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <strong class="font-marcellus text-sm sm:text-base text-ink">Garantia de Custòdia en Fred i Integritat</strong>
+      </div>
+      <p>
+        El teu compte està assignat al <strong>Pla Free</strong>, amb capacitat per mantenir fins a <code>{{ maxFreeItems }} béns actius</code>.
+        {% if inGracePeriod and graceExpiresAt %}
+          Tens un període de gràcia vigent de <strong>{{ graceDaysLeft }} dies</strong> (fins al <code>{{ graceExpiresAt|date('d/m/Y H:i') }} UTC</code>) per triar quins béns vols conservar operatius.
+        {% endif %}
+      </p>
+      <p class="text-ink/80">
+        Els béns que no seleccionis passaran a l'estat de <strong>Custòdia en fred</strong>: les seves dades, fotografies d'alta resolució, documents de compra i el hash criptogràfic SHA-256 restaran <strong>100% protegits i immutables</strong> als nostres servidors segurs. Els certificats oficials emesos prèviament conserven íntegrament la seva validesa legal i verificació pública. No podràs emetre certificats nous ni iniciar traspassos sobre els béns en custòdia en fred fins que no els reactivis o tornis al Pla Plus.
+      </p>
+    </div>
+
+    {# Barra Superior de Comptador i Estat de Selecció #}
+    <div class="sticky top-16 z-30 mb-6 bg-white/95 backdrop-blur-md border border-gold/30 rounded-2xl p-4 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2">
+          <span class="text-xs uppercase tracking-wider font-semibold text-steel">Béns seleccionats:</span>
+          <span class="font-mono text-lg font-bold text-ink">
+            <span id="selected-counter" class="text-gold">0</span><span class="text-steel/60">/{{ maxFreeItems }}</span>
+          </span>
+        </div>
+        
+        {# Barra de progrés visual #}
+        <div class="w-32 sm:w-44 h-2.5 bg-cream/60 rounded-full overflow-hidden border border-steel/20">
+          <div id="selection-progress-bar" class="h-full bg-gold transition-all duration-300 rounded-full" style="width: 0%;"></div>
+        </div>
+
+        <span id="selection-status-badge" class="hidden sm:inline-flex px-2 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider">
+          Calculant...
+        </span>
+      </div>
+
+      <div class="flex items-center gap-2.5 justify-end">
+        <a href="{{ path('app_dashboard') }}" class="px-4 py-2 rounded-xl border border-steel/30 text-ink/75 hover:text-ink hover:bg-cream/40 text-xs font-semibold transition-all">
+          Cancel·lar
+        </a>
+        <button type="button" onclick="submitAdequacyForm()" id="submit-adequacy-btn" class="px-5 py-2 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-xs uppercase tracking-wider transition-all shadow-xs cursor-pointer flex items-center gap-2">
+          <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 13l4 4L19 7"/></svg>
+          <span>Desar Selecció</span>
+        </button>
+      </div>
+    </div>
+
+    {# Formulari de Selecció #}
+    <form method="POST" action="{{ path('app_downgrade_adequacy') }}" id="adequacy-form" class="space-y-3">
+      <input type="hidden" name="_token" value="{{ csrf_token('downgrade_adequacy') }}">
+
+      <div class="bg-white rounded-2xl border border-steel/20 shadow-xs overflow-hidden">
+        {# Capçalera de Taula a Escriptori #}
+        <div class="hidden sm:grid sm:grid-cols-12 gap-3 px-5 py-3 bg-cream/30 border-b border-steel/15 text-[11px] font-mono font-bold uppercase tracking-wider text-steel">
+          <div class="col-span-1 text-center">Actiu</div>
+          <div class="col-span-2">CUI</div>
+          <div class="col-span-3">Bé Moble & Categoria</div>
+          <div class="col-span-2">Marca / Model</div>
+          <div class="col-span-2 text-center">Certificació</div>
+          <div class="col-span-1 text-right">Valor</div>
+          <div class="col-span-1 text-right">Estat</div>
+        </div>
+
+        {# Llista de Béns #}
+        <div class="divide-y divide-steel/10">
+          {% for item in items %}
+            {% set isCurrentlyActive = item.status.value == 'active' %}
+            {% set latestOfficial = item.getLatestCertificate(constant('App\\Enum\\CertificateMode::OFFICIAL')) %}
+            {% set latestDraft = item.getLatestCertificate(constant('App\\Enum\\CertificateMode::DRAFT')) %}
+            <label for="item_chk_{{ item.id }}" class="item-selection-row flex flex-col sm:grid sm:grid-cols-12 gap-3 p-4 sm:px-5 sm:py-3.5 hover:bg-cream-50/50 transition-colors cursor-pointer items-center">
+              
+              {# Checkbox #}
+              <div class="w-full sm:w-auto flex sm:justify-center items-center gap-3 sm:gap-0 col-span-1">
+                <input type="checkbox"
+                       id="item_chk_{{ item.id }}"
+                       name="selected_items[]"
+                       value="{{ item.id }}"
+                       class="item-adequacy-checkbox w-4 h-4 rounded text-ink accent-ink cursor-pointer focus:ring-gold"
+                       {{ isCurrentlyActive ? 'checked' : '' }}
+                       onchange="handleAdequacyCheckboxChange(this)" />
+                <span class="sm:hidden text-xs font-bold text-ink">Mantenir actiu</span>
+              </div>
+
+              {# CUI & Miniatura #}
+              <div class="w-full sm:w-auto flex items-center gap-2.5 col-span-2">
+                <div class="w-9 h-9 rounded-lg overflow-hidden bg-cream/40 border border-steel/20 shrink-0">
+                  {% if item.mainPhoto %}
+                    <img src="{{ path('app_media_document', {'uuid': item.mainPhoto.uuid}) }}" alt="{{ item.name }}" class="w-full h-full object-cover" />
+                  {% else %}
+                    <div class="w-full h-full flex items-center justify-center text-steel/40 text-[9px]">S/F</div>
+                  {% endif %}
+                </div>
+                <span class="font-mono text-xs font-bold bg-ink text-cream px-2 py-0.5 rounded border border-gold/30">
+                  {{ item.cui }}
+                </span>
+              </div>
+
+              {# Nom i Categoria #}
+              <div class="w-full sm:w-auto col-span-3">
+                <div class="font-marcellus text-sm font-bold text-ink truncate">{{ item.name }}</div>
+                <div class="text-[11px] text-steel">{{ item.category.name }}</div>
+                
+                {# Insígnia Mòbil de Certificat #}
+                {% if latestOfficial %}
+                  <div class="sm:hidden mt-1 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-100 text-amber-900 border border-gold/40">
+                    <svg class="w-2.5 h-2.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    <span>Oficial eIDAS</span>
+                  </div>
+                {% elseif latestDraft %}
+                  <div class="sm:hidden mt-1 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                    <svg class="w-2.5 h-2.5 text-steel" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    <span>Esborrany</span>
+                  </div>
+                {% endif %}
+              </div>
+
+              {# Marca #}
+              <div class="w-full sm:w-auto col-span-2 text-xs text-ink/75 truncate">
+                {{ item.brand|default('—') }}
+              </div>
+
+              {# Certificació Digital (Escriptori) #}
+              <div class="hidden sm:flex col-span-2 justify-center items-center">
+                {% if latestOfficial %}
+                  <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-amber-100 text-amber-900 border border-gold/40 shadow-2xs" title="Certificat Oficial eIDAS emès ({{ latestOfficial.certificateNumber }})">
+                    <svg class="w-3 h-3 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    <span>Oficial eIDAS</span>
+                  </span>
+                {% elseif latestDraft %}
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-medium bg-slate-100 text-slate-700 border border-slate-300" title="Esborrany d'inventari disponible">
+                    <svg class="w-3 h-3 text-steel shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    <span>Esborrany</span>
+                  </span>
+                {% else %}
+                  <span class="text-xs font-mono text-steel/40" title="Sense certificat emès">—</span>
+                {% endif %}
+              </div>
+
+              {# Valor Estimat #}
+              <div class="w-full sm:w-auto col-span-1 sm:text-right font-mono text-xs font-bold text-ink">
+                {% if item.declaredValueEuros is not null %}
+                  {{ item.declaredValueEuros|number_format(0, ',', '.') }} €
+                {% else %}
+                  —
+                {% endif %}
+              </div>
+
+              {# Estat Actual #}
+              <div class="w-full sm:w-auto col-span-1 flex justify-start sm:justify-end">
+                <span class="inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full border {{ item.status.badgeClasses }}">
+                  {% if item.status.value == 'active' %}
+                    Actiu
+                  {% elseif item.status.value == 'frozen' %}
+                    Fred
+                  {% else %}
+                    {{ item.status.label }}
+                  {% endif %}
+                </span>
+              </div>
+
+            </label>
+          {% endfor %}
+        </div>
+      </div>
+    </form>
+
+    {# Proposta d'Upgrade al Pla Plus #}
+    {% set plusPriceFormatted = plusPlan ? ((plusPlan.priceCents / 100)|number_format(0) ~ ' €/any') : '22 €/any' %}
+    {% set effectivePlusItems = maxPlusItems is defined ? maxPlusItems : (plusPlan ? plusPlan.maxActiveItems : 100) %}
+    <div class="mt-8 p-6 rounded-2xl bg-ink text-cream border border-gold/40 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+      <div class="space-y-1 text-center md:text-left">
+        <div class="flex items-center justify-center md:justify-start gap-2">
+          <span class="w-2 h-2 rounded-full bg-gold"></span>
+          <h3 class="font-marcellus text-lg sm:text-xl text-gold font-bold">Prefereixes conservar tots els teus béns actius?</h3>
+        </div>
+        <p class="text-xs sm:text-sm text-cream/75 max-w-xl font-raleway">
+          Amb el <strong>Pla Plus ({{ plusPriceFormatted }})</strong> disposes de fins a {{ effectivePlusItems }} béns actius, {{ plusPlan ? plusPlan.maxPhotosPerItem : 5 }} fotografies i {{ plusPlan ? plusPlan.maxDocumentsPerItem : 5 }} documents per bé, i {{ plusPlan ? plusPlan.aiAssistanceQuota : 100 }} consultes d'IA sobirana sense haver de congelar cap objecte.
+        </p>
+      </div>
+
+      <a href="{{ path('app_plan') }}" class="px-6 py-3 rounded-xl bg-gold text-ink font-bold text-xs uppercase tracking-wider hover:bg-gold-light transition-all shadow-md shrink-0 active:scale-[0.99] flex items-center gap-2">
+        <span>Reactivar Pla Plus ({{ plusPriceFormatted }})</span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+      </a>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  const MAX_ALLOWED = {{ maxFreeItems }};
+
+  function updateAdequacyUI() {
+    const checked = document.querySelectorAll('.item-adequacy-checkbox:checked');
+    const count = checked.length;
+    const counterEl = document.getElementById('selected-counter');
+    const progressBar = document.getElementById('selection-progress-bar');
+    const badgeEl = document.getElementById('selection-status-badge');
+    const submitBtn = document.getElementById('submit-adequacy-btn');
+
+    if (counterEl) counterEl.textContent = count;
+
+    const pct = Math.min(100, Math.round((count / MAX_ALLOWED) * 100));
+    if (progressBar) {
+      progressBar.style.width = pct + '%';
+      if (count === MAX_ALLOWED) {
+        progressBar.className = 'h-full bg-emerald-500 transition-all duration-300 rounded-full';
+      } else {
+        progressBar.className = 'h-full bg-gold transition-all duration-300 rounded-full';
+      }
+    }
+
+    if (badgeEl) {
+      if (count > MAX_ALLOWED) {
+        badgeEl.textContent = 'Excedent (' + count + '/' + MAX_ALLOWED + ')';
+        badgeEl.className = 'hidden sm:inline-flex px-2 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider bg-rose-100 text-rose-800 border border-rose-300';
+      } else if (count === MAX_ALLOWED) {
+        badgeEl.textContent = 'Quota Completa (' + count + '/' + MAX_ALLOWED + ')';
+        badgeEl.className = 'hidden sm:inline-flex px-2 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300';
+      } else {
+        badgeEl.textContent = (MAX_ALLOWED - count) + ' places disponibles';
+        badgeEl.className = 'hidden sm:inline-flex px-2 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider bg-cream text-steel border border-steel/20';
+      }
+    }
+
+    if (submitBtn) {
+      if (count > MAX_ALLOWED) {
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      } else {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      }
+    }
+  }
+
+  function handleAdequacyCheckboxChange(checkbox) {
+    const checked = document.querySelectorAll('.item-adequacy-checkbox:checked');
+    if (checked.length > MAX_ALLOWED && checkbox.checked) {
+      checkbox.checked = false;
+      alert(`Has assolit el límit màxim de ${MAX_ALLOWED} béns actius del Pla Free. Si vols activar aquest bé, desmarca'n primer un altre de la llista.`);
+    }
+    updateAdequacyUI();
+  }
+
+  function submitAdequacyForm() {
+    const checked = document.querySelectorAll('.item-adequacy-checkbox:checked');
+    if (checked.length > MAX_ALLOWED) {
+      alert(`No pots desar més de ${MAX_ALLOWED} béns actius. En tens seleccionats ${checked.length}.`);
+      return;
+    }
+    document.getElementById('adequacy-form').submit();
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    updateAdequacyUI();
+  });
+</script>
+{% endblock %}

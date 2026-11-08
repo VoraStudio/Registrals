@@ -18,7 +18,10 @@ class DashboardController extends AbstractController
         \Symfony\Component\HttpFoundation\Request $request,
         \App\Repository\ItemRepository $itemRepository,
         \App\Repository\CategoryRepository $categoryRepository,
-        \App\Repository\ItemTransferRepository $itemTransferRepository
+        \App\Repository\ItemTransferRepository $itemTransferRepository,
+        \App\Repository\PlanRepository $planRepository,
+        \App\Service\Plan\PlanDowngradeService $planDowngradeService,
+        \App\Service\Transfer\TransferExpirationService $transferExpirationService
     ): Response {
         /** @var \App\Entity\User $user */
         $user = $this->getUser();
@@ -32,15 +35,36 @@ class DashboardController extends AbstractController
             return $this->redirectToRoute('app_onboarding_welcome');
         }
 
+        // Concilia i caduca traspassos vençuts (>72h) perquè els béns retornin al patrimoni
+        $transferExpirationService->expireTransfers($user);
+
+        // Comprova la invariant de quota del pla i gestiona el període de gràcia o congelació d'excedents
+        $planDowngradeService->checkAndEnforceQuota($user);
+
         $items = $itemRepository->findTopLevelItemsByOwner($user);
         $categories = $categoryRepository->findRootCategories();
         $pendingIncomingTransfers = $itemTransferRepository->findPendingReceivedByEmail($user->getEmail());
+
+        $frozenCount = $itemRepository->countFrozenByOwner($user);
+        $frozenItems = $frozenCount > 0 ? $itemRepository->findFrozenItemsByOwner($user, 1, 50) : [];
+
+        $freePlan = $planRepository->findByCode('free');
+        $plusPlan = $planRepository->findByCode('plus');
+        $maxFreeItems = $freePlan?->getMaxActiveItems() ?? 20;
+        $maxPlusItems = $plusPlan?->getMaxActiveItems() ?? 100;
 
         return $this->render('dashboard/index.html.twig', [
             'user' => $user,
             'items' => $items,
             'categories' => $categories,
             'pendingIncomingTransfers' => $pendingIncomingTransfers,
+            'frozenCount' => $frozenCount,
+            'frozenItems' => $frozenItems,
+            'inGracePeriod' => $user->isInDowngradeGracePeriod(),
+            'graceDaysLeft' => $user->getDowngradeGraceDaysLeft(),
+            'maxFreeItems' => $maxFreeItems,
+            'maxPlusItems' => $maxPlusItems,
+            'plusPlan' => $plusPlan,
         ]);
     }
 }

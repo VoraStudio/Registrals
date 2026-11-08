@@ -130,4 +130,28 @@ class ItemTransferRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * Retorna tots els traspassos pendents que han superat la data de venciment (72 hores).
+     *
+     * @return list<ItemTransfer>
+     */
+    public function findExpiredPendingTransfers(?User $user = null): array
+    {
+        $qb = $this->createQueryBuilder('t')
+            ->join('t.item', 'i')
+            ->addSelect('i')
+            ->andWhere('t.status = :status')
+            ->andWhere('t.expiresAt <= :now')
+            ->setParameter('status', TransferStatus::PENDING)
+            ->setParameter('now', new \DateTimeImmutable())
+            ->orderBy('t.expiresAt', 'ASC');
+
+        if ($user !== null) {
+            $qb->andWhere('t.sender = :user')
+               ->setParameter('user', $user);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
 }

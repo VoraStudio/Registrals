@@ -110,6 +110,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private bool $onboardingCompleted = false;
 
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $legalTermsAcceptedAt = null;
+
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $legalTermsVersion = null;
+
+    #[ORM\Column(type: 'string', length: 45, nullable: true)]
+    private ?string $registrationIp = null;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $downgradeGracePeriodExpiresAt = null;
+
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
@@ -486,5 +498,70 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->subscriptionStatus = $subscriptionStatus;
         return $this;
+    }
+
+    public function getLegalTermsAcceptedAt(): ?\DateTimeImmutable
+    {
+        return $this->legalTermsAcceptedAt;
+    }
+
+    public function setLegalTermsAcceptedAt(?\DateTimeImmutable $legalTermsAcceptedAt): static
+    {
+        $this->legalTermsAcceptedAt = $legalTermsAcceptedAt;
+        return $this;
+    }
+
+    public function getLegalTermsVersion(): ?string
+    {
+        return $this->legalTermsVersion;
+    }
+
+    public function setLegalTermsVersion(?string $legalTermsVersion): static
+    {
+        $this->legalTermsVersion = $legalTermsVersion;
+        return $this;
+    }
+
+    public function getRegistrationIp(): ?string
+    {
+        return $this->registrationIp;
+    }
+
+    public function setRegistrationIp(?string $registrationIp): static
+    {
+        $this->registrationIp = $registrationIp;
+        return $this;
+    }
+
+    public function hasAcceptedLegalTerms(string $currentVersion = 'v1.0'): bool
+    {
+        return $this->legalTermsVersion === $currentVersion && $this->legalTermsAcceptedAt !== null;
+    }
+
+    public function getDowngradeGracePeriodExpiresAt(): ?\DateTimeImmutable
+    {
+        return $this->downgradeGracePeriodExpiresAt;
+    }
+
+    public function setDowngradeGracePeriodExpiresAt(?\DateTimeImmutable $downgradeGracePeriodExpiresAt): static
+    {
+        $this->downgradeGracePeriodExpiresAt = $downgradeGracePeriodExpiresAt;
+        return $this;
+    }
+
+    public function isInDowngradeGracePeriod(): bool
+    {
+        return $this->downgradeGracePeriodExpiresAt !== null && $this->downgradeGracePeriodExpiresAt > new \DateTimeImmutable();
+    }
+
+    public function getDowngradeGraceDaysLeft(): int
+    {
+        if (!$this->isInDowngradeGracePeriod() || $this->downgradeGracePeriodExpiresAt === null) {
+            return 0;
+        }
+
+        $now = new \DateTimeImmutable();
+        $diff = $now->diff($this->downgradeGracePeriodExpiresAt);
+        return max(1, (int) $diff->days);
     }
 }

@@ -14,6 +14,7 @@ enum ItemStatus: string
     case LOST = 'lost';
     case ARCHIVED = 'archived';
     case NEEDS_REVIEW = 'needs_review';
+    case FROZEN = 'frozen';
 
     public function label(): string
     {
@@ -26,6 +27,7 @@ enum ItemStatus: string
             self::LOST => 'Perdut',
             self::ARCHIVED => 'Arxivat',
             self::NEEDS_REVIEW => 'Revisió pendent (Lot modificat)',
+            self::FROZEN => 'Custòdia en fred (Congelat)',
         };
     }
 
@@ -40,6 +42,17 @@ enum ItemStatus: string
             self::LOST => 'bg-rose-500/15 text-rose-700 border-rose-500/30',
             self::ARCHIVED => 'bg-stone-500/15 text-stone-700 border-stone-500/30',
             self::NEEDS_REVIEW => 'bg-orange-500/15 text-orange-700 border-orange-500/30',
+            self::FROZEN => 'bg-slate-500/15 text-slate-700 border-slate-500/30 font-medium',
         };
+    }
+
+    public function isFrozen(): bool
+    {
+        return $this === self::FROZEN;
+    }
+
+    public function isActive(): bool
+    {
+        return $this === self::ACTIVE;
     }
 }

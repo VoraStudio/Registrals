@@ -310,4 +310,127 @@ class PaymentControllerTest extends TestCase
         $this->assertSame('paid', $content['status']);
         $this->assertTrue($content['paid']);
     }
+
+    public function testCheckoutPlanRejectsInactiveOrUnlimitedPlan(): void
+    {
+        $user = $this->createUser();
+        $session = new Session(new MockArraySessionStorage());
+        $router = $this->createMock(UrlGeneratorInterface::class);
+        $router->method('generate')->willReturn('/app/plan');
+
+        $unlimitedPlan = new Plan('unlimited', 'Pla Unlimited', 5900);
+        $unlimitedPlan->setIsActive(false);
+
+        $paymentGateway = $this->createMock(PaymentGatewayInterface::class);
+        $paymentManager = $this->createMock(PaymentManager::class);
+        $transactionRepo = $this->createMock(PaymentTransactionRepository::class);
+        $planRepo = $this->createMock(PlanRepository::class);
+        $planRepo->method('findByCode')->with('unlimited')->willReturn($unlimitedPlan);
+        $itemRepo = $this->createMock(ItemRepository::class);
+        $transferRepo = $this->createMock(ItemTransferRepository::class);
+
+        $controller = new PaymentController(
+            $paymentGateway,
+            $paymentManager,
+            $transactionRepo,
+            $planRepo,
+            $itemRepo,
+            $transferRepo
+        );
+
+        $controller->setContainer($this->createContainerWithServices(
+            $user,
+            router: $router,
+            session: $session,
+            csrfValid: true
+        ));
+
+        $request = new Request([], ['_token' => 'valid_csrf']);
+        $request->setSession($session);
+
+        $response = $controller->checkoutPlan('unlimited', $request);
+
+        $this->assertInstanceOf(RedirectResponse::class, $response);
+        $this->assertSame('/app/plan', $response->getTargetUrl());
+        $warningFlashes = $session->getFlashBag()->get('warning');
+        $this->assertNotEmpty($warningFlashes);
+        $this->assertStringContainsString('Pla Unlimited estarà disponible properament', $warningFlashes[0]);
+    }
+
+    public function testCancelSubscriptionRejectsInvalidCsrf(): void
+    {
+        $user = $this->createUser();
+        $session = new Session(new MockArraySessionStorage());
+        $router = $this->createMock(UrlGeneratorInterface::class);
+        $router->method('generate')->with('app_plan_billing')->willReturn('/app/perfil/facturacio');
+
+        $controller = new PaymentController(
+            $this->createMock(PaymentGatewayInterface::class),
+            $this->createMock(PaymentManager::class),
+            $this->createMock(PaymentTransactionRepository::class),
+            $this->createMock(PlanRepository::class),
+            $this->createMock(ItemRepository::class),
+            $this->createMock(ItemTransferRepository::class)
+        );
+
+        $controller->setContainer($this->createContainerWithServices(
+            $user,
+            router: $router,
+            session: $session,
+            csrfValid: false
+        ));
+
+        $request = new Request([], ['_token' => 'invalid_csrf']);
+        $request->setSession($session);
+
+        $response = $controller->cancelSubscription($request);
+
+        $this->assertInstanceOf(RedirectResponse::class, $response);
+        $this->assertSame('/app/perfil/facturacio', $response->getTargetUrl());
+        $this->assertNotEmpty($session->getFlashBag()->get('error'));
+    }
+
+    public function testCancelSubscriptionSuccess(): void
+    {
+        $user = $this->createUser();
+        $plusPlan = new Plan('plus', 'Pla Plus', 2200);
+        $user->setPlan($plusPlan);
+        $user->setSubscriptionStatus('active');
+
+        $session = new Session(new MockArraySessionStorage());
+        $router = $this->createMock(UrlGeneratorInterface::class);
+        $router->method('generate')->with('app_plan_billing')->willReturn('/app/perfil/facturacio');
+
+        $gateway = $this->createMock(PaymentGatewayInterface::class);
+        $paymentManager = $this->createMock(PaymentManager::class);
+        $paymentManager->expects($this->once())
+            ->method('cancelUserSubscription')
+            ->with($user, $gateway)
+            ->willReturn(true);
+
+        $controller = new PaymentController(
+            $gateway,
+            $paymentManager,
+            $this->createMock(PaymentTransactionRepository::class),
+            $this->createMock(PlanRepository::class),
+            $this->createMock(ItemRepository::class),
+            $this->createMock(ItemTransferRepository::class)
+        );
+
+        $controller->setContainer($this->createContainerWithServices(
+            $user,
+            router: $router,
+            session: $session,
+            csrfValid: true
+        ));
+
+        $request = new Request([], ['_token' => 'valid_csrf']);
+        $request->setSession($session);
+
+        $response = $controller->cancelSubscription($request);
+
+        $this->assertInstanceOf(RedirectResponse::class, $response);
+        $this->assertSame('/app/perfil/facturacio', $response->getTargetUrl());
+        $this->assertNotEmpty($session->getFlashBag()->get('success'));
+    }
 }
