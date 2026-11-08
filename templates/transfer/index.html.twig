@@ -29,7 +29,7 @@
       </div>
     </div>
 
-    {# Missatges Flash via Notarial Toast Oficial #}
+    {# Missatges Flash via Toast Oficial #}
     {% for label, messages in app.flashes %}
       {% for message in messages %}
         <script>
@@ -47,7 +47,7 @@
       {% endfor %}
     {% endfor %}
 
-    {# Selector de Safata per a Mòbil (< lg): Condensa l'alçada en dues pestanyes notarials #}
+    {# Selector de Safata per a Mòbil (< lg): Condensa l'alçada en dues pestanyes #}
     {% set totalPending = pendingReceived|length + pendingSent|length %}
     {% set totalHistory = historyReceived|length + historySent|length %}
     <div class="lg:hidden flex items-center p-1 bg-cream/50 border border-steel/20 rounded-xl mb-3.5 text-xs font-semibold">
@@ -65,7 +65,7 @@
       </button>
     </div>
 
-    {# Graella Notarial 2x2 a PC / Pestanyes Condensades a Mòbil #}
+    {# Graella 2x2 a PC / Pestanyes Condensades a Mòbil #}
     <div class="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-4 items-start">
 
       {# Bloc Grup Pendents (Bloc 1 + Bloc 2) #}
@@ -76,7 +76,7 @@
       {# ==================================================================== #}
       <div class="bg-whitef border border-gold/30 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col justify-between space-y-3">
         <div>
-          {# Capçalera de Caixa Notarial #}
+          {# Capçalera de Caixa #}
           <div class="flex items-center justify-between pb-2 border-b border-cream gap-2">
             <h2 class="font-marcellus text-base text-ink flex items-center gap-2 whitespace-nowrap">
               <svg class="w-4 h-4 text-emerald-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
@@ -122,7 +122,7 @@
           </div>
         </div>
 
-        {# Peu de Caixa Notarial #}
+        {# Peu de Caixa #}
         <div class="pt-2 border-t border-cream/80 text-[11px] text-ink/50 flex items-center justify-between">
           <span>Entrada de patrimoni</span>
           <span class="font-mono text-steel">72 h de validesa</span>
@@ -134,7 +134,7 @@
       {# ==================================================================== #}
       <div class="bg-whitef border border-gold/30 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col justify-between space-y-3">
         <div>
-          {# Capçalera de Caixa Notarial #}
+          {# Capçalera de Caixa #}
           <div class="flex items-center justify-between pb-2 border-b border-cream gap-2">
             <h2 class="font-marcellus text-base text-ink flex items-center gap-2 whitespace-nowrap">
               <svg class="w-4 h-4 text-amber-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
@@ -180,7 +180,7 @@
           </div>
         </div>
 
-        {# Peu de Caixa Notarial #}
+        {# Peu de Caixa #}
         <div class="pt-2 border-t border-cream/80 text-[11px] text-ink/50 flex items-center justify-between">
           <span>Sortida de patrimoni</span>
           <span class="font-mono text-steel">Codi PIN opcional</span>
@@ -193,27 +193,48 @@
       <div id="transfer-group-history" class="hidden lg:contents space-y-4 lg:space-y-0">
 
       {# ==================================================================== #}
-      {# FILA 2, COL 1: BLOC 3 - HISTÒRIC DE REBUTS (EXECUTATS)               #}
+      {# FILA 2, COL 1: BLOC 3 - HISTÒRIC DE REBUTS                           #}
       {# ==================================================================== #}
+      {% set receivedCompleted = historyReceived|filter(t => t.status.value == 'accepted') %}
+      {% set receivedUncompleted = historyReceived|filter(t => t.status.value != 'accepted') %}
+
       <div class="bg-whitef border border-gold/30 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col justify-between space-y-3">
         <div>
-          {# Capçalera de Caixa Notarial #}
-          <div class="flex items-center justify-between pb-2 border-b border-cream gap-2">
+          {# Capçalera de Caixa #}
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-2 border-b border-cream gap-2">
             <h2 class="font-marcellus text-base text-ink flex items-center gap-2 whitespace-nowrap">
               <svg class="w-4 h-4 text-emerald-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              <span>Històric Rebuts (Executats)</span>
+              <span>Històric de Rebuts</span>
             </h2>
-            <span class="text-[10px] uppercase font-mono font-bold text-steel bg-cream/50 px-2.5 py-0.5 rounded-md border border-steel/20 whitespace-nowrap">
-              {{ historyReceived|length }} rebut(s)
-            </span>
+
+            {% if historyReceived|length > 0 %}
+              <div class="flex items-center gap-1 p-0.5 bg-cream/50 border border-steel/20 rounded-lg text-[10px] font-semibold self-start sm:self-auto">
+                <button type="button" onclick="filterReceivedHistory('all')" id="btn-filter-received-all" class="px-2 py-0.5 rounded-md transition-all font-bold bg-ink text-gold shadow-2xs cursor-pointer">
+                  Tots ({{ historyReceived|length }})
+                </button>
+                <button type="button" onclick="filterReceivedHistory('completed')" id="btn-filter-received-completed" class="px-2 py-0.5 rounded-md transition-all text-ink/70 hover:text-ink cursor-pointer">
+                  Completats ({{ receivedCompleted|length }})
+                </button>
+                {% if receivedUncompleted|length > 0 %}
+                  <button type="button" onclick="filterReceivedHistory('uncompleted')" id="btn-filter-received-uncompleted" class="px-2 py-0.5 rounded-md transition-all text-ink/70 hover:text-ink cursor-pointer">
+                    No completats ({{ receivedUncompleted|length }})
+                  </button>
+                {% endif %}
+              </div>
+            {% else %}
+              <span class="text-[10px] uppercase font-mono font-bold text-steel bg-cream/50 px-2.5 py-0.5 rounded-md border border-steel/20 whitespace-nowrap">
+                0 rebut(s)
+              </span>
+            {% endif %}
           </div>
 
           {# Cos de la Caixa amb Scroll Delimitat #}
           <div class="pt-2">
             {% if historyReceived|length > 0 %}
-              <div class="max-h-[300px] overflow-y-auto space-y-2 pr-1">
+              <div class="max-h-[300px] overflow-y-auto space-y-2 pr-1" id="history-received-list">
                 {% for transfer in historyReceived %}
-                  <div class="bg-cream-50/70 rounded-xl border border-steel/20 border-l-4 border-l-emerald-600 p-2.5 sm:p-3 hover:border-gold/40 transition-all flex items-center justify-between gap-3">
+                  {% set isComp = transfer.status.value == 'accepted' %}
+                  <div class="history-received-item bg-cream-50/70 rounded-xl border border-steel/20 border-l-4 {{ isComp ? 'border-l-emerald-600' : 'border-l-stone-400' }} p-2.5 sm:p-3 hover:border-gold/40 transition-all flex items-center justify-between gap-3" data-category="{{ isComp ? 'completed' : 'uncompleted' }}">
                     <div class="min-w-0 flex-1">
                       <div class="flex items-center gap-1.5 mb-0.5">
                         <h4 class="font-marcellus text-sm font-bold text-ink truncate">{{ transfer.item.name }}</h4>
@@ -222,25 +243,35 @@
                       <div class="text-[11px] text-steel flex items-center gap-2 truncate">
                         <span>De: <strong class="text-ink">{{ transfer.sender.fullName }}</strong></span>
                         <span>&middot;</span>
-                        <span class="font-mono text-ink/75">{{ (transfer.completedAt ?: transfer.requestedAt)|date('d/m/Y') }}</span>
+                        <span class="font-mono text-ink/75">{{ (transfer.completedAt ?: transfer.cancelledAt ?: transfer.requestedAt)|date('d/m/Y') }}</span>
                       </div>
                     </div>
                     <div class="shrink-0 flex items-center gap-2">
-                      <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 uppercase tracking-wider">
-                        Rebut
-                      </span>
-                      {% if transfer.item.owner.id == app.user.id %}
-                        <a href="{{ path('app_item_show', {'cui': transfer.item.cui}) }}" class="px-2.5 py-1 rounded-lg bg-white hover:bg-cream text-ink text-xs font-semibold border border-steel/25 transition-all">
-                          Veure Bé
-                        </a>
+                      {% if isComp %}
+                        <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 uppercase tracking-wider">
+                          Rebut
+                        </span>
+                        {% if transfer.item.owner.id == app.user.id %}
+                          <a href="{{ path('app_item_show', {'cui': transfer.item.cui}) }}" class="px-2.5 py-1 rounded-lg bg-white hover:bg-cream text-ink text-xs font-semibold border border-steel/25 transition-all">
+                            Veure Bé
+                          </a>
+                        {% else %}
+                          <span class="px-2 py-0.5 rounded-full text-[9px] font-semibold bg-gray-100 text-gray-500 border border-gray-200" title="Aquest bé ha estat transmès posteriorment a un altre titular">
+                            Transmès
+                          </span>
+                        {% endif %}
                       {% else %}
-                        <span class="px-2 py-0.5 rounded-full text-[9px] font-semibold bg-gray-100 text-gray-500 border border-gray-200" title="Aquest bé ha estat transmès posteriorment a un altre titular">
-                          Transmès
+                        <span class="font-bold text-[9px] px-2 py-0.5 rounded-full uppercase tracking-wider border {{ transfer.status.badgeClasses }}">
+                          {{ transfer.status.label }}
                         </span>
                       {% endif %}
                     </div>
                   </div>
                 {% endfor %}
+
+                <div id="history-received-filter-empty" class="hidden py-4 px-3 rounded-xl bg-cream-50/50 border border-steel/15 text-center text-xs text-steel">
+                  No hi ha traspassos rebuts en aquesta categoria.
+                </div>
               </div>
             {% else %}
               <div class="py-4 px-3 rounded-xl bg-cream-50/50 border border-steel/15 text-center text-xs text-steel flex items-center justify-center gap-2">
@@ -251,7 +282,7 @@
           </div>
         </div>
 
-        {# Peu de Caixa Notarial #}
+        {# Peu de Caixa #}
         <div class="pt-2 border-t border-cream/80 text-[11px] text-ink/50 flex items-center justify-between">
           <span>Patrimoni adquirit</span>
           <span class="font-mono text-steel">Immutabilitat</span>
@@ -259,27 +290,46 @@
       </div>
 
       {# ==================================================================== #}
-      {# FILA 2, COL 2: BLOC 4 - HISTÒRIC D'ENVIATS (EXECUTATS)               #}
+      {# FILA 2, COL 2: BLOC 4 - HISTÒRIC D'ENVIATS                           #}
       {# ==================================================================== #}
+      {% set sentCompleted = historySent|filter(t => t.status.value == 'accepted') %}
+      {% set sentUncompleted = historySent|filter(t => t.status.value != 'accepted') %}
+
       <div class="bg-whitef border border-gold/30 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col justify-between space-y-3">
         <div>
-          {# Capçalera de Caixa Notarial #}
-          <div class="flex items-center justify-between pb-2 border-b border-cream gap-2">
+          {# Capçalera de Caixa #}
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-2 border-b border-cream gap-2">
             <h2 class="font-marcellus text-base text-ink flex items-center gap-2 whitespace-nowrap">
               <svg class="w-4 h-4 text-amber-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              <span>Històric Enviats (Executats)</span>
+              <span>Històric d'Enviats</span>
             </h2>
-            <span class="text-[10px] uppercase font-mono font-bold text-steel bg-cream/50 px-2.5 py-0.5 rounded-md border border-steel/20 whitespace-nowrap">
-              {{ historySent|length }} enviat(s)
-            </span>
+
+            {% if historySent|length > 0 %}
+              <div class="flex items-center gap-1 p-0.5 bg-cream/50 border border-steel/20 rounded-lg text-[10px] font-semibold self-start sm:self-auto">
+                <button type="button" onclick="filterSentHistory('all')" id="btn-filter-sent-all" class="px-2 py-0.5 rounded-md transition-all font-bold bg-ink text-gold shadow-2xs cursor-pointer">
+                  Tots ({{ historySent|length }})
+                </button>
+                <button type="button" onclick="filterSentHistory('completed')" id="btn-filter-sent-completed" class="px-2 py-0.5 rounded-md transition-all text-ink/70 hover:text-ink cursor-pointer">
+                  Completats ({{ sentCompleted|length }})
+                </button>
+                <button type="button" onclick="filterSentHistory('uncompleted')" id="btn-filter-sent-uncompleted" class="px-2 py-0.5 rounded-md transition-all text-ink/70 hover:text-ink cursor-pointer">
+                  No completats ({{ sentUncompleted|length }})
+                </button>
+              </div>
+            {% else %}
+              <span class="text-[10px] uppercase font-mono font-bold text-steel bg-cream/50 px-2.5 py-0.5 rounded-md border border-steel/20 whitespace-nowrap">
+                0 enviat(s)
+              </span>
+            {% endif %}
           </div>
 
           {# Cos de la Caixa amb Scroll Delimitat #}
           <div class="pt-2">
             {% if historySent|length > 0 %}
-              <div class="max-h-[300px] overflow-y-auto space-y-2 pr-1">
+              <div class="max-h-[300px] overflow-y-auto space-y-2 pr-1" id="history-sent-list">
                 {% for transfer in historySent %}
-                  <div class="bg-cream-50/70 rounded-xl border border-steel/20 border-l-4 border-l-amber-500 p-2.5 sm:p-3 hover:border-gold/40 transition-all flex items-center justify-between gap-3">
+                  {% set isComp = transfer.status.value == 'accepted' %}
+                  <div class="history-sent-item bg-cream-50/70 rounded-xl border border-steel/20 border-l-4 {{ isComp ? 'border-l-emerald-600' : 'border-l-stone-400' }} p-2.5 sm:p-3 hover:border-gold/40 transition-all flex items-center justify-between gap-3" data-category="{{ isComp ? 'completed' : 'uncompleted' }}">
                     <div class="min-w-0 flex-1">
                       <div class="flex items-center gap-1.5 mb-0.5">
                         <h4 class="font-marcellus text-sm font-bold text-ink truncate">{{ transfer.item.name }}</h4>
@@ -307,6 +357,10 @@
                     </div>
                   </div>
                 {% endfor %}
+
+                <div id="history-sent-filter-empty" class="hidden py-4 px-3 rounded-xl bg-cream-50/50 border border-steel/15 text-center text-xs text-steel">
+                  No hi ha traspassos enviats en aquesta categoria.
+                </div>
               </div>
             {% else %}
               <div class="py-4 px-3 rounded-xl bg-cream-50/50 border border-steel/15 text-center text-xs text-steel flex items-center justify-center gap-2">
@@ -317,9 +371,9 @@
           </div>
         </div>
 
-        {# Peu de Caixa Notarial #}
+        {# Peu de Caixa #}
         <div class="pt-2 border-t border-cream/80 text-[11px] text-ink/50 flex items-center justify-between">
-          <span>Transmissions notariades</span>
+          <span>Transmissions certificades</span>
           <span class="font-mono text-steel">Traçabilitat forense</span>
         </div>
       </div>
@@ -327,7 +381,7 @@
     </div>
 
     {# ==================================================================== #}
-    {# MODALS NOTARIALS DE DETALL DE TRASPÀS EN CURS                       #}
+    {# MODALS DE DETALL DE TRASPÀS EN CURS                                  #}
     {# ==================================================================== #}
     {% for transfer in pendingSent %}
       <div id="modal-transfer-{{ transfer.id }}" class="fixed inset-0 z-50 bg-ink/65 backdrop-blur-xs hidden items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity">
@@ -431,6 +485,86 @@
           el.classList.add('hidden');
           el.classList.remove('flex');
           document.body.classList.remove('overflow-hidden');
+        }
+      }
+
+      function filterSentHistory(category) {
+        const allBtn = document.getElementById('btn-filter-sent-all');
+        const compBtn = document.getElementById('btn-filter-sent-completed');
+        const uncompBtn = document.getElementById('btn-filter-sent-uncompleted');
+        
+        [allBtn, compBtn, uncompBtn].forEach(btn => {
+          if (btn) {
+            btn.classList.remove('bg-ink', 'text-gold', 'shadow-2xs', 'font-bold');
+            btn.classList.add('text-ink/70');
+          }
+        });
+
+        const activeBtn = category === 'completed' ? compBtn : (category === 'uncompleted' ? uncompBtn : allBtn);
+        if (activeBtn) {
+          activeBtn.classList.remove('text-ink/70');
+          activeBtn.classList.add('bg-ink', 'text-gold', 'shadow-2xs', 'font-bold');
+        }
+
+        const items = document.querySelectorAll('.history-sent-item');
+        let visibleCount = 0;
+        items.forEach(item => {
+          const itemCat = item.dataset.category;
+          if (category === 'all' || itemCat === category) {
+            item.classList.remove('hidden');
+            visibleCount++;
+          } else {
+            item.classList.add('hidden');
+          }
+        });
+
+        const emptyEl = document.getElementById('history-sent-filter-empty');
+        if (emptyEl) {
+          if (visibleCount === 0 && items.length > 0) {
+            emptyEl.classList.remove('hidden');
+          } else {
+            emptyEl.classList.add('hidden');
+          }
+        }
+      }
+
+      function filterReceivedHistory(category) {
+        const allBtn = document.getElementById('btn-filter-received-all');
+        const compBtn = document.getElementById('btn-filter-received-completed');
+        const uncompBtn = document.getElementById('btn-filter-received-uncompleted');
+        
+        [allBtn, compBtn, uncompBtn].forEach(btn => {
+          if (btn) {
+            btn.classList.remove('bg-ink', 'text-gold', 'shadow-2xs', 'font-bold');
+            btn.classList.add('text-ink/70');
+          }
+        });
+
+        const activeBtn = category === 'completed' ? compBtn : (category === 'uncompleted' ? uncompBtn : allBtn);
+        if (activeBtn) {
+          activeBtn.classList.remove('text-ink/70');
+          activeBtn.classList.add('bg-ink', 'text-gold', 'shadow-2xs', 'font-bold');
+        }
+
+        const items = document.querySelectorAll('.history-received-item');
+        let visibleCount = 0;
+        items.forEach(item => {
+          const itemCat = item.dataset.category;
+          if (category === 'all' || itemCat === category) {
+            item.classList.remove('hidden');
+            visibleCount++;
+          } else {
+            item.classList.add('hidden');
+          }
+        });
+
+        const emptyEl = document.getElementById('history-received-filter-empty');
+        if (emptyEl) {
+          if (visibleCount === 0 && items.length > 0) {
+            emptyEl.classList.remove('hidden');
+          } else {
+            emptyEl.classList.add('hidden');
+          }
         }
       }
 
