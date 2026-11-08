@@ -72,7 +72,7 @@
       <div class="space-y-2">
         <div class="relative rounded-2xl overflow-hidden aspect-video bg-cream/40 border border-gold/30 shadow-md">
           {% if item.mainPhoto %}
-            <img src="{{ path('app_media_document', {'uuid': item.mainPhoto.uuid}) }}" alt="{{ item.name }}" class="w-full h-full object-cover cursor-pointer" onclick="openDocPreview('{{ path('app_media_document', {'uuid': item.mainPhoto.uuid}) }}', '{{ item.mainPhoto.originalFilename|e('js') }}', '{{ item.mainPhoto.mimeType }}', '{{ item.mainPhoto.sha256Hash }}', '{{ (item.mainPhoto.fileSizeBytes / 1024)|round(1) }} KB')" />
+            <img id="gallery-mobile-img" src="{{ path('app_media_document', {'uuid': item.mainPhoto.uuid}) }}" alt="{{ item.name }}" class="w-full h-full object-cover cursor-pointer" onclick="openCurrentGalleryDoc()" />
           {% else %}
             <div class="w-full h-full flex flex-col items-center justify-center p-6 text-center text-ink/50 bg-cream/20">
               <svg class="w-12 h-12 text-steel/40 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
@@ -82,17 +82,17 @@
 
           {# Badge Principal a la Cantonada Superior Esquerra #}
           <div class="absolute top-2.5 left-2.5 z-10">
-            <span class="bg-ink/90 backdrop-blur-md text-gold text-[10px] font-bold px-2 py-0.5 rounded-lg border border-gold/40 flex items-center gap-1 shadow-xs">
+            <span id="gallery-mobile-badge" class="bg-ink/90 backdrop-blur-md text-gold text-[10px] font-bold px-2 py-0.5 rounded-lg border border-gold/40 flex items-center gap-1 shadow-xs">
               <svg class="w-2.5 h-2.5 text-gold fill-gold" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-              <span>Foto Principal</span>
+              <span id="gallery-mobile-badge-text">Foto Principal</span>
             </span>
           </div>
 
           {# Barra Inferior de Segellat SHA-256 amb Opció d'Ampliar #}
           {% if item.mainPhoto %}
-            <div class="absolute bottom-2 left-2 right-2 bg-ink/80 backdrop-blur-md text-[10px] text-cream px-3 py-1.5 rounded-xl flex items-center justify-between font-mono cursor-pointer" onclick="openDocPreview('{{ path('app_media_document', {'uuid': item.mainPhoto.uuid}) }}', '{{ item.mainPhoto.originalFilename|e('js') }}', '{{ item.mainPhoto.mimeType }}', '{{ item.mainPhoto.sha256Hash }}', '{{ (item.mainPhoto.fileSizeBytes / 1024)|round(1) }} KB')">
+            <div class="absolute bottom-2 left-2 right-2 bg-ink/80 backdrop-blur-md text-[10px] text-cream px-3 py-1.5 rounded-xl flex items-center justify-between font-mono cursor-pointer" onclick="openCurrentGalleryDoc()">
               <span class="text-gold font-bold">SHA-256</span>
-              <span class="truncate ml-1.5 text-cream/80 text-[9px]">{{ item.mainPhoto.sha256Hash|slice(0, 18) }}...</span>
+              <span id="gallery-mobile-hash" class="truncate ml-1.5 text-cream/80 text-[9px]">{{ item.mainPhoto.sha256Hash|slice(0, 18) }}...</span>
               <span class="text-[9px] text-gold font-bold ml-1 shrink-0 flex items-center gap-0.5">
                 <span>Ampliar</span>
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
@@ -104,15 +104,30 @@
         {# Barra d'Acció Ràpida Foto Mòbil (Nova Foto) #}
         <div class="flex items-center justify-between px-1">
           <span class="text-[11px] font-mono text-ink/70">
-            Fotos: <strong class="text-ink">{{ item.photos|length }}</strong>/{{ app.user.plan ? app.user.plan.maxPhotosPerItem : '∞' }} ({{ app.user.plan ? app.user.plan.code|upper : 'ADMIN' }})
+            Fotos: <strong class="text-ink">{{ item.photos|length }}</strong>/{{ maxPhotos > 0 ? maxPhotos : '∞' }} ({{ plan ? plan.code|upper : 'ADMIN' }})
           </span>
           <button type="button"
-            onclick="if (window.RegistralsToast) window.RegistralsToast.show('Funció del Pla PLUS', 'La custòdia de fins a 5 fotografies de detall (números de sèrie, contrastos) requereix el Pla PLUS.', 'info');"
-            class="px-2.5 py-1 rounded-xl bg-white border border-gold/40 text-ink text-[11px] font-semibold flex items-center gap-1.5 shadow-2xs active:scale-95 transition-all">
+            {% if canAddPhoto %}
+              onclick="openAddPhotoModal()"
+            {% else %}
+              onclick="handlePhotoLimitClick()"
+            {% endif %}
+            class="px-2.5 py-1 rounded-xl bg-white border border-gold/40 text-ink text-[11px] font-semibold flex items-center gap-1.5 shadow-2xs active:scale-95 transition-all cursor-pointer">
             <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             <span>Nova Foto</span>
           </button>
         </div>
+
+        {# Miniatures a Mòbil si hi ha més d'una foto #}
+        {% if item.photos|length > 1 %}
+          <div class="flex items-center gap-1.5 overflow-x-auto pb-1 px-1">
+            {% for photo in item.photos %}
+              <button type="button" onclick="setGalleryIndex({{ loop.index0 }})" class="gallery-thumb-btn-mobile w-10 h-10 rounded-lg overflow-hidden border-2 {{ loop.first ? 'border-gold shadow-xs' : 'border-steel/20 opacity-70' }} shrink-0 transition-all cursor-pointer" data-index="{{ loop.index0 }}">
+                <img src="{{ path('app_media_document', {'uuid': photo.uuid}) }}" alt="Miniatura {{ loop.index }}" class="w-full h-full object-cover" />
+              </button>
+            {% endfor %}
+          </div>
+        {% endif %}
       </div>
 
       {# 3. FITXA (Especificacions & Identificació) #}
@@ -167,12 +182,16 @@
           <h2 class="font-marcellus text-base text-ink flex items-center gap-1.5">
             <span>Proves Documentals</span>
             <span class="text-[10px] font-mono font-bold bg-cream px-2 py-0.5 rounded-full text-ink border border-gold/30">
-              {{ item.evidenceDocuments|length }}/{{ app.user.plan ? app.user.plan.maxEvidencesPerItem : '∞' }}
+              {{ item.evidenceDocuments|length }}/{{ maxEvidences > 0 ? maxEvidences : '∞' }}
             </span>
           </h2>
           <button type="button"
-            onclick="if (window.RegistralsToast) window.RegistralsToast.show('Funció del Pla PLUS', 'La custòdia de fins a 5 proves documentals addicionals (factures, tiquets, garanties) requereix el Pla PLUS.', 'info');"
-            class="px-2.5 py-1 rounded-xl bg-white border border-gold/40 text-ink text-[11px] font-semibold flex items-center gap-1.5 shadow-2xs active:scale-95 transition-all">
+            {% if canAddEvidence %}
+              onclick="openAddEvidenceModal()"
+            {% else %}
+              onclick="handleEvidenceLimitClick()"
+            {% endif %}
+            class="px-2.5 py-1 rounded-xl bg-white border border-gold/40 text-ink text-[11px] font-semibold flex items-center gap-1.5 shadow-2xs active:scale-95 transition-all cursor-pointer">
             <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             <span>Nova Prova</span>
           </button>
@@ -422,10 +441,10 @@
 
                 {# Controls < > pujats a la part superior #}
                 <div class="flex items-center gap-1 ml-1">
-                  <button type="button" class="w-6 h-6 rounded-md bg-white border border-steel/20 flex items-center justify-center text-steel cursor-not-allowed opacity-60" title="Foto anterior" disabled>
+                  <button type="button" id="gallery-prev-btn" onclick="galleryPrevPhoto()" class="w-6 h-6 rounded-md bg-white border border-steel/20 flex items-center justify-center text-steel hover:text-ink hover:border-gold/40 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-all" title="Foto anterior" {{ item.photos|length <= 1 ? 'disabled' : '' }}>
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                   </button>
-                  <button type="button" class="w-6 h-6 rounded-md bg-white border border-steel/20 flex items-center justify-center text-steel cursor-not-allowed opacity-60" title="Foto següent" disabled>
+                  <button type="button" id="gallery-next-btn" onclick="galleryNextPhoto()" class="w-6 h-6 rounded-md bg-white border border-steel/20 flex items-center justify-center text-steel hover:text-ink hover:border-gold/40 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-all" title="Foto següent" {{ item.photos|length <= 1 ? 'disabled' : '' }}>
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                   </button>
                 </div>
@@ -433,10 +452,14 @@
 
               <div class="flex items-center gap-2 shrink-0">
                 <span class="text-[10px] font-mono font-bold text-ink/75 bg-cream/60 px-2 py-0.5 rounded-md border border-steel/20 whitespace-nowrap">
-                  {{ item.photos|length }}/{{ app.user.plan ? app.user.plan.maxPhotosPerItem : '∞' }} foto ({{ app.user.plan ? app.user.plan.code|upper : 'ADMIN' }})
+                  {{ item.photos|length }}/{{ maxPhotos > 0 ? maxPhotos : '∞' }} foto ({{ plan ? plan.code|upper : 'ADMIN' }})
                 </span>
                 <button type="button"
-                  onclick="if (window.RegistralsToast) window.RegistralsToast.show('Funció del Pla PLUS', 'La custòdia de fins a 5 fotografies de detall (números de sèrie, contrastos) requereix el Pla PLUS.', 'info');"
+                  {% if canAddPhoto %}
+                    onclick="openAddPhotoModal()"
+                  {% else %}
+                    onclick="handlePhotoLimitClick()"
+                  {% endif %}
                   class="px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs bg-white/90 border border-gold/40 text-ink/85 hover:bg-cream/40 active:scale-95 whitespace-nowrap"
                   title="Afegir nova fotografia">
                   <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -448,8 +471,8 @@
             {# Marc Imatge Protagonista Panoràmica amb alçada màxima adaptada a portàtil #}
             <div class="pt-1.5">
               {% if item.mainPhoto %}
-                <div class="rounded-xl overflow-hidden border border-steel/20 bg-cream/20 aspect-video max-h-[170px] xl:max-h-[180px] 2xl:max-h-[220px] relative group cursor-pointer" onclick="openDocPreview('{{ path('app_media_document', {'uuid': item.mainPhoto.uuid}) }}', '{{ item.mainPhoto.originalFilename|e('js') }}', '{{ item.mainPhoto.mimeType }}', '{{ item.mainPhoto.sha256Hash }}', '{{ (item.mainPhoto.fileSizeBytes / 1024)|round(1) }} KB')">
-                  <img src="{{ path('app_media_document', {'uuid': item.mainPhoto.uuid}) }}" alt="{{ item.name }}" class="w-full h-full object-cover transition-transform group-hover:scale-102 duration-300" />
+                <div class="rounded-xl overflow-hidden border border-steel/20 bg-cream/20 aspect-video max-h-[170px] xl:max-h-[180px] 2xl:max-h-[220px] relative group cursor-pointer" onclick="openCurrentGalleryDoc()">
+                  <img id="gallery-main-img" src="{{ path('app_media_document', {'uuid': item.mainPhoto.uuid}) }}" alt="{{ item.name }}" class="w-full h-full object-cover transition-transform group-hover:scale-102 duration-300" />
                   
                   <div class="absolute inset-0 bg-ink/0 group-hover:bg-ink/20 transition-colors flex items-center justify-center">
                     <span class="opacity-0 group-hover:opacity-100 transition-opacity bg-ink/85 text-cream px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-md">
@@ -458,20 +481,31 @@
                     </span>
                   </div>
 
-                  {# Badge de Foto Principal #}
+                  {# Badge de Tipus de Foto #}
                   <div class="absolute top-2 left-2 z-10">
-                    <span class="bg-ink/90 backdrop-blur-md text-gold text-[10px] font-bold px-2 py-0.5 rounded-lg border border-gold/40 flex items-center gap-1 shadow-xs">
+                    <span id="gallery-main-badge" class="bg-ink/90 backdrop-blur-md text-gold text-[10px] font-bold px-2 py-0.5 rounded-lg border border-gold/40 flex items-center gap-1 shadow-xs">
                       <svg class="w-3 h-3 text-gold fill-gold" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                      <span>Principal</span>
+                      <span id="gallery-main-badge-text">Principal</span>
                     </span>
                   </div>
 
                   {# Barra Inferior Hash de Foto #}
                   <div class="absolute bottom-1.5 left-1.5 right-1.5 bg-ink/85 backdrop-blur-xs text-[10px] text-cream px-2 py-0.5 rounded-md truncate font-mono flex items-center justify-between">
-                    <span class="truncate text-[9px]">SHA-256: {{ item.mainPhoto.sha256Hash|slice(0, 16) }}...</span>
-                    <span class="text-gold font-semibold shrink-0 ml-2 text-[9px]">Foto {{ item.photos|length }} de 1</span>
+                    <span id="gallery-main-hash" class="truncate text-[9px]">SHA-256: {{ item.mainPhoto.sha256Hash|slice(0, 16) }}...</span>
+                    <span id="gallery-main-index" class="text-gold font-semibold shrink-0 ml-2 text-[9px]">Foto 1 de {{ item.photos|length }}</span>
                   </div>
                 </div>
+
+                {# Miniatures si hi ha múltiples fotografies #}
+                {% if item.photos|length > 1 %}
+                  <div class="flex items-center gap-1.5 pt-1.5 overflow-x-auto pb-0.5" id="gallery-desktop-thumbnails">
+                    {% for photo in item.photos %}
+                      <button type="button" onclick="setGalleryIndex({{ loop.index0 }})" class="gallery-thumb-btn w-10 h-10 rounded-lg overflow-hidden border-2 {{ loop.first ? 'border-gold shadow-xs' : 'border-steel/20 opacity-70 hover:opacity-100' }} shrink-0 transition-all cursor-pointer" data-index="{{ loop.index0 }}">
+                        <img src="{{ path('app_media_document', {'uuid': photo.uuid}) }}" alt="Miniatura {{ loop.index }}" class="w-full h-full object-cover" />
+                      </button>
+                    {% endfor %}
+                  </div>
+                {% endif %}
               {% else %}
                 <div class="rounded-xl border-2 border-dashed border-steel/30 bg-cream/10 aspect-video max-h-[170px] flex flex-col items-center justify-center p-4 text-center text-ink/60">
                   <svg class="w-8 h-8 text-steel/50 mb-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
@@ -563,10 +597,14 @@
 
               <div class="flex items-center gap-2 shrink-0">
                 <span class="text-[10px] font-mono font-bold text-ink/75 bg-cream/60 px-2 py-0.5 rounded-md border border-steel/20 whitespace-nowrap">
-                  {{ item.evidenceDocuments|length }}/{{ app.user.plan ? app.user.plan.maxEvidencesPerItem : '∞' }} prova ({{ app.user.plan ? app.user.plan.code|upper : 'ADMIN' }})
+                  {{ item.evidenceDocuments|length }}/{{ maxEvidences > 0 ? maxEvidences : '∞' }} prova ({{ plan ? plan.code|upper : 'ADMIN' }})
                 </span>
                 <button type="button"
-                  onclick="if (window.RegistralsToast) window.RegistralsToast.show('Funció del Pla PLUS', 'La custòdia de fins a 5 proves documentals addicionals (factures, tiquets, garanties) requereix el Pla PLUS.', 'info');"
+                  {% if canAddEvidence %}
+                    onclick="openAddEvidenceModal()"
+                  {% else %}
+                    onclick="handleEvidenceLimitClick()"
+                  {% endif %}
                   class="px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs bg-white/90 border border-gold/40 text-ink/85 hover:bg-cream/40 active:scale-95 whitespace-nowrap"
                   title="Afegir nova prova documental">
                   <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -1131,7 +1169,383 @@
   </div>
 </div>
 
+{# ========================================================================= #}
+{# MODAL 1: Afegir Fotografia de Detall (PWA Dual Modal)                     #}
+{# ========================================================================= #}
+<div id="modal-add-photo" class="fixed inset-0 z-50 bg-ink/75 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all duration-200" onclick="if(event.target === this) closeAddPhotoModal();">
+  <div class="bg-white rounded-t-3xl sm:rounded-2xl border-t sm:border border-gold/40 shadow-2xl max-w-lg w-full max-h-[92vh] overflow-hidden flex flex-col font-raleway">
+    <div class="sm:hidden w-10 h-1 bg-steel/30 rounded-full mx-auto mt-2 -mb-1 shrink-0"></div>
+
+    <div class="p-4 sm:p-5 bg-ink text-cream border-b border-gold/30 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-gold/20 border border-gold/40 text-gold flex items-center justify-center shrink-0">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        </div>
+        <div>
+          <h3 class="font-marcellus text-base sm:text-lg text-whitef">Afegir Fotografia de Detall</h3>
+          <p class="text-[11px] font-mono text-steel">Custòdia Forense · Quota: {{ item.photos|length }}/{{ maxPhotos > 0 ? maxPhotos : '∞' }}</p>
+        </div>
+      </div>
+      <button type="button" onclick="closeAddPhotoModal()" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-cream flex items-center justify-center text-sm font-bold cursor-pointer" aria-label="Tancar">
+        ✕
+      </button>
+    </div>
+
+    <form action="{{ path('app_item_document_add', {'cui': item.cui}) }}" method="POST" enctype="multipart/form-data" class="p-4 sm:p-5 overflow-y-auto space-y-4 text-xs sm:text-sm text-ink/80 leading-relaxed" onsubmit="handleAddDocSubmit(this)">
+      <input type="hidden" name="_token" value="{{ csrf_token('item_add_document_' ~ item.id) }}">
+      <input type="hidden" name="kind" value="photo">
+
+      <div class="p-3.5 rounded-xl bg-gold/10 border-l-[3.5px] border-gold text-ink text-xs font-raleway space-y-1">
+        <strong>Immutabilitat i Actualització de Hash</strong>
+        <p class="text-ink/80">
+          Aquesta fotografia s'incorporarà a la custòdia Flysystem amb càlcul SHA-256 determinista i actualitzarà el fingerprint del bé generant una nova versió d'auditoria.
+        </p>
+      </div>
+
+      <div class="space-y-2">
+        <label class="block text-xs font-bold uppercase tracking-wider text-ink/70">
+          Fotografia de detall / macro (JPG, PNG, WEBP — Màx. 10MB)
+        </label>
+        
+        <div class="border-2 border-dashed border-steel/30 rounded-xl p-4 text-center bg-cream/10 hover:bg-cream/20 transition-colors">
+          <input type="file" id="input-add-photo-file" name="file" accept="image/*" required class="hidden" onchange="previewAddPhotoFile(this)">
+          
+          <div id="add-photo-empty-state" class="cursor-pointer" onclick="document.getElementById('input-add-photo-file').click()">
+            <svg class="w-8 h-8 text-gold mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <p class="font-bold text-ink text-xs">Fes clic per seleccionar una fotografia</p>
+            <p class="text-[11px] text-steel mt-0.5">Captura de números de sèrie, contrastos, marques o vista addicional</p>
+          </div>
+
+          <div id="add-photo-preview-box" class="hidden space-y-2">
+            <img id="add-photo-preview-img" src="" alt="Previsualització" class="max-h-40 mx-auto rounded-lg object-contain border border-steel/20 shadow-xs">
+            <div class="flex items-center justify-center gap-2">
+              <span id="add-photo-preview-name" class="text-xs font-mono text-ink/75 truncate max-w-xs"></span>
+              <button type="button" onclick="document.getElementById('input-add-photo-file').click()" class="text-xs text-gold hover:underline font-bold">Canviar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-2 flex items-center justify-end gap-2.5 border-t border-steel/15">
+        <button type="button" onclick="closeAddPhotoModal()" class="px-4 py-2 rounded-xl border border-steel/30 text-ink/75 hover:text-ink hover:bg-white text-xs font-semibold transition-all cursor-pointer">
+          Cancel·lar
+        </button>
+        <button type="submit" id="btn-submit-add-photo" class="px-5 py-2.5 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-xs uppercase tracking-wider transition-all shadow-xs flex items-center gap-1.5 cursor-pointer">
+          <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          <span>Custodiar Fotografia</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{# ========================================================================= #}
+{# MODAL 2: Afegir Prova Documental (PWA Dual Modal)                         #}
+{# ========================================================================= #}
+<div id="modal-add-evidence" class="fixed inset-0 z-50 bg-ink/75 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all duration-200" onclick="if(event.target === this) closeAddEvidenceModal();">
+  <div class="bg-white rounded-t-3xl sm:rounded-2xl border-t sm:border border-gold/40 shadow-2xl max-w-lg w-full max-h-[92vh] overflow-hidden flex flex-col font-raleway">
+    <div class="sm:hidden w-10 h-1 bg-steel/30 rounded-full mx-auto mt-2 -mb-1 shrink-0"></div>
+
+    <div class="p-4 sm:p-5 bg-ink text-cream border-b border-gold/30 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-gold/20 border border-gold/40 text-gold flex items-center justify-center shrink-0">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        </div>
+        <div>
+          <h3 class="font-marcellus text-base sm:text-lg text-whitef">Afegir Prova Documental</h3>
+          <p class="text-[11px] font-mono text-steel">Custòdia Legal eIDAS · Quota: {{ item.evidenceDocuments|length }}/{{ maxEvidences > 0 ? maxEvidences : '∞' }}</p>
+        </div>
+      </div>
+      <button type="button" onclick="closeAddEvidenceModal()" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-cream flex items-center justify-center text-sm font-bold cursor-pointer" aria-label="Tancar">
+        ✕
+      </button>
+    </div>
+
+    <form action="{{ path('app_item_document_add', {'cui': item.cui}) }}" method="POST" enctype="multipart/form-data" class="p-4 sm:p-5 overflow-y-auto space-y-4 text-xs sm:text-sm text-ink/80 leading-relaxed" onsubmit="handleAddDocSubmit(this)">
+      <input type="hidden" name="_token" value="{{ csrf_token('item_add_document_' ~ item.id) }}">
+      <input type="hidden" name="kind" value="evidence">
+
+      <div class="p-3.5 rounded-xl bg-gold/10 border-l-[3.5px] border-gold text-ink text-xs font-raleway space-y-1">
+        <strong>Custòdia Legal de Prova</strong>
+        <p class="text-ink/80">
+          Factures, tiquets, garanties o informes de peritatge es custodiaran de forma xifrada aïllats fora de l'arrel web sota segellat temporal eIDAS.
+        </p>
+      </div>
+
+      <div class="space-y-1.5">
+        <label for="select-evidence-type" class="block text-xs font-bold uppercase tracking-wider text-ink/70">
+          Tipologia de Document
+        </label>
+        <select id="select-evidence-type" name="evidence_type" class="w-full px-3 py-2 rounded-xl bg-white border border-steel/30 text-ink text-xs font-semibold focus:outline-none focus:border-gold">
+          <option value="invoice_receipt">Factura / Tiquet de compra</option>
+          <option value="certificate_authenticity">Certificat d'autenticitat o garantia oficial</option>
+          <option value="police_report">Denúncia policial per sostracció</option>
+          <option value="legal_declaration">Declaració jurada o acta notarial</option>
+        </select>
+      </div>
+
+      <div class="space-y-2">
+        <label class="block text-xs font-bold uppercase tracking-wider text-ink/70">
+          Arxiu Documental (PDF, JPG, PNG, WEBP — Màx. 10MB)
+        </label>
+        
+        <div class="border-2 border-dashed border-steel/30 rounded-xl p-4 text-center bg-cream/10 hover:bg-cream/20 transition-colors">
+          <input type="file" id="input-add-evidence-file" name="file" accept="image/*,application/pdf" required class="hidden" onchange="previewAddEvidenceFile(this)">
+          
+          <div id="add-evidence-empty-state" class="cursor-pointer" onclick="document.getElementById('input-add-evidence-file').click()">
+            <svg class="w-8 h-8 text-gold mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <p class="font-bold text-ink text-xs">Fes clic per seleccionar el document</p>
+            <p class="text-[11px] text-steel mt-0.5">Format PDF o fotografia nítida del comprovant fiscal</p>
+          </div>
+
+          <div id="add-evidence-preview-box" class="hidden space-y-2">
+            <div class="w-12 h-12 rounded-lg bg-cream/50 border border-gold/30 flex items-center justify-center mx-auto text-gold">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            </div>
+            <div class="flex items-center justify-center gap-2">
+              <span id="add-evidence-preview-name" class="text-xs font-mono text-ink/75 truncate max-w-xs"></span>
+              <button type="button" onclick="document.getElementById('input-add-evidence-file').click()" class="text-xs text-gold hover:underline font-bold">Canviar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-2 flex items-center justify-end gap-2.5 border-t border-steel/15">
+        <button type="button" onclick="closeAddEvidenceModal()" class="px-4 py-2 rounded-xl border border-steel/30 text-ink/75 hover:text-ink hover:bg-white text-xs font-semibold transition-all cursor-pointer">
+          Cancel·lar
+        </button>
+        <button type="submit" id="btn-submit-add-evidence" class="px-5 py-2.5 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-xs uppercase tracking-wider transition-all shadow-xs flex items-center gap-1.5 cursor-pointer">
+          <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          <span>Custodiar Document</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
+  // ==========================================
+  // Gestió de Galeria Fotogràfica Dinàmica
+  // ==========================================
+  const galleryPhotos = [
+    {% for photo in item.photos %}
+      {
+        uuid: '{{ photo.uuid }}',
+        url: '{{ path('app_media_document', {'uuid': photo.uuid}) }}',
+        filename: '{{ photo.originalFilename|e('js') }}',
+        mimeType: '{{ photo.mimeType }}',
+        sha256: '{{ photo.sha256Hash }}',
+        sizeFormatted: '{{ (photo.fileSizeBytes / 1024)|round(1) }} KB',
+        isPrimary: {{ photo.type.value == 'photo_primary' ? 'true' : 'false' }},
+        typeLabel: '{{ photo.type.label|e('js') }}'
+      }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ];
+  let currentGalleryIdx = 0;
+
+  function setGalleryIndex(idx) {
+    if (!galleryPhotos || galleryPhotos.length === 0) return;
+    if (idx < 0) idx = 0;
+    if (idx >= galleryPhotos.length) idx = galleryPhotos.length - 1;
+    currentGalleryIdx = idx;
+
+    const current = galleryPhotos[idx];
+    if (!current) return;
+
+    // Desktop
+    const deskImg = document.getElementById('gallery-main-img');
+    if (deskImg) deskImg.src = current.url;
+
+    const deskBadgeText = document.getElementById('gallery-main-badge-text');
+    if (deskBadgeText) deskBadgeText.textContent = current.isPrimary ? 'Principal' : 'Detall';
+
+    const deskHash = document.getElementById('gallery-main-hash');
+    if (deskHash) deskHash.textContent = `SHA-256: ${current.sha256.substring(0, 16)}...`;
+
+    const deskIndex = document.getElementById('gallery-main-index');
+    if (deskIndex) deskIndex.textContent = `Foto ${idx + 1} de ${galleryPhotos.length}`;
+
+    // Mobile
+    const mobImg = document.getElementById('gallery-mobile-img');
+    if (mobImg) mobImg.src = current.url;
+
+    const mobBadgeText = document.getElementById('gallery-mobile-badge-text');
+    if (mobBadgeText) mobBadgeText.textContent = current.isPrimary ? 'Foto Principal' : 'Foto Detall';
+
+    const mobHash = document.getElementById('gallery-mobile-hash');
+    if (mobHash) mobHash.textContent = `${current.sha256.substring(0, 18)}...`;
+
+    // Controls < >
+    const prevBtn = document.getElementById('gallery-prev-btn');
+    const nextBtn = document.getElementById('gallery-next-btn');
+    if (prevBtn) prevBtn.disabled = (idx === 0);
+    if (nextBtn) nextBtn.disabled = (idx === galleryPhotos.length - 1);
+
+    // Miniatures actives
+    document.querySelectorAll('.gallery-thumb-btn, .gallery-thumb-btn-mobile').forEach(btn => {
+      const bIdx = parseInt(btn.dataset.index, 10);
+      if (bIdx === idx) {
+        btn.classList.add('border-gold', 'shadow-xs');
+        btn.classList.remove('border-steel/20', 'opacity-70');
+      } else {
+        btn.classList.remove('border-gold', 'shadow-xs');
+        btn.classList.add('border-steel/20', 'opacity-70');
+      }
+    });
+  }
+
+  function galleryPrevPhoto() {
+    if (currentGalleryIdx > 0) {
+      setGalleryIndex(currentGalleryIdx - 1);
+    }
+  }
+
+  function galleryNextPhoto() {
+    if (currentGalleryIdx < galleryPhotos.length - 1) {
+      setGalleryIndex(currentGalleryIdx + 1);
+    }
+  }
+
+  function openCurrentGalleryDoc() {
+    if (!galleryPhotos || galleryPhotos.length === 0) return;
+    const doc = galleryPhotos[currentGalleryIdx];
+    if (doc) {
+      openDocPreview(doc.url, doc.filename, doc.mimeType, doc.sha256, doc.sizeFormatted);
+    }
+  }
+
+  // ==========================================
+  // Modals d'addició de Fotos i Proves
+  // ==========================================
+  function openAddPhotoModal() {
+    const modal = document.getElementById('modal-add-photo');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.classList.add('overflow-hidden');
+    }
+  }
+
+  function closeAddPhotoModal() {
+    const modal = document.getElementById('modal-add-photo');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.classList.remove('overflow-hidden');
+    }
+  }
+
+  function openAddEvidenceModal() {
+    const modal = document.getElementById('modal-add-evidence');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.classList.add('overflow-hidden');
+    }
+  }
+
+  function closeAddEvidenceModal() {
+    const modal = document.getElementById('modal-add-evidence');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.classList.remove('overflow-hidden');
+    }
+  }
+
+  function handlePhotoLimitClick() {
+    const isFree = '{{ plan ? plan.code : "free" }}' === 'free';
+    if (isFree) {
+      if (window.RegistralsToast) {
+        window.RegistralsToast.show(
+          'Funció del Pla PLUS',
+          'El Pla Free inclou 1 fotografia principal. Amplia al Pla PLUS per custodiar fins a 5 fotografies de detall.',
+          'warning',
+          5500
+        );
+      }
+    } else {
+      if (window.RegistralsToast) {
+        window.RegistralsToast.show(
+          'Quota màxima assolida',
+          'Aquest bé ja té {{ item.photos|length }} fotografies custodiades, que és el límit màxim permès pel teu pla.',
+          'info',
+          5000
+        );
+      }
+    }
+  }
+
+  function handleEvidenceLimitClick() {
+    const isFree = '{{ plan ? plan.code : "free" }}' === 'free';
+    if (isFree) {
+      if (window.RegistralsToast) {
+        window.RegistralsToast.show(
+          'Funció del Pla PLUS',
+          'El Pla Free inclou 1 comprovant per bé. Amplia al Pla PLUS per custodiar fins a 5 proves documentals (factures, tiquets, garanties).',
+          'warning',
+          5500
+        );
+      }
+    } else {
+      if (window.RegistralsToast) {
+        window.RegistralsToast.show(
+          'Quota màxima assolida',
+          'Aquest bé ja té {{ item.evidenceDocuments|length }} proves documentals custodiades, que és el límit màxim permès pel teu pla.',
+          'info',
+          5000
+        );
+      }
+    }
+  }
+
+  function previewAddPhotoFile(input) {
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const previewImg = document.getElementById('add-photo-preview-img');
+        const previewName = document.getElementById('add-photo-preview-name');
+        const emptyState = document.getElementById('add-photo-empty-state');
+        const previewBox = document.getElementById('add-photo-preview-box');
+
+        if (previewImg) previewImg.src = e.target.result;
+        if (previewName) previewName.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+        if (emptyState) emptyState.classList.add('hidden');
+        if (previewBox) previewBox.classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  function previewAddEvidenceFile(input) {
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      const previewName = document.getElementById('add-evidence-preview-name');
+      const emptyState = document.getElementById('add-evidence-empty-state');
+      const previewBox = document.getElementById('add-evidence-preview-box');
+
+      if (previewName) previewName.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+      if (emptyState) emptyState.classList.add('hidden');
+      if (previewBox) previewBox.classList.remove('hidden');
+    }
+  }
+
+  function handleAddDocSubmit(form) {
+    const btn = form.querySelector('button[type="submit"]');
+    if (btn) {
+      btn.disabled = true;
+      btn.classList.add('opacity-75', 'cursor-wait');
+      btn.innerHTML = `
+        <svg class="w-3.5 h-3.5 animate-spin text-gold shrink-0 inline-block mr-1.5" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span>Custodiant fitxer...</span>
+      `;
+    }
+  }
+
   function openAiNudgingModal() {
     const modal = document.getElementById('modal-ai-nudging');
     if (modal) {
@@ -1253,6 +1667,8 @@
       closeAiNudgingModal();
       closeCertificateModal();
       closeTransferModal();
+      closeAddPhotoModal();
+      closeAddEvidenceModal();
     }
   });
 

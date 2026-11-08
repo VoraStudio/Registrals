@@ -85,15 +85,21 @@ Cada subiteració segueix un flux d'enginyeria estricte:
   - [x] Configuració de Flysystem amb emmagatzematge protegit fora de l'arrel web (`var/data/registrals_storage`).
   - [x] `ItemVoter` per controlar accés de lectura/escriptura estricte per propietari.
   - [x] `MediaController` segur amb `StreamedResponse` per servir fotos i tiquets només a usuaris autoritzats.
-- [x] **Subiteració 2.3: Formulari Wizard d'Alta (Mòbil & Escriptori) i Dashboard**
+- [x] **Subiteració 2.3: Formulari Wizard d'Alta (Mòbil & Escriptori), Dashboard i Gestió Multidocumental**
   - [x] Wizard pas a pas (Dades del bé -> Documents/Fotos -> Resum).
   - [x] Dashboard "El meu Patrimoni": barra compacta de KPIs mòbil/PC, targetes d'ítems amb CUI prominent, filtres i barra d'accions per lot.
   - [x] Fitxa de Detall del Bé PWA & Desktop: seqüència canònica en mòbil (Títol -> Foto 16:9 -> Fitxa -> Proves -> Garantia Notarial) amb barra contextual inferior, i graella 2x2 harmonitzada en PC adaptada a pantalles de portàtil.
+  - [x] Pujada de Fotografies Secundàries i Proves Documentals a la Fitxa:
+    - Endpoint segur `POST /app/items/{cui}/documents/add` amb verificació `ItemVoter::EDIT`, estat `ACTIVE` i token CSRF.
+    - Aplicació estricta de quotes de pla: Free (1 foto / 1 prova), Plus (5 fotos / 5 proves), Unlimited (il·limitat). Botons actius o informatius de límit amb Toast segons quota.
+    - Modals Notarials PWA Duals (`#modal-add-photo`, `#modal-add-evidence`) amb selecció d'arxiu, previsualització en viu i avís canònic `.guide-note` sobre l'alteració del fingerprint SHA-256.
+    - Galeria interactiva a la fitxa: navegació amb fletxes `< >`, carrusel de miniatures inferiors, selecció de foto principal en calent i sincronització tant a PC com a mòbil.
 - [x] **Subiteració 2.4: Verificació & Validació HITL** *(Completada)*
   - [x] Model i persistència validats amb `doctrine:schema:validate` (esquema MySQL 8.4 100% sincronitzat).
   - [x] Control d'accés estricte amb `ItemVoter` i custòdia documental aïllada Flysystem servida per `MediaController`.
   - [x] Fitxa del bé en PC harmonitzada en graella 2x2 amb controls de navegació `< >`, peus unificats i avís d'immutabilitat complet.
   - [x] Fitxa del bé en Mòbil PWA ordenada canònicament (Títol -> Foto 16:9 -> Fitxa -> Proves -> Garantia Notarial) i barra contextual inferior.
+  - [x] Bateria de tests unitaris per a la pujada de documents i compliment de quotes de pla a `ItemControllerTest` (3 tests, 15 assertions OK).
   - [x] Validació visual HITL completada al navegador per l'usuari humà.
 
 ---

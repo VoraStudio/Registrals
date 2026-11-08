@@ -169,6 +169,48 @@ Usuari A (Emissor)          Symfony Backend          Usuari B (Receptor)       B
 │◄── 10. Notifica èxit ──────┴─── 11. Mostra a panell ─► (El bé ja és de B)    │
 ```
 
+### 2.5. Pujada de Documents Secundaris (Fotografies de Detall i Proves Documentals)
+
+Usuari                  Symfony Controller           MediaValidator / Storage       Base de Dades / Audit
+│                             │                             │                             │
+├── 1. Obre Modal Càrrega ───►│                             │                             │
+│   (Nova Foto o Nova Prova)  │                             │                             │
+│                             │                             │                             │
+├── 2. POST /app/items/       │                             │                             │
+│      {cui}/documents/add ──►│                             │                             │
+│      (Fitxer + CSRF Token)  ├── 3. Valida ItemVoter::EDIT │                             │
+│                             │      i Estat ACTIVE         │                             │
+│                             │                             │                             │
+│                             ├── 4. Comprova Quota Pla ────┼────────────────────────────►│
+│                             │      (Free 1/1, Plus 5/5)   │                             │
+│                             │                             │                             │
+│                             ├── 5. Valida Integritat ────►│                             │
+│                             │      (MIME, Mida, C2PA)     │                             │
+│                             │                             │                             │
+│                             ├── 6. Desa a Flysystem ─────►│                             │
+│                             │      (var/data/storage/)    │                             │
+│                             │                             │                             │
+│                             ├── 7. Recalcula Fingerprint ─┼────────────────────────────►│
+│                             │      i actualitza updatedAt │                             │
+│                             │                             │                             │
+│                             ├── 8. Registra Auditoria ────┼────────────────────────────►│
+│                             │      (ITEM_UPDATED forense) │                             │
+│◄── 9. Redirigeix Fitxa ─────┤                             │                             │
+│    amb Flash Toast d'èxit   │                             │                             │
+
+**Aspectes Claus del Flux de Pujada Multidocumental:**
+- **Control d'Accés & Estat:** Restringit al propietari acreditat mitjançant `ItemVoter::EDIT`. El bé ha d'estar en estat `ItemStatus::ACTIVE` (es bloquegen béns en traspàs, congelats o donats de baixa).
+- **Protecció de Quota segons Pla:**
+  - **Pla Free:** Màxim 1 fotografia principal i 1 prova documental per bé.
+  - **Pla Plus:** Fins a 5 fotografies (1 principal + 4 de detall) i 5 proves documentals per bé.
+  - **Pla Unlimited:** Fotografies i proves il·limitades (`maxPhotos = 0`, `maxEvidences = 0`).
+  - Si s'intenta superar la quota via formulari directe, el controlador emet un missatge d'avís i avorta l'operació sense alterar el sistema.
+- **Validació d'Integritat (`MediaIntegrityValidator`):**
+  - Fotografies: comprovació de tipus MIME real (JPEG, PNG, WEBP), límit de 15 MB, absència de manipulació i assignació del tipus `DocumentType::PHOTO_DETAIL`.
+  - Proves documentals: comprovació de tipus MIME (PDF, JPEG, PNG), límit de 20 MB i tipus seleccionable per l'usuari (`INVOICE_RECEIPT`, `CERTIFICATE_AUTHENTICITY`, `INSURANCE_POLICY`, `APPRAISAL_VALUATION`, `OTHER_DOCUMENT`).
+- **Recàlcul del Fingerprint SHA-256:** La incorporació de qualsevol document altera `$item->setUpdatedAt()` i reordena alfabèticament els hashes individuals per generar el nou fingerprint mestre determinista (`v1` -> `v2`), requerint un nou ancoratge criptogràfic i legal.
+- **Traçabilitat Forense:** Registre a `registrals_audit` amb acció `UserActivityAction::ITEM_UPDATED`, indicant nom del fitxer original, tipus de document, mida i hash SHA-256.
+
 ## 3. Màquines d'Estats (Symfony Workflow)
 
 Configuració formal amb el component symfony/workflow a config/packages/workflow.yaml:

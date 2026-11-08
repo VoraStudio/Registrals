@@ -126,6 +126,7 @@ Per mantenir la solemnitat jurídica i evitar trencaments d'experiència d'usuar
   2. *Baixa definitiva o arxiu d'un bé del patrimoni actiu.*
   3. *Re-segellat notarial davant l'edició essencial de dades que altera el hash SHA-256 mestre.*
   4. *Traspàs de titularitat C2C i emissió de certificats oficials eIDAS.*
+  5. *Pujada de fotografies de detall i proves documentals (`#modal-add-photo`, `#modal-add-evidence`):* modals PWA Duals amb selector d'arxiu, previsualització dinàmica, avís canònic `.guide-note` sobre el recàlcul immutable del fingerprint SHA-256 i comprovació estricta de límits de pla (`Pla Free: 1/1`, `Pla Plus: 5/5`, `Unlimited: ∞`).
 
 ## 4. Disseny Detallat de les Pantalles Clau
 
@@ -188,6 +189,21 @@ Dissenyat per eliminar la mandra d'omplir formularis manuals i optimitzat per a 
 - **L'emissor:** Selecciona *"Traspassar propietat"* a la fitxa de l'objecte. Apareix un modal amb estil card-dark-demo que li adverteix que cedirà la titularitat i que l'acció quedarà registrada de forma perpètua a la blockchain. Introdueix el correu del receptor.
 - **El receptor (enllaç per correu):** Obre una pantalla d'acollida neta que diu: *"En/Na [Nom Emissor] et vol traspassar la titularitat del bé [Nom Objecte] amb codi CUI [XXXX]"*.
 - **Acceptació:** Un sol clic a *"Acceptar i afegir al meu patrimoni"*. Si no té compte, s'activa el flux de registre ràpid amb Google o Apple mantenint l'objecte en reserva durant 72 hores.
+
+### 4.5. Fitxa del Bé i Galeria Multidocumental Dinàmica
+
+A la vista de detall (`/app/items/{cui}`), tant a PC com a dispositiu mòbil:
+- **Galeria Interactiva i Selector de Fotos:**
+  - Marc principal 16:9 amb controls de navegació circulars (`< >`) activats automàticament si hi ha múltiples fotografies (`item.photos|length > 1`).
+  - Carrusel inferior de miniatures que permet commutar en calent la fotografia protagonista visualitzada, amb insígnia daurada «Principal» o «Detall N» sincronitzada.
+  - Controls de zoom i pantalla completa per a inspecció minuciosa de detalls tècnics o números de sèrie.
+- **Accions de Càrrega i Gestió de Quota:**
+  - Botons superiors `+ Nova Foto` i `+ Nova Prova` condicionats a les quotes del pla actiu (`canAddPhoto`, `canAddEvidence`).
+  - Si el compte ha assolit el límit del seu pla (ex. 1 foto o 1 prova a Pla Free, o 5/5 a Pla Plus), el botó manté l'estil discret i emet un Toast explicatiu en clicar-hi (`RegistralsToast.show`), indicant el límit del pla i oferint l'ampliació al Pla Plus.
+  - En cas de disposar de quota, s'obre el Modal Certificat PWA Dual amb selector per càmera o galeria, previsualització d'arxiu i advertència expressa d'alteració del fingerprint SHA-256 mestre.
+- **Safata de Proves Documentals Custodiades:**
+  - Llistat de factures, pòlisses i certificats amb icona segons tipologia, mida de fitxer, data de custòdia Flysystem i botó d'obertura segura.
+
 Aquesta especificació tradueix de manera coherent tota la identitat visual de la guia d'estils cap a una aplicació de gestió patrimonial i de seguretat.
 
 ---

@@ -8,6 +8,7 @@ use App\Entity\Item;
 use App\Entity\User;
 use App\Enum\BlockchainActionType;
 use App\Enum\DocumentType;
+use App\Enum\ItemStatus;
 use App\Form\ItemType;
 use App\Message\AnchorBlockchainMessage;
 use App\Repository\CategoryRepository;
@@ -189,10 +190,150 @@ class ItemController extends AbstractController
             return $this->redirectToRoute('app_transfers_index');
         }
 
+        /** @var User $currentUser */
+        $currentUser = $this->getUser();
+        $plan = $currentUser instanceof User ? $currentUser->getPlan() : null;
+        $maxPhotos = $plan?->getMaxPhotosPerItem() ?? 1;
+        $maxEvidences = $plan?->getMaxEvidencesPerItem() ?? 1;
+
+        $canAddPhoto = ($maxPhotos <= 0 || count($item->getPhotos()) < $maxPhotos)
+            && $this->isGranted(ItemVoter::EDIT, $item);
+        $canAddEvidence = ($maxEvidences <= 0 || count($item->getEvidenceDocuments()) < $maxEvidences)
+            && $this->isGranted(ItemVoter::EDIT, $item);
+
         return $this->render('item/show.html.twig', [
             'item' => $item,
             'currentFingerprint' => $fingerprintCalculator->calculateForItem($item),
+            'maxPhotos' => $maxPhotos,
+            'maxEvidences' => $maxEvidences,
+            'canAddPhoto' => $canAddPhoto,
+            'canAddEvidence' => $canAddEvidence,
+            'plan' => $plan,
         ]);
+    }
+
+    /**
+     * Adjunta una nova fotografia de detall o prova documental a un bé actiu,
+     * validant les quotes del pla de l'usuari (Pla Free: 1/1, Pla Plus: 5/5, Unlimited: ∞)
+     * i recalculant el fingerprint SHA-256 de custòdia.
+     */
+    #[Route('/{cui}/documents/add', name: 'document_add', methods: ['POST'])]
+    public function addDocument(
+        string $cui,
+        Request $request,
+        ItemRepository $itemRepository,
+        SecureDocumentStorageService $storageService,
+        MediaIntegrityValidator $integrityValidator,
+        EntityManagerInterface $entityManager,
+        UserActivityLogger $activityLogger
+    ): Response {
+        $item = $itemRepository->findOneByCui($cui);
+
+        if (!$item) {
+            throw $this->createNotFoundException('El bé sol·licitat no existeix.');
+        }
+
+        $this->denyAccessUnlessGranted(ItemVoter::EDIT, $item);
+
+        if ($item->getStatus() !== ItemStatus::ACTIVE) {
+            $this->addFlash('error', 'No es poden adjuntar documents a un bé que no estigui en estat actiu (congelat o en traspàs).');
+            return $this->redirectToRoute('app_item_show', ['cui' => $cui]);
+        }
+
+        $token = (string) $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('item_add_document_' . $item->getId(), $token)) {
+            $this->addFlash('error', 'Token de seguretat invàlid. Si us plau, torna-ho a provar.');
+            return $this->redirectToRoute('app_item_show', ['cui' => $cui]);
+        }
+
+        /** @var User $user */
+        $user = $this->getUser();
+        $plan = $user->getPlan();
+
+        $kind = (string) $request->request->get('kind', 'photo'); // 'photo' | 'evidence'
+        /** @var UploadedFile|null $file */
+        $file = $request->files->get('file');
+
+        if (!$file instanceof UploadedFile) {
+            $this->addFlash('error', 'No s\'ha rebut cap fitxer vàlid per custodiar.');
+            return $this->redirectToRoute('app_item_show', ['cui' => $cui]);
+        }
+
+        if ($kind === 'photo') {
+            $maxPhotos = $plan?->getMaxPhotosPerItem() ?? 1;
+            $currentPhotos = count($item->getPhotos());
+            if ($maxPhotos > 0 && $currentPhotos >= $maxPhotos) {
+                $this->addFlash('error', sprintf(
+                    'Has assolit el límit màxim de %d fotografies permeses pel teu pla actual (%s).',
+                    $maxPhotos,
+                    $plan?->getName() ?? 'Pla Free'
+                ));
+                return $this->redirectToRoute('app_item_show', ['cui' => $cui]);
+            }
+
+            $validation = $integrityValidator->validateItemPhoto($file);
+            if (!$validation->isValid) {
+                $this->addFlash('error', $validation->rejectionReason ?? 'La fotografia no ha superat els controls d\'integritat forense.');
+                return $this->redirectToRoute('app_item_show', ['cui' => $cui]);
+            }
+
+            $documentType = DocumentType::PHOTO_DETAIL;
+            $metadata = $validation->metadata;
+        } else {
+            $maxEvidences = $plan?->getMaxEvidencesPerItem() ?? 1;
+            $currentEvidences = count($item->getEvidenceDocuments());
+            if ($maxEvidences > 0 && $currentEvidences >= $maxEvidences) {
+                $this->addFlash('error', sprintf(
+                    'Has assolit el límit màxim de %d proves documentals permeses pel teu pla actual (%s).',
+                    $maxEvidences,
+                    $plan?->getName() ?? 'Pla Free'
+                ));
+                return $this->redirectToRoute('app_item_show', ['cui' => $cui]);
+            }
+
+            $validation = $integrityValidator->validateProofDocument($file);
+            if (!$validation->isValid) {
+                $this->addFlash('error', $validation->rejectionReason ?? 'El document de prova no ha superat els controls d\'integritat.');
+                return $this->redirectToRoute('app_item_show', ['cui' => $cui]);
+            }
+
+            $rawDocType = (string) $request->request->get('evidence_type', 'invoice_receipt');
+            $candidateType = DocumentType::tryFrom($rawDocType) ?? DocumentType::INVOICE_RECEIPT;
+            $documentType = $candidateType->isEvidence() ? $candidateType : DocumentType::INVOICE_RECEIPT;
+            $metadata = $validation->metadata;
+        }
+
+        $storedDoc = $storageService->storeUploadedDocument($item, $file, $documentType, $metadata);
+
+        // Actualització de timestamp per canviar automàticament el fingerprint SHA-256
+        $item->setUpdatedAt(new \DateTimeImmutable());
+        $entityManager->flush();
+
+        $activityLogger->log(
+            user: $user,
+            action: UserActivityAction::ITEM_UPDATED,
+            description: sprintf(
+                "Afegit nou document (%s: %s) al bé %s",
+                $documentType->label(),
+                $storedDoc->getOriginalFilename(),
+                $item->getCui()
+            ),
+            details: [
+                'cui' => $item->getCui(),
+                'document_uuid' => $storedDoc->getUuid()->toRfc4122(),
+                'document_type' => $documentType->value,
+                'sha256_hash' => $storedDoc->getSha256Hash(),
+                'filename' => $storedDoc->getOriginalFilename(),
+            ]
+        );
+
+        $this->addFlash('success', sprintf(
+            "S'ha afegit i custodiat amb èxit '%s' (%s). El fingerprint del bé s'ha actualitzat.",
+            $storedDoc->getOriginalFilename(),
+            $documentType->label()
+        ));
+
+        return $this->redirectToRoute('app_item_show', ['cui' => $cui]);
     }
 
     /**

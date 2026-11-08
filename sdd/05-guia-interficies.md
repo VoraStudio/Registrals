@@ -143,11 +143,11 @@ A la vista de detall d'un bé (`/app/items/{cui}`):
 - **A PC (>= lg): Graella Notarial Harmonitzada en 4 Blocs (2x2 al 50%):**
   - **Fila d'Identitat:** Títol `font-marcellus` i categoria a l'esquerra; CUI en píndola fosca, insígnia `🛡️ Custodiat` i fingerprint SHA-256 amb punt daurat a la dreta.
   - **Bloc 1 (Superior Esquerra): Especificacions & Identificació:** Targeta blanca modular amb dades tècniques (marca, model, número de sèrie/bastidor, valor declarat, procedència i data).
-  - **Bloc 2 (Superior Dreta): Galeria & Fotografia Principal:** Imatge protagonista amb controls de carrusel (*Pla Plus: 5 fotos, selecció de foto principal amb fletxes*), botó d'ampliació a pantalla completa i badge de versió `v1`.
-  - **Bloc 3 (Inferior Esquerra): Proves Custodiades:** Llista de factures/tiquets de compra amb botó d'obertura modal segura i hash individual.
+  - **Bloc 2 (Superior Dreta): Galeria & Fotografia Principal:** Imatge protagonista 16:9 amb controls de navegació circulars (`< >`), carrusel inferior de miniatures interactiu, comptador de fotos respecte a la quota de pla (`fotos/maxPhotos`), insígnies dinàmiques («Principal» vs «Detall N»), botó de pantalla completa i acció `+ Nova Foto` amb Modal Certificat PWA Dual (protegit per quota de pla).
+  - **Bloc 3 (Inferior Esquerra): Proves Custodiades:** Llista de factures/tiquets de compra amb botó d'obertura modal segura, hashes individuals SHA-256, comptador de proves respecte a quota (`proves/maxEvidences`) i acció `+ Nova Prova` amb Modal Certificat PWA Dual per adjuntar factures o garanties amb selecció de tipologia documental.
   - **Bloc 4 (Inferior Dreta): Garantia Notarial & Històric de Segellat (Patró Fosc):** Certificació oficial eIDAS + Polygon, amb avís clar de canvi de versió (`v1` vigent).
 - **A Mòbil (< lg): PWA Hero Layout amb Barra Contextual:**
-  - Foto Hero superior amb CUI i estat flotants, targetes modulars unificades i Barra d'Accions Contextual Inferior (`[ ⬅ Patrimoni ]`, `[ 📜 Certificat ]`, `[ ⇄ Traspàs ]`, `[ ✨ Assistent IA (PLUS)]`).
+  - Foto Hero superior amb CUI i estat flotants, selector de galeria amb comptador tàctil, targetes modulars unificades, botons `+ Nova Foto` i `+ Nova Prova` amb Bottom Sheet adaptatiu i Barra d'Accions Contextual Inferior (`[ ⬅ Patrimoni ]`, `[ 📜 Certificat ]`, `[ ⇄ Traspàs ]`, `[ ✨ Assistent IA (PLUS)]`).
 
 ---
 
