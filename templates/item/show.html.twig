@@ -104,14 +104,17 @@
         {# Barra d'Acció Ràpida Foto Mòbil (Nova Foto & Gestió Foto Activa) #}
         <div class="flex items-center justify-between px-1 gap-1 flex-wrap">
           <div class="flex items-center gap-1.5" id="gallery-photo-actions-mobile">
-            <button type="button" id="btn-make-primary-mobile" onclick="openMakePrimaryModal()" class="px-2 py-0.5 rounded-lg bg-gold/15 border border-gold/40 text-gold-dark text-[10.5px] font-bold flex items-center gap-1 shadow-2xs active:scale-95 transition-all cursor-pointer {{ item.mainPhoto and item.photos|length > 1 ? '' : 'hidden' }}" title="Establir com a fotografia principal">
-              ⭐ <span>Principal</span>
+            <button type="button" id="btn-make-primary-mobile" onclick="openMakePrimaryModal()" class="h-7 px-2 sm:px-2.5 rounded-lg bg-gold/15 border border-gold/40 text-gold-dark text-[11px] font-bold flex items-center gap-1.5 shadow-2xs active:scale-95 transition-all cursor-pointer hidden" title="Establir com a fotografia principal">
+              <svg class="w-3.5 h-3.5 text-gold fill-gold shrink-0" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+              <span class="hidden sm:inline">Fer Principal</span>
             </button>
-            <button type="button" id="btn-replace-photo-mobile" onclick="openReplacePhotoModal()" class="px-2 py-0.5 rounded-lg bg-white border border-steel/30 text-ink text-[10.5px] font-semibold flex items-center gap-1 shadow-2xs active:scale-95 transition-all cursor-pointer" title="Substituir foto">
-              🔄 <span>Substituir</span>
+            <button type="button" id="btn-replace-photo-mobile" onclick="openReplacePhotoModal()" class="h-7 px-2 sm:px-2.5 rounded-lg bg-white border border-steel/25 text-ink hover:bg-cream hover:border-gold/50 text-[11px] font-semibold flex items-center gap-1.5 shadow-2xs active:scale-95 transition-all cursor-pointer" title="Substituir foto">
+              <svg class="w-3.5 h-3.5 text-steel shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              <span class="hidden sm:inline">Substituir</span>
             </button>
-            <button type="button" id="btn-delete-photo-mobile" onclick="openDeletePhotoModal()" class="px-2 py-0.5 rounded-lg bg-red-50 border border-red-200 text-red-700 text-[10.5px] font-semibold flex items-center gap-1 shadow-2xs active:scale-95 transition-all cursor-pointer {{ item.photos|length > 1 ? '' : 'hidden' }}" title="Eliminar foto">
-              🗑️
+            <button type="button" id="btn-delete-photo-mobile" onclick="openDeletePhotoModal()" class="h-7 px-2 sm:px-2.5 rounded-lg bg-white hover:bg-red-50 border border-red-200/80 hover:border-red-300 text-red-700 hover:text-red-800 text-[11px] font-semibold flex items-center gap-1.5 shadow-2xs active:scale-95 transition-all cursor-pointer {{ item.photos|length > 1 ? '' : 'hidden' }}" title="Eliminar foto">
+              <svg class="w-3.5 h-3.5 text-red-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              <span class="hidden sm:inline">Eliminar</span>
             </button>
           </div>
           <div class="flex items-center gap-2">
@@ -220,9 +223,20 @@
                   <div class="text-[9px] text-ink/60">{{ doc.type.label }} &middot; {{ (doc.fileSizeBytes / 1024)|round(1) }} KB</div>
                 </div>
               </div>
-              <button type="button" onclick="openDocPreview('{{ path('app_media_document', {'uuid': doc.uuid}) }}', '{{ doc.originalFilename|e('js') }}', '{{ doc.mimeType }}', '{{ doc.sha256Hash }}', '{{ (doc.fileSizeBytes / 1024)|round(1) }} KB')" class="px-2.5 py-1 bg-white border border-steel/30 rounded-lg text-ink text-[11px] font-semibold hover:bg-cream hover:border-gold/50 cursor-pointer shrink-0 transition-colors">
-                Veure
-              </button>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button type="button" onclick="openDocPreview('{{ path('app_media_document', {'uuid': doc.uuid}) }}', '{{ doc.originalFilename|e('js') }}', '{{ doc.mimeType }}', '{{ doc.sha256Hash }}', '{{ (doc.fileSizeBytes / 1024)|round(1) }} KB')" class="h-7 px-2 sm:px-2.5 rounded-lg bg-white border border-steel/25 text-ink hover:bg-cream hover:border-gold/50 text-[11px] font-semibold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs" title="Veure prova documental">
+                  <svg class="w-3.5 h-3.5 text-steel shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                  <span class="hidden sm:inline">Veure</span>
+                </button>
+                <button type="button" onclick="openReplaceEvidenceModal('{{ doc.uuid }}', '{{ doc.originalFilename|e('js') }}', '{{ doc.type.value }}')" class="h-7 px-2 sm:px-2.5 rounded-lg bg-white border border-steel/25 text-ink hover:bg-cream hover:border-gold/50 text-[11px] font-semibold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs" title="Substituir aquest document">
+                  <svg class="w-3.5 h-3.5 text-steel shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                  <span class="hidden sm:inline">Substituir</span>
+                </button>
+                <button type="button" onclick="openDeleteEvidenceModal('{{ doc.uuid }}', '{{ doc.originalFilename|e('js') }}', '{{ doc.type.label|e('js') }}')" class="h-7 px-2 sm:px-2.5 rounded-lg bg-white hover:bg-red-50 border border-red-200/80 hover:border-red-300 text-red-700 hover:text-red-800 text-[11px] font-semibold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs" title="Eliminar prova documental">
+                  <svg class="w-3.5 h-3.5 text-red-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                  <span class="hidden sm:inline">Eliminar</span>
+                </button>
+              </div>
             </div>
           {% else %}
             <p class="text-xs text-ink/60 py-2">No hi ha documents adjunts addicionals.</p>
@@ -523,16 +537,16 @@
                 {# Barra d'Accions de la Fotografia Activa a PC #}
                 <div class="flex items-center justify-between pt-1.5 pb-0.5">
                   <div class="flex items-center gap-1.5" id="gallery-photo-actions-desktop">
-                    <button type="button" id="btn-make-primary-desktop" onclick="openMakePrimaryModal()" class="px-2 py-0.5 rounded-lg text-[10.5px] font-bold bg-gold/15 border border-gold/40 text-gold-dark hover:bg-gold/25 transition-all cursor-pointer flex items-center gap-1 shadow-2xs {{ item.mainPhoto and item.photos|length > 1 ? '' : 'hidden' }}" title="Establir com a fotografia principal del bé">
-                      <svg class="w-3 h-3 text-gold fill-gold" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                    <button type="button" id="btn-make-primary-desktop" onclick="openMakePrimaryModal()" class="h-7 px-2.5 rounded-lg text-[11px] font-bold bg-gold/15 border border-gold/40 text-gold-dark hover:bg-gold/25 transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs hidden" title="Establir com a fotografia principal del bé">
+                      <svg class="w-3.5 h-3.5 text-gold fill-gold shrink-0" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                       <span>Fer Principal</span>
                     </button>
-                    <button type="button" id="btn-replace-photo-desktop" onclick="openReplacePhotoModal()" class="px-2 py-0.5 rounded-lg text-[10.5px] font-semibold bg-white border border-steel/25 text-ink/80 hover:bg-cream/40 transition-all cursor-pointer flex items-center gap-1 shadow-2xs" title="Substituir aquesta fotografia per una altra">
-                      <svg class="w-3 h-3 text-steel" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    <button type="button" id="btn-replace-photo-desktop" onclick="openReplacePhotoModal()" class="h-7 px-2.5 rounded-lg text-[11px] font-semibold bg-white border border-steel/25 text-ink hover:bg-cream hover:border-gold/50 transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs" title="Substituir aquesta fotografia per una altra">
+                      <svg class="w-3.5 h-3.5 text-steel shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                       <span>Substituir</span>
                     </button>
-                    <button type="button" id="btn-delete-photo-desktop" onclick="openDeletePhotoModal()" class="px-2 py-0.5 rounded-lg text-[10.5px] font-semibold bg-red-50 border border-red-200 text-red-700 hover:bg-red-100 transition-all cursor-pointer flex items-center gap-1 shadow-2xs {{ item.photos|length > 1 ? '' : 'hidden' }}" title="Eliminar aquesta fotografia">
-                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    <button type="button" id="btn-delete-photo-desktop" onclick="openDeletePhotoModal()" class="h-7 px-2.5 rounded-lg text-[11px] font-semibold bg-white hover:bg-red-50 border border-red-200/80 hover:border-red-300 text-red-700 hover:text-red-800 transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs {{ item.photos|length > 1 ? '' : 'hidden' }}" title="Eliminar aquesta fotografia">
+                      <svg class="w-3.5 h-3.5 text-red-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                       <span>Eliminar</span>
                     </button>
                   </div>
@@ -657,14 +671,17 @@
                     </div>
                   </div>
                   <div class="flex items-center gap-1.5 shrink-0">
-                    <button type="button" onclick="openDocPreview('{{ path('app_media_document', {'uuid': doc.uuid}) }}', '{{ doc.originalFilename|e('js') }}', '{{ doc.mimeType }}', '{{ doc.sha256Hash }}', '{{ (doc.fileSizeBytes / 1024)|round(1) }} KB')" class="px-2 py-0.5 bg-white border border-steel/30 rounded-lg text-ink text-xs font-semibold hover:bg-cream hover:border-gold/50 cursor-pointer transition-colors shadow-2xs" title="Veure prova documental">
-                      Veure
+                    <button type="button" onclick="openDocPreview('{{ path('app_media_document', {'uuid': doc.uuid}) }}', '{{ doc.originalFilename|e('js') }}', '{{ doc.mimeType }}', '{{ doc.sha256Hash }}', '{{ (doc.fileSizeBytes / 1024)|round(1) }} KB')" class="h-7 px-2 sm:px-2.5 rounded-lg bg-white border border-steel/25 text-ink hover:bg-cream hover:border-gold/50 text-[11px] font-semibold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs" title="Veure prova documental">
+                      <svg class="w-3.5 h-3.5 text-steel shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                      <span class="hidden sm:inline">Veure</span>
                     </button>
-                    <button type="button" onclick="openReplaceEvidenceModal('{{ doc.uuid }}', '{{ doc.originalFilename|e('js') }}', '{{ doc.type.value }}')" class="p-1 text-steel hover:text-ink hover:bg-white rounded-lg border border-transparent hover:border-steel/20 transition-colors cursor-pointer" title="Substituir aquest document">
-                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    <button type="button" onclick="openReplaceEvidenceModal('{{ doc.uuid }}', '{{ doc.originalFilename|e('js') }}', '{{ doc.type.value }}')" class="h-7 px-2 sm:px-2.5 rounded-lg bg-white border border-steel/25 text-ink hover:bg-cream hover:border-gold/50 text-[11px] font-semibold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs" title="Substituir aquest document">
+                      <svg class="w-3.5 h-3.5 text-steel shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                      <span class="hidden sm:inline">Substituir</span>
                     </button>
-                    <button type="button" onclick="openDeleteEvidenceModal('{{ doc.uuid }}', '{{ doc.originalFilename|e('js') }}', '{{ doc.type.label|e('js') }}')" class="p-1 text-steel hover:text-red-700 hover:bg-red-50 rounded-lg border border-transparent hover:border-red-200 transition-colors cursor-pointer" title="Eliminar prova documental">
-                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    <button type="button" onclick="openDeleteEvidenceModal('{{ doc.uuid }}', '{{ doc.originalFilename|e('js') }}', '{{ doc.type.label|e('js') }}')" class="h-7 px-2 sm:px-2.5 rounded-lg bg-white hover:bg-red-50 border border-red-200/80 hover:border-red-300 text-red-700 hover:text-red-800 text-[11px] font-semibold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs" title="Eliminar prova documental">
+                      <svg class="w-3.5 h-3.5 text-red-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                      <span class="hidden sm:inline">Eliminar</span>
                     </button>
                   </div>
                 </div>
@@ -2078,6 +2095,12 @@
       closeMakePrimaryModal();
       closeDeleteDocModal();
       closeReplaceDocModal();
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    if (typeof galleryPhotos !== 'undefined' && galleryPhotos && galleryPhotos.length > 0) {
+      setGalleryIndex(0);
     }
   });
 
