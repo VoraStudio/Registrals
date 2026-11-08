@@ -337,6 +337,305 @@ class ItemController extends AbstractController
     }
 
     /**
+     * Estableix una fotografia de detall com a fotografia principal del bé.
+     * Degrada l'antiga fotografia principal a fotografia de detall i recalcula el fingerprint SHA-256.
+     */
+    #[Route('/{cui}/documents/{uuid}/make-primary', name: 'document_make_primary', methods: ['POST'])]
+    public function makePrimary(
+        string $cui,
+        string $uuid,
+        Request $request,
+        ItemRepository $itemRepository,
+        EntityManagerInterface $entityManager,
+        UserActivityLogger $activityLogger
+    ): Response {
+        $item = $itemRepository->findOneByCui($cui);
+
+        if (!$item) {
+            throw $this->createNotFoundException('El bé sol·licitat no existeix.');
+        }
+
+        $this->denyAccessUnlessGranted(ItemVoter::EDIT, $item);
+
+        if ($item->getStatus() !== ItemStatus::ACTIVE) {
+            $this->addFlash('error', 'No es pot modificar un bé que no estigui en estat actiu.');
+            return $this->redirectToRoute('app_item_show', ['cui' => $cui]);
+        }
+
+        $token = (string) $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('item_doc_action_' . $item->getId(), $token)) {
+            $this->addFlash('error', 'Token de seguretat invàlid. Si us plau, torna-ho a provar.');
+            return $this->redirectToRoute('app_item_show', ['cui' => $cui]);
+        }
+
+        $targetDoc = null;
+        try {
+            $targetUuid = \Symfony\Component\Uid\Uuid::fromString($uuid);
+            foreach ($item->getPhotos() as $photo) {
+                if ($photo->getUuid()->equals($targetUuid)) {
+                    $targetDoc = $photo;
+                    break;
+                }
+            }
+        } catch (\Throwable) {
+            $targetDoc = null;
+        }
+
+        if (!$targetDoc) {
+            $this->addFlash('error', 'No s\'ha trobat la fotografia sol·licitada.');
+            return $this->redirectToRoute('app_item_show', ['cui' => $cui]);
+        }
+
+        if ($targetDoc->getType() === DocumentType::PHOTO_PRIMARY) {
+            $this->addFlash('info', 'Aquesta fotografia ja és la fotografia principal de referència.');
+            return $this->redirectToRoute('app_item_show', ['cui' => $cui]);
+        }
+
+        // Degradar l'actual fotografia principal a foto de detall
+        foreach ($item->getPhotos() as $photo) {
+            if ($photo->getType() === DocumentType::PHOTO_PRIMARY) {
+                $photo->setType(DocumentType::PHOTO_DETAIL);
+            }
+        }
+
+        // Promocionar la foto seleccionada a principal
+        $targetDoc->setType(DocumentType::PHOTO_PRIMARY);
+        $item->setUpdatedAt(new \DateTimeImmutable());
+        $entityManager->flush();
+
+        /** @var User $user */
+        $user = $this->getUser();
+        $activityLogger->log(
+            user: $user,
+            action: UserActivityAction::ITEM_UPDATED,
+            description: sprintf("Establerta nova fotografia principal (%s) al bé %s", $targetDoc->getOriginalFilename(), $item->getCui()),
+            details: [
+                'cui' => $item->getCui(),
+                'document_uuid' => $targetDoc->getUuid()->toRfc4122(),
+                'sha256_hash' => $targetDoc->getSha256Hash(),
+            ]
+        );
+
+        $this->addFlash('success', "Fotografia principal actualitzada amb èxit! L'empremta SHA-256 del bé s'ha recalculat. Si tenies un certificat oficial v1 emès, ha quedat superat per la versió v2.");
+
+        return $this->redirectToRoute('app_item_show', ['cui' => $cui]);
+    }
+
+    /**
+     * Elimina un document o fotografia secundària del bé custodiat.
+     * Invariant: un bé actiu mai pot quedar sense fotografia (mínim 1 foto).
+     */
+    #[Route('/{cui}/documents/{uuid}/delete', name: 'document_delete', methods: ['POST'])]
+    public function deleteDocument(
+        string $cui,
+        string $uuid,
+        Request $request,
+        ItemRepository $itemRepository,
+        SecureDocumentStorageService $storageService,
+        EntityManagerInterface $entityManager,
+        UserActivityLogger $activityLogger
+    ): Response {
+        $item = $itemRepository->findOneByCui($cui);
+
+        if (!$item) {
+            throw $this->createNotFoundException('El bé sol·licitat no existeix.');
+        }
+
+        $this->denyAccessUnlessGranted(ItemVoter::EDIT, $item);
+
+        if ($item->getStatus() !== ItemStatus::ACTIVE) {
+            $this->addFlash('error', 'No es pot modificar un bé que no estigui en estat actiu.');
+            return $this->redirectToRoute('app_item_show', ['cui' => $cui]);
+        }
+
+        $token = (string) $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('item_doc_action_' . $item->getId(), $token)) {
+            $this->addFlash('error', 'Token de seguretat invàlid. Si us plau, torna-ho a provar.');
+            return $this->redirectToRoute('app_item_show', ['cui' => $cui]);
+        }
+
+        $targetDoc = null;
+        try {
+            $targetUuid = \Symfony\Component\Uid\Uuid::fromString($uuid);
+            foreach ($item->getDocuments() as $doc) {
+                if ($doc->getUuid()->equals($targetUuid)) {
+                    $targetDoc = $doc;
+                    break;
+                }
+            }
+        } catch (\Throwable) {
+            $targetDoc = null;
+        }
+
+        if (!$targetDoc) {
+            $this->addFlash('error', 'No s\'ha trobat el document que es vol eliminar.');
+            return $this->redirectToRoute('app_item_show', ['cui' => $cui]);
+        }
+
+        // Invariant: Un bé mai pot quedar sense fotos
+        if ($targetDoc->getType()->isPhoto()) {
+            if (count($item->getPhotos()) <= 1) {
+                $this->addFlash('error', 'Un bé custodiat ha de tenir com a mínim 1 fotografia de referència. Si vols canviar-la, pots utilitzar l\'opció de substituir.');
+                return $this->redirectToRoute('app_item_show', ['cui' => $cui]);
+            }
+
+            // Si s'elimina la foto principal però en queden d'altres, promocionem la primera restant a principal
+            if ($targetDoc->getType() === DocumentType::PHOTO_PRIMARY) {
+                foreach ($item->getPhotos() as $otherPhoto) {
+                    if (!$otherPhoto->getUuid()->equals($targetDoc->getUuid())) {
+                        $otherPhoto->setType(DocumentType::PHOTO_PRIMARY);
+                        break;
+                    }
+                }
+            }
+        }
+
+        $docName = $targetDoc->getOriginalFilename();
+        $docTypeLabel = $targetDoc->getType()->label();
+        $docHash = $targetDoc->getSha256Hash();
+
+        $storageService->deleteDocumentFile($targetDoc);
+        $item->removeDocument($targetDoc);
+        $entityManager->remove($targetDoc);
+
+        $item->setUpdatedAt(new \DateTimeImmutable());
+        $entityManager->flush();
+
+        /** @var User $user */
+        $user = $this->getUser();
+        $activityLogger->log(
+            user: $user,
+            action: UserActivityAction::ITEM_UPDATED,
+            description: sprintf("Eliminat document custodiat (%s: %s) del bé %s", $docTypeLabel, $docName, $item->getCui()),
+            details: [
+                'cui' => $item->getCui(),
+                'filename' => $docName,
+                'sha256_hash' => $docHash,
+            ]
+        );
+
+        $this->addFlash('success', sprintf("S'ha eliminat el document '%s'. L'empremta SHA-256 del bé s'ha recalculat.", $docName));
+
+        return $this->redirectToRoute('app_item_show', ['cui' => $cui]);
+    }
+
+    /**
+     * Substitueix un document o fotografia existent per un fitxer nou en una sola operació atòmica.
+     */
+    #[Route('/{cui}/documents/{uuid}/replace', name: 'document_replace', methods: ['POST'])]
+    public function replaceDocument(
+        string $cui,
+        string $uuid,
+        Request $request,
+        ItemRepository $itemRepository,
+        SecureDocumentStorageService $storageService,
+        MediaIntegrityValidator $integrityValidator,
+        EntityManagerInterface $entityManager,
+        UserActivityLogger $activityLogger
+    ): Response {
+        $item = $itemRepository->findOneByCui($cui);
+
+        if (!$item) {
+            throw $this->createNotFoundException('El bé sol·licitat no existeix.');
+        }
+
+        $this->denyAccessUnlessGranted(ItemVoter::EDIT, $item);
+
+        if ($item->getStatus() !== ItemStatus::ACTIVE) {
+            $this->addFlash('error', 'No es pot modificar un bé que no estigui en estat actiu.');
+            return $this->redirectToRoute('app_item_show', ['cui' => $cui]);
+        }
+
+        $token = (string) $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('item_doc_action_' . $item->getId(), $token)) {
+            $this->addFlash('error', 'Token de seguretat invàlid. Si us plau, torna-ho a provar.');
+            return $this->redirectToRoute('app_item_show', ['cui' => $cui]);
+        }
+
+        $targetDoc = null;
+        try {
+            $targetUuid = \Symfony\Component\Uid\Uuid::fromString($uuid);
+            foreach ($item->getDocuments() as $doc) {
+                if ($doc->getUuid()->equals($targetUuid)) {
+                    $targetDoc = $doc;
+                    break;
+                }
+            }
+        } catch (\Throwable) {
+            $targetDoc = null;
+        }
+
+        if (!$targetDoc) {
+            $this->addFlash('error', 'No s\'ha trobat el document que es vol substituir.');
+            return $this->redirectToRoute('app_item_show', ['cui' => $cui]);
+        }
+
+        /** @var UploadedFile|null $file */
+        $file = $request->files->get('file');
+        if (!$file instanceof UploadedFile) {
+            $this->addFlash('error', 'No s\'ha rebut cap fitxer vàlid per a la substitució.');
+            return $this->redirectToRoute('app_item_show', ['cui' => $cui]);
+        }
+
+        $isPhoto = $targetDoc->getType()->isPhoto();
+        $targetType = $targetDoc->getType();
+
+        if ($isPhoto) {
+            $validation = $integrityValidator->validateItemPhoto($file);
+            if (!$validation->isValid) {
+                $this->addFlash('error', $validation->rejectionReason ?? 'La nova fotografia no ha superat els controls d\'integritat forense.');
+                return $this->redirectToRoute('app_item_show', ['cui' => $cui]);
+            }
+            $metadata = $validation->metadata;
+        } else {
+            $validation = $integrityValidator->validateProofDocument($file);
+            if (!$validation->isValid) {
+                $this->addFlash('error', $validation->rejectionReason ?? 'El nou document de prova no ha superat els controls d\'integritat.');
+                return $this->redirectToRoute('app_item_show', ['cui' => $cui]);
+            }
+            $rawDocType = (string) $request->request->get('evidence_type');
+            if ($rawDocType !== '') {
+                $candidateType = DocumentType::tryFrom($rawDocType);
+                if ($candidateType && $candidateType->isEvidence()) {
+                    $targetType = $candidateType;
+                }
+            }
+            $metadata = $validation->metadata;
+        }
+
+        $oldName = $targetDoc->getOriginalFilename();
+
+        // Elimina el fitxer físic anterior
+        $storageService->deleteDocumentFile($targetDoc);
+        $item->removeDocument($targetDoc);
+        $entityManager->remove($targetDoc);
+
+        // Emmagatzema el nou fitxer mantenint el tipus (per exemple, PHOTO_PRIMARY)
+        $newDoc = $storageService->storeUploadedDocument($item, $file, $targetType, $metadata);
+
+        $item->setUpdatedAt(new \DateTimeImmutable());
+        $entityManager->flush();
+
+        /** @var User $user */
+        $user = $this->getUser();
+        $activityLogger->log(
+            user: $user,
+            action: UserActivityAction::ITEM_UPDATED,
+            description: sprintf("Substituït document custodiat (%s per %s) al bé %s", $oldName, $newDoc->getOriginalFilename(), $item->getCui()),
+            details: [
+                'cui' => $item->getCui(),
+                'old_filename' => $oldName,
+                'new_filename' => $newDoc->getOriginalFilename(),
+                'new_sha256' => $newDoc->getSha256Hash(),
+            ]
+        );
+
+        $this->addFlash('success', sprintf("S'ha substituït el document '%s' per '%s'. L'empremta SHA-256 del bé s'ha actualitzat.", $oldName, $newDoc->getOriginalFilename()));
+
+        return $this->redirectToRoute('app_item_show', ['cui' => $cui]);
+    }
+
+    /**
      * Endpoint AJAX per a l'anàlisi de visió per computador i OCR en temps real (SGLang).
      */
     #[Route('/analyze-media', name: 'analyze_media', methods: ['POST'])]

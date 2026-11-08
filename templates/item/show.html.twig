@@ -101,21 +101,34 @@
           {% endif %}
         </div>
 
-        {# Barra d'Acció Ràpida Foto Mòbil (Nova Foto) #}
-        <div class="flex items-center justify-between px-1">
-          <span class="text-[11px] font-mono text-ink/70">
-            Fotos: <strong class="text-ink">{{ item.photos|length }}</strong>/{{ maxPhotos > 0 ? maxPhotos : '∞' }} ({{ plan ? plan.code|upper : 'ADMIN' }})
-          </span>
-          <button type="button"
-            {% if canAddPhoto %}
-              onclick="openAddPhotoModal()"
-            {% else %}
-              onclick="handlePhotoLimitClick()"
-            {% endif %}
-            class="px-2.5 py-1 rounded-xl bg-white border border-gold/40 text-ink text-[11px] font-semibold flex items-center gap-1.5 shadow-2xs active:scale-95 transition-all cursor-pointer">
-            <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-            <span>Nova Foto</span>
-          </button>
+        {# Barra d'Acció Ràpida Foto Mòbil (Nova Foto & Gestió Foto Activa) #}
+        <div class="flex items-center justify-between px-1 gap-1 flex-wrap">
+          <div class="flex items-center gap-1.5" id="gallery-photo-actions-mobile">
+            <button type="button" id="btn-make-primary-mobile" onclick="openMakePrimaryModal()" class="px-2 py-0.5 rounded-lg bg-gold/15 border border-gold/40 text-gold-dark text-[10.5px] font-bold flex items-center gap-1 shadow-2xs active:scale-95 transition-all cursor-pointer {{ item.mainPhoto and item.photos|length > 1 ? '' : 'hidden' }}" title="Establir com a fotografia principal">
+              ⭐ <span>Principal</span>
+            </button>
+            <button type="button" id="btn-replace-photo-mobile" onclick="openReplacePhotoModal()" class="px-2 py-0.5 rounded-lg bg-white border border-steel/30 text-ink text-[10.5px] font-semibold flex items-center gap-1 shadow-2xs active:scale-95 transition-all cursor-pointer" title="Substituir foto">
+              🔄 <span>Substituir</span>
+            </button>
+            <button type="button" id="btn-delete-photo-mobile" onclick="openDeletePhotoModal()" class="px-2 py-0.5 rounded-lg bg-red-50 border border-red-200 text-red-700 text-[10.5px] font-semibold flex items-center gap-1 shadow-2xs active:scale-95 transition-all cursor-pointer {{ item.photos|length > 1 ? '' : 'hidden' }}" title="Eliminar foto">
+              🗑️
+            </button>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] font-mono text-ink/70">
+              <strong class="text-ink">{{ item.photos|length }}</strong>/{{ maxPhotos > 0 ? maxPhotos : '∞' }}
+            </span>
+            <button type="button"
+              {% if canAddPhoto %}
+                onclick="openAddPhotoModal()"
+              {% else %}
+                onclick="handlePhotoLimitClick()"
+              {% endif %}
+              class="px-2.5 py-1 rounded-xl bg-white border border-gold/40 text-ink text-[11px] font-semibold flex items-center gap-1.5 shadow-2xs active:scale-95 transition-all cursor-pointer">
+              <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              <span>Nova Foto</span>
+            </button>
+          </div>
         </div>
 
         {# Miniatures a Mòbil si hi ha més d'una foto #}
@@ -506,6 +519,24 @@
                     {% endfor %}
                   </div>
                 {% endif %}
+
+                {# Barra d'Accions de la Fotografia Activa a PC #}
+                <div class="flex items-center justify-between pt-1.5 pb-0.5">
+                  <div class="flex items-center gap-1.5" id="gallery-photo-actions-desktop">
+                    <button type="button" id="btn-make-primary-desktop" onclick="openMakePrimaryModal()" class="px-2 py-0.5 rounded-lg text-[10.5px] font-bold bg-gold/15 border border-gold/40 text-gold-dark hover:bg-gold/25 transition-all cursor-pointer flex items-center gap-1 shadow-2xs {{ item.mainPhoto and item.photos|length > 1 ? '' : 'hidden' }}" title="Establir com a fotografia principal del bé">
+                      <svg class="w-3 h-3 text-gold fill-gold" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                      <span>Fer Principal</span>
+                    </button>
+                    <button type="button" id="btn-replace-photo-desktop" onclick="openReplacePhotoModal()" class="px-2 py-0.5 rounded-lg text-[10.5px] font-semibold bg-white border border-steel/25 text-ink/80 hover:bg-cream/40 transition-all cursor-pointer flex items-center gap-1 shadow-2xs" title="Substituir aquesta fotografia per una altra">
+                      <svg class="w-3 h-3 text-steel" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                      <span>Substituir</span>
+                    </button>
+                    <button type="button" id="btn-delete-photo-desktop" onclick="openDeletePhotoModal()" class="px-2 py-0.5 rounded-lg text-[10.5px] font-semibold bg-red-50 border border-red-200 text-red-700 hover:bg-red-100 transition-all cursor-pointer flex items-center gap-1 shadow-2xs {{ item.photos|length > 1 ? '' : 'hidden' }}" title="Eliminar aquesta fotografia">
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                      <span>Eliminar</span>
+                    </button>
+                  </div>
+                </div>
               {% else %}
                 <div class="rounded-xl border-2 border-dashed border-steel/30 bg-cream/10 aspect-video max-h-[170px] flex flex-col items-center justify-center p-4 text-center text-ink/60">
                   <svg class="w-8 h-8 text-steel/50 mb-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
@@ -625,9 +656,17 @@
                       <div class="text-[10px] text-ink/60 font-mono">{{ doc.type.label }} &middot; {{ (doc.fileSizeBytes / 1024)|round(1) }} KB</div>
                     </div>
                   </div>
-                  <button type="button" onclick="openDocPreview('{{ path('app_media_document', {'uuid': doc.uuid}) }}', '{{ doc.originalFilename|e('js') }}', '{{ doc.mimeType }}', '{{ doc.sha256Hash }}', '{{ (doc.fileSizeBytes / 1024)|round(1) }} KB')" class="px-2.5 py-0.5 bg-white border border-steel/30 rounded-lg text-ink text-xs font-semibold hover:bg-cream hover:border-gold/50 cursor-pointer shrink-0 transition-colors shadow-2xs">
-                    Veure
-                  </button>
+                  <div class="flex items-center gap-1.5 shrink-0">
+                    <button type="button" onclick="openDocPreview('{{ path('app_media_document', {'uuid': doc.uuid}) }}', '{{ doc.originalFilename|e('js') }}', '{{ doc.mimeType }}', '{{ doc.sha256Hash }}', '{{ (doc.fileSizeBytes / 1024)|round(1) }} KB')" class="px-2 py-0.5 bg-white border border-steel/30 rounded-lg text-ink text-xs font-semibold hover:bg-cream hover:border-gold/50 cursor-pointer transition-colors shadow-2xs" title="Veure prova documental">
+                      Veure
+                    </button>
+                    <button type="button" onclick="openReplaceEvidenceModal('{{ doc.uuid }}', '{{ doc.originalFilename|e('js') }}', '{{ doc.type.value }}')" class="p-1 text-steel hover:text-ink hover:bg-white rounded-lg border border-transparent hover:border-steel/20 transition-colors cursor-pointer" title="Substituir aquest document">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    </button>
+                    <button type="button" onclick="openDeleteEvidenceModal('{{ doc.uuid }}', '{{ doc.originalFilename|e('js') }}', '{{ doc.type.label|e('js') }}')" class="p-1 text-steel hover:text-red-700 hover:bg-red-50 rounded-lg border border-transparent hover:border-red-200 transition-colors cursor-pointer" title="Eliminar prova documental">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                  </div>
                 </div>
               {% else %}
                 <p class="text-xs text-ink/60 py-3 text-center">Sense proves documentals addicionals.</p>
@@ -1280,7 +1319,7 @@
           <option value="invoice_receipt">Factura / Tiquet de compra</option>
           <option value="certificate_authenticity">Certificat d'autenticitat o garantia oficial</option>
           <option value="police_report">Denúncia policial per sostracció</option>
-          <option value="legal_declaration">Declaració jurada o acta notarial</option>
+          <option value="legal_declaration">Declaració jurada o document legal de propietat</option>
         </select>
       </div>
 
@@ -1317,6 +1356,186 @@
         <button type="submit" id="btn-submit-add-evidence" class="px-5 py-2.5 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-xs uppercase tracking-wider transition-all shadow-xs flex items-center gap-1.5 cursor-pointer">
           <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
           <span>Custodiar Document</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{# ========================================================================= #}
+{# MODAL 3: Confirmar Canvi de Fotografia Principal (PWA Dual Modal)        #}
+{# ========================================================================= #}
+<div id="modal-confirm-make-primary" class="fixed inset-0 z-50 bg-ink/75 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all duration-200" onclick="if(event.target === this) closeMakePrimaryModal();">
+  <div class="bg-white rounded-t-3xl sm:rounded-2xl border-t sm:border border-gold/40 shadow-2xl max-w-md w-full max-h-[92vh] overflow-hidden flex flex-col font-raleway">
+    <div class="sm:hidden w-10 h-1 bg-steel/30 rounded-full mx-auto mt-2 -mb-1 shrink-0"></div>
+
+    <div class="p-4 sm:p-5 bg-ink text-cream border-b border-gold/30 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-gold/20 border border-gold/40 text-gold flex items-center justify-center shrink-0">
+          ⭐
+        </div>
+        <div>
+          <h3 class="font-marcellus text-base sm:text-lg text-whitef">Establir Foto Principal</h3>
+          <p class="text-[11px] font-mono text-steel">CUI: {{ item.cui }}</p>
+        </div>
+      </div>
+      <button type="button" onclick="closeMakePrimaryModal()" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-cream flex items-center justify-center text-sm font-bold cursor-pointer" aria-label="Tancar">
+        ✕
+      </button>
+    </div>
+
+    <form id="form-make-primary" method="POST" action="" class="p-4 sm:p-5 overflow-y-auto space-y-4 text-xs sm:text-sm text-ink/80 leading-relaxed" onsubmit="handleAddDocSubmit(this)">
+      <input type="hidden" name="_token" value="{{ csrf_token('item_doc_action_' ~ item.id) }}">
+
+      <div class="p-3.5 rounded-xl bg-gold/10 border-l-[3.5px] border-gold text-ink text-xs font-raleway space-y-1.5">
+        <strong>Canvi de Referència Principal:</strong>
+        <p class="text-ink/80">
+          Aquesta fotografia esdevindrà la imatge de portada del bé al Dashboard i la referència que figurarà als certificats digitals oficials.
+        </p>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-amber-500/10 border-l-[3.5px] border-amber-500 text-ink text-xs font-raleway space-y-1">
+        <strong class="text-amber-800">Avís de Recàlcul SHA-256 i Certificats:</strong>
+        <p class="text-ink/80">
+          Aquesta acció canvia l'empremta criptogràfica del bé. Els certificats oficials emesos anteriorment (v1) quedaran marcats com a <code>SUPERSEDED</code> (superats). Podràs sol·licitar un nou certificat oficial per a la versió 2 en qualsevol moment.
+        </p>
+      </div>
+
+      <div class="pt-2 flex items-center justify-end gap-2.5 border-t border-steel/15">
+        <button type="button" onclick="closeMakePrimaryModal()" class="px-4 py-2 rounded-xl border border-steel/30 text-ink/75 hover:text-ink hover:bg-white text-xs font-semibold transition-all cursor-pointer">
+          Cancel·lar
+        </button>
+        <button type="submit" class="px-5 py-2.5 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-xs uppercase tracking-wider transition-all shadow-xs flex items-center gap-1.5 cursor-pointer">
+          ⭐ <span>Confirmar Canvi</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{# ========================================================================= #}
+{# MODAL 4: Confirmar Baixa / Eliminació de Document (PWA Dual Modal)        #}
+{# ========================================================================= #}
+<div id="modal-confirm-delete-doc" class="fixed inset-0 z-50 bg-ink/75 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all duration-200" onclick="if(event.target === this) closeDeleteDocModal();">
+  <div class="bg-white rounded-t-3xl sm:rounded-2xl border-t sm:border border-gold/40 shadow-2xl max-w-md w-full max-h-[92vh] overflow-hidden flex flex-col font-raleway">
+    <div class="sm:hidden w-10 h-1 bg-steel/30 rounded-full mx-auto mt-2 -mb-1 shrink-0"></div>
+
+    <div class="p-4 sm:p-5 bg-ink text-cream border-b border-gold/30 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-red-500/20 border border-red-400 text-red-400 flex items-center justify-center shrink-0">
+          🗑️
+        </div>
+        <div>
+          <h3 class="font-marcellus text-base sm:text-lg text-whitef">Eliminar Document</h3>
+          <p class="text-[11px] font-mono text-steel" id="delete-doc-type-label">Document Custodiat</p>
+        </div>
+      </div>
+      <button type="button" onclick="closeDeleteDocModal()" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-cream flex items-center justify-center text-sm font-bold cursor-pointer" aria-label="Tancar">
+        ✕
+      </button>
+    </div>
+
+    <form id="form-delete-doc" method="POST" action="" class="p-4 sm:p-5 overflow-y-auto space-y-4 text-xs sm:text-sm text-ink/80 leading-relaxed" onsubmit="handleAddDocSubmit(this)">
+      <input type="hidden" name="_token" value="{{ csrf_token('item_doc_action_' ~ item.id) }}">
+
+      <div class="p-3 rounded-xl bg-cream/40 border border-steel/20 flex items-center gap-2 text-xs font-mono">
+        <span class="text-steel shrink-0">Fitxer:</span>
+        <strong class="text-ink truncate" id="delete-doc-name-preview"></strong>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-red-50 border-l-[3.5px] border-red-600 text-ink text-xs font-raleway space-y-1">
+        <strong class="text-red-800">Avís d'Alteració del Fingerprint SHA-256:</strong>
+        <p class="text-ink/80">
+          La supressió d'aquest document recalcularà l'empremta mestra del bé. Si ja s'havia emès un certificat oficial (v1), quedarà en estat superat i caldrà emetre un nou certificat oficial per a la versió 2.
+        </p>
+      </div>
+
+      <div class="pt-2 flex items-center justify-end gap-2.5 border-t border-steel/15">
+        <button type="button" onclick="closeDeleteDocModal()" class="px-4 py-2 rounded-xl border border-steel/30 text-ink/75 hover:text-ink hover:bg-white text-xs font-semibold transition-all cursor-pointer">
+          Cancel·lar
+        </button>
+        <button type="submit" class="px-5 py-2.5 rounded-xl bg-red-700 hover:bg-red-800 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-xs flex items-center gap-1.5 cursor-pointer">
+          🗑️ <span>Eliminar Definitivament</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{# ========================================================================= #}
+{# MODAL 5: Substituir Document Custodiat (PWA Dual Modal)                   #}
+{# ========================================================================= #}
+<div id="modal-replace-doc" class="fixed inset-0 z-50 bg-ink/75 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all duration-200" onclick="if(event.target === this) closeReplaceDocModal();">
+  <div class="bg-white rounded-t-3xl sm:rounded-2xl border-t sm:border border-gold/40 shadow-2xl max-w-lg w-full max-h-[92vh] overflow-hidden flex flex-col font-raleway">
+    <div class="sm:hidden w-10 h-1 bg-steel/30 rounded-full mx-auto mt-2 -mb-1 shrink-0"></div>
+
+    <div class="p-4 sm:p-5 bg-ink text-cream border-b border-gold/30 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-gold/20 border border-gold/40 text-gold flex items-center justify-center shrink-0">
+          🔄
+        </div>
+        <div>
+          <h3 class="font-marcellus text-base sm:text-lg text-whitef">Substituir Document</h3>
+          <p class="text-[11px] font-mono text-steel truncate max-w-xs" id="replace-doc-current-label">Substitució atòmica</p>
+        </div>
+      </div>
+      <button type="button" onclick="closeReplaceDocModal()" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-cream flex items-center justify-center text-sm font-bold cursor-pointer" aria-label="Tancar">
+        ✕
+      </button>
+    </div>
+
+    <form id="form-replace-doc" method="POST" action="" enctype="multipart/form-data" class="p-4 sm:p-5 overflow-y-auto space-y-4 text-xs sm:text-sm text-ink/80 leading-relaxed" onsubmit="handleAddDocSubmit(this)">
+      <input type="hidden" name="_token" value="{{ csrf_token('item_doc_action_' ~ item.id) }}">
+
+      <div class="p-3.5 rounded-xl bg-gold/10 border-l-[3.5px] border-gold text-ink text-xs font-raleway space-y-1">
+        <strong>Substitució Atòmica de Custòdia:</strong>
+        <p class="text-ink/80">
+          El fitxer actual serà reemplaçat pel nou document en una sola operació, preservant la teva quota de pla sense necessitat d'esborrar prèviament.
+        </p>
+      </div>
+
+      <div id="replace-evidence-type-container" class="space-y-1.5 hidden">
+        <label for="select-replace-evidence-type" class="block text-xs font-bold uppercase tracking-wider text-ink/70">
+          Tipologia de Document
+        </label>
+        <select id="select-replace-evidence-type" name="evidence_type" class="w-full px-3 py-2 rounded-xl bg-white border border-steel/30 text-ink text-xs font-semibold focus:outline-none focus:border-gold">
+          <option value="invoice_receipt">Factura / Tiquet de compra</option>
+          <option value="certificate_authenticity">Certificat d'autenticitat o garantia oficial</option>
+          <option value="police_report">Denúncia policial per sostracció</option>
+          <option value="legal_declaration">Declaració jurada o document legal de propietat</option>
+        </select>
+      </div>
+
+      <div class="space-y-2">
+        <label class="block text-xs font-bold uppercase tracking-wider text-ink/70" id="replace-file-label">
+          Nou Fitxer de Substitució
+        </label>
+        
+        <div class="border-2 border-dashed border-steel/30 rounded-xl p-4 text-center bg-cream/10 hover:bg-cream/20 transition-colors">
+          <input type="file" id="input-replace-file" name="file" required class="hidden" onchange="previewReplaceFile(this)">
+          
+          <div id="replace-empty-state" class="cursor-pointer" onclick="document.getElementById('input-replace-file').click()">
+            <svg class="w-8 h-8 text-gold mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+            <p class="font-bold text-ink text-xs">Fes clic per seleccionar el nou fitxer</p>
+            <p class="text-[11px] text-steel mt-0.5">Substituirà el fitxer anterior i recalcularà el hash SHA-256</p>
+          </div>
+
+          <div id="replace-preview-box" class="hidden space-y-2">
+            <img id="replace-preview-img" src="" alt="Previsualització" class="max-h-36 mx-auto rounded-lg object-contain border border-steel/20 shadow-xs hidden">
+            <div class="flex items-center justify-center gap-2">
+              <span id="replace-preview-name" class="text-xs font-mono text-ink/75 truncate max-w-xs"></span>
+              <button type="button" onclick="document.getElementById('input-replace-file').click()" class="text-xs text-gold hover:underline font-bold">Canviar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-2 flex items-center justify-end gap-2.5 border-t border-steel/15">
+        <button type="button" onclick="closeReplaceDocModal()" class="px-4 py-2 rounded-xl border border-steel/30 text-ink/75 hover:text-ink hover:bg-white text-xs font-semibold transition-all cursor-pointer">
+          Cancel·lar
+        </button>
+        <button type="submit" class="px-5 py-2.5 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-xs uppercase tracking-wider transition-all shadow-xs flex items-center gap-1.5 cursor-pointer">
+          🔄 <span>Confirmar Substitució</span>
         </button>
       </div>
     </form>
@@ -1392,6 +1611,41 @@
         btn.classList.add('border-steel/20', 'opacity-70');
       }
     });
+
+    // Actualització dels botons d'acció de la foto activa (Desktop i Mòbil)
+    const btnMakePrimaryDesk = document.getElementById('btn-make-primary-desktop');
+    const btnMakePrimaryMob = document.getElementById('btn-make-primary-mobile');
+    if (btnMakePrimaryDesk) {
+      if (current.isPrimary) {
+        btnMakePrimaryDesk.classList.add('hidden');
+      } else {
+        btnMakePrimaryDesk.classList.remove('hidden');
+      }
+    }
+    if (btnMakePrimaryMob) {
+      if (current.isPrimary) {
+        btnMakePrimaryMob.classList.add('hidden');
+      } else {
+        btnMakePrimaryMob.classList.remove('hidden');
+      }
+    }
+
+    const btnDeleteDesk = document.getElementById('btn-delete-photo-desktop');
+    const btnDeleteMob = document.getElementById('btn-delete-photo-mobile');
+    if (btnDeleteDesk) {
+      if (galleryPhotos.length <= 1) {
+        btnDeleteDesk.classList.add('hidden');
+      } else {
+        btnDeleteDesk.classList.remove('hidden');
+      }
+    }
+    if (btnDeleteMob) {
+      if (galleryPhotos.length <= 1) {
+        btnDeleteMob.classList.add('hidden');
+      } else {
+        btnDeleteMob.classList.remove('hidden');
+      }
+    }
   }
 
   function galleryPrevPhoto() {
@@ -1661,6 +1915,158 @@
     }
   }
 
+  // ==========================================
+  // Modals de Gestió de Documents i Fotos
+  // ==========================================
+  function openMakePrimaryModal() {
+    if (!galleryPhotos || galleryPhotos.length === 0) return;
+    const current = galleryPhotos[currentGalleryIdx];
+    if (!current || current.isPrimary) return;
+
+    const form = document.getElementById('form-make-primary');
+    if (form) {
+      form.action = '{{ path('app_item_document_make_primary', {'cui': item.cui, 'uuid': 'UUID_PLACEHOLDER'}) }}'.replace('UUID_PLACEHOLDER', current.uuid);
+    }
+    const modal = document.getElementById('modal-confirm-make-primary');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.classList.add('overflow-hidden');
+    }
+  }
+
+  function closeMakePrimaryModal() {
+    const modal = document.getElementById('modal-confirm-make-primary');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.classList.remove('overflow-hidden');
+    }
+  }
+
+  function openDeletePhotoModal() {
+    if (!galleryPhotos || galleryPhotos.length <= 1) return;
+    const current = galleryPhotos[currentGalleryIdx];
+    if (!current) return;
+
+    openDeleteModalForDoc(current.uuid, current.filename, current.typeLabel);
+  }
+
+  function openDeleteEvidenceModal(uuid, filename, typeLabel) {
+    openDeleteModalForDoc(uuid, filename, typeLabel);
+  }
+
+  function openDeleteModalForDoc(uuid, filename, typeLabel) {
+    const form = document.getElementById('form-delete-doc');
+    if (form) {
+      form.action = '{{ path('app_item_document_delete', {'cui': item.cui, 'uuid': 'UUID_PLACEHOLDER'}) }}'.replace('UUID_PLACEHOLDER', uuid);
+    }
+    const namePreview = document.getElementById('delete-doc-name-preview');
+    if (namePreview) namePreview.textContent = filename;
+
+    const typeLbl = document.getElementById('delete-doc-type-label');
+    if (typeLbl) typeLbl.textContent = typeLabel;
+
+    const modal = document.getElementById('modal-confirm-delete-doc');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.classList.add('overflow-hidden');
+    }
+  }
+
+  function closeDeleteDocModal() {
+    const modal = document.getElementById('modal-confirm-delete-doc');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.classList.remove('overflow-hidden');
+    }
+  }
+
+  function openReplacePhotoModal() {
+    if (!galleryPhotos || galleryPhotos.length === 0) return;
+    const current = galleryPhotos[currentGalleryIdx];
+    if (!current) return;
+
+    openReplaceModalForDoc(current.uuid, current.filename, 'photo');
+  }
+
+  function openReplaceEvidenceModal(uuid, filename, typeValue) {
+    openReplaceModalForDoc(uuid, filename, 'evidence', typeValue);
+  }
+
+  function openReplaceModalForDoc(uuid, filename, kind, typeValue = '') {
+    const form = document.getElementById('form-replace-doc');
+    if (form) {
+      form.action = '{{ path('app_item_document_replace', {'cui': item.cui, 'uuid': 'UUID_PLACEHOLDER'}) }}'.replace('UUID_PLACEHOLDER', uuid);
+      form.reset();
+    }
+    const curLabel = document.getElementById('replace-doc-current-label');
+    if (curLabel) curLabel.textContent = `Substituint: ${filename}`;
+
+    const emptyState = document.getElementById('replace-empty-state');
+    const previewBox = document.getElementById('replace-preview-box');
+    if (emptyState) emptyState.classList.remove('hidden');
+    if (previewBox) previewBox.classList.add('hidden');
+
+    const input = document.getElementById('input-replace-file');
+    const evidenceTypeContainer = document.getElementById('replace-evidence-type-container');
+    const selectEvidenceType = document.getElementById('select-replace-evidence-type');
+
+    if (kind === 'photo') {
+      if (input) input.accept = 'image/*';
+      if (evidenceTypeContainer) evidenceTypeContainer.classList.add('hidden');
+    } else {
+      if (input) input.accept = 'image/*,application/pdf';
+      if (evidenceTypeContainer) {
+        evidenceTypeContainer.classList.remove('hidden');
+        if (selectEvidenceType && typeValue) selectEvidenceType.value = typeValue;
+      }
+    }
+
+    const modal = document.getElementById('modal-replace-doc');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.classList.add('overflow-hidden');
+    }
+  }
+
+  function closeReplaceDocModal() {
+    const modal = document.getElementById('modal-replace-doc');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.classList.remove('overflow-hidden');
+    }
+  }
+
+  function previewReplaceFile(input) {
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      const previewName = document.getElementById('replace-preview-name');
+      const emptyState = document.getElementById('replace-empty-state');
+      const previewBox = document.getElementById('replace-preview-box');
+      const previewImg = document.getElementById('replace-preview-img');
+
+      if (previewName) previewName.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+      if (emptyState) emptyState.classList.add('hidden');
+      if (previewBox) previewBox.classList.remove('hidden');
+
+      if (file.type.startsWith('image/') && previewImg) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          previewImg.src = e.target.result;
+          previewImg.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+      } else if (previewImg) {
+        previewImg.classList.add('hidden');
+      }
+    }
+  }
+
   document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
       closeDocPreview();
@@ -1669,6 +2075,9 @@
       closeTransferModal();
       closeAddPhotoModal();
       closeAddEvidenceModal();
+      closeMakePrimaryModal();
+      closeDeleteDocModal();
+      closeReplaceDocModal();
     }
   });
 

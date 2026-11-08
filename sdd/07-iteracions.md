@@ -94,12 +94,17 @@ Cada subiteració segueix un flux d'enginyeria estricte:
     - Aplicació estricta de quotes de pla: Free (1 foto / 1 prova), Plus (5 fotos / 5 proves), Unlimited (il·limitat). Botons actius o informatius de límit amb Toast segons quota.
     - Modals Notarials PWA Duals (`#modal-add-photo`, `#modal-add-evidence`) amb selecció d'arxiu, previsualització en viu i avís canònic `.guide-note` sobre l'alteració del fingerprint SHA-256.
     - Galeria interactiva a la fitxa: navegació amb fletxes `< >`, carrusel de miniatures inferiors, selecció de foto principal en calent i sincronització tant a PC com a mòbil.
+    - Cicle de Vida i Accions sobre Documents Custodiats:
+      - Acció `[ ⭐ Fer Principal ]` (`POST /app/items/{cui}/documents/{uuid}/make-primary`) amb reassignació de foto de portada i avís de recàlcul SHA-256.
+      - Acció `[ 🗑️ Eliminar ]` (`POST /app/items/{cui}/documents/{uuid}/delete`) amb protecció d'invariant (rebuig si només queda 1 foto) i promoció automàtica si s'elimina la principal havent-n'hi més.
+      - Acció `[ 🔄 Substituir ]` (`POST /app/items/{cui}/documents/{uuid}/replace`) per reemplaçar un document de forma atòmica sense alterar la quota del pla.
+      - Modals Notarials PWA Duals de confirmació (`#modal-confirm-make-primary`, `#modal-confirm-delete-doc`, `#modal-replace-doc`) amb avisos clars sobre el pas a `SUPERSEDED` dels certificats previs i sol·licitud a demanda de la versió 2.
 - [x] **Subiteració 2.4: Verificació & Validació HITL** *(Completada)*
   - [x] Model i persistència validats amb `doctrine:schema:validate` (esquema MySQL 8.4 100% sincronitzat).
   - [x] Control d'accés estricte amb `ItemVoter` i custòdia documental aïllada Flysystem servida per `MediaController`.
   - [x] Fitxa del bé en PC harmonitzada en graella 2x2 amb controls de navegació `< >`, peus unificats i avís d'immutabilitat complet.
   - [x] Fitxa del bé en Mòbil PWA ordenada canònicament (Títol -> Foto 16:9 -> Fitxa -> Proves -> Garantia Notarial) i barra contextual inferior.
-  - [x] Bateria de tests unitaris per a la pujada de documents i compliment de quotes de pla a `ItemControllerTest` (3 tests, 15 assertions OK).
+  - [x] Bateria de tests unitaris per a la pujada, canvi de foto principal, eliminació amb invariant i substitució atòmica a `ItemControllerTest` (7 tests, 40 assertions OK; 101 tests globals OK).
   - [x] Validació visual HITL completada al navegador per l'usuari humà.
 
 ---

@@ -211,6 +211,24 @@ Usuari                  Symfony Controller           MediaValidator / Storage   
 - **Recàlcul del Fingerprint SHA-256:** La incorporació de qualsevol document altera `$item->setUpdatedAt()` i reordena alfabèticament els hashes individuals per generar el nou fingerprint mestre determinista (`v1` -> `v2`), requerint un nou ancoratge criptogràfic i legal.
 - **Traçabilitat Forense:** Registre a `registrals_audit` amb acció `UserActivityAction::ITEM_UPDATED`, indicant nom del fitxer original, tipus de document, mida i hash SHA-256.
 
+### 2.6. Gestió de Fotos i Proves: Foto Principal, Eliminació i Substitució Atòmica
+
+La plataforma ofereix un cicle de vida complet per als documents custodiats des de la fitxa del bé:
+
+1. **Establir com a Foto Principal (`POST /app/items/{cui}/documents/{uuid}/make-primary`):**
+   - Permet triar qualsevol fotografia de detall (`PHOTO_DETAIL`) com a referència oficial del bé.
+   - L'antiga foto principal passa automàticament a foto de detall, i la nova passa a `PHOTO_PRIMARY`.
+   - Modifica el fingerprint SHA-256 del bé (ja que inclou el hash de la foto principal).
+2. **Eliminació de Documents (`POST /app/items/{cui}/documents/{uuid}/delete`):**
+   - Suprimeix el fitxer físic de Flysystem i l'entitat `ItemDocument`.
+   - **Invariant de Seguretat:** Un bé custodiat mai pot quedar sense fotografia (mínim 1 foto). Si l'usuari intenta eliminar l'única foto restant, l'operació és rebutjada. Si s'elimina la foto principal havent-n'hi més, la primera foto restant és promocionada automàticament a principal.
+3. **Substitució Atòmica (`POST /app/items/{cui}/documents/{uuid}/replace`):**
+   - Reemplaça el fitxer vell pel nou en una sola transacció, ideal per a usuaris del Pla Free (1/1) o que han assolit el màxim de la seva quota, sense requerir eliminar prèviament.
+4. **Cicle de Vida del Certificat davant Canvis de Versió (v1 -> v2):**
+   - Qualsevol d'aquestes tres operacions recalcula l'empremta SHA-256 mestre.
+   - Els certificats oficials emesos amb anterioritat passen automàticament a l'estat **`SUPERSEDED`** (*Superat per nova versió v2*).
+   - **L'emissió del certificat v2 mai és automàtica**: es realitza exclusivament sota demanda de l'usuari un cop ha acabat els retocs. Al Pla Free requereix un pagament de 5,90 € per cobrir els costos d'ancoratge eIDAS i Polygon; al Pla Plus es descompta de la quota anual de certificats oficials. Els esborranys informatius es regeneren sense cap cost.
+
 ## 3. Màquines d'Estats (Symfony Workflow)
 
 Configuració formal amb el component symfony/workflow a config/packages/workflow.yaml:

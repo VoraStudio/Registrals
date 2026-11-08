@@ -125,8 +125,16 @@ S'aplica la metodologia de **"Fricció Positiva en el Moment del Valor"** (*Cont
    Integració de Stripe/Redsýs amb targeta guardada (i Apple Pay / Google Pay) per autoritzar microtransaccions de 2 € a 6 € sense sortir del flux.
 5. **Acció Contextual d'Assistent IA a la Fitxa del Bé:**
    A la barra inferior mòbil de la fitxa del bé, s'introdueix l'acció `[ ✨ Assistent IA ]` amb micro-badge `PLUS`. En el Pla Free roman inactiva i, en fer-hi clic, un Toast/Modal notarial presenta el valor afegit del Pla Plus: redacció automàtica d'informes pericials de sinistre/robatori i auditoria de resolució i validesa de proves documentals.
-6. **Cost de Mutabilitat i Re-segellat de Fingerprints (Model Econòmic d'Edició):**
-   Cada addició, eliminació, reordenació de fotos o canvi documental invalida el fingerprint SHA-256 previ i genera una nova versió (`v1` -> `v2`). El re-segellat de temps qualificat eIDAS i el re-ancoratge a Polygon tenen un cost unitari directe. Al Pla Free la fitxa és rígida (1 foto + 1 prova); els plans Plus i Unlimited inclouen el versionat i re-segellat dins la quota de manteniment de patrimoni.
+6. **Cost de Mutabilitat, Cicle de Vida del Certificat v2 i Re-segellat de Fingerprints:**
+   Cada addició, eliminació, reordenació de fotos o canvi documental invalida el fingerprint SHA-256 previ i genera una nova versió (`v1` -> `v2`).
+   - Els certificats oficials emesos amb anterioritat (`v1`) mantenen la seva fefaença històrica però passen automàticament a l'estat **`SUPERSEDED`** (*Superat per nova versió v2*).
+   - **L'emissió del certificat v2 és sempre a petició de l'usuari (mai automàtica):** permet a l'usuari efectuar múltiples retocs sense generar despesa recurrent involuntària.
+   - **Impacte per Pla:** Al Pla Free, si l'usuari havia adquirit un certificat oficial solt (5,90 €) i modifica el bé, l'esborrany informatiu es regenera de franc, però l'emissió del nou certificat oficial v2 requereix una nova compra (o ampliació a Pla Plus) per cobrir el cost directe de segellat eIDAS i gas a Polygon. Als plans Plus i Unlimited, l'emissió v2 es descompta de la quota de certificats oficials del pla.
+
+7. **Desglossament de Crèdits d'IA Local (Qwen VL) vs Costos Interns d'Infraestructura:**
+   - **Naturalesa Sobirana:** La IA s'executa íntegrament en maquinari propi (node privat SGLang Qwen VL), amb cost marginal d'API externa de **0,00 €**. El cost és purament d'infraestructura/GPU mensual.
+   - **Accions Internes de Plataforma (NO consumeixen crèdits de l'usuari):** Filtres d'integritat forense (C2PA, metadades EXIF, MIME real) i comprovació automàtica de congruència documental en segon pla (verificar que el tiquet concorda amb la categoria i descripció de l'ítem). Són costos absorbits per la plataforma per a la seva pròpia seguretat i prestigi probatori.
+   - **Serveis d'Usuari (SÍ que consumeixen crèdits del paquet de l'usuari):** Auto-completat OCR al Wizard d'Alta, redacció d'informes pericials d'assegurança a la fitxa i lectura/inspecció documental sota petició expressa. L'objectiu dels crèdits no és pagar una API externa sinó protegir la cua de GPU davant saturació i reflectir el valor del temps estalviat.
 
 ---
 

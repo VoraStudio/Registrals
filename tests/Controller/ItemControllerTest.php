@@ -266,4 +266,177 @@ class ItemControllerTest extends TestCase
         $this->assertCount(1, $item->getEvidenceDocuments());
         @unlink($tempFile);
     }
+
+    public function testMakePrimaryPromotesDetailPhotoAndDemotesOldPrimary(): void
+    {
+        $user = $this->createUser('carles@test.cat', 'plus', maxPhotos: 5, maxEvidences: 5);
+        $item = $this->createItem($user);
+
+        $photo1 = new ItemDocument($item, DocumentType::PHOTO_PRIMARY, 'path/photo1.jpg', 'photo1.jpg', 'image/jpeg', 1024, 'hash1');
+        $photo2 = new ItemDocument($item, DocumentType::PHOTO_DETAIL, 'path/photo2.jpg', 'photo2.jpg', 'image/jpeg', 2048, 'hash2');
+        $item->addDocument($photo1);
+        $item->addDocument($photo2);
+
+        $controller = new ItemController();
+        $this->setupControllerContainer($controller, $user, true);
+
+        $itemRepo = $this->createMock(ItemRepository::class);
+        $itemRepo->method('findOneByCui')->with($item->getCui())->willReturn($item);
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects($this->once())->method('flush');
+
+        $logger = $this->createMock(UserActivityLogger::class);
+        $logger->expects($this->once())->method('log');
+
+        $request = new Request(request: ['_token' => 'valid_token']);
+
+        $response = $controller->makePrimary(
+            $item->getCui(),
+            $photo2->getUuid()->toRfc4122(),
+            $request,
+            $itemRepo,
+            $em,
+            $logger
+        );
+
+        $this->assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+        $this->assertSame(DocumentType::PHOTO_PRIMARY, $photo2->getType());
+        $this->assertSame(DocumentType::PHOTO_DETAIL, $photo1->getType());
+    }
+
+    public function testDeleteDocumentEnforcesSinglePhotoInvariant(): void
+    {
+        $user = $this->createUser('carles@test.cat', 'free', maxPhotos: 1, maxEvidences: 1);
+        $item = $this->createItem($user);
+
+        // Només 1 foto
+        $photo1 = new ItemDocument($item, DocumentType::PHOTO_PRIMARY, 'path/photo1.jpg', 'photo1.jpg', 'image/jpeg', 1024, 'hash1');
+        $item->addDocument($photo1);
+
+        $controller = new ItemController();
+        $this->setupControllerContainer($controller, $user, true);
+
+        $itemRepo = $this->createMock(ItemRepository::class);
+        $itemRepo->method('findOneByCui')->with($item->getCui())->willReturn($item);
+
+        $storage = $this->createMock(SecureDocumentStorageService::class);
+        $storage->expects($this->never())->method('deleteDocumentFile');
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects($this->never())->method('flush');
+
+        $logger = $this->createMock(UserActivityLogger::class);
+
+        $request = new Request(request: ['_token' => 'valid_token']);
+
+        $response = $controller->deleteDocument(
+            $item->getCui(),
+            $photo1->getUuid()->toRfc4122(),
+            $request,
+            $itemRepo,
+            $storage,
+            $em,
+            $logger
+        );
+
+        $this->assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+        $this->assertCount(1, $item->getPhotos());
+    }
+
+    public function testDeleteDocumentAllowsDeletingSecondaryPhoto(): void
+    {
+        $user = $this->createUser('carles@test.cat', 'plus', maxPhotos: 5, maxEvidences: 5);
+        $item = $this->createItem($user);
+
+        $photo1 = new ItemDocument($item, DocumentType::PHOTO_PRIMARY, 'path/photo1.jpg', 'photo1.jpg', 'image/jpeg', 1024, 'hash1');
+        $photo2 = new ItemDocument($item, DocumentType::PHOTO_DETAIL, 'path/photo2.jpg', 'photo2.jpg', 'image/jpeg', 2048, 'hash2');
+        $item->addDocument($photo1);
+        $item->addDocument($photo2);
+
+        $controller = new ItemController();
+        $this->setupControllerContainer($controller, $user, true);
+
+        $itemRepo = $this->createMock(ItemRepository::class);
+        $itemRepo->method('findOneByCui')->with($item->getCui())->willReturn($item);
+
+        $storage = $this->createMock(SecureDocumentStorageService::class);
+        $storage->expects($this->once())->method('deleteDocumentFile')->with($photo2);
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects($this->once())->method('flush');
+
+        $logger = $this->createMock(UserActivityLogger::class);
+        $logger->expects($this->once())->method('log');
+
+        $request = new Request(request: ['_token' => 'valid_token']);
+
+        $response = $controller->deleteDocument(
+            $item->getCui(),
+            $photo2->getUuid()->toRfc4122(),
+            $request,
+            $itemRepo,
+            $storage,
+            $em,
+            $logger
+        );
+
+        $this->assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+        $this->assertCount(1, $item->getPhotos());
+        $this->assertSame($photo1, $item->getMainPhoto());
+    }
+
+    public function testReplaceDocumentReplacesExistingPhoto(): void
+    {
+        $user = $this->createUser('carles@test.cat', 'plus', maxPhotos: 5, maxEvidences: 5);
+        $item = $this->createItem($user);
+
+        $oldPhoto = new ItemDocument($item, DocumentType::PHOTO_PRIMARY, 'path/old_photo.jpg', 'old_photo.jpg', 'image/jpeg', 1024, 'hash_old');
+        $item->addDocument($oldPhoto);
+
+        $controller = new ItemController();
+        $this->setupControllerContainer($controller, $user, true);
+
+        $itemRepo = $this->createMock(ItemRepository::class);
+        $itemRepo->method('findOneByCui')->with($item->getCui())->willReturn($item);
+
+        $tempFile = tempnam(sys_get_temp_dir(), 'test_replace_');
+        file_put_contents($tempFile, 'NEW_PHOTO_BINARY');
+        $uploadedFile = new UploadedFile($tempFile, 'nova_foto_reemplacada.jpg', 'image/jpeg', null, true);
+
+        $validator = $this->createMock(MediaIntegrityValidator::class);
+        $validator->method('validateItemPhoto')->willReturn(MediaValidationResult::valid());
+
+        $newPhoto = new ItemDocument($item, DocumentType::PHOTO_PRIMARY, 'path/new_photo.webp', 'nova_foto_reemplacada.jpg', 'image/webp', 2048, 'hash_new');
+
+        $storage = $this->createMock(SecureDocumentStorageService::class);
+        $storage->expects($this->once())->method('deleteDocumentFile')->with($oldPhoto);
+        $storage->expects($this->once())->method('storeUploadedDocument')->willReturn($newPhoto);
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects($this->once())->method('flush');
+
+        $logger = $this->createMock(UserActivityLogger::class);
+        $logger->expects($this->once())->method('log');
+
+        $request = new Request(
+            request: ['_token' => 'valid_token'],
+            files: ['file' => $uploadedFile]
+        );
+
+        $response = $controller->replaceDocument(
+            $item->getCui(),
+            $oldPhoto->getUuid()->toRfc4122(),
+            $request,
+            $itemRepo,
+            $storage,
+            $validator,
+            $em,
+            $logger
+        );
+
+        $this->assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+        @unlink($tempFile);
+    }
 }
+

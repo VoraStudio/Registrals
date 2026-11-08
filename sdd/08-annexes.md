@@ -373,9 +373,16 @@ Per sostenir la plataforma amb el model local d'IA i MySQL:
 ### Resum per a la reunió amb l'Albert
 
 - **Els preus definits a l'Excel (22 € i 80 €/any) són econòmicament viables**, amb marges bruts superiors al 85%, gràcies al fet que l'assistent d'IA s'executa en local sense dependre d'APIs de pagament per token.
-- 
+- **Model de Crèdits d'IA Local vs Costos de Plataforma:**
+  - Com que el model (Qwen VL) corre a la nostra pròpia GPU amb SGLang, el cost marginal per token extern és de 0,00 €.
+  - **Costos de Plataforma (Interns per a Registrals):** El servidor GPU dedicat (~60 € - 120 €/mes), les validacions forenses obligatòries (C2PA, EXIF, MIME) i la comprovació de congruència en segon pla (concordança factura-bé) **NO consumeixen crèdits d'usuari**; formen part de la integritat del servei.
+  - **Crèdits d'Usuari (Paquets de Pla):** Les quotes de consultes d'IA (Free: 20, Plus: 100, Unlimited: il·limitat) s'apliquen exclusivament a les accions de màxim valor percebut (auto-completat OCR al Wizard, informes d'assegurança, anàlisi pericial a demanda). Això actua com a fre de concurrència per protegir la GPU de saturacions massives i dóna valor comercial a la subscripció.
+- **Cicle de Vida de Certificats davant Modificacions (Versió 2):**
+  - La modificació d'un bé (canvi de foto principal, addició o substitució de proves) altera el fingerprint SHA-256 mestre.
+  - Els certificats oficials emesos prèviament (`v1`) passen automàticament a l'estat **`SUPERSEDED`** (*Superat per nova versió v2*) per mantenir la traçabilitat històrica.
+  - **L'emissió del certificat v2 és SEMPRE a demanda de l'usuari** (mai automàtica) per permetre múltiples retocs sense sobrecostos imprevistos.
+  - Al **Pla Free**, si l'usuari vol un certificat oficial v2 ha de contractar-lo (5,90 € o migrar a Pla Plus) per cobrir el segellat eIDAS (Signaturit) i el gas a Polygon L2. L'esborrany informatiu es regenera gratuïtament.
 - **El cost del KYC de Signaturit s'absorbeix sense problema** al primer any del Pla Plus (i s'amortitza completament en les renovacions).
-- 
 - **El preu de 2,90 € per traspàs i 5,90 € per certificat solt** protegeix el compte de resultats de possibles usuaris no subscriptors i genera una via de monetització addicional neta.
 - 
 - Vols que et prepari un resum executiu d'aquest estudi en format taula o PDF per presentar-lo directament a l'Albert?
