@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Service\GeoIp;
 
+use GeoIp2\Database\Reader;
+
 class GeoLocationService
 {
     /**
@@ -25,6 +27,64 @@ class GeoLocationService
         'IE' => 'Irlanda',
     ];
 
+    private ?Reader $reader = null;
+    private bool $readerAttempted = false;
+
+    public function __construct(
+        private readonly ?GeoIpDatabaseManager $dbManager = null
+    ) {
+    }
+
+    /**
+     * Retorna l'estat actual de la base de dades local de GeoIP.
+     *
+     * @return array{
+     *     exists: bool,
+     *     path: string,
+     *     updated_at: ?\DateTimeImmutable,
+     *     age_days: ?int,
+     *     is_stale: bool,
+     *     size_formatted: ?string,
+     *     has_license_key: bool
+     * }
+     */
+    public function getDatabaseStatus(): array
+    {
+        if ($this->dbManager !== null) {
+            return $this->dbManager->getDatabaseStatus();
+        }
+
+        return [
+            'exists' => false,
+            'path' => '',
+            'updated_at' => null,
+            'age_days' => null,
+            'is_stale' => true,
+            'size_formatted' => null,
+            'has_license_key' => false,
+        ];
+    }
+
+    private function getReader(): ?Reader
+    {
+        if ($this->readerAttempted) {
+            return $this->reader;
+        }
+
+        $this->readerAttempted = true;
+        $dbPath = $this->dbManager?->getDatabasePath();
+
+        if ($dbPath !== null && file_exists($dbPath) && is_readable($dbPath)) {
+            try {
+                $this->reader = new Reader($dbPath);
+            } catch (\Throwable) {
+                $this->reader = null;
+            }
+        }
+
+        return $this->reader;
+    }
+
     /**
      * Resol una IP a un codi de país ISO-3166-1 alpha-2 i nom en català.
      * En entorn local o xarxa privada, assigna Espanya com a territori per defecte.
@@ -40,7 +100,30 @@ class GeoLocationService
             ];
         }
 
-        // Resolució sobirana d'alta velocitat per rangs coneguts
+        // 1. Intent de resolució via base de dades oficial MaxMind (alta precisió)
+        $reader = $this->getReader();
+        if ($reader !== null) {
+            try {
+                $record = $reader->country($ip);
+                $isoCode = $record->country->isoCode;
+                if ($isoCode !== null && $isoCode !== '') {
+                    $name = self::COUNTRY_NAMES[$isoCode]
+                        ?? $record->country->names['es']
+                        ?? $record->country->names['en']
+                        ?? $record->country->name
+                        ?? $isoCode;
+
+                    return [
+                        'code' => $isoCode,
+                        'name' => $name,
+                    ];
+                }
+            } catch (\Throwable) {
+                // AddressNotFoundException o qualsevol incidència -> fallback local
+            }
+        }
+
+        // 2. Resolució sobirana d'alta velocitat per rangs coneguts (Fallback)
         $code = $this->lookupCountryCode($ip);
 
         return [

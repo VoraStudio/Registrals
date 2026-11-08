@@ -70,4 +70,14 @@ class GeoLocationServiceTest extends TestCase
         $this->assertSame(4, $aggregated['topCountries'][1]['count']);
         $this->assertSame(20.0, $aggregated['topCountries'][1]['percent']);
     }
+
+    public function testReturnsDefaultDatabaseStatusWhenManagerNotProvided(): void
+    {
+        $status = $this->service->getDatabaseStatus();
+
+        $this->assertFalse($status['exists']);
+        $this->assertNull($status['updated_at']);
+        $this->assertTrue($status['is_stale']);
+        $this->assertFalse($status['has_license_key']);
+    }
 }
