@@ -1032,6 +1032,14 @@ class ItemController extends AbstractController
                 foreach ($item->getEvidenceDocuments() as $doc) {
                     $storageService->deleteDocumentFile($doc);
                 }
+
+                $activityLogger->log(
+                    user: $currentUser,
+                    action: UserActivityAction::ITEM_DELETED,
+                    description: sprintf('Eliminació permanent per lot del bé %s (%s)', $item->getName(), $item->getCui()),
+                    details: ['cui' => $item->getCui(), 'name' => $item->getName()]
+                );
+
                 $entityManager->remove($item);
                 ++$deletedCount;
             } else {
@@ -1040,6 +1048,14 @@ class ItemController extends AbstractController
                 } else {
                     $item->setStatus(ItemStatus::ARCHIVED);
                 }
+
+                $activityLogger->log(
+                    user: $currentUser,
+                    action: UserActivityAction::STATUS_CHANGED,
+                    description: sprintf('Donat de baixa i arxivat per lot el bé %s (%s)', $item->getName(), $item->getCui()),
+                    details: ['cui' => $item->getCui(), 'new_status' => ItemStatus::ARCHIVED->value]
+                );
+
                 ++$archivedCount;
             }
         }
