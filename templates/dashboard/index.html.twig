@@ -488,7 +488,8 @@
                   <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 border border-slate-300">
                     Custòdia en fred
                   </span>
-                  <button type="button" onclick="openReactivationModal('{{ fItem.name|e('js') }}', '{{ fItem.cui }}')" class="text-xs text-gold font-bold hover:underline cursor-pointer flex items-center gap-1">
+                  {% set canReactivateItem = (maxAllowed == -1 or maxAllowed >= 9999 or itemsCount < maxAllowed) %}
+                  <button type="button" onclick="openReactivationModal('{{ fItem.name|e('js') }}', '{{ fItem.cui }}', '{{ csrf_token('reactivate_item_' ~ fItem.id) }}', {{ canReactivateItem ? 'true' : 'false' }})" class="text-xs text-gold font-bold hover:underline cursor-pointer flex items-center gap-1">
                     <span>Reactivar</span>
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
                   </button>
@@ -799,10 +800,16 @@
   // ==========================================
   // Modal de Reactivació de Béns en Custòdia en Fred (PWA Dual)
   // ==========================================
-  function openReactivationModal(itemName, cui) {
+  function openReactivationModal(itemName, cui, csrf, canDirectlyReactivate) {
     const modal = document.getElementById('reactivation-modal');
     const itemNameEl = document.getElementById('modal-frozen-item-name');
     const cuiEl = document.getElementById('modal-frozen-item-cui');
+    const form = document.getElementById('reactivate-item-form');
+    const csrfInput = document.getElementById('reactivate-csrf-token');
+    const availableBlock = document.getElementById('reactivate-available-block');
+    const fullBlock = document.getElementById('reactivate-full-block');
+    const directActionBtn = document.getElementById('reactivate-submit-btn');
+    const upgradeActions = document.getElementById('reactivate-upgrade-actions');
 
     if (itemNameEl) itemNameEl.textContent = itemName || 'aquest bé moble';
     if (cuiEl) {
@@ -812,6 +819,29 @@
       } else {
         cuiEl.classList.add('hidden');
       }
+    }
+
+    if (cui && form) {
+      form.action = `/app/items/${cui}/reactivate`;
+    }
+    if (csrfInput) {
+      csrfInput.value = csrf || '';
+    }
+
+    if (canDirectlyReactivate) {
+      if (availableBlock) availableBlock.classList.remove('hidden');
+      if (fullBlock) fullBlock.classList.add('hidden');
+      if (form) form.classList.remove('hidden');
+      if (upgradeActions) upgradeActions.classList.add('hidden');
+      if (directActionBtn) {
+        directActionBtn.disabled = false;
+        directActionBtn.classList.remove('opacity-75');
+      }
+    } else {
+      if (availableBlock) availableBlock.classList.add('hidden');
+      if (fullBlock) fullBlock.classList.remove('hidden');
+      if (form) form.classList.add('hidden');
+      if (upgradeActions) upgradeActions.classList.remove('hidden');
     }
 
     if (modal) {
@@ -852,12 +882,12 @@
         </div>
         <div>
           <h3 class="font-marcellus text-base sm:text-lg text-ink font-bold leading-tight">
-            Custòdia en Fred i Seguretat
+            Reactivació de Custòdia
           </h3>
-          <p class="text-[11px] font-mono text-steel">Integritat Criptogràfica Garantida</p>
+          <p class="text-[11px] font-mono text-steel">Retorn al Patrimoni Actiu</p>
         </div>
       </div>
-      <button type="button" onclick="closeReactivationModal()" class="w-8 h-8 rounded-lg bg-white border border-steel/20 text-steel hover:text-ink flex items-center justify-center text-sm font-bold cursor-pointer">
+      <button type="button" onclick="closeReactivationModal()" class="w-8 h-8 rounded-lg bg-white border border-steel/20 text-steel hover:text-ink flex items-center justify-center text-sm font-bold cursor-pointer" aria-label="Tancar">
         ✕
       </button>
     </div>
@@ -869,31 +899,58 @@
           <span id="modal-frozen-item-cui" class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-ink text-gold border border-gold/30"></span>
           <strong id="modal-frozen-item-name" class="font-marcellus text-ink text-sm"></strong>
         </div>
-        <p class="text-xs text-steel">Estat: <strong>Custòdia en fred (Només lectura)</strong></p>
+        <p class="text-xs text-steel">Estat actual: <strong>Custòdia en fred (Només lectura)</strong></p>
       </div>
 
-      {# Avís Canònic .guide-note #}
-      <div class="p-3.5 rounded-xl bg-gold/10 border-l-[3.5px] border-gold text-ink text-xs font-raleway space-y-1">
-        <strong>Les teves dades i proves estan 100% segures</strong>
-        <p class="text-ink/80">
-          El canvi al Pla Free (màxim {{ maxFreeItems }} béns actius) manté intactes totes les fotografies, comprovants i l'històric d'aquest bé sota el seu hash determinista immutable.
+      {# Cas A: Capacitat disponible (Directe) #}
+      <div id="reactivate-available-block" class="space-y-3">
+        <div class="p-3.5 rounded-xl bg-emerald-500/10 border-l-[3.5px] border-emerald-600 text-ink text-xs font-raleway space-y-1">
+          <strong class="text-emerald-900 block font-bold">Capacitat disponible al teu pla</strong>
+          <p class="text-ink/80">
+            Disposes de places lliures a la teva caixa forta (<strong>{{ itemsCount }} / {{ maxAllowed > 0 ? maxAllowed : '∞' }}</strong> actius). Pots retornar aquest bé al teu patrimoni actiu ara mateix.
+          </p>
+        </div>
+        <p class="text-xs text-steel leading-relaxed">
+          En reactivar-lo, el bé tornarà a la graella principal de patrimoni i recuperarà totes les funcionalitats operatives (emissió de certificats, edició i traspassos).
         </p>
       </div>
 
-      <p>
-        Per tornar a emetre certificats digitals, editar dades o traspassar aquest bé, pots reactivar el <strong>Pla Plus ({{ plusPlan ? (plusPlan.priceCents / 100)|number_format(0) : '22' }} €/any)</strong> amb capacitat per a {{ maxPlusItems }} béns, o bé intercanviar-lo per un altre dels teus {{ maxFreeItems }} béns actius.
-      </p>
+      {# Cas B: Quota exhaurida (Upsell / Downgrade Adequacy) #}
+      <div id="reactivate-full-block" class="hidden space-y-3">
+        <div class="p-3.5 rounded-xl bg-gold/10 border-l-[3.5px] border-gold text-ink text-xs font-raleway space-y-1">
+          <strong>Límit de capacitat actiu assolit</strong>
+          <p class="text-ink/80">
+            La teva caixa forta està plena (<strong>{{ itemsCount }} / {{ maxAllowed }}</strong> béns actius). Per retornar aquest bé al patrimoni actiu, pots passar al Pla Plus o bé donar de baixa un altre bé.
+          </p>
+        </div>
+        <p class="text-xs text-steel leading-relaxed">
+          Pots reactivar el <strong>Pla Plus ({{ plusPlan ? (plusPlan.priceCents / 100)|number_format(0) : '22' }} €/any)</strong> amb capacitat per a {{ maxPlusItems }} béns per descongelar automàticament tot el patrimoni en fred.
+        </p>
+      </div>
     </div>
 
     {# Peu d'accions #}
     <div class="p-4 bg-cream-50/50 border-t border-steel/15 flex flex-col sm:flex-row items-center justify-end gap-2.5">
-      <a href="{{ path('app_downgrade_adequacy') }}" class="w-full sm:w-auto px-4 py-2 rounded-xl border border-steel/30 text-ink/75 hover:text-ink hover:bg-white text-xs font-semibold text-center transition-all">
-        Adequar Béns Actius
-      </a>
-      <a href="{{ path('app_plan') }}" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-xs uppercase tracking-wider text-center transition-all shadow-xs flex items-center justify-center gap-1.5">
-        <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-        <span>Reactivar Pla Plus ({{ plusPlan ? (plusPlan.priceCents / 100)|number_format(0) : '22' }} €/any)</span>
-      </a>
+      <button type="button" onclick="closeReactivationModal()" class="w-full sm:w-auto px-4 py-2 rounded-xl border border-steel/30 text-ink/75 hover:text-ink hover:bg-white text-xs font-semibold text-center transition-all cursor-pointer">
+        Cancel·lar
+      </button>
+
+      {# Formulari Directe per a usuaris amb capacitat disponible #}
+      <form id="reactivate-item-form" method="POST" action="" onsubmit="const btn = document.getElementById('reactivate-submit-btn'); if(btn){ btn.disabled = true; btn.classList.add('opacity-75'); } const lbl = document.getElementById('reactivate-submit-btn-label'); if(lbl){ lbl.textContent = 'Reactivant...'; }" class="w-full sm:w-auto">
+        <input type="hidden" name="_token" id="reactivate-csrf-token" value="">
+        <button type="submit" id="reactivate-submit-btn" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer">
+          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+          <span id="reactivate-submit-btn-label">Descongelar i Reactivar Bé</span>
+        </button>
+      </form>
+
+      {# Botons d'ampliació per quan la capacitat està plena #}
+      <div id="reactivate-upgrade-actions" class="hidden flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+        <a href="{{ path('app_plan') }}" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-xs uppercase tracking-wider text-center transition-all shadow-xs flex items-center justify-center gap-1.5">
+          <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <span>Passar a Pla Plus</span>
+        </a>
+      </div>
     </div>
   </div>
 </div>

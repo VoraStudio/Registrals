@@ -649,5 +649,56 @@ class ItemControllerTest extends TestCase
         $this->assertSame(0, $user->getPeriodItemsRegistered());
         $this->assertNotNull($user->getPeriodStartedAt());
     }
+
+    public function testReactivateItemSucceedsWhenSlotsAvailable(): void
+    {
+        $user = $this->createUser('carles@test.cat', 'free');
+        $user->getPlan()->setMaxActiveItems(20);
+        $item = $this->createItem($user, 'REG-2026-FROZEN01', ItemStatus::ARCHIVED);
+
+        $controller = new ItemController();
+        $this->setupControllerContainer($controller, $user, true);
+
+        $itemRepo = $this->createMock(ItemRepository::class);
+        $itemRepo->method('findOneByCui')->with('REG-2026-FROZEN01')->willReturn($item);
+        $itemRepo->method('countActiveByOwner')->with($user)->willReturn(1); // 1 active out of 20
+
+        $lifecycle = $this->createMock(ItemLifecycleService::class);
+        $lifecycle->method('can')->with($item, 'unarchive')->willReturn(true);
+        $lifecycle->expects($this->once())->method('unarchive')->with($item);
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $logger = $this->createMock(UserActivityLogger::class);
+
+        $request = new Request(request: ['_token' => 'valid_token']);
+        $response = $controller->reactivate($item->getCui(), $request, $itemRepo, $lifecycle, $em, $logger);
+
+        $this->assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+    }
+
+    public function testReactivateItemBlockedWhenMaxActiveItemsReached(): void
+    {
+        $user = $this->createUser('carles@test.cat', 'free');
+        $user->getPlan()->setMaxActiveItems(20);
+        $item = $this->createItem($user, 'REG-2026-FROZEN02', ItemStatus::ARCHIVED);
+
+        $controller = new ItemController();
+        $this->setupControllerContainer($controller, $user, true);
+
+        $itemRepo = $this->createMock(ItemRepository::class);
+        $itemRepo->method('findOneByCui')->with('REG-2026-FROZEN02')->willReturn($item);
+        $itemRepo->method('countActiveByOwner')->with($user)->willReturn(20); // 20 / 20 full!
+
+        $lifecycle = $this->createMock(ItemLifecycleService::class);
+        $lifecycle->expects($this->never())->method('unarchive');
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $logger = $this->createMock(UserActivityLogger::class);
+
+        $request = new Request(request: ['_token' => 'valid_token']);
+        $response = $controller->reactivate($item->getCui(), $request, $itemRepo, $lifecycle, $em, $logger);
+
+        $this->assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+    }
 }
 

@@ -917,6 +917,70 @@ class ItemController extends AbstractController
     }
 
     /**
+     * Reactiva un bé que està en custòdia en fred (arxivat o congelat) i el retorna al patrimoni actiu.
+     */
+    #[Route('/{cui}/reactivate', name: 'reactivate', methods: ['POST'])]
+    public function reactivate(
+        string $cui,
+        Request $request,
+        ItemRepository $itemRepository,
+        ItemLifecycleService $lifecycleService,
+        EntityManagerInterface $entityManager,
+        UserActivityLogger $activityLogger
+    ): Response {
+        $item = $itemRepository->findOneByCui($cui);
+
+        if (!$item) {
+            throw $this->createNotFoundException('El bé sol·licitat no existeix.');
+        }
+
+        $this->denyAccessUnlessGranted(ItemVoter::EDIT, $item);
+
+        $token = (string) $request->request->get('_token', '');
+        if (!$this->isCsrfTokenValid('reactivate_item_' . $item->getId(), $token)) {
+            $this->addFlash('error', 'El testimoni de seguretat no és vàlid.');
+            return $this->redirectToRoute('app_dashboard');
+        }
+
+        /** @var User $currentUser */
+        $currentUser = $this->getUser();
+
+        // Comprovació de capacitat simultània del pla actiu
+        if ($currentUser->getPlan() !== null && !$currentUser->isAdmin()) {
+            $maxAllowedActive = $currentUser->getPlan()->getMaxActiveItems();
+            $activeItemsCount = $itemRepository->countActiveByOwner($currentUser);
+
+            if ($maxAllowedActive !== -1 && $maxAllowedActive < 9999 && $activeItemsCount >= $maxAllowedActive) {
+                $this->addFlash('error', sprintf(
+                    'No es pot reactivar el bé %s perquè heu assolit la capacitat màxima de %d béns actius del vostre pla %s. Cal passar al Pla Plus o donar de baixa un altre bé.',
+                    $item->getName(),
+                    $maxAllowedActive,
+                    $currentUser->getPlan()->getName()
+                ));
+                return $this->redirectToRoute('app_dashboard');
+            }
+        }
+
+        if ($item->getStatus() === ItemStatus::ARCHIVED && $lifecycleService->can($item, 'unarchive')) {
+            $lifecycleService->unarchive($item);
+        } else {
+            $item->setStatus(ItemStatus::ACTIVE);
+            $entityManager->flush();
+        }
+
+        $activityLogger->log(
+            user: $currentUser,
+            action: UserActivityAction::STATUS_CHANGED,
+            description: sprintf('Reactivació del bé %s (%s) des de la custòdia en fred al patrimoni actiu', $item->getName(), $item->getCui()),
+            details: ['cui' => $item->getCui(), 'new_status' => ItemStatus::ACTIVE->value]
+        );
+
+        $this->addFlash('success', sprintf('El bé %s s\'ha reactivat correctament i ha tornat al vostre patrimoni actiu.', $item->getName()));
+
+        return $this->redirectToRoute('app_dashboard');
+    }
+
+    /**
      * Dóna de baixa un lot de béns seleccionats al Dashboard.
      */
     #[Route('/batch/deactivate', name: 'batch_deactivate', methods: ['POST'])]
