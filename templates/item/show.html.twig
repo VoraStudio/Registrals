@@ -563,7 +563,9 @@
           {# Línia inferior idèntica a la de Proves Documentals #}
           <div class="pt-1.5 border-t border-cream/80 text-[11px] text-ink/50 flex items-center justify-between mt-auto">
             <span>Custòdia privada Flysystem</span>
-            <span class="text-gold font-semibold">Ampliable a Pla Plus (fins a 5)</span>
+            {% if not plan or plan.code == 'free' %}
+              <a href="{{ path('app_plan') }}" class="text-gold font-semibold hover:underline">Ampliable a Pla Plus (fins a 5)</a>
+            {% endif %}
           </div>
         </div>
 
@@ -693,7 +695,9 @@
 
           <div class="pt-2 border-t border-cream/80 text-[11px] text-ink/50 flex items-center justify-between mt-auto">
             <span>Custòdia privada Flysystem</span>
-            <span class="text-gold font-semibold">Ampliable a Pla Plus (fins a 5)</span>
+            {% if not plan or plan.code == 'free' %}
+              <a href="{{ path('app_plan') }}" class="text-gold font-semibold hover:underline">Ampliable a Pla Plus (fins a 5)</a>
+            {% endif %}
           </div>
         </div>
 
