@@ -579,6 +579,12 @@ private int $certificatesIssuedCount = 0;
 #[ORM\Column(type: 'integer', options: ['default' => 0])]
 private int $lifetimeItemsRegistered = 0;
 
+#[ORM\Column(type: 'integer', options: ['default' => 0])]
+private int $periodItemsRegistered = 0;
+
+#[ORM\Column(type: 'datetime_immutable', nullable: true)]
+private ?\DateTimeImmutable $periodStartedAt = null;
+
 #[ORM\Column(type: 'datetime_immutable')]
 private \DateTimeImmutable $createdAt;
 
@@ -639,6 +645,9 @@ private string $billingPeriod = 'yearly';
 private int $maxActiveItems = 20;
 
 #[ORM\Column(type: 'integer')]
+private int $maxYearlyRegistrations = 20;
+
+#[ORM\Column(type: 'integer')]
 private int $maxLifetimeItems = 50;
 
 #[ORM\Column(type: 'integer')]
@@ -671,7 +680,8 @@ private \DateTimeImmutable $createdAt;
 ```
 
 *Regla de Negoci i Backoffice Admin:*
-- `maxActiveItems`: FREE: 20 | PLUS: 100 *(configurable a Admin)* | UNLIMITED: -1 (il·limitat).
+- `maxActiveItems`: FREE: 20 | PLUS: 100 *(configurable a Admin)* | UNLIMITED: -1 (il·limitat). Capacitat simultània a la caixa forta.
+- `maxYearlyRegistrations`: FREE: 20 | PLUS: 120 *(configurable a Admin)* | UNLIMITED: -1 (il·limitat). Pressupost d'altes permeses per cicle de 12 mesos (regla anti-carrusel i anti round-robin).
 - `maxPhotosPerItem`: FREE: 1 | PLUS: 5 | UNLIMITED: -1 (il·limitat).
 - `maxEvidencesPerItem`: FREE: 1 | PLUS: 5 | UNLIMITED: -1 (il·limitat).
 - Totes les quotes han de ser modificables en calent pels administradors des de `/admin/plans` (EasyAdmin / Symfony Form).

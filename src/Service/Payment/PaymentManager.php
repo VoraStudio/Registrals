@@ -180,6 +180,8 @@ class PaymentManager
                 $user->setPlan($plan);
                 $user->setPlanStartedAt(new \DateTimeImmutable());
                 $user->setPlanExpiresAt(new \DateTimeImmutable('+1 year'));
+                $user->setPeriodStartedAt(new \DateTimeImmutable());
+                $user->setPeriodItemsRegistered(0);
                 $user->setSubscriptionStatus('active');
                 if (isset($session['subscription']) && \is_string($session['subscription'])) {
                     $user->setStripeSubscriptionId($session['subscription']);
@@ -270,6 +272,8 @@ class PaymentManager
         $currentExpiry = $user->getPlanExpiresAt() ?? new \DateTimeImmutable();
         $baseDate = $currentExpiry > new \DateTimeImmutable() ? $currentExpiry : new \DateTimeImmutable();
         $user->setPlanExpiresAt($baseDate->modify('+1 year'));
+        $user->setPeriodStartedAt(new \DateTimeImmutable());
+        $user->setPeriodItemsRegistered(0);
         $user->setSubscriptionStatus('active');
 
         $amountPaid = (int) ($invoice['amount_paid'] ?? 0);

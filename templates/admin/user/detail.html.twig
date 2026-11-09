@@ -229,6 +229,18 @@
           </div>
         </div>
 
+        {# Altes Anuals (Rotació) #}
+        <div>
+          <div class="flex items-center justify-between text-xs mb-1 font-raleway">
+            <span class="text-ink/70">Altes cicle anual (rotació):</span>
+            <span class="font-bold text-ink">{{ user.periodItemsRegistered }} {% if user.plan and user.plan.maxYearlyRegistrations != -1 %} / {{ user.plan.maxYearlyRegistrations }}{% endif %}</span>
+          </div>
+          {% set regPercent = (user.plan and user.plan.maxYearlyRegistrations > 0) ? ((user.periodItemsRegistered / user.plan.maxYearlyRegistrations) * 100)|round : 0 %}
+          <div class="w-full bg-steel/15 rounded-full h-1.5 overflow-hidden">
+            <div class="bg-gold h-1.5 rounded-full" style="width: {{ min(regPercent, 100) }}%"></div>
+          </div>
+        </div>
+
         {# IA Usage #}
         <div>
           <div class="flex items-center justify-between text-xs mb-1 font-raleway">

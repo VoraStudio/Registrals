@@ -37,6 +37,7 @@ class InitPlansCommand extends Command
                 'priceCents' => 0,
                 'billingPeriod' => 'yearly',
                 'maxActiveItems' => 20,
+                'maxYearlyRegistrations' => 20,
                 'maxLifetimeItems' => 50,
                 'monthlyCertificatesQuota' => 0,
                 'allowOfficialCertificates' => false,
@@ -53,6 +54,7 @@ class InitPlansCommand extends Command
                 'priceCents' => 2200,
                 'billingPeriod' => 'yearly',
                 'maxActiveItems' => 100,
+                'maxYearlyRegistrations' => 120,
                 'maxLifetimeItems' => 500,
                 'monthlyCertificatesQuota' => 10,
                 'allowOfficialCertificates' => true,
@@ -69,6 +71,7 @@ class InitPlansCommand extends Command
                 'priceCents' => 5900,
                 'billingPeriod' => 'yearly',
                 'maxActiveItems' => 9999,
+                'maxYearlyRegistrations' => 9999,
                 'maxLifetimeItems' => 9999,
                 'monthlyCertificatesQuota' => 9999,
                 'allowOfficialCertificates' => true,
@@ -96,6 +99,7 @@ class InitPlansCommand extends Command
 
             $plan->setBillingPeriod($data['billingPeriod'])
                 ->setMaxActiveItems($data['maxActiveItems'])
+                ->setMaxYearlyRegistrations($data['maxYearlyRegistrations'])
                 ->setMaxLifetimeItems($data['maxLifetimeItems'])
                 ->setMonthlyCertificatesQuota($data['monthlyCertificatesQuota'])
                 ->setAllowOfficialCertificates($data['allowOfficialCertificates'])

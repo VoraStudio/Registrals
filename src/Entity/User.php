@@ -107,6 +107,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'integer', options: ['default' => 0])]
     private int $lifetimeItemsRegistered = 0;
 
+    #[ORM\Column(type: 'integer', options: ['default' => 0])]
+    private int $periodItemsRegistered = 0;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $periodStartedAt = null;
+
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private bool $onboardingCompleted = false;
 
@@ -387,6 +393,59 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setLifetimeItemsRegistered(int $lifetimeItemsRegistered): static
     {
         $this->lifetimeItemsRegistered = $lifetimeItemsRegistered;
+        return $this;
+    }
+
+    public function getPeriodItemsRegistered(): int
+    {
+        return $this->periodItemsRegistered;
+    }
+
+    public function setPeriodItemsRegistered(int $periodItemsRegistered): static
+    {
+        $this->periodItemsRegistered = $periodItemsRegistered;
+        return $this;
+    }
+
+    public function incrementPeriodItemsRegistered(): static
+    {
+        $this->periodItemsRegistered++;
+        return $this;
+    }
+
+    public function getPeriodStartedAt(): ?\DateTimeImmutable
+    {
+        return $this->periodStartedAt;
+    }
+
+    public function setPeriodStartedAt(?\DateTimeImmutable $periodStartedAt): static
+    {
+        $this->periodStartedAt = $periodStartedAt;
+        return $this;
+    }
+
+    public function getCurrentPeriodStart(): \DateTimeImmutable
+    {
+        if ($this->periodStartedAt !== null) {
+            return $this->periodStartedAt;
+        }
+
+        return $this->planStartedAt ?? $this->createdAt;
+    }
+
+    public function isRegistrationPeriodExpired(): bool
+    {
+        $start = $this->getCurrentPeriodStart();
+        $now = new \DateTimeImmutable();
+
+        return $now >= $start->modify('+1 year');
+    }
+
+    public function resetRegistrationPeriod(): static
+    {
+        $this->periodStartedAt = new \DateTimeImmutable();
+        $this->periodItemsRegistered = 0;
+
         return $this;
     }
 

@@ -31,6 +31,9 @@ class Plan
     #[ORM\Column(type: 'integer', options: ['default' => 20])]
     private int $maxActiveItems = 20;
 
+    #[ORM\Column(type: 'integer', options: ['default' => 20])]
+    private int $maxYearlyRegistrations = 20;
+
     #[ORM\Column(type: 'integer', options: ['default' => 50])]
     private int $maxLifetimeItems = 50;
 
@@ -132,6 +135,17 @@ class Plan
     public function setMaxActiveItems(int $maxActiveItems): static
     {
         $this->maxActiveItems = $maxActiveItems;
+        return $this;
+    }
+
+    public function getMaxYearlyRegistrations(): int
+    {
+        return $this->maxYearlyRegistrations;
+    }
+
+    public function setMaxYearlyRegistrations(int $maxYearlyRegistrations): static
+    {
+        $this->maxYearlyRegistrations = $maxYearlyRegistrations;
         return $this;
     }
 

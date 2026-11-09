@@ -50,7 +50,14 @@ class PlanType extends AbstractType
                 'attr' => [
                     'class' => 'w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3.5 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white font-mono',
                 ],
-                'help' => 'Indica -1 per a béns il·limitats.',
+                'help' => 'Capacitat màxima simultània. Indica -1 per a béns il·limitats.',
+            ])
+            ->add('maxYearlyRegistrations', IntegerType::class, [
+                'label' => 'Màxim d\'Altes Anuals permeses (Rotació)',
+                'attr' => [
+                    'class' => 'w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3.5 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white font-mono',
+                ],
+                'help' => 'Pressupost d\'altes per cicle de 12 mesos (regla anti-carrusel). Free: 20, Plus: 120, Unlimited: -1 o 9999.',
             ])
             ->add('maxPhotosPerItem', IntegerType::class, [
                 'label' => 'Màxim de Fotografies per Bé Moble',

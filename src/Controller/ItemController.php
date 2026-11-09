@@ -52,16 +52,37 @@ class ItemController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        // Comprovació de quota del pla actiu (els administradors no tenen límit de pla)
-        if ($user->getPlan() !== null) {
-            $activeItemsCount = $user->getLifetimeItemsRegistered();
-            $maxAllowed = $user->getPlan()->getMaxActiveItems();
+        // Comprovació de quotes del pla actiu (els administradors no tenen límit de pla)
+        if ($user->getPlan() !== null && !$user->isAdmin()) {
+            if ($user->isRegistrationPeriodExpired()) {
+                $user->resetRegistrationPeriod();
+                $entityManager->flush();
+            }
 
-            if ($maxAllowed !== -1 && $maxAllowed < 9999 && $activeItemsCount >= $maxAllowed) {
+            // 1. Límit de capacitat simultània (béns actius vius a la caixa forta)
+            $maxAllowedActive = $user->getPlan()->getMaxActiveItems();
+            $activeItemsCount = $entityManager->getRepository(Item::class)->countActiveByOwner($user);
+
+            if ($maxAllowedActive !== -1 && $maxAllowedActive < 9999 && $activeItemsCount >= $maxAllowedActive) {
                 $this->addFlash('error', sprintf(
-                    'Has assolit el límit màxim de %d béns del teu pla %s. Passa a un pla superior per continuar protegint el teu patrimoni.',
-                    $maxAllowed,
+                    'Has assolit la capacitat màxima de %d béns actius simultanis del teu pla %s. Per registrar un nou bé, has de donar de baixa un bé existent o passar al Pla Plus.',
+                    $maxAllowedActive,
                     $user->getPlan()->getName()
+                ));
+                return $this->redirectToRoute('app_dashboard');
+            }
+
+            // 2. Límit de pressupost d'altes anuals (regla anti-carrusel)
+            $maxAllowedYearly = $user->getPlan()->getMaxYearlyRegistrations();
+            $periodRegisteredCount = $user->getPeriodItemsRegistered();
+
+            if ($maxAllowedYearly !== -1 && $maxAllowedYearly < 9999 && $periodRegisteredCount >= $maxAllowedYearly) {
+                $renewsAt = $user->getCurrentPeriodStart()->modify('+1 year')->format('d/m/Y');
+                $this->addFlash('error', sprintf(
+                    'Has esgotat el límit de %d altes anuals del teu pla %s per a aquest cicle (renovació el %s). Passa al Pla Plus per gaudir de més altes.',
+                    $maxAllowedYearly,
+                    $user->getPlan()->getName(),
+                    $renewsAt
                 ));
                 return $this->redirectToRoute('app_dashboard');
             }
@@ -118,7 +139,8 @@ class ItemController extends AbstractController
                     $storageService->storeUploadedDocument($item, $invoiceFile, DocumentType::INVOICE_RECEIPT, $invoiceMetadata);
                 }
 
-                // Increment del comptador de béns registrats
+                // Increment del comptador de béns registrats (període anual i històric)
+                $user->incrementPeriodItemsRegistered();
                 $user->setLifetimeItemsRegistered($user->getLifetimeItemsRegistered() + 1);
 
                 $entityManager->flush();
@@ -127,7 +149,7 @@ class ItemController extends AbstractController
                 $activityLogger->log(
                     user: $user,
                     action: UserActivityAction::ITEM_CREATED,
-                    description: sprintf('Alta i registre notarial del bé %s (%s)', $item->getName(), $item->getCui()),
+                    description: sprintf('Alta i registre de certificació del bé %s (%s)', $item->getName(), $item->getCui()),
                     details: [
                         'cui' => $item->getCui(),
                         'name' => $item->getName(),

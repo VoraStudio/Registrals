@@ -143,15 +143,20 @@ S'aplica la metodologia de **"Fricció Positiva en el Moment del Valor"** (*Cont
 | Concepte | Pla Free | Pla Plus (Subscripció) | Pla Unlimited / Business | Microtransacció (Pay-per-Use) |
 | :--- | :--- | :--- | :--- | :--- |
 | **Preu** | 0 € | 22,00 € / any (o 2,99 €/mes) | 59,00 € / any | Pagament per operació puntual |
-| **Béns Actius** | Fins a 20 | Fins a 100 *(Parametritzable Admin)* | Il·limitats | — |
+| **Béns Actius Simultanis** | Fins a 20 | Fins a 100 *(Parametritzable Admin)* | Il·limitats | — |
+| **Altes Anuals (Rotació)** | 20 altes / any | 120 altes / any *(Parametritzable)* | Il·limitades | — |
 | **Fotos per bé** | 1 foto principal | Fins a 5 fotografies | Il·limitades | — |
 | **Evidències / Proves per bé** | 1 prova (factura/tiquet/garantia) | Fins a 5 evidències | Il·limitades | — |
 | **Certificats Oficials** | 0 inclosos (amb marca d'aigua) | 10 oficials / any | Il·limitats | 6,00 € / certificat |
-| **Traspàs C2C Notaritzat**| De pagament per ús | 5 inclosos / any | Il·limitats | 2,90 € / traspàs |
-| **Assistent IA (OCR+Visió)**| 2 consultes de benvinguda | 50 consultes / any | Il·limitat | 0,20 € / consulta |
+| **Traspàs C2C Certificat**| De pagament per ús (2,00 €) | 5 inclosos / any | Il·limitats | 2,00 € / traspàs |
+| **Assistent IA (OCR+Visió)**| 20 consultes de benvinguda | 100 consultes / any | Il·limitat | 0,20 € / consulta |
 | **Verificació KYC eIDAS** | Opcional (de pagament) | 1 verificació inclosa | Inclosa | 3,50 € / verificació |
 
-*Nota d'Arquitectura Backoffice:* Tots els llindars (`maxActiveItems`, `maxPhotosPerItem`, `maxEvidencesPerItem`, preus i quotes) són parametritzables en calent des del panell d'Administració (`/admin/plans`).
+*Nota d'Arquitectura Backoffice i Control Anti-Abús:*
+- **Doble Límit Desacoblat:** Capacitat simultània (`maxActiveItems`) vs Pressupost d'altes per cicle de 12 mesos (`maxYearlyRegistrations`).
+- **Regla Anti-Carrusel:** L'eliminació o baixa d'un bé allibera capacitat activa a la caixa forta, però no reinicia les altes anuals ja consumides. Per registrar nous béns un cop consumida la quota anual, cal actualitzar al Pla Plus.
+- **Regla Anti Round-Robin:** Els traspassos C2C no regeneren saldo d'altes a l'emissor; a més, al Pla Free no hi ha traspassos inclosos gratuïts, evitant el bucle de rotació multi-compte.
+- Tots els llindars (`maxActiveItems`, `maxYearlyRegistrations`, `maxPhotosPerItem`, `maxEvidencesPerItem`, preus i quotes) són parametritzables en calent des del panell d'Administració (`/admin/plans`).
 
 ---
 

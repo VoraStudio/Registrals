@@ -74,6 +74,13 @@
             </div>
 
             <div class="flex items-center justify-between pb-2 border-b border-steel/10">
+              <span class="text-ink/65">Altes anuals (rotació):</span>
+              <span class="font-bold font-mono text-ink text-sm">
+                {{ plan.maxYearlyRegistrations == -1 or plan.maxYearlyRegistrations >= 9999 ? 'Il·limitades (∞)' : plan.maxYearlyRegistrations ~ ' / any' }}
+              </span>
+            </div>
+
+            <div class="flex items-center justify-between pb-2 border-b border-steel/10">
               <span class="text-ink/65">Fotos per bé:</span>
               <span class="font-bold font-mono text-ink">
                 {{ plan.maxPhotosPerItem == -1 or plan.maxPhotosPerItem >= 9999 ? 'Il·limitades' : plan.maxPhotosPerItem }}

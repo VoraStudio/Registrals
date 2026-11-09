@@ -576,5 +576,78 @@ class ItemControllerTest extends TestCase
 
         $this->assertSame(Response::HTTP_FOUND, $response->getStatusCode());
     }
+
+    public function testNewItemBlockedWhenMaxActiveItemsReached(): void
+    {
+        $user = $this->createUser('carles@test.cat', 'free');
+        $user->getPlan()->setMaxActiveItems(20);
+        $user->getPlan()->setMaxYearlyRegistrations(20);
+        $user->setPeriodItemsRegistered(5); // Still has 15 yearly registrations
+
+        $controller = new ItemController();
+        $this->setupControllerContainer($controller, $user, true);
+
+        $itemRepo = $this->createMock(ItemRepository::class);
+        $itemRepo->method('countActiveByOwner')->with($user)->willReturn(20); // 20 active items
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->method('getRepository')->with(Item::class)->willReturn($itemRepo);
+
+        $catRepo = $this->createMock(\App\Repository\CategoryRepository::class);
+        $cuiGen = $this->createMock(\App\Service\Item\CuiGeneratorService::class);
+        $storage = $this->createMock(SecureDocumentStorageService::class);
+        $integrity = $this->createMock(MediaIntegrityValidator::class);
+        $bus = $this->createMock(\Symfony\Component\Messenger\MessageBusInterface::class);
+        $logger = $this->createMock(UserActivityLogger::class);
+
+        $request = new Request();
+        $response = $controller->new($request, $catRepo, $cuiGen, $storage, $integrity, $em, $bus, $logger);
+
+        $this->assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+    }
+
+    public function testNewItemBlockedWhenMaxYearlyRegistrationsReachedEvenWithFreeActiveSlots(): void
+    {
+        $user = $this->createUser('carles@test.cat', 'free');
+        $user->getPlan()->setMaxActiveItems(20);
+        $user->getPlan()->setMaxYearlyRegistrations(20);
+        $user->setPeriodItemsRegistered(20); // All 20 registrations used this year!
+
+        $controller = new ItemController();
+        $this->setupControllerContainer($controller, $user, true);
+
+        $itemRepo = $this->createMock(ItemRepository::class);
+        $itemRepo->method('countActiveByOwner')->with($user)->willReturn(15); // Only 15 active (deleted 5)
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->method('getRepository')->with(Item::class)->willReturn($itemRepo);
+
+        $catRepo = $this->createMock(\App\Repository\CategoryRepository::class);
+        $cuiGen = $this->createMock(\App\Service\Item\CuiGeneratorService::class);
+        $storage = $this->createMock(SecureDocumentStorageService::class);
+        $integrity = $this->createMock(MediaIntegrityValidator::class);
+        $bus = $this->createMock(\Symfony\Component\Messenger\MessageBusInterface::class);
+        $logger = $this->createMock(UserActivityLogger::class);
+
+        $request = new Request();
+        $response = $controller->new($request, $catRepo, $cuiGen, $storage, $integrity, $em, $bus, $logger);
+
+        $this->assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+    }
+
+    public function testUserRegistrationPeriodExpirationAndReset(): void
+    {
+        $user = new User();
+        $user->setPeriodItemsRegistered(18);
+        $user->setPeriodStartedAt(new \DateTimeImmutable('-13 months')); // Over a year ago
+
+        $this->assertTrue($user->isRegistrationPeriodExpired());
+
+        $user->resetRegistrationPeriod();
+
+        $this->assertFalse($user->isRegistrationPeriodExpired());
+        $this->assertSame(0, $user->getPeriodItemsRegistered());
+        $this->assertNotNull($user->getPeriodStartedAt());
+    }
 }
 

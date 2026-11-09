@@ -98,6 +98,13 @@
           </div>
 
           <div class="col-span-2 sm:col-span-1">
+            {{ form_label(form.maxYearlyRegistrations, null, {'label_attr': {'class': 'block text-xs font-bold text-ink mb-1.5 font-raleway'}}) }}
+            {{ form_widget(form.maxYearlyRegistrations, {'attr': {'class': 'w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3 py-2 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white font-mono'}}) }}
+            {{ form_help(form.maxYearlyRegistrations, {'help_attr': {'class': 'text-[10px] text-ink/60 mt-1 block font-raleway'}}) }}
+            {{ form_errors(form.maxYearlyRegistrations) }}
+          </div>
+
+          <div class="col-span-2 sm:col-span-1">
             {{ form_label(form.aiAssistanceQuota, null, {'label_attr': {'class': 'block text-xs font-bold text-ink mb-1.5 font-raleway'}}) }}
             {{ form_widget(form.aiAssistanceQuota, {'attr': {'class': 'w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3 py-2 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white font-mono'}}) }}
             {{ form_help(form.aiAssistanceQuota, {'help_attr': {'class': 'text-[10px] text-ink/60 mt-1 block font-raleway'}}) }}

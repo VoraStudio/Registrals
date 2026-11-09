@@ -135,6 +135,8 @@
     {% set itemsCount = items|length %}
     {% set maxAllowed = app.user.plan ? app.user.plan.maxActiveItems : -1 %}
     {% set pct = maxAllowed > 0 ? ((itemsCount / maxAllowed * 100)|round) : 10 %}
+    {% set yearlyRegs = app.user.periodItemsRegistered %}
+    {% set maxYearlyRegs = app.user.plan ? app.user.plan.maxYearlyRegistrations : -1 %}
     {% set aiUsed = app.user.aiUsageCount %}
     {% set maxAi = app.user.plan ? app.user.plan.aiAssistanceQuota : -1 %}
     {% set aiPct = maxAi > 0 ? ((aiUsed / maxAi * 100)|round) : 0 %}
@@ -178,8 +180,11 @@
           <div class="text-[10px] uppercase tracking-wider text-ink/60 font-bold">Capacitat de Béns</div>
           <div class="flex items-baseline gap-1.5 mt-0.5">
             <span class="font-marcellus text-lg font-bold text-ink">{{ itemsCount }}</span>
-            <span class="text-xs text-ink/55 font-mono">/ {{ maxAllowed > 0 ? maxAllowed : '∞' }}</span>
+            <span class="text-xs text-ink/55 font-mono">/ {{ maxAllowed > 0 ? maxAllowed : '∞' }} actius</span>
           </div>
+          {% if maxYearlyRegs > 0 and maxYearlyRegs < 9999 %}
+            <div class="text-[10px] text-ink/50 font-mono mt-0.5">Altes aquest cicle: <strong class="text-ink font-semibold">{{ yearlyRegs }}</strong>/{{ maxYearlyRegs }}</div>
+          {% endif %}
         </div>
         <div class="w-24 bg-cream/70 h-1.5 rounded-full overflow-hidden border border-gold/25 ml-auto hidden md:block">
           <div class="bg-gold h-full rounded-full" style="width: {{ pct > 100 ? 100 : pct }}%"></div>
