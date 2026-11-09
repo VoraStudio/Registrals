@@ -701,13 +701,7 @@
         }
       }
     } else if (action === 'transfer') {
-      if (selectedCheckboxes.length === 1) {
-        window.location.href = selectedCheckboxes[0].dataset.showUrl;
-      } else {
-        if (window.RegistralsToast) {
-          window.RegistralsToast.show('Traspàs de Lot', `Iniciant canvi de titularitat per a ${selectedCheckboxes.length} béns...`, 'info');
-        }
-      }
+      openBatchTransferModal(selectedCheckboxes);
     } else if (action === 'delete') {
       openDeactivateModal(selectedCheckboxes);
     }
@@ -892,10 +886,70 @@
     }
   }
 
+  // ==========================================
+  // Modal de Traspàs per Lot (PWA Dual)
+  // ==========================================
+  function openBatchTransferModal(selectedCheckboxes) {
+    const modal = document.getElementById('modal-batch-transfer');
+    if (!modal) return;
+
+    const count = selectedCheckboxes.length;
+    const cuisContainer = document.getElementById('batch-transfer-cuis-inputs');
+    const itemsList = document.getElementById('batch-transfer-items-list');
+    const countEl = document.getElementById('batch-transfer-items-count');
+    const emailInput = document.getElementById('batch_transfer_recipient_email');
+    const pinInput = document.getElementById('batch_transfer_security_code');
+
+    if (cuisContainer) cuisContainer.innerHTML = '';
+    if (itemsList) itemsList.innerHTML = '';
+    if (countEl) countEl.textContent = count;
+    if (emailInput) emailInput.value = '';
+    if (pinInput) pinInput.value = '';
+
+    selectedCheckboxes.forEach(cb => {
+      const cui = cb.dataset.cui;
+      const name = cb.dataset.name;
+
+      if (cuisContainer && cui) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'cuis[]';
+        input.value = cui;
+        cuisContainer.appendChild(input);
+      }
+
+      if (itemsList && cui) {
+        const itemRow = document.createElement('div');
+        itemRow.className = 'flex items-center justify-between gap-2 p-2 rounded-xl bg-white border border-steel/20 text-xs shadow-2xs';
+        itemRow.innerHTML = `
+          <div class="flex items-center gap-2 truncate">
+            <span class="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-ink text-gold border border-gold/30 shrink-0">${cui}</span>
+            <span class="font-bold text-ink truncate font-marcellus">${name || 'Bé moble'}</span>
+          </div>
+        `;
+        itemsList.appendChild(itemRow);
+      }
+    });
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.classList.add('overflow-hidden');
+  }
+
+  function closeBatchTransferModal() {
+    const modal = document.getElementById('modal-batch-transfer');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.classList.remove('overflow-hidden');
+    }
+  }
+
   document.addEventListener('keydown', function(evt) {
     if (evt.key === 'Escape') {
       closeReactivationModal();
       closeDeactivateModal();
+      closeBatchTransferModal();
     }
   });
 </script>
@@ -1088,6 +1142,91 @@
         <button type="submit" id="deactivate-submit-btn" class="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-xs flex items-center gap-1.5 cursor-pointer">
           <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
           <span id="deactivate-submit-btn-label">Confirmar Baixa</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{# Modal Canònic Dual PWA: Traspàs per Lot C2C #}
+<div id="modal-batch-transfer" class="hidden fixed inset-0 z-50 bg-ink/75 backdrop-blur-xs items-end sm:items-center justify-center p-0 sm:p-4 transition-all duration-200" onclick="if(event.target === this) closeBatchTransferModal();">
+  <div class="bg-white rounded-t-3xl sm:rounded-2xl border-t sm:border border-gold/40 shadow-2xl max-w-lg w-full max-h-[90vh] sm:max-h-[92vh] overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150">
+    {# Nansa tàctil mòbil #}
+    <div class="sm:hidden w-10 h-1 bg-steel/30 rounded-full mx-auto mt-2 -mb-1 shrink-0"></div>
+
+    {# Capçalera Solemne #}
+    <div class="p-4 sm:p-5 border-b border-steel/15 flex items-center justify-between bg-cream/30">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-ink text-gold flex items-center justify-center shrink-0">
+          <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+        </div>
+        <div>
+          <h3 class="font-marcellus text-base sm:text-lg text-ink font-bold leading-tight">
+            Traspàs Certificat per Lot
+          </h3>
+          <p class="text-[11px] font-mono text-steel">Transmissió de Titularitat C2C</p>
+        </div>
+      </div>
+      <button type="button" onclick="closeBatchTransferModal()" class="w-8 h-8 rounded-lg bg-white border border-steel/20 text-steel hover:text-ink flex items-center justify-center text-sm font-bold cursor-pointer" aria-label="Tancar">
+        ✕
+      </button>
+    </div>
+
+    {# Formulari d'Acció #}
+    <form id="batch-transfer-form" method="POST" action="{{ path('app_transfer_batch_initiate') }}" onsubmit="const btn = document.getElementById('batch-transfer-submit-btn'); if (btn) { btn.disabled = true; btn.classList.add('opacity-75'); } const lbl = document.getElementById('batch-transfer-submit-btn-label'); if (lbl) { lbl.textContent = 'Iniciant traspàs...'; }" class="flex flex-col flex-1 overflow-hidden">
+      <input type="hidden" name="_token" value="{{ csrf_token('batch_transfer_initiate') }}">
+      <div id="batch-transfer-cuis-inputs"></div>
+
+      {# Cos del Modal #}
+      <div class="p-4 sm:p-5 overflow-y-auto space-y-4 font-raleway text-xs sm:text-sm text-ink/80 leading-relaxed flex-1">
+        
+        {# Llistat dels Béns Seleccionats #}
+        <div class="space-y-1.5">
+          <label class="text-[11px] font-bold uppercase tracking-wider text-steel block">
+            Béns seleccionats (<span id="batch-transfer-items-count">0</span>)
+          </label>
+          <div id="batch-transfer-items-list" class="max-h-36 overflow-y-auto space-y-1.5 p-2.5 rounded-xl bg-cream-50/70 border border-steel/20">
+            {# Chips dinàmics injectats per JS #}
+          </div>
+        </div>
+
+        {# Correu del Destinatari #}
+        <div class="space-y-1.5">
+          <label for="batch_transfer_recipient_email" class="text-[11px] font-bold uppercase tracking-wider text-ink block">
+            Correu electrònic del receptor <span class="text-red-500">*</span>
+          </label>
+          <input type="email" id="batch_transfer_recipient_email" name="recipient_email" required placeholder="destinatari@correu.cat" class="w-full px-3.5 py-2.5 rounded-xl border border-steel/30 bg-white text-ink text-sm font-raleway focus:outline-none focus:ring-2 focus:ring-gold/60 focus:border-gold transition-all">
+          <p class="text-[11px] text-steel">Rebrà una invitació oficial per correu per revisar i acceptar el lot a la seva àrea privada.</p>
+        </div>
+
+        {# PIN de Seguretat Opcional #}
+        <div class="space-y-1.5">
+          <label for="batch_transfer_security_code" class="text-[11px] font-bold uppercase tracking-wider text-ink flex items-center justify-between">
+            <span>PIN de Seguretat (Opcional)</span>
+            <span class="text-[10px] text-steel font-normal">Doble factor C2C</span>
+          </label>
+          <input type="text" id="batch_transfer_security_code" name="security_code" maxlength="6" placeholder="Ex: 582910" class="w-full px-3.5 py-2 rounded-xl border border-steel/30 bg-white text-ink text-sm font-mono tracking-widest focus:outline-none focus:ring-2 focus:ring-gold/60 focus:border-gold transition-all">
+          <p class="text-[11px] text-steel">Si definiu un PIN, el receptor haurà d'introduir-lo per validar la reclamació del lot.</p>
+        </div>
+
+        {# Avís Canònic Guide Note #}
+        <div class="guide-note">
+          <strong>Caducitat i Seguretat de Custòdia (72h)</strong>
+          <p class="mt-0.5">
+            El receptor disposarà de 72 hores per acceptar la transferència. Durant aquest temps, els béns romandran bloquejats en estat de traspàs pendent. Si caduca o és rebutjat, tornaran automàticament al teu control.
+          </p>
+        </div>
+
+      </div>
+
+      {# Peu d'accions #}
+      <div class="p-4 bg-cream-50/50 border-t border-steel/15 flex items-center justify-end gap-2.5 shrink-0">
+        <button type="button" onclick="closeBatchTransferModal()" class="px-4 py-2 rounded-xl border border-steel/30 text-ink/75 hover:text-ink hover:bg-white text-xs font-semibold transition-all cursor-pointer">
+          Cancel·lar
+        </button>
+        <button type="submit" id="batch-transfer-submit-btn" class="px-5 py-2.5 rounded-xl bg-ink hover:bg-ink/90 text-gold border border-gold/40 font-bold text-xs uppercase tracking-wider transition-all shadow-xs flex items-center gap-1.5 cursor-pointer">
+          <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+          <span id="batch-transfer-submit-btn-label">Iniciar Traspàs per Lot</span>
         </button>
       </div>
     </form>

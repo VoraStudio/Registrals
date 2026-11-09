@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <title>Traspàs Certificat C2C per Lot — Registrals</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #FAF6F0; font-family: 'Raleway', Helvetica, Arial, sans-serif; color: #1D2F4B;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #FAF6F0; padding: 30px 15px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" style="max-width: 620px; background-color: #FFFFFF; border-radius: 20px; border: 1px solid rgba(202, 163, 108, 0.4); overflow: hidden; box-shadow: 0 10px 25px rgba(29, 47, 75, 0.08);">
+          
+          {# Franja Superior Daurada #}
+          <tr>
+            <td style="height: 6px; background: linear-gradient(90deg, #1D2F4B 0%, #CAA36C 50%, #1D2F4B 100%);"></td>
+          </tr>
+
+          {# Capçalera #}
+          <tr>
+            <td style="padding: 30px 40px 20px; text-align: center; border-bottom: 1px solid rgba(106, 134, 162, 0.15);">
+              <h1 style="font-family: 'Marcellus', Georgia, serif; font-size: 26px; color: #1D2F4B; margin: 0 0 5px; letter-spacing: 1px;">REGISTRALS</h1>
+              <p style="font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #CAA36C; font-weight: bold; margin: 0;">Plataforma de Certificació Digital</p>
+            </td>
+          </tr>
+
+          {# Cos del Missatge #}
+          <tr>
+            <td style="padding: 35px 40px;">
+              <h2 style="font-family: 'Marcellus', Georgia, serif; font-size: 20px; color: #1D2F4B; margin: 0 0 15px;">
+                Invitació de Traspàs per Lot ({{ items|length }} béns)
+              </h2>
+              
+              <p style="font-size: 14px; line-height: 1.6; color: #1D2F4B; margin: 0 0 20px;">
+                Hola,
+              </p>
+
+              <p style="font-size: 14px; line-height: 1.6; color: #1D2F4B; margin: 0 0 25px;">
+                <strong>{{ sender.fullName }}</strong> ({{ sender.email }}) ha iniciat el traspàs certificat C2C de titularitat d'un lot de <strong>{{ items|length }} béns</strong> custodiats a la plataforma <strong>Registrals</strong> a favor vostre:
+              </p>
+
+              {# Llistat dels Béns Traspassats #}
+              <table role="presentation" width="100%" style="background-color: #FAF6F0; border-radius: 14px; border: 1px solid rgba(106, 134, 162, 0.2); margin-bottom: 25px; padding: 15px 20px; border-collapse: collapse;">
+                {% for item in items %}
+                  <tr>
+                    <td style="padding: 10px 0; {% if not loop.last %}border-bottom: 1px solid rgba(106, 134, 162, 0.15);{% endif %}">
+                      <span style="font-family: monospace; font-size: 11px; font-weight: bold; background-color: #1D2F4B; color: #CAA36C; padding: 2px 7px; border-radius: 5px; display: inline-block; margin-bottom: 4px;">{{ item.cui }}</span>
+                      <strong style="font-size: 14px; color: #1D2F4B; display: block; margin: 2px 0;">{{ item.name }}</strong>
+                      <span style="font-size: 12px; color: #6A86A2;">{{ item.category.name }}{% if item.brand %} · {{ item.brand }}{% endif %}</span>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </table>
+
+              {# Botó d'Acció Notarial #}
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom: 25px;">
+                <tr>
+                  <td align="center">
+                    <a href="{{ claimUrl }}" style="display: inline-block; background-color: #1D2F4B; color: #CAA36C; font-size: 14px; font-weight: bold; text-decoration: none; padding: 14px 30px; border-radius: 12px; border: 1px solid rgba(202, 163, 108, 0.5); text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 10px rgba(29, 47, 75, 0.15);">
+                      Revisar i Acceptar Lot de Traspassos ➔
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              {% if securityCode %}
+                <p style="font-size: 12px; text-align: center; color: #6A86A2; margin: 0 0 20px;">
+                  Codi PIN de Seguretat per al lot: <strong style="font-family: monospace; font-size: 15px; color: #1D2F4B; background-color: #FAF6F0; padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(202, 163, 108, 0.3);">{{ securityCode }}</strong>
+                </p>
+              {% endif %}
+
+              {# Avís de Caducitat #}
+              <div style="border-left: 3.5px solid #CAA36C; background-color: rgba(202, 163, 108, 0.08); padding: 12px 16px; border-radius: 8px; font-size: 12px; line-height: 1.5; color: #1D2F4B; margin-bottom: 20px;">
+                <strong>Avís de Caducitat (72 hores):</strong> Aquesta sol·licitud romandrà activa fins al <strong>{{ expiresAt|date('d/m/Y H:i') }} UTC</strong>. Si no és acceptada abans d'aquesta data, el traspàs quedarà cancel·lat automàticament i els béns restaran sota la titularitat de l'emissor original.
+              </div>
+
+              <p style="font-size: 11px; line-height: 1.5; color: #6A86A2; margin: 0;">
+                Si no coneixeu el remitent o creieu que es tracta d'un error, podeu ignorar aquest missatge o rebutjar el traspàs a través de la plataforma.
+              </p>
+            </td>
+          </tr>
+
+          {# Peu de Pàgina #}
+          <tr>
+            <td style="padding: 20px 40px; background-color: #FAF6F0; text-align: center; border-top: 1px solid rgba(106, 134, 162, 0.15); font-size: 11px; color: #6A86A2;">
+              <p style="margin: 0 0 5px;">Plataforma de Certificació Digital Registrals · Doble Custòdia Legal eIDAS & Blockchain L2</p>
+              <p style="margin: 0;">Aquest és un missatge automàtic transaccional certificat.</p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

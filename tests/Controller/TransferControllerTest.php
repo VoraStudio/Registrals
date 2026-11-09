@@ -507,4 +507,91 @@ class TransferControllerTest extends TestCase
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
         $this->assertStringContainsString('Transfers Index', (string) $response->getContent());
     }
+
+    public function testBatchInitiateTransfersMultipleItemsSuccessfully(): void
+    {
+        $sender = $this->createUser('sender@test.cat');
+        $item1 = $this->createItem($sender, 'CUI-BATCH-001', ItemStatus::ACTIVE);
+        $item2 = $this->createItem($sender, 'CUI-BATCH-002', ItemStatus::ACTIVE);
+
+        $itemRepo = $this->createMock(ItemRepository::class);
+        $itemRepo->method('findOneBy')->willReturnCallback(function (array $criteria) use ($item1, $item2) {
+            return match ($criteria['cui'] ?? null) {
+                'CUI-BATCH-001' => $item1,
+                'CUI-BATCH-002' => $item2,
+                default => null,
+            };
+        });
+
+        $transferRepo = $this->createMock(ItemTransferRepository::class);
+        $lifecycle = $this->createMock(ItemLifecycleService::class);
+        $lifecycle->expects($this->exactly(2))->method('initiateTransfer');
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects($this->exactly(2))->method('persist');
+        $em->expects($this->once())->method('flush');
+
+        $mailer = $this->createMock(MailerInterface::class);
+        $mailer->expects($this->once())->method('send');
+
+        $controller = $this->createController($itemRepo, $transferRepo, $lifecycle, $em, $mailer);
+        $request = new Request([], [
+            '_token' => 'valid_token',
+            'cuis' => ['CUI-BATCH-001', 'CUI-BATCH-002'],
+            'recipient_email' => 'receiver@test.cat',
+            'security_code' => '123456',
+        ]);
+        $this->setupControllerContainer($controller, $sender, true, null, $request);
+
+        $response = $controller->batchInitiate($request);
+
+        $this->assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+        $this->assertSame('/app_transfers_index?', $response->headers->get('Location'));
+    }
+
+    public function testBatchInitiateFailsWithInvalidCsrfToken(): void
+    {
+        $sender = $this->createUser('sender@test.cat');
+        $itemRepo = $this->createMock(ItemRepository::class);
+        $transferRepo = $this->createMock(ItemTransferRepository::class);
+        $lifecycle = $this->createMock(ItemLifecycleService::class);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $mailer = $this->createMock(MailerInterface::class);
+
+        $controller = $this->createController($itemRepo, $transferRepo, $lifecycle, $em, $mailer);
+        $request = new Request([], [
+            '_token' => 'invalid_token',
+            'cuis' => ['CUI-001'],
+            'recipient_email' => 'receiver@test.cat',
+        ]);
+        $this->setupControllerContainer($controller, $sender, false, null, $request);
+
+        $response = $controller->batchInitiate($request);
+
+        $this->assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+        $this->assertSame('/app_dashboard?', $response->headers->get('Location'));
+    }
+
+    public function testBatchInitiateFailsWithSelfTransfer(): void
+    {
+        $sender = $this->createUser('sender@test.cat');
+        $itemRepo = $this->createMock(ItemRepository::class);
+        $transferRepo = $this->createMock(ItemTransferRepository::class);
+        $lifecycle = $this->createMock(ItemLifecycleService::class);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $mailer = $this->createMock(MailerInterface::class);
+
+        $controller = $this->createController($itemRepo, $transferRepo, $lifecycle, $em, $mailer);
+        $request = new Request([], [
+            '_token' => 'valid_token',
+            'cuis' => ['CUI-001'],
+            'recipient_email' => 'sender@test.cat',
+        ]);
+        $this->setupControllerContainer($controller, $sender, true, null, $request);
+
+        $response = $controller->batchInitiate($request);
+
+        $this->assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+        $this->assertSame('/app_dashboard?', $response->headers->get('Location'));
+    }
 }
