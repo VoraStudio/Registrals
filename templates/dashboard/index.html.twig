@@ -245,7 +245,13 @@
               {{ app.user.plan ? app.user.plan.name|split('(')[0]|trim : 'ADMINISTRADOR' }}
             </span>
           </div>
-          <div class="text-[10px] text-ink/50 font-mono mt-1">eIDAS + Polygon L2</div>
+          <div class="text-[10px] text-ink/50 font-mono mt-1">
+            {% if not app.user.plan or app.user.plan.code == 'free' %}
+              Polygon L2 + SHA-256
+            {% else %}
+              eIDAS + Polygon L2
+            {% endif %}
+          </div>
         </div>
       </div>
 
