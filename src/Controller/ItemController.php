@@ -17,6 +17,7 @@ use App\Audit\Enum\UserActivityAction;
 use App\Audit\Service\UserActivityLogger;
 use App\Security\Voter\ItemVoter;
 use App\Service\Item\CuiGeneratorService;
+use App\Service\Item\ItemLifecycleService;
 use App\Service\Storage\SecureDocumentStorageService;
 use App\Service\Validation\MediaIntegrityValidator;
 use Doctrine\ORM\EntityManagerInterface;
@@ -796,6 +797,182 @@ class ItemController extends AbstractController
             'creditsRemaining' => $remainingAfter,
             'data' => $responseData,
         ]);
+    }
+
+    /**
+     * Dóna de baixa (arxiva) o elimina permanentment un bé individual,
+     * protegint la integritat jurídica si disposa de certificats oficials o traspassos.
+     */
+    #[Route('/{cui}/deactivate', name: 'deactivate', methods: ['POST'])]
+    public function deactivate(
+        string $cui,
+        Request $request,
+        ItemRepository $itemRepository,
+        SecureDocumentStorageService $storageService,
+        ItemLifecycleService $lifecycleService,
+        EntityManagerInterface $entityManager,
+        UserActivityLogger $activityLogger
+    ): Response {
+        $item = $itemRepository->findOneByCui($cui);
+
+        if (!$item) {
+            throw $this->createNotFoundException('El bé sol·licitat no existeix.');
+        }
+
+        $this->denyAccessUnlessGranted(ItemVoter::DELETE, $item);
+
+        $token = (string) $request->request->get('_token', '');
+        if (!$this->isCsrfTokenValid('deactivate_item_' . $item->getId(), $token)) {
+            $this->addFlash('error', 'El testimoni de seguretat no és vàlid.');
+            return $this->redirectToRoute('app_dashboard');
+        }
+
+        $actionType = (string) $request->request->get('action_type', 'archive');
+
+        // Comprovació d'immutabilitat jurídica:
+        // Si té certificats oficials emesos o traspassos registrats, no es pot purgar mai
+        $hasOfficialCertificates = false;
+        foreach ($item->getCertificates() as $cert) {
+            if ($cert->getMode()->isOfficial()) {
+                $hasOfficialCertificates = true;
+                break;
+            }
+        }
+        $hasTransfers = !$item->getTransfers()->isEmpty();
+        $isLegallyProtected = $hasOfficialCertificates || $hasTransfers;
+
+        /** @var User $currentUser */
+        $currentUser = $this->getUser();
+
+        if ($actionType === 'delete' && $isLegallyProtected) {
+            $this->addFlash('warning', sprintf(
+                'El bé %s disposa de certificats oficials o d\'un històric de traspassos. Per integritat jurídica davant tercers, no es pot purgar completament, però s\'ha donat de baixa i arxivat.',
+                $item->getCui()
+            ));
+            $actionType = 'archive';
+        }
+
+        if ($actionType === 'delete' && !$isLegallyProtected) {
+            // Hard Delete: purga de fitxers i registre
+            foreach ($item->getPhotos() as $photo) {
+                $storageService->deleteDocumentFile($photo);
+            }
+            foreach ($item->getEvidenceDocuments() as $doc) {
+                $storageService->deleteDocumentFile($doc);
+            }
+
+            $activityLogger->log(
+                user: $currentUser,
+                action: UserActivityAction::ITEM_DELETED,
+                description: sprintf('Eliminació permanent del bé %s (%s)', $item->getName(), $item->getCui()),
+                details: ['cui' => $item->getCui(), 'name' => $item->getName()]
+            );
+
+            $entityManager->remove($item);
+            $entityManager->flush();
+
+            $this->addFlash('info', sprintf('El bé %s s\'ha suprimit permanentment del vostre patrimoni.', $item->getName()));
+        } else {
+            // Soft Delete / Baixa: Arxiva a custòdia en fred
+            if ($item->getStatus() === ItemStatus::ACTIVE) {
+                $lifecycleService->archive($item);
+            } else {
+                $item->setStatus(ItemStatus::ARCHIVED);
+                $entityManager->flush();
+            }
+
+            $activityLogger->log(
+                user: $currentUser,
+                action: UserActivityAction::STATUS_CHANGED,
+                description: sprintf('Donat de baixa i arxivat el bé %s (%s)', $item->getName(), $item->getCui()),
+                details: ['cui' => $item->getCui(), 'new_status' => ItemStatus::ARCHIVED->value]
+            );
+
+            $this->addFlash('info', sprintf('El bé %s s\'ha donat de baixa del patrimoni actiu i s\'ha arxivat.', $item->getName()));
+        }
+
+        return $this->redirectToRoute('app_dashboard');
+    }
+
+    /**
+     * Dóna de baixa un lot de béns seleccionats al Dashboard.
+     */
+    #[Route('/batch/deactivate', name: 'batch_deactivate', methods: ['POST'])]
+    public function batchDeactivate(
+        Request $request,
+        ItemRepository $itemRepository,
+        SecureDocumentStorageService $storageService,
+        ItemLifecycleService $lifecycleService,
+        EntityManagerInterface $entityManager,
+        UserActivityLogger $activityLogger
+    ): Response {
+        $token = (string) $request->request->get('_token', '');
+        if (!$this->isCsrfTokenValid('batch_deactivate_items', $token)) {
+            $this->addFlash('error', 'El testimoni de seguretat no és vàlid.');
+            return $this->redirectToRoute('app_dashboard');
+        }
+
+        $cuis = (array) $request->request->all('cuis');
+        if (empty($cuis)) {
+            $this->addFlash('warning', 'No s\'ha seleccionat cap bé per donar de baixa.');
+            return $this->redirectToRoute('app_dashboard');
+        }
+
+        /** @var User $currentUser */
+        $currentUser = $this->getUser();
+        $archivedCount = 0;
+        $deletedCount = 0;
+        $actionType = (string) $request->request->get('action_type', 'archive');
+
+        foreach ($cuis as $cui) {
+            $item = $itemRepository->findOneByCui((string) $cui);
+            if (!$item || !$this->isGranted(ItemVoter::DELETE, $item)) {
+                continue;
+            }
+
+            $hasOfficial = false;
+            foreach ($item->getCertificates() as $cert) {
+                if ($cert->getMode()->isOfficial()) {
+                    $hasOfficial = true;
+                    break;
+                }
+            }
+            $isLegallyProtected = $hasOfficial || !$item->getTransfers()->isEmpty();
+
+            if ($actionType === 'delete' && !$isLegallyProtected) {
+                foreach ($item->getPhotos() as $photo) {
+                    $storageService->deleteDocumentFile($photo);
+                }
+                foreach ($item->getEvidenceDocuments() as $doc) {
+                    $storageService->deleteDocumentFile($doc);
+                }
+                $entityManager->remove($item);
+                ++$deletedCount;
+            } else {
+                if ($item->getStatus() === ItemStatus::ACTIVE) {
+                    $lifecycleService->archive($item);
+                } else {
+                    $item->setStatus(ItemStatus::ARCHIVED);
+                }
+                ++$archivedCount;
+            }
+        }
+
+        $entityManager->flush();
+
+        $messages = [];
+        if ($archivedCount > 0) {
+            $messages[] = sprintf('%d bé(ns) donat(s) de baixa i arxivat(s)', $archivedCount);
+        }
+        if ($deletedCount > 0) {
+            $messages[] = sprintf('%d bé(ns) suprimit(s) definitivament', $deletedCount);
+        }
+
+        if (!empty($messages)) {
+            $this->addFlash('info', 'Operació completada: ' . implode(', ', $messages) . '.');
+        }
+
+        return $this->redirectToRoute('app_dashboard');
     }
 }
 

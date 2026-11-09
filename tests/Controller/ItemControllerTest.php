@@ -15,6 +15,7 @@ use App\Enum\DocumentType;
 use App\Enum\ItemStatus;
 use App\Repository\ItemRepository;
 use App\Security\Voter\ItemVoter;
+use App\Service\Item\ItemLifecycleService;
 use App\Service\Storage\SecureDocumentStorageService;
 use App\Service\Validation\MediaIntegrityValidator;
 use App\Service\Validation\MediaValidationResult;
@@ -437,6 +438,143 @@ class ItemControllerTest extends TestCase
 
         $this->assertSame(Response::HTTP_FOUND, $response->getStatusCode());
         @unlink($tempFile);
+    }
+
+    public function testDeactivatePermanentlyDeletesUnprotectedItem(): void
+    {
+        $user = $this->createUser('carles@test.cat', 'free');
+        $item = $this->createItem($user, 'REG-2026-UNPROTECTED');
+
+        $doc = new ItemDocument($item, DocumentType::PHOTO_PRIMARY, 'path/photo.jpg', 'photo.jpg', 'image/jpeg', 1024, 'hash');
+        $item->addDocument($doc);
+
+        $controller = new ItemController();
+        $this->setupControllerContainer($controller, $user, true);
+
+        $itemRepo = $this->createMock(ItemRepository::class);
+        $itemRepo->method('findOneByCui')->with('REG-2026-UNPROTECTED')->willReturn($item);
+
+        $storage = $this->createMock(SecureDocumentStorageService::class);
+        $storage->expects($this->once())->method('deleteDocumentFile')->with($doc);
+
+        $lifecycle = $this->createMock(ItemLifecycleService::class);
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects($this->once())->method('remove')->with($item);
+        $em->expects($this->once())->method('flush');
+
+        $logger = $this->createMock(UserActivityLogger::class);
+        $logger->expects($this->once())->method('log');
+
+        $request = new Request(request: [
+            '_token' => 'valid_token',
+            'action_type' => 'delete',
+        ]);
+
+        $response = $controller->deactivate(
+            'REG-2026-UNPROTECTED',
+            $request,
+            $itemRepo,
+            $storage,
+            $lifecycle,
+            $em,
+            $logger
+        );
+
+        $this->assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+    }
+
+    public function testDeactivateArchivesLegallyProtectedItemEvenIfDeleteRequested(): void
+    {
+        $user = $this->createUser('carles@test.cat', 'plus');
+        $item = $this->createItem($user, 'REG-2026-PROTECTED');
+
+        // Creem un certificat oficial que protegeix el bé
+        $cert = new \App\Entity\Certificate(
+            $item,
+            $user,
+            'CERT-2026-TEST',
+            \App\Enum\CertificateMode::OFFICIAL,
+            'certs/test.pdf',
+            'hash_pdf',
+            'fingerprint_sha256'
+        );
+        $item->addCertificate($cert);
+
+        $controller = new ItemController();
+        $this->setupControllerContainer($controller, $user, true);
+
+        $itemRepo = $this->createMock(ItemRepository::class);
+        $itemRepo->method('findOneByCui')->with('REG-2026-PROTECTED')->willReturn($item);
+
+        $storage = $this->createMock(SecureDocumentStorageService::class);
+        $storage->expects($this->never())->method('deleteDocumentFile');
+
+        $lifecycle = $this->createMock(ItemLifecycleService::class);
+        $lifecycle->expects($this->once())->method('archive')->with($item);
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects($this->never())->method('remove');
+
+        $logger = $this->createMock(UserActivityLogger::class);
+
+        $request = new Request(request: [
+            '_token' => 'valid_token',
+            'action_type' => 'delete', // L'usuari demana esborrar, però el backend força arxiu per protecció jurídica
+        ]);
+
+        $response = $controller->deactivate(
+            'REG-2026-PROTECTED',
+            $request,
+            $itemRepo,
+            $storage,
+            $lifecycle,
+            $em,
+            $logger
+        );
+
+        $this->assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+    }
+
+    public function testBatchDeactivateArchivesMultipleItems(): void
+    {
+        $user = $this->createUser('carles@test.cat', 'plus');
+        $item1 = $this->createItem($user, 'REG-2026-BATCH01');
+        $item2 = $this->createItem($user, 'REG-2026-BATCH02');
+
+        $controller = new ItemController();
+        $this->setupControllerContainer($controller, $user, true);
+
+        $itemRepo = $this->createMock(ItemRepository::class);
+        $itemRepo->method('findOneByCui')->willReturnCallback(function (string $cui) use ($item1, $item2) {
+            return $cui === 'REG-2026-BATCH01' ? $item1 : ($cui === 'REG-2026-BATCH02' ? $item2 : null);
+        });
+
+        $storage = $this->createMock(SecureDocumentStorageService::class);
+        $lifecycle = $this->createMock(ItemLifecycleService::class);
+        $lifecycle->expects($this->exactly(2))->method('archive');
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects($this->once())->method('flush');
+
+        $logger = $this->createMock(UserActivityLogger::class);
+
+        $request = new Request(request: [
+            '_token' => 'valid_token',
+            'action_type' => 'archive',
+            'cuis' => ['REG-2026-BATCH01', 'REG-2026-BATCH02'],
+        ]);
+
+        $response = $controller->batchDeactivate(
+            $request,
+            $itemRepo,
+            $storage,
+            $lifecycle,
+            $em,
+            $logger
+        );
+
+        $this->assertSame(Response::HTTP_FOUND, $response->getStatusCode());
     }
 }
 

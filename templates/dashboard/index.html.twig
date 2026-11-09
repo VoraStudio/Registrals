@@ -243,7 +243,17 @@
             <div class="item-card bg-whitef border border-gold/30 hover:border-gold rounded-2xl p-2.5 shadow-2xs flex items-center gap-2.5 relative transition-all" data-category="{{ item.category.slug }}">
               {# Checkbox de Selecció #}
               <label class="flex items-center justify-center w-5 h-5 rounded-md bg-cream/50 border border-gold/60 cursor-pointer shrink-0">
-                <input type="checkbox" value="{{ item.cui }}" onchange="handleItemCheckboxChange()" class="item-checkbox w-3.5 h-3.5 text-ink rounded accent-ink cursor-pointer" />
+                <input type="checkbox"
+                       value="{{ item.cui }}"
+                       data-cui="{{ item.cui }}"
+                       data-name="{{ item.name|e('html_attr') }}"
+                       data-id="{{ item.id }}"
+                       data-csrf="{{ csrf_token('deactivate_item_' ~ item.id) }}"
+                       data-has-official-cert="{{ item.certificates|filter(c => c.mode.isOfficial)|length > 0 ? '1' : '0' }}"
+                       data-has-transfers="{{ item.transfers|length > 0 ? '1' : '0' }}"
+                       data-show-url="{{ path('app_item_show', {'cui': item.cui}) }}"
+                       onchange="handleItemCheckboxChange()"
+                       class="item-checkbox w-3.5 h-3.5 text-ink rounded accent-ink cursor-pointer" />
               </label>
 
               {# Miniatura Quadrada #}
@@ -328,7 +338,17 @@
                   {# Checkbox de Selecció a la cantonada superior esquerra #}
                   <div class="absolute top-2 left-2 flex items-center gap-1 z-10">
                     <label class="flex items-center justify-center w-5 h-5 rounded-md bg-white/90 backdrop-blur-xs border border-gold/60 shadow-2xs cursor-pointer hover:bg-white">
-                      <input type="checkbox" value="{{ item.cui }}" onchange="handleItemCheckboxChange()" class="item-checkbox w-3.5 h-3.5 text-ink rounded accent-ink cursor-pointer" />
+                      <input type="checkbox"
+                             value="{{ item.cui }}"
+                             data-cui="{{ item.cui }}"
+                             data-name="{{ item.name|e('html_attr') }}"
+                             data-id="{{ item.id }}"
+                             data-csrf="{{ csrf_token('deactivate_item_' ~ item.id) }}"
+                             data-has-official-cert="{{ item.certificates|filter(c => c.mode.isOfficial)|length > 0 ? '1' : '0' }}"
+                             data-has-transfers="{{ item.transfers|length > 0 ? '1' : '0' }}"
+                             data-show-url="{{ path('app_item_show', {'cui': item.cui}) }}"
+                             onchange="handleItemCheckboxChange()"
+                             class="item-checkbox w-3.5 h-3.5 text-ink rounded accent-ink cursor-pointer" />
                     </label>
                     <span class="bg-ink/90 backdrop-blur-xs text-cream text-[9px] font-mono px-1.5 py-0.5 rounded font-semibold shadow-2xs">
                       {{ item.cui }}
@@ -487,20 +507,21 @@
   {# Barra Flotant d'Accions per Lot a PC (Quan hi ha selecció activa) #}
   <div id="desktop-batch-bar" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-ink text-cream border border-gold/50 rounded-2xl px-6 py-3.5 shadow-2xl items-center gap-6 animate-in slide-in-from-bottom duration-200">
     <div class="flex items-center gap-3 pr-4 border-r border-gold/30 font-mono text-xs">
-      <button type="button" onclick="clearBatchSelection()" class="text-gold hover:text-white font-bold cursor-pointer">✕</button>
-      <span><strong id="desktop-batch-count">0</strong> béns seleccionats</span>
+      <button type="button" onclick="clearBatchSelection()" class="text-gold hover:text-white font-bold cursor-pointer" aria-label="Desmarcar selecció">✕</button>
+      <span><strong id="desktop-batch-count">0</strong> <span id="desktop-batch-count-label">béns seleccionats</span></span>
     </div>
     <div class="flex items-center gap-3">
       <button type="button" onclick="executeBatchAction('certificate')" class="px-4 py-2 rounded-xl bg-gold text-ink font-bold text-xs flex items-center gap-1.5 hover:bg-gold-light transition-colors cursor-pointer shadow-xs">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-        <span>Emetre Certificat de Lot</span>
+        <span id="desktop-batch-cert-label">Emetre Certificat</span>
       </button>
       <button type="button" onclick="executeBatchAction('transfer')" class="px-4 py-2 rounded-xl bg-cream/20 hover:bg-cream/30 text-cream font-semibold text-xs flex items-center gap-1.5 transition-colors cursor-pointer border border-cream/30">
         <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
-        <span>Traspassar</span>
+        <span id="desktop-batch-transfer-label">Traspassar</span>
       </button>
-      <button type="button" onclick="executeBatchAction('delete')" class="px-3 py-2 rounded-xl border border-red-400/40 text-red-300 hover:text-white hover:bg-red-900/40 text-xs font-semibold transition-colors cursor-pointer" title="Donar de baixa">
+      <button type="button" onclick="executeBatchAction('delete')" class="px-3.5 py-2 rounded-xl border border-red-400/40 text-red-300 hover:text-white hover:bg-red-900/40 text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1.5" title="Donar de baixa o eliminar">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        <span id="desktop-batch-delete-label">Donar de baixa</span>
       </button>
     </div>
   </div>
@@ -536,21 +557,21 @@
       </a>
     </div>
 
-    {# Mode Contextual: Accions per Lot (Quan hi ha selecció) #}
+    {# Mode Contextual: Accions per Lot (Quan hi ha selecció) — Només icones a mòbil #}
     <div id="pwa-batch-bar" class="hidden items-center justify-between gap-2 py-1">
       <div class="flex items-center gap-2">
-        <button type="button" onclick="clearBatchSelection()" class="w-7 h-7 rounded-lg bg-cream text-ink text-xs font-bold flex items-center justify-center">✕</button>
+        <button type="button" onclick="clearBatchSelection()" class="w-7 h-7 rounded-lg bg-cream text-ink text-xs font-bold flex items-center justify-center" aria-label="Desmarcar selecció">✕</button>
         <span class="text-xs font-bold text-ink font-mono"><span id="pwa-batch-count">0</span> sel.</span>
       </div>
 
       <div class="flex items-center gap-2">
-        <button type="button" onclick="executeBatchAction('certificate')" class="px-3 py-1.5 rounded-lg bg-gold text-ink text-xs font-bold flex items-center gap-1 shadow-xs">
-          <span>Certificat</span>
+        <button type="button" onclick="executeBatchAction('certificate')" class="p-2 rounded-lg bg-gold text-ink text-xs font-bold flex items-center justify-center shadow-xs" title="Emetre Certificat">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
         </button>
-        <button type="button" onclick="executeBatchAction('transfer')" class="px-3 py-1.5 rounded-lg bg-ink text-cream text-xs font-semibold flex items-center gap-1">
-          <span>Traspàs</span>
+        <button type="button" onclick="executeBatchAction('transfer')" class="p-2 rounded-lg bg-ink text-cream text-xs font-semibold flex items-center justify-center border border-gold/30" title="Traspassar">
+          <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
         </button>
-        <button type="button" onclick="executeBatchAction('delete')" class="p-1.5 rounded-lg border border-red-300 text-red-700 text-xs">
+        <button type="button" onclick="executeBatchAction('delete')" class="p-2 rounded-lg border border-red-300 text-red-700 hover:bg-red-50 text-xs flex items-center justify-center" title="Donar de baixa o eliminar">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
         </button>
       </div>
@@ -592,21 +613,34 @@
     const desktopCount = document.getElementById('desktop-batch-count');
     const pwaCount = document.getElementById('pwa-batch-count');
 
+    const countLabel = document.getElementById('desktop-batch-count-label');
+    const certLabel = document.getElementById('desktop-batch-cert-label');
+    const transferLabel = document.getElementById('desktop-batch-transfer-label');
+    const deleteLabel = document.getElementById('desktop-batch-delete-label');
+
     if (desktopCount) desktopCount.innerText = count;
     if (pwaCount) pwaCount.innerText = count;
 
-    if (count > 0) {
-      if (desktopBar) desktopBar.classList.remove('hidden');
-      if (desktopBar) desktopBar.classList.add('flex');
-      if (pwaNav) pwaNav.classList.add('hidden');
-      if (pwaBatchBar) pwaBatchBar.classList.remove('hidden');
-      if (pwaBatchBar) pwaBatchBar.classList.add('flex');
+    if (count === 1) {
+      if (countLabel) countLabel.innerText = 'bé seleccionat';
+      if (certLabel) certLabel.innerText = 'Emetre Certificat';
+      if (transferLabel) transferLabel.innerText = 'Traspassar';
+      if (deleteLabel) deleteLabel.innerText = 'Donar de baixa';
     } else {
-      if (desktopBar) desktopBar.classList.add('hidden');
-      if (desktopBar) desktopBar.classList.remove('flex');
+      if (countLabel) countLabel.innerText = 'béns seleccionats';
+      if (certLabel) certLabel.innerText = 'Emetre Certificats de Lot';
+      if (transferLabel) transferLabel.innerText = 'Traspàs de Lot';
+      if (deleteLabel) deleteLabel.innerText = `Donar de baixa (${count})`;
+    }
+
+    if (count > 0) {
+      if (desktopBar) { desktopBar.classList.remove('hidden'); desktopBar.classList.add('flex'); }
+      if (pwaNav) pwaNav.classList.add('hidden');
+      if (pwaBatchBar) { pwaBatchBar.classList.remove('hidden'); pwaBatchBar.classList.add('flex'); }
+    } else {
+      if (desktopBar) { desktopBar.classList.add('hidden'); desktopBar.classList.remove('flex'); }
       if (pwaNav) pwaNav.classList.remove('hidden');
-      if (pwaBatchBar) pwaBatchBar.classList.add('hidden');
-      if (pwaBatchBar) pwaBatchBar.classList.remove('flex');
+      if (pwaBatchBar) { pwaBatchBar.classList.add('hidden'); pwaBatchBar.classList.remove('flex'); }
     }
   }
 
@@ -617,29 +651,107 @@
   }
 
   function executeBatchAction(action) {
-    const selected = Array.from(document.querySelectorAll('.item-checkbox:checked')).map(cb => cb.value);
-    if (selected.length === 0) return;
+    const selectedCheckboxes = Array.from(document.querySelectorAll('.item-checkbox:checked'));
+    if (selectedCheckboxes.length === 0) return;
 
     if (action === 'certificate') {
-      if (window.RegistralsToast) {
-        window.RegistralsToast.show('Emissió de Lot', `Preparant l'emissió del certificat oficial per a ${selected.length} béns...`, 'info');
+      if (selectedCheckboxes.length === 1) {
+        window.location.href = selectedCheckboxes[0].dataset.showUrl;
       } else {
-        alert(`Preparant certificat conjunt per a ${selected.length} béns: ` + selected.join(', '));
+        if (window.RegistralsToast) {
+          window.RegistralsToast.show('Emissió de Lot', `Preparant l'emissió del certificat oficial per a ${selectedCheckboxes.length} béns...`, 'info');
+        }
       }
     } else if (action === 'transfer') {
-      if (window.RegistralsToast) {
-        window.RegistralsToast.show('Traspàs de Lot', `Iniciant canvi de titularitat per a ${selected.length} béns...`, 'info');
+      if (selectedCheckboxes.length === 1) {
+        window.location.href = selectedCheckboxes[0].dataset.showUrl;
       } else {
-        alert(`Iniciant traspàs per a: ` + selected.join(', '));
+        if (window.RegistralsToast) {
+          window.RegistralsToast.show('Traspàs de Lot', `Iniciant canvi de titularitat per a ${selectedCheckboxes.length} béns...`, 'info');
+        }
       }
     } else if (action === 'delete') {
-      if (confirm(`Estàs segur que vols donar de baixa aquests ${selected.length} béns del teu inventari?`)) {
-        if (window.RegistralsToast) {
-          window.RegistralsToast.show('Baixa processada', `S'han tramitat les baixes dels béns seleccionats.`, 'info');
-        }
-        clearBatchSelection();
-      }
+      openDeactivateModal(selectedCheckboxes);
     }
+  }
+
+  function openDeactivateModal(selectedCheckboxes) {
+    const modal = document.getElementById('modal-deactivate-item');
+    if (!modal) return;
+
+    const count = selectedCheckboxes.length;
+    const form = document.getElementById('deactivate-item-form');
+    const csrfInput = document.getElementById('deactivate-csrf-token');
+    const batchInputsContainer = document.getElementById('deactivate-batch-inputs');
+    const itemCard = document.getElementById('deactivate-item-card');
+    const itemCui = document.getElementById('deactivate-item-cui');
+    const itemName = document.getElementById('deactivate-item-name');
+    const protectedNotice = document.getElementById('deactivate-protected-notice');
+    const unprotectedOptions = document.getElementById('deactivate-unprotected-options');
+    const batchNotice = document.getElementById('deactivate-batch-notice');
+    const submitBtnLabel = document.getElementById('deactivate-submit-btn-label');
+    const modalTitle = document.getElementById('deactivate-modal-title');
+
+    batchInputsContainer.innerHTML = '';
+
+    if (count === 1) {
+      const cb = selectedCheckboxes[0];
+      const cui = cb.dataset.cui;
+      const name = cb.dataset.name;
+      const csrf = cb.dataset.csrf;
+      const isProtected = cb.dataset.hasOfficialCert === '1' || cb.dataset.hasTransfers === '1';
+
+      form.action = `/app/items/${cui}/deactivate`;
+      csrfInput.value = csrf;
+
+      if (modalTitle) modalTitle.textContent = isProtected ? 'Donar de Baixa Bé' : 'Donar de Baixa o Eliminar Bé';
+      if (itemCard) itemCard.classList.remove('hidden');
+      if (itemCui) itemCui.textContent = cui;
+      if (itemName) itemName.textContent = name;
+      if (batchNotice) batchNotice.classList.add('hidden');
+
+      if (isProtected) {
+        if (protectedNotice) protectedNotice.classList.remove('hidden');
+        if (unprotectedOptions) unprotectedOptions.classList.add('hidden');
+        if (submitBtnLabel) submitBtnLabel.textContent = 'Donar de Baixa i Arxivar';
+      } else {
+        if (protectedNotice) protectedNotice.classList.add('hidden');
+        if (unprotectedOptions) unprotectedOptions.classList.remove('hidden');
+        if (submitBtnLabel) submitBtnLabel.textContent = 'Confirmar';
+      }
+    } else {
+      form.action = '{{ path('app_item_batch_deactivate') }}';
+      csrfInput.value = '{{ csrf_token('batch_deactivate_items') }}';
+
+      if (modalTitle) modalTitle.textContent = `Donar de Baixa ${count} Béns`;
+      if (itemCard) itemCard.classList.add('hidden');
+      if (protectedNotice) protectedNotice.classList.add('hidden');
+      if (unprotectedOptions) unprotectedOptions.classList.add('hidden');
+      if (batchNotice) batchNotice.classList.remove('hidden');
+      const batchCountNum = document.getElementById('deactivate-batch-count-num');
+      if (batchCountNum) batchCountNum.textContent = count;
+      if (submitBtnLabel) submitBtnLabel.textContent = `Donar de Baixa (${count})`;
+
+      selectedCheckboxes.forEach(cb => {
+        const hidden = document.createElement('input');
+        hidden.type = 'hidden';
+        hidden.name = 'cuis[]';
+        hidden.value = cb.dataset.cui;
+        batchInputsContainer.appendChild(hidden);
+      });
+    }
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.classList.add('overflow-hidden');
+  }
+
+  function closeDeactivateModal() {
+    const modal = document.getElementById('modal-deactivate-item');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.body.classList.remove('overflow-hidden');
   }
 
   // ==========================================
@@ -700,6 +812,7 @@
   document.addEventListener('keydown', function(evt) {
     if (evt.key === 'Escape') {
       closeReactivationModal();
+      closeDeactivateModal();
     }
   });
 </script>
@@ -761,6 +874,113 @@
         <span>Reactivar Pla Plus ({{ plusPlan ? (plusPlan.priceCents / 100)|number_format(0) : '22' }} €/any)</span>
       </a>
     </div>
+  </div>
+</div>
+
+{# Modal Canònic Dual PWA: Donar de Baixa o Eliminar Bé #}
+<div id="modal-deactivate-item" class="hidden fixed inset-0 z-50 bg-ink/75 backdrop-blur-xs items-end sm:items-center justify-center p-0 sm:p-4 transition-all duration-200" onclick="if(event.target === this) closeDeactivateModal();">
+  <div class="bg-white rounded-t-3xl sm:rounded-2xl border-t sm:border border-gold/40 shadow-2xl max-w-md w-full max-h-[90vh] sm:max-h-[92vh] overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150">
+    {# Nansa tàctil mòbil #}
+    <div class="sm:hidden w-10 h-1 bg-steel/30 rounded-full mx-auto mt-2 -mb-1 shrink-0"></div>
+
+    {# Capçalera Solemne #}
+    <div class="p-4 sm:p-5 border-b border-steel/15 flex items-center justify-between bg-cream/30">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-red-100 text-red-700 flex items-center justify-center shrink-0 border border-red-200">
+          <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        </div>
+        <div>
+          <h3 id="deactivate-modal-title" class="font-marcellus text-base sm:text-lg text-ink font-bold leading-tight">
+            Donar de Baixa Bé
+          </h3>
+          <p class="text-[11px] font-mono text-steel">Gestió de Patrimoni & Arxiu</p>
+        </div>
+      </div>
+      <button type="button" onclick="closeDeactivateModal()" class="w-8 h-8 rounded-lg bg-white border border-steel/20 text-steel hover:text-ink flex items-center justify-center text-sm font-bold cursor-pointer" aria-label="Tancar">
+        ✕
+      </button>
+    </div>
+
+    {# Formulari d'Acció #}
+    <form id="deactivate-item-form" method="POST" action="" class="flex flex-col flex-1 overflow-hidden">
+      <input type="hidden" name="_token" id="deactivate-csrf-token" value="">
+      <div id="deactivate-batch-inputs"></div>
+
+      {# Cos del Modal #}
+      <div class="p-4 sm:p-5 overflow-y-auto space-y-3 font-raleway text-xs sm:text-sm text-ink/80 leading-relaxed flex-1">
+        
+        {# Fitxa d'identificació del bé o lot #}
+        <div id="deactivate-item-card" class="p-3 rounded-xl bg-cream-50/70 border border-steel/20 space-y-1">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span id="deactivate-item-cui" class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-ink text-gold border border-gold/30"></span>
+            <strong id="deactivate-item-name" class="font-marcellus text-ink text-sm"></strong>
+          </div>
+        </div>
+
+        {# Bloc Protegit per Integritat Jurídica #}
+        <div id="deactivate-protected-notice" class="hidden space-y-2">
+          <div class="p-3.5 rounded-xl bg-gold/10 border-l-[3.5px] border-gold text-ink text-xs font-raleway space-y-1">
+            <strong>Integritat Jurídica de la Certificació</strong>
+            <p class="text-ink/80">
+              Aquest bé disposa de <strong>certificats oficials emesos</strong> o d'un <strong>històric de traspàs registrat</strong>. Per preservar la validesa probatòria davant tercers, asseguradores i tribunals (i el funcionament del codi QR de verificació), <strong>el registre no es pot purgar completament</strong>.
+            </p>
+          </div>
+          <p class="text-xs text-steel leading-relaxed">
+            En donar-lo de baixa, el bé <strong>s'arxiva a la custòdia en fred</strong>: allibera quota del vostre pla i surt del patrimoni actiu, protegint la traçabilitat històrica.
+          </p>
+          <input type="hidden" name="action_type" id="deactivate-action-type-protected" value="archive">
+        </div>
+
+        {# Bloc No Protegit (Permet triar entre Arxivar o Eliminar) #}
+        <div id="deactivate-unprotected-options" class="hidden space-y-3">
+          <p class="text-xs text-ink/80">
+            Aquest bé no té certificats oficials ni traspassos associats. Trieu com voleu procedir:
+          </p>
+          <div class="space-y-2">
+            <label class="flex items-start gap-2.5 p-3 rounded-xl border border-steel/30 bg-cream/20 hover:bg-cream/40 cursor-pointer transition-colors">
+              <input type="radio" name="action_type" value="archive" checked class="mt-0.5 accent-ink cursor-pointer">
+              <div class="text-xs">
+                <strong class="text-ink block font-bold">Arxivar a la custòdia en fred (Recomanat)</strong>
+                <span class="text-steel block text-[11px] mt-0.5">Allibera la quota de béns del pla i conserva les fotografies i dades per si voleu reactivar-lo més endavant.</span>
+              </div>
+            </label>
+            <label class="flex items-start gap-2.5 p-3 rounded-xl border border-red-200 bg-red-50/40 hover:bg-red-50/70 cursor-pointer transition-colors">
+              <input type="radio" name="action_type" value="delete" class="mt-0.5 accent-red-600 cursor-pointer">
+              <div class="text-xs">
+                <strong class="text-red-800 block font-bold">Eliminar permanentment (Purga)</strong>
+                <span class="text-red-700/80 block text-[11px] mt-0.5">Esborra el bé i purga totes les fotografies i comprovants de forma definitiva i irreversible (Dret a l'oblit).</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        {# Bloc de Baixa en Lot #}
+        <div id="deactivate-batch-notice" class="hidden space-y-2">
+          <p class="text-xs text-ink/80">
+            Esteu a punt de donar de baixa <strong id="deactivate-batch-count-num"></strong> béns del vostre patrimoni actiu.
+          </p>
+          <div class="p-3.5 rounded-xl bg-gold/10 border-l-[3.5px] border-gold text-ink text-xs font-raleway space-y-1">
+            <strong>Custòdia en fred i alliberament de quota</strong>
+            <p class="text-ink/80">
+              Els béns s'arxivaran a la custòdia en fred, alliberant les places corresponents del vostre pla i preservant la integritat de les dades registrades.
+            </p>
+          </div>
+          <input type="hidden" name="action_type" id="deactivate-action-type-batch" value="archive">
+        </div>
+
+      </div>
+
+      {# Peu d'accions #}
+      <div class="p-4 bg-cream-50/50 border-t border-steel/15 flex items-center justify-end gap-2.5 shrink-0">
+        <button type="button" onclick="closeDeactivateModal()" class="px-4 py-2 rounded-xl border border-steel/30 text-ink/75 hover:text-ink hover:bg-white text-xs font-semibold transition-all cursor-pointer">
+          Cancel·lar
+        </button>
+        <button type="submit" id="deactivate-submit-btn" class="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-xs flex items-center gap-1.5 cursor-pointer">
+          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+          <span id="deactivate-submit-btn-label">Confirmar Baixa</span>
+        </button>
+      </div>
+    </form>
   </div>
 </div>
 {% endblock %}
