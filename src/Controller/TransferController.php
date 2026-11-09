@@ -48,6 +48,7 @@ class TransferController extends AbstractController
      * Safata de gestió de traspassos de l'usuari (Rebuts i Enviats).
      */
     #[Route('/app/transfers', name: 'app_transfers_index', methods: ['GET'])]
+    #[Route('/app/transfer', name: 'app_transfer_index', methods: ['GET'])]
     #[IsGranted('ROLE_USER')]
     public function index(): Response
     {

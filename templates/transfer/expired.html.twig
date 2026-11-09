@@ -3,22 +3,27 @@
 {% block title %}Estat del Traspàs Certificat C2C — Registrals{% endblock %}
 {% block meta_description %}Informació sobre l'estat d'una sol·licitud de traspàs a Registrals.{% endblock %}
 
-{% block body_class %}bg-cream text-ink min-h-screen flex flex-col justify-between selection:bg-gold selection:text-ink font-raleway{% endblock %}
+{% block body_class %}bg-cream-50 text-ink min-h-screen flex flex-col justify-between selection:bg-gold selection:text-ink font-raleway{% endblock %}
 
 {% block body %}
-<div class="min-h-screen flex flex-col justify-between bg-cream">
+<div class="min-h-screen flex flex-col justify-between bg-cream-50">
 
   {# Capçalera Pública Institucional #}
-  <header class="bg-white sticky top-0 z-50 border-b border-steel/20 shadow-2xs">
+  <header class="bg-white sticky top-0 z-50 border-b border-steel/20 shadow-2xs shrink-0">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <a href="{{ path('app_home') }}" class="flex items-center gap-2.5">
         <span class="font-marcellus text-xl tracking-wider text-ink font-bold">REGISTRALS</span>
-        <span class="text-[9px] uppercase tracking-widest text-gold font-bold bg-cream px-2 py-0.5 rounded-full border border-gold/30">Fe Pública Digital</span>
+        <span class="text-[9px] uppercase tracking-widest text-gold font-bold bg-cream px-2 py-0.5 rounded-full border border-gold/30">Certificació Digital</span>
       </a>
-      <div>
+      <div class="flex items-center gap-2">
         {% if app.user %}
-          <a href="{{ path('app_dashboard') }}" class="px-3.5 py-1.5 rounded-xl font-bold text-xs uppercase tracking-wider bg-ink text-gold border border-gold/40 hover:bg-ink/90 transition-all shadow-2xs">
-            El meu Patrimoni
+          <a href="{{ path('app_transfers_index') }}" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-xs uppercase tracking-wider bg-white border border-steel/30 text-ink hover:text-gold hover:border-gold/50 transition-all shadow-2xs">
+            <svg class="w-3.5 h-3.5 text-steel" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+            <span>Traspassos</span>
+          </a>
+          <a href="{{ path('app_dashboard') }}" class="px-3.5 py-1.5 rounded-xl font-bold text-xs uppercase tracking-wider bg-ink text-gold border border-gold/40 hover:bg-ink/90 transition-all shadow-2xs flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            <span>El meu Patrimoni</span>
           </a>
         {% else %}
           <a href="{{ path('app_login') }}" class="px-3.5 py-1.5 rounded-xl font-bold text-xs uppercase tracking-wider bg-white border border-steel/30 text-ink hover:text-gold transition-all shadow-2xs">
@@ -29,15 +34,15 @@
     </div>
   </header>
 
-  {# Contingut Principal #}
-  <main class="max-w-xl mx-auto px-4 sm:px-6 py-12 sm:py-16 w-full flex-1 flex flex-col justify-center">
+  {# Contingut Principal Centrat #}
+  <main class="max-w-xl mx-auto px-4 sm:px-6 py-10 sm:py-16 w-full flex-1 flex flex-col justify-center items-center">
 
-    <div class="bg-white rounded-3xl border border-gold/40 shadow-xl overflow-hidden text-center">
+    <div class="bg-white rounded-3xl border border-gold/40 shadow-xl overflow-hidden text-center w-full max-w-md">
       
       {# Lluentor Superior Daurada #}
       <div class="h-1.5 bg-gradient-to-r from-ink via-gold to-ink"></div>
 
-      <div class="p-8 sm:p-10 space-y-6">
+      <div class="p-6 sm:p-8 space-y-5">
 
         {# Icona d'Estat Segons Motiu #}
         <div class="w-16 h-16 rounded-full mx-auto flex items-center justify-center
@@ -65,8 +70,8 @@
         </div>
 
         {# Títols i Explicacions #}
-        <div class="space-y-2">
-          <h1 class="font-marcellus text-2xl text-ink">
+        <div class="space-y-1.5">
+          <h1 class="font-marcellus text-xl sm:text-2xl text-ink">
             {% if reason == 'expired' %}
               Aquesta Sol·licitud ha Caducat
             {% elseif reason == 'cancelled' %}
@@ -82,7 +87,7 @@
             {% endif %}
           </h1>
 
-          <p class="text-xs sm:text-sm text-steel leading-relaxed max-w-md mx-auto">
+          <p class="text-xs text-steel leading-relaxed max-w-sm mx-auto">
             {% if reason == 'expired' %}
               El termini màxim de 72 hores per acceptar aquesta transmissió de titularitat ha vençut. El bé roman sota la custòdia del titular original.
             {% elseif reason == 'cancelled' %}
@@ -97,22 +102,35 @@
           </p>
         </div>
 
+        {# Informació del Bé Moble #}
         {% if transfer and transfer.item %}
-          <div class="p-3.5 bg-cream-50 rounded-xl border border-steel/20 text-xs text-ink/80 flex items-center justify-between">
-            <span class="font-semibold">{{ transfer.item.name }}</span>
-            <span class="font-mono font-bold text-steel">{{ transfer.item.cui }}</span>
+          <div class="p-3 bg-cream/40 rounded-xl border border-steel/20 text-xs text-ink/80 flex items-center justify-between">
+            <span class="font-semibold truncate max-w-[200px]">{{ transfer.item.name }}</span>
+            <span class="font-mono font-bold text-steel shrink-0">{{ transfer.item.cui }}</span>
           </div>
         {% endif %}
 
-        {# Botó d'Acció de Retorn #}
-        <div class="pt-2">
+        {# Motiu del rebuig (si escau) #}
+        {% if reason in ['rejected', 'just_rejected'] and transfer and transfer.rejectionReason %}
+          <div class="p-3 bg-red-50/60 rounded-xl border border-red-200/80 text-left text-xs text-ink/80 space-y-1">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-red-700 block">Motiu del rebuig registrat:</span>
+            <p class="text-ink/90 font-medium italic">«{{ transfer.rejectionReason }}»</p>
+          </div>
+        {% endif %}
+
+        {# Botons d'Acció de Retorn #}
+        <div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2.5">
           {% if app.user %}
-            <a href="{{ path('app_dashboard') }}" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-xs uppercase tracking-wider transition-all shadow-sm">
+            <a href="{{ path('app_transfers_index') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white text-ink border border-steel/30 hover:border-gold/50 hover:text-gold font-bold text-xs uppercase tracking-wider transition-all shadow-2xs">
+              <svg class="w-4 h-4 text-steel" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+              <span>Safata de Traspassos</span>
+            </a>
+            <a href="{{ path('app_dashboard') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-xs uppercase tracking-wider transition-all shadow-2xs">
               <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-              <span>Tornar al meu Patrimoni</span>
+              <span>El meu Patrimoni</span>
             </a>
           {% else %}
-            <a href="{{ path('app_home') }}" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-xs uppercase tracking-wider transition-all shadow-sm">
+            <a href="{{ path('app_home') }}" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-xs uppercase tracking-wider transition-all shadow-2xs">
               <span>Anar a la Portada</span>
             </a>
           {% endif %}
@@ -124,8 +142,10 @@
 
   </main>
 
-  {# Peu de Pàgina Institucional #}
-  {{ include('page/home/_footer.html.twig') }}
+  {# Peu de pàgina discret i solemne #}
+  <footer class="py-5 text-center text-xs text-steel border-t border-steel/15 bg-white shrink-0">
+    Registrals © {{ 'now'|date('Y') }} · Plataforma de Certificació Digital de Béns Mobles.
+  </footer>
 
 </div>
 {% endblock %}

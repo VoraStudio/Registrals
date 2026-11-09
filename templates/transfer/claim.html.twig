@@ -13,7 +13,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <a href="{{ path('app_home') }}" class="flex items-center gap-2.5">
         <span class="font-marcellus text-xl tracking-wider text-ink font-bold">REGISTRALS</span>
-        <span class="text-[9px] uppercase tracking-widest text-gold font-bold bg-cream px-2 py-0.5 rounded-full border border-gold/30">Fe Pública Digital</span>
+        <span class="text-[9px] uppercase tracking-widest text-gold font-bold bg-cream px-2 py-0.5 rounded-full border border-gold/30">Certificació Digital</span>
       </a>
       <div>
         {% if app.user %}
@@ -338,8 +338,10 @@
     });
   </script>
 
-  {# Peu de Pàgina Institucional #}
-  {{ include('page/home/_footer.html.twig') }}
+  {# Peu de pàgina discret i solemne #}
+  <footer class="py-5 text-center text-xs text-steel border-t border-steel/15 bg-white shrink-0">
+    Registrals © {{ 'now'|date('Y') }} · Plataforma de Certificació Digital de Béns Mobles.
+  </footer>
 
 </div>
 {% endblock %}
