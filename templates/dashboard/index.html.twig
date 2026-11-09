@@ -141,17 +141,27 @@
     {% set maxAi = app.user.plan ? app.user.plan.aiAssistanceQuota : -1 %}
     {% set aiPct = maxAi > 0 ? ((aiUsed / maxAi * 100)|round) : 0 %}
 
+    {# Versió Mòbil: 4 Micro-segments (< sm) #}
     <div class="sm:hidden mb-4 bg-whitef border border-gold/40 rounded-2xl p-2 shadow-2xs flex items-center justify-between text-xs">
-      {# Segment 1: Béns #}
+      {# Segment 1: Béns Actius #}
       <div class="flex-1 flex items-center justify-center gap-1.5 px-1 border-r border-steel/20">
         <svg class="w-3.5 h-3.5 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
         <span class="font-mono text-[11px] font-bold text-ink whitespace-nowrap">
           {{ itemsCount }}<span class="text-ink/45 font-normal">/{{ maxAllowed > 0 ? maxAllowed : '∞' }}</span>
         </span>
-        <span class="text-[9px] text-ink/60 font-semibold uppercase tracking-tight">Béns</span>
+        <span class="text-[9px] text-ink/60 font-semibold uppercase tracking-tight">Actius</span>
       </div>
 
-      {# Segment 2: Crèdits IA #}
+      {# Segment 2: Altes Cicle Anual #}
+      <div class="flex-1 flex items-center justify-center gap-1.5 px-1 border-r border-steel/20">
+        <svg class="w-3.5 h-3.5 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        <span class="font-mono text-[11px] font-bold text-ink whitespace-nowrap">
+          {{ yearlyRegs }}<span class="text-ink/45 font-normal">/{{ maxYearlyRegs > 0 and maxYearlyRegs < 9999 ? maxYearlyRegs : '∞' }}</span>
+        </span>
+        <span class="text-[9px] text-ink/60 font-semibold uppercase tracking-tight">Altes</span>
+      </div>
+
+      {# Segment 3: Crèdits IA #}
       <div class="flex-1 flex items-center justify-center gap-1.5 px-1 border-r border-steel/20">
         <svg class="w-3.5 h-3.5 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
         <span class="font-mono text-[11px] font-bold text-ink whitespace-nowrap">
@@ -160,69 +170,85 @@
         <span class="text-[9px] text-ink/60 font-semibold uppercase tracking-tight whitespace-nowrap">IA</span>
       </div>
 
-      {# Segment 3: Pla Actiu #}
+      {# Segment 4: Pla Actiu #}
       <div class="flex-1 flex items-center justify-center px-1">
-        <span class="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-cream text-ink border border-gold/40 whitespace-nowrap">
-          <svg class="w-2.5 h-2.5 text-gold shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          <span>{{ app.user.plan ? app.user.plan.name|split('(')[0]|trim : 'ADMINISTRADOR' }}</span>
+        <span class="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-cream text-ink border border-gold/40 whitespace-nowrap">
+          <span>{{ app.user.plan ? app.user.plan.name|split('(')[0]|trim : 'ADMIN' }}</span>
         </span>
       </div>
     </div>
 
-    {# Versió Escriptori: Franja Notarial Horitzontal Compacta (>= sm) #}
-    <div class="hidden sm:flex items-center justify-between gap-4 bg-whitef border border-gold/35 rounded-2xl p-3 sm:px-6 sm:py-3.5 mb-6 shadow-2xs">
-      {# Segment 1: Capacitat de Béns #}
-      <div class="flex items-center gap-3.5 flex-1 pr-4 border-r border-gold/20">
+    {# Versió Escriptori: Franja Notarial Horitzontal Compacta (4 Blocs Equilibrats >= sm) #}
+    <div class="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 items-center gap-4 bg-whitef border border-gold/35 rounded-2xl p-3 sm:px-5 sm:py-3.5 mb-6 shadow-2xs divide-y sm:divide-y-0 sm:divide-x divide-gold/20">
+      
+      {# Segment 1: Capacitat de Béns Actius #}
+      <div class="flex items-center gap-3.5 pr-3">
         <div class="w-10 h-10 rounded-xl bg-cream/50 border border-gold/30 flex items-center justify-center shrink-0 text-gold">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
         </div>
-        <div class="min-w-0">
-          <div class="text-[10px] uppercase tracking-wider text-ink/60 font-bold">Capacitat de Béns</div>
+        <div class="min-w-0 flex-1">
+          <div class="text-[10px] uppercase tracking-wider text-ink/60 font-bold truncate">Capacitat Activa</div>
           <div class="flex items-baseline gap-1.5 mt-0.5">
             <span class="font-marcellus text-lg font-bold text-ink">{{ itemsCount }}</span>
-            <span class="text-xs text-ink/55 font-mono">/ {{ maxAllowed > 0 ? maxAllowed : '∞' }} actius</span>
+            <span class="text-xs text-ink/55 font-mono">/ {{ maxAllowed > 0 ? maxAllowed : '∞' }}</span>
           </div>
-          {% if maxYearlyRegs > 0 and maxYearlyRegs < 9999 %}
-            <div class="text-[10px] text-ink/50 font-mono mt-0.5">Altes aquest cicle: <strong class="text-ink font-semibold">{{ yearlyRegs }}</strong>/{{ maxYearlyRegs }}</div>
-          {% endif %}
-        </div>
-        <div class="w-24 bg-cream/70 h-1.5 rounded-full overflow-hidden border border-gold/25 ml-auto hidden md:block">
-          <div class="bg-gold h-full rounded-full" style="width: {{ pct > 100 ? 100 : pct }}%"></div>
+          <div class="w-full bg-steel/20 h-2 rounded-full overflow-hidden mt-1.5">
+            <div class="bg-gold h-full rounded-full transition-all duration-300" style="width: {{ pct > 100 ? 100 : (pct < 4 and pct > 0 ? 4 : pct) }}%"></div>
+          </div>
         </div>
       </div>
 
-      {# Segment 2: Crèdits IA #}
-      <div class="flex items-center gap-3.5 flex-1 pr-4 border-r border-gold/20">
+      {# Segment 2: Altes Cicle Anual #}
+      {% set regPct = maxYearlyRegs > 0 and maxYearlyRegs < 9999 ? ((yearlyRegs / maxYearlyRegs * 100)|round) : 10 %}
+      <div class="flex items-center gap-3.5 px-3 pt-3 sm:pt-0">
+        <div class="w-10 h-10 rounded-xl bg-cream/50 border border-gold/30 flex items-center justify-center shrink-0 text-gold">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        </div>
+        <div class="min-w-0 flex-1">
+          <div class="text-[10px] uppercase tracking-wider text-ink/60 font-bold truncate">Altes Cicle Anual</div>
+          <div class="flex items-baseline gap-1.5 mt-0.5">
+            <span class="font-marcellus text-lg font-bold text-ink">{{ yearlyRegs }}</span>
+            <span class="text-xs text-ink/55 font-mono">/ {{ maxYearlyRegs > 0 and maxYearlyRegs < 9999 ? maxYearlyRegs : '∞' }}</span>
+          </div>
+          <div class="w-full bg-steel/20 h-2 rounded-full overflow-hidden mt-1.5">
+            <div class="bg-gold h-full rounded-full transition-all duration-300" style="width: {{ regPct > 100 ? 100 : (regPct < 4 and regPct > 0 ? 4 : regPct) }}%"></div>
+          </div>
+        </div>
+      </div>
+
+      {# Segment 3: Crèdits IA #}
+      <div class="flex items-center gap-3.5 px-3 pt-3 sm:pt-0">
         <div class="w-10 h-10 rounded-xl bg-cream/50 border border-gold/30 flex items-center justify-center shrink-0 text-gold">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
         </div>
-        <div class="min-w-0">
-          <div class="text-[10px] uppercase tracking-wider text-ink/60 font-bold">Crèdits IA</div>
+        <div class="min-w-0 flex-1">
+          <div class="text-[10px] uppercase tracking-wider text-ink/60 font-bold truncate">Crèdits IA</div>
           <div class="flex items-baseline gap-1.5 mt-0.5">
             <span class="font-marcellus text-lg font-bold text-ink">{{ aiUsed }}</span>
-            <span class="text-xs text-ink/55 font-mono">/ {{ maxAi > 0 ? maxAi : '∞' }} consultes</span>
+            <span class="text-xs text-ink/55 font-mono">/ {{ maxAi > 0 ? maxAi : '∞' }}</span>
           </div>
-        </div>
-        <div class="w-24 bg-cream/70 h-1.5 rounded-full overflow-hidden border border-gold/25 ml-auto hidden md:block">
-          <div class="bg-gold h-full rounded-full" style="width: {{ aiPct > 100 ? 100 : aiPct }}%"></div>
+          <div class="w-full bg-steel/20 h-2 rounded-full overflow-hidden mt-1.5">
+            <div class="bg-gold h-full rounded-full transition-all duration-300" style="width: {{ aiPct > 100 ? 100 : (aiPct < 4 and aiPct > 0 ? 4 : aiPct) }}%"></div>
+          </div>
         </div>
       </div>
 
-      {# Segment 3: Pla & Protecció #}
-      <div class="flex items-center gap-3.5 flex-1">
+      {# Segment 4: Pla & Protecció #}
+      <div class="flex items-center gap-3.5 pl-3 pt-3 sm:pt-0">
         <div class="w-10 h-10 rounded-xl bg-cream/50 border border-gold/30 flex items-center justify-center shrink-0 text-gold">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
         </div>
-        <div class="min-w-0">
-          <div class="text-[10px] uppercase tracking-wider text-ink/60 font-bold">Pla & Seguretat</div>
-          <div class="flex items-center gap-2 mt-0.5">
-            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-cream text-ink border border-gold/40">
+        <div class="min-w-0 flex-1">
+          <div class="text-[10px] uppercase tracking-wider text-ink/60 font-bold truncate">Pla & Seguretat</div>
+          <div class="flex items-center gap-2 mt-1">
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-cream text-ink border border-gold/40 truncate">
               {{ app.user.plan ? app.user.plan.name|split('(')[0]|trim : 'ADMINISTRADOR' }}
             </span>
-            <span class="text-[11px] text-ink/50 hidden lg:inline">eIDAS + Polygon</span>
           </div>
+          <div class="text-[10px] text-ink/50 font-mono mt-1">eIDAS + Polygon L2</div>
         </div>
       </div>
+
     </div>
 
     {# Si té béns registrats: Filtres i Llistat #}
