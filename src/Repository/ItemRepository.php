@@ -33,16 +33,20 @@ class ItemRepository extends ServiceEntityRepository
             ->addSelect('d')
             ->andWhere('i.owner = :owner')
             ->andWhere('i.parent IS NULL')
-            ->andWhere('i.status != :frozenStatus')
+            ->andWhere('i.status NOT IN (:excludedStatuses)')
             ->setParameter('owner', $owner)
-            ->setParameter('frozenStatus', \App\Enum\ItemStatus::FROZEN)
+            ->setParameter('excludedStatuses', [
+                \App\Enum\ItemStatus::FROZEN,
+                \App\Enum\ItemStatus::ARCHIVED,
+                \App\Enum\ItemStatus::TRANSFERRED,
+            ])
             ->orderBy('i.createdAt', 'DESC')
             ->getQuery()
             ->getResult();
     }
 
     /**
-     * Retorna els béns en custòdia en fred (congelats) del propietari, paginats.
+     * Retorna els béns en custòdia en fred (congelats o arxivats) del propietari, paginats.
      *
      * @return list<Item>
      */
@@ -52,9 +56,12 @@ class ItemRepository extends ServiceEntityRepository
             ->leftJoin('i.category', 'c')
             ->addSelect('c')
             ->andWhere('i.owner = :owner')
-            ->andWhere('i.status = :status')
+            ->andWhere('i.status IN (:coldStatuses)')
             ->setParameter('owner', $owner)
-            ->setParameter('status', \App\Enum\ItemStatus::FROZEN)
+            ->setParameter('coldStatuses', [
+                \App\Enum\ItemStatus::FROZEN,
+                \App\Enum\ItemStatus::ARCHIVED,
+            ])
             ->orderBy('i.createdAt', 'DESC')
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit)
@@ -67,9 +74,12 @@ class ItemRepository extends ServiceEntityRepository
         return (int) $this->createQueryBuilder('i')
             ->select('COUNT(i.id)')
             ->andWhere('i.owner = :owner')
-            ->andWhere('i.status = :status')
+            ->andWhere('i.status IN (:coldStatuses)')
             ->setParameter('owner', $owner)
-            ->setParameter('status', \App\Enum\ItemStatus::FROZEN)
+            ->setParameter('coldStatuses', [
+                \App\Enum\ItemStatus::FROZEN,
+                \App\Enum\ItemStatus::ARCHIVED,
+            ])
             ->getQuery()
             ->getSingleScalarResult();
     }

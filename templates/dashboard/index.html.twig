@@ -718,15 +718,31 @@
       if (isProtected) {
         if (protectedNotice) protectedNotice.classList.remove('hidden');
         if (unprotectedOptions) unprotectedOptions.classList.add('hidden');
+        const pInput = document.getElementById('deactivate-action-type-protected');
+        if (pInput) pInput.disabled = false;
+        document.querySelectorAll('#deactivate-unprotected-options input').forEach(el => el.disabled = true);
+        const bInput = document.getElementById('deactivate-action-type-batch');
+        if (bInput) bInput.disabled = true;
         if (submitBtnLabel) submitBtnLabel.textContent = 'Donar de Baixa i Arxivar';
       } else {
         if (protectedNotice) protectedNotice.classList.add('hidden');
         if (unprotectedOptions) unprotectedOptions.classList.remove('hidden');
+        const pInput = document.getElementById('deactivate-action-type-protected');
+        if (pInput) pInput.disabled = true;
+        document.querySelectorAll('#deactivate-unprotected-options input').forEach(el => el.disabled = false);
+        const bInput = document.getElementById('deactivate-action-type-batch');
+        if (bInput) bInput.disabled = true;
         if (submitBtnLabel) submitBtnLabel.textContent = 'Confirmar';
       }
     } else {
       form.action = '{{ path('app_item_batch_deactivate') }}';
       csrfInput.value = '{{ csrf_token('batch_deactivate_items') }}';
+
+      const pInput = document.getElementById('deactivate-action-type-protected');
+      if (pInput) pInput.disabled = true;
+      document.querySelectorAll('#deactivate-unprotected-options input').forEach(el => el.disabled = true);
+      const bInput = document.getElementById('deactivate-action-type-batch');
+      if (bInput) bInput.disabled = false;
 
       if (modalTitle) modalTitle.textContent = `Donar de Baixa ${count} Béns`;
       if (itemCard) itemCard.classList.add('hidden');
@@ -907,7 +923,7 @@
     </div>
 
     {# Formulari d'Acció #}
-    <form id="deactivate-item-form" method="POST" action="" class="flex flex-col flex-1 overflow-hidden">
+    <form id="deactivate-item-form" method="POST" action="" onsubmit="const btn = document.getElementById('deactivate-submit-btn'); if (btn) { btn.disabled = true; btn.classList.add('opacity-75'); } const lbl = document.getElementById('deactivate-submit-btn-label'); if (lbl) { lbl.textContent = 'Processant baixa...'; }" class="flex flex-col flex-1 overflow-hidden">
       <input type="hidden" name="_token" id="deactivate-csrf-token" value="">
       <div id="deactivate-batch-inputs"></div>
 

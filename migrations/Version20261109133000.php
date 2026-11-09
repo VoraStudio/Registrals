@@ -26,3 +26,4 @@ final class Version20261109133000 extends AbstractMigration
         $this->addSql('ALTER TABLE users DROP period_items_registered, DROP period_started_at');
     }
 }
+

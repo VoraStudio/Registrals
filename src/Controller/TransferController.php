@@ -73,7 +73,7 @@ class TransferController extends AbstractController
     }
 
     /**
-     * Inicia una sol·licitud notarial de traspàs per correu electrònic.
+     * Inicia una sol·licitud certificada de traspàs per correu electrònic.
      */
     #[Route('/app/items/{cui}/transfer/initiate', name: 'app_item_transfer_initiate', methods: ['POST'])]
     #[IsGranted('ROLE_USER')]
@@ -143,9 +143,9 @@ class TransferController extends AbstractController
             );
 
             $email = (new TemplatedEmail())
-                ->from(new Address('notaria@registrals.com', 'Notaria Digital Registrals'))
+                ->from(new Address('certificacio@registrals.cat', 'Certificació Digital Registrals'))
                 ->to(new Address($recipientEmail))
-                ->subject(sprintf('Invitació de Traspàs Notarial: %s (%s)', $item->getName(), $item->getCui()))
+                ->subject(sprintf('Invitació de Traspàs Certificat: %s (%s)', $item->getName(), $item->getCui()))
                 ->htmlTemplate('emails/transfer_invitation.html.twig')
                 ->context([
                     'sender' => $currentUser,

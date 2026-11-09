@@ -108,3 +108,19 @@
     }
   };
 </script>
+
+{# Auto-dispatch Symfony Flash Messages to RegistralsToast #}
+{% for label, messages in app.flashes %}
+  {% for message in messages %}
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        if (window.RegistralsToast) {
+          const rawLabel = '{{ label }}';
+          const type = rawLabel === 'error' ? 'error' : (rawLabel === 'warning' ? 'warning' : (rawLabel === 'success' ? 'success' : 'info'));
+          const title = rawLabel === 'error' ? 'Avís de Seguretat' : (rawLabel === 'warning' ? 'Atenció' : (rawLabel === 'success' ? 'Operació Completada' : 'Patrimoni Actualitzat'));
+          window.RegistralsToast.show(title, '{{ message|e('js') }}', type, 5000);
+        }
+      });
+    </script>
+  {% endfor %}
+{% endfor %}
