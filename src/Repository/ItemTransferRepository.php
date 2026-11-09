@@ -148,8 +148,9 @@ class ItemTransferRepository extends ServiceEntityRepository
             ->orderBy('t.expiresAt', 'ASC');
 
         if ($user !== null) {
-            $qb->andWhere('t.sender = :user')
-               ->setParameter('user', $user);
+            $qb->andWhere('(t.sender = :user OR t.recipient = :user OR LOWER(t.recipientEmail) = :email)')
+               ->setParameter('user', $user)
+               ->setParameter('email', strtolower(trim((string) $user->getEmail())));
         }
 
         return $qb->getQuery()->getResult();

@@ -298,8 +298,7 @@ class TransferController extends AbstractController
         // Comprovació de caducitat
         if ($transfer->isExpired() || $transfer->getStatus() === TransferStatus::EXPIRED) {
             if ($transfer->getStatus() === TransferStatus::PENDING) {
-                $transfer->setStatus(TransferStatus::EXPIRED);
-                $this->lifecycleService->expireTransfer($transfer->getItem());
+                $this->transferExpirationService->expireSingleTransfer($transfer);
                 $this->entityManager->flush();
             }
 

@@ -86,7 +86,7 @@ class TransferExpirationService
             );
 
             $email = (new TemplatedEmail())
-                ->from(new Address('notaria@registrals.com', 'Notaria Digital Registrals'))
+                ->from(new Address('no-reply@registrals.cat', 'Registrals'))
                 ->to(new Address($sender->getEmail(), $sender->getFullName()))
                 ->subject(sprintf('Caducitat de Traspàs: %s (%s)', $item->getName(), $item->getCui()))
                 ->htmlTemplate('emails/transfer_expired.html.twig')
