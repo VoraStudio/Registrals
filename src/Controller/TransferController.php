@@ -448,17 +448,52 @@ class TransferController extends AbstractController
         $csrfToken = (string) $request->request->get('_token', '');
         if (!$this->isCsrfTokenValid('reject_transfer_' . $transfer->getId(), $csrfToken)) {
             $this->addFlash('error', 'El testimoni de seguretat no és vàlid.');
+            if ($request->request->get('redirect_to') === 'tray' || str_contains((string) $request->headers->get('referer'), '/app/transfer')) {
+                return $this->redirectToRoute('app_transfer_index');
+            }
             return $this->redirectToRoute('app_transfer_claim', ['token' => $token]);
         }
 
         if ($transfer->getStatus() !== TransferStatus::PENDING || $transfer->isExpired()) {
+            if ($request->request->get('redirect_to') === 'tray' || str_contains((string) $request->headers->get('referer'), '/app/transfer')) {
+                return $this->redirectToRoute('app_transfer_index');
+            }
             return $this->redirectToRoute('app_transfer_claim', ['token' => $token]);
         }
 
-        $reason = trim((string) $request->request->get('reason', 'Rebutjat pel receptor'));
+        $reasonType = trim((string) $request->request->get('reason_type', ''));
+        $reasonCustom = trim((string) $request->request->get('reason', ''));
+        $reason = $reasonCustom ?: ($reasonType ?: 'Rebutjat pel receptor');
+        if ($reasonType && $reasonCustom && $reasonType !== $reasonCustom) {
+            $reason = sprintf('%s — %s', $reasonType, $reasonCustom);
+        }
+
         $transfer->reject($reason, $request->getClientIp());
         $this->lifecycleService->rejectTransfer($transfer->getItem());
         $this->entityManager->flush();
+
+        // Notificació per correu al remitent
+        try {
+            $itemUrl = $this->generateUrl('app_item_show', ['cui' => $transfer->getItem()->getCui()], UrlGeneratorInterface::ABSOLUTE_URL);
+            $email = (new TemplatedEmail())
+                ->from(new Address('no-reply@registrals.cat', 'Registrals'))
+                ->to(new Address($transfer->getSender()->getEmail(), $transfer->getSender()->getFullName()))
+                ->subject('Sol·licitud de traspàs declinada pel destinatari — Registrals')
+                ->htmlTemplate('emails/transfer_rejected.html.twig')
+                ->context([
+                    'sender' => $transfer->getSender(),
+                    'item' => $transfer->getItem(),
+                    'transfer' => $transfer,
+                    'itemUrl' => $itemUrl,
+                ]);
+
+            $this->mailer->send($email);
+        } catch (\Throwable $e) {
+            $this->logger?->warning('Error en enviar correu de traspàs rebutjat: ' . $e->getMessage(), [
+                'cui' => $transfer->getItem()->getCui(),
+                'sender' => $transfer->getSender()->getEmail(),
+            ]);
+        }
 
         // Registre a la base d'auditoria forense
         $currentUser = $this->getUser();
@@ -487,6 +522,10 @@ class TransferController extends AbstractController
         }
 
         $this->addFlash('info', 'Heu rebutjat la sol·licitud de traspàs de titularitat.');
+
+        if ($request->request->get('redirect_to') === 'tray' || str_contains((string) $request->headers->get('referer'), '/app/transfer')) {
+            return $this->redirectToRoute('app_transfer_index');
+        }
 
         return $this->render('transfer/expired.html.twig', [
             'reason' => 'just_rejected',

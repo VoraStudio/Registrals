@@ -425,6 +425,49 @@ class TransferControllerTest extends TestCase
         $this->assertSame('No és el meu rellotge', $transfer->getRejectionReason());
     }
 
+    public function testRejectFromTrayRedirectsToIndexAndSendsEmail(): void
+    {
+        $sender = $this->createUser('sender@test.cat');
+        $item = $this->createItem($sender, 'CAT-REJECT-002', ItemStatus::TRANSFER_PENDING);
+
+        $transfer = new ItemTransfer(
+            item: $item,
+            sender: $sender,
+            recipientEmail: 'receiver@test.cat'
+        );
+        $item->addTransfer($transfer);
+
+        $itemRepo = $this->createMock(ItemRepository::class);
+        $transferRepo = $this->createMock(ItemTransferRepository::class);
+        $transferRepo->method('findOneBy')->with(['token' => $transfer->getToken()])->willReturn($transfer);
+
+        $lifecycle = $this->createMock(ItemLifecycleService::class);
+        $lifecycle->expects($this->once())->method('rejectTransfer')->with($item);
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects($this->once())->method('flush');
+
+        $mailer = $this->createMock(MailerInterface::class);
+        $mailer->expects($this->once())->method('send');
+
+        $request = new Request([], [
+            '_token' => 'valid-csrf-token',
+            'reason_type' => 'Dades o condicions del traspàs errònies',
+            'reason' => 'Preu no acordat',
+            'redirect_to' => 'tray',
+        ]);
+
+        $controller = $this->createController($itemRepo, $transferRepo, $lifecycle, $em, $mailer);
+        $this->setupControllerContainer($controller, null, true, null, $request);
+
+        $response = $controller->reject($transfer->getToken(), $request);
+
+        $this->assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+        $this->assertStringContainsString('app_transfer_index', (string) $response->headers->get('Location'));
+        $this->assertSame(TransferStatus::REJECTED, $transfer->getStatus());
+        $this->assertStringContainsString('Dades o condicions del traspàs errònies', (string) $transfer->getRejectionReason());
+    }
+
     public function testIndexRendersPendingAndHistoryTransfers(): void
     {
         $user = $this->createUser('user@test.cat');

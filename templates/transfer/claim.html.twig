@@ -186,12 +186,10 @@
 
                   {# Acció de Rebuig #}
                   <div class="pt-2 text-center">
-                    <form action="{{ path('app_transfer_reject', {'token': transfer.token}) }}" method="POST" onsubmit="return confirm('Esteu segur que voleu rebutjar aquest traspàs de propietat? L\'acció no es podrà desfer.');">
-                      <input type="hidden" name="_token" value="{{ csrf_token('reject_transfer_' ~ transfer.id) }}">
-                      <button type="submit" class="text-xs text-red-700 hover:text-red-900 font-semibold underline decoration-red-300 hover:decoration-red-600 transition-all cursor-pointer">
-                        Rebutjar aquest traspàs
-                      </button>
-                    </form>
+                    <button type="button" onclick="openClaimRejectModal()" class="text-xs text-red-700 hover:text-red-900 font-semibold inline-flex items-center gap-1.5 hover:underline transition-all cursor-pointer">
+                      <svg class="w-3.5 h-3.5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                      <span>Rebutjar aquest traspàs</span>
+                    </button>
                   </div>
 
                 {% else %}
@@ -240,7 +238,7 @@
 
             {# Peu de la Targeta Dreta #}
             <div class="pt-3 border-t border-steel/15 flex items-center justify-between text-[11px] text-steel">
-              <span>Fe pública digital garantida</span>
+              <span>Certificació digital garantida</span>
               <span class="font-mono text-[10px]">Token: {{ transfer.token|slice(0, 10) }}...</span>
             </div>
 
@@ -253,6 +251,92 @@
     </div>
 
   </main>
+
+  {# Modal de Confirmació de Rebuig de Traspàs (PWA Dual Modal) #}
+  <div id="modal-claim-reject" class="fixed inset-0 z-50 bg-ink/75 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all duration-200" onclick="if(event.target === this) closeClaimRejectModal();">
+    <div class="bg-white rounded-t-3xl sm:rounded-2xl border-t sm:border border-gold/40 shadow-2xl max-w-md w-full max-h-[92vh] overflow-hidden flex flex-col font-raleway animate-in slide-in-from-bottom sm:zoom-in-95 duration-200">
+      <div class="sm:hidden w-10 h-1 bg-steel/30 rounded-full mx-auto mt-2 -mb-1 shrink-0"></div>
+
+      <div class="p-4 sm:p-5 bg-ink text-cream border-b border-gold/30 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-red-500/20 border border-red-400/40 text-red-400 flex items-center justify-center shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </div>
+          <div>
+            <h3 class="font-marcellus text-base sm:text-lg text-whitef">Rebutjar Traspàs de Titularitat</h3>
+            <p class="text-[11px] font-mono text-steel truncate max-w-[240px] sm:max-w-xs">{{ item.name }} · {{ item.cui }}</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeClaimRejectModal()" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-cream flex items-center justify-center text-sm font-bold cursor-pointer" aria-label="Tancar">
+          ✕
+        </button>
+      </div>
+
+      <form method="POST" action="{{ path('app_transfer_reject', {'token': transfer.token}) }}" class="p-4 sm:p-5 overflow-y-auto space-y-4 text-xs sm:text-sm text-ink/80 leading-relaxed">
+        <input type="hidden" name="_token" value="{{ csrf_token('reject_transfer_' ~ transfer.id) }}">
+
+        <div class="guide-note text-xs space-y-1">
+          <strong>Efecte Jurídic del Rebuig:</strong>
+          <p class="text-ink/80">
+            El bé no s'incorporarà al vostre patrimoni i romandrà sota la titularitat de <strong class="text-ink">{{ sender.fullName }}</strong>. Aquesta decisió és definitiva i s'enviarà una notificació automàtica al remitent.
+          </p>
+        </div>
+
+        <div class="space-y-1.5">
+          <label for="select-claim-reject-reason" class="block text-xs font-bold uppercase tracking-wider text-ink/70">
+            Motiu del Rebuig (Opcional)
+          </label>
+          <select id="select-claim-reject-reason" name="reason_type" class="w-full px-3 py-2 rounded-xl bg-white border border-steel/30 text-ink text-xs font-semibold focus:outline-none focus:border-gold">
+            <option value="No reconec aquest bé o procedència">No reconec aquest bé o la seva procedència</option>
+            <option value="Dades o condicions del traspàs errònies">Dades o condicions del traspàs errònies</option>
+            <option value="Operació cancel·lada de comú acord">Operació cancel·lada de comú acord</option>
+            <option value="Altres motius">Altres motius</option>
+          </select>
+        </div>
+
+        <div class="space-y-1.5">
+          <label for="input-claim-reject-details" class="block text-xs font-bold uppercase tracking-wider text-ink/70">
+            Comentari Addicional (Opcional)
+          </label>
+          <textarea id="input-claim-reject-details" name="reason" rows="2" placeholder="Observacions addicionals per al remitent..." class="w-full px-3 py-2 rounded-xl bg-white border border-steel/30 text-ink text-xs focus:outline-none focus:border-gold resize-none"></textarea>
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-2.5 border-t border-steel/15">
+          <button type="button" onclick="closeClaimRejectModal()" class="px-4 py-2 rounded-xl border border-steel/30 text-ink/75 hover:text-ink hover:bg-white text-xs font-semibold transition-all cursor-pointer">
+            Cancel·lar
+          </button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-xs flex items-center gap-1.5 cursor-pointer">
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            <span>Rebutjar Definitivament</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openClaimRejectModal() {
+      const modal = document.getElementById('modal-claim-reject');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.body.classList.add('overflow-hidden');
+      }
+    }
+    function closeClaimRejectModal() {
+      const modal = document.getElementById('modal-claim-reject');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.body.classList.remove('overflow-hidden');
+      }
+    }
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeClaimRejectModal();
+      }
+    });
+  </script>
 
   {# Peu de Pàgina Institucional #}
   {{ include('page/home/_footer.html.twig') }}
