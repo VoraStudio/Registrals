@@ -74,4 +74,44 @@ class PageControllerTest extends TestCase
 
         $this->assertSame(200, $response->getStatusCode());
     }
+
+    public function testManualPassesActivePlansToTemplate(): void
+    {
+        $planFree = new Plan('free', 'Pla Free', 0);
+        $planFree->setMaxActiveItems(20);
+        $planFree->setMaxYearlyRegistrations(20);
+
+        $planPlus = new Plan('plus', 'Pla Plus', 2200);
+        $planPlus->setMaxActiveItems(100);
+        $planPlus->setMaxYearlyRegistrations(120);
+
+        $planRepo = $this->createMock(PlanRepository::class);
+        $planRepo->expects($this->once())
+            ->method('findBy')
+            ->with(['isActive' => true])
+            ->willReturn([$planFree, $planPlus]);
+
+        $twig = $this->createMock(Environment::class);
+        $twig->expects($this->once())
+            ->method('render')
+            ->with('page/manual.html.twig', $this->callback(function (array $context) use ($planFree, $planPlus): bool {
+                $this->assertArrayHasKey('plans', $context);
+                $this->assertSame($planFree, $context['plans']['free']);
+                $this->assertSame($planPlus, $context['plans']['plus']);
+                return true;
+            }))
+            ->willReturn('<html>Manual</html>');
+
+        $container = $this->createMock(ContainerInterface::class);
+        $container->method('has')->willReturnCallback(fn (string $id) => $id === 'twig');
+        $container->method('get')->willReturnCallback(fn (string $id) => $id === 'twig' ? $twig : null);
+
+        $controller = new PageController();
+        $controller->setContainer($container);
+
+        $response = $controller->manual($planRepo);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('<html>Manual</html>', (string) $response->getContent());
+    }
 }

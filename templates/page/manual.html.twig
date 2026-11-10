@@ -1,0 +1,355 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Guia d'Ús i Manual del Titular — Registrals{% endblock %}
+{% block meta_description %}Manual pràctic pas a pas per fotografiar béns, validar factures, emetre certificats digitals SHA-256 / eIDAS i gestionar traspassos C2C a Registrals.{% endblock %}
+{% block canonical_url %}https://www.registrals.com/manual{% endblock %}
+{% block og_title %}Guia d'Ús i Manual del Titular — Registrals{% endblock %}
+{% block og_description %}Aprèn a protegir el teu patrimoni amb evidències vàlides, assistència local sobirana i certificació digital de doble capa.{% endblock %}
+
+{% block body_class %}{{ app.user ? 'bg-cream-50' : 'bg-cream' }} font-raleway text-ink antialiased selection:bg-gold/30 selection:text-ink min-h-screen flex flex-col justify-between{% endblock %}
+
+{% block body %}
+  <a
+    href="#main"
+    class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[70] focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:font-medium focus:text-cream"
+  >Salta al contingut</a>
+
+  {% if app.user %}
+    {% include 'partials/_private_header.html.twig' %}
+  {% else %}
+    {% include 'partials/_public_subpage_header.html.twig' %}
+  {% endif %}
+
+  {% set freePlan = plans.free ?? null %}
+  {% set plusPlan = plans.plus ?? null %}
+  {% set freeActive = freePlan ? freePlan.maxActiveItems : 20 %}
+  {% set freeYearly = freePlan ? freePlan.maxYearlyRegistrations : 20 %}
+  {% set freePhotos = freePlan ? freePlan.maxPhotosPerItem : 1 %}
+  {% set freeEvidences = freePlan ? freePlan.maxEvidencesPerItem : 1 %}
+  {% set freeAi = freePlan ? freePlan.aiAssistanceQuota : 20 %}
+  {% set freeTransferFee = freePlan ? (freePlan.extraTransferPriceCents / 100)|number_format(2, ',', '.') : '2,00' %}
+  {% set plusActive = plusPlan ? plusPlan.maxActiveItems : 100 %}
+  {% set plusYearly = plusPlan ? plusPlan.maxYearlyRegistrations : 120 %}
+  {% set plusPhotos = plusPlan ? plusPlan.maxPhotosPerItem : 5 %}
+  {% set plusEvidences = plusPlan ? plusPlan.maxEvidencesPerItem : 5 %}
+  {% set plusAi = plusPlan ? plusPlan.aiAssistanceQuota : 100 %}
+  {% set plusPrice = plusPlan ? (plusPlan.priceCents / 100)|number_format(0, ',', '.') : '22' %}
+
+  <main id="main" class="max-w-[1680px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-3.5 sm:py-5 flex-1 {{ app.user ? 'pb-20 md:pb-8' : 'pb-12' }}">
+    {% include 'partials/_subpage_header.html.twig' with {
+      breadcrumbs: app.user ? [
+        { label: 'Inici', url: path('app_dashboard') },
+        { label: 'Guia d\'Ús i Manual' }
+      ] : [
+        { label: 'Inici', url: path('app_home') },
+        { label: 'Manual del Titular' }
+      ],
+      title: 'Guia d\'Ús i Manual del Titular',
+      subtitle: 'Protocol pràctic per registrar proves probatòries, emetre certificats i executar traspassos C2C.',
+      badge: '<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white border border-gold/40 text-ink text-[11px] font-semibold shadow-2xs whitespace-nowrap"><span class="w-2 h-2 rounded-full bg-emerald-600"></span>Manual Operatiu</span>',
+      action_url: app.user ? path('app_item_new') : path('app_login'),
+      action_label: app.user ? 'Registrar Nou Bé' : 'Accedir al meu Espai',
+      action_icon: app.user
+        ? '<svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>'
+        : '<svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>'
+    } %}
+
+    {# Barra de Filtre Interactiu de Guies (1 línia compacta) #}
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5 pb-3 border-b border-steel/15">
+      <div class="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 no-scrollbar">
+        <button type="button" onclick="filterManualSection('all', event)" class="manual-tab-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-ink text-cream border border-ink transition-all whitespace-nowrap shrink-0">
+          Totes les Guies (4)
+        </button>
+        <button type="button" onclick="filterManualSection('fotos', event)" class="manual-tab-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white border border-steel/30 text-ink/80 hover:bg-cream/40 transition-all whitespace-nowrap shrink-0">
+          1 · Fotografies i C2PA
+        </button>
+        <button type="button" onclick="filterManualSection('factures', event)" class="manual-tab-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white border border-steel/30 text-ink/80 hover:bg-cream/40 transition-all whitespace-nowrap shrink-0">
+          2 · Factures i IA
+        </button>
+        <button type="button" onclick="filterManualSection('certificats', event)" class="manual-tab-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white border border-steel/30 text-ink/80 hover:bg-cream/40 transition-all whitespace-nowrap shrink-0">
+          3 · Certificats i Hash
+        </button>
+        <button type="button" onclick="filterManualSection('traspassos', event)" class="manual-tab-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white border border-steel/30 text-ink/80 hover:bg-cream/40 transition-all whitespace-nowrap shrink-0">
+          4 · Traspassos i Quotes
+        </button>
+      </div>
+
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-gold/35 text-[11px] font-mono text-ink shrink-0 self-start sm:self-auto">
+        <span class="text-steel">Progrés de lectura:</span>
+        <strong id="manual-checklist-counter" class="text-ink">0 / 8</strong>
+        <span class="text-gold">★</span>
+      </div>
+    </div>
+
+    {# Graella 2x2 Paral·lela en Escriptori 16:9 #}
+    <div id="manual-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-6 items-stretch">
+
+      {# BLOC 1: Fotografies Probatòries i Seguretat C2PA #}
+      <section id="fotos" class="manual-card bg-whitef rounded-2xl border border-gold/30 p-5 sm:p-6 shadow-2xs flex flex-col justify-between space-y-4" data-topic="fotos">
+        <div class="space-y-3.5">
+          <div class="flex items-start justify-between gap-3 pb-3 border-b border-steel/15">
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="w-8 h-8 rounded-xl bg-ink text-gold flex items-center justify-center font-bold text-sm font-mono shrink-0">1</span>
+              <div class="min-w-0">
+                <h2 class="font-marcellus text-lg font-bold text-ink leading-tight">Fotografies Probatòries i Filtre C2PA</h2>
+                <p class="text-[11px] text-steel font-mono">Captura directa · Preservació EXIF · Pont QR PC</p>
+              </div>
+            </div>
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-cream text-ink border border-gold/35 whitespace-nowrap shrink-0">
+              Free: {{ freePhotos }} · Plus: {{ plusPhotos }}
+            </span>
+          </div>
+
+          <p class="text-xs sm:text-sm text-ink/80 leading-relaxed">
+            La fotografia principal identifica el bé de manera inequívoca davant asseguradores o cossos policials. En pujar-la, Registrals extreu i custodia les metadades <strong>EXIF completes</strong> abans d'optimitzar la imatge a 2048px WebP sota custòdia privada Flysystem.
+          </p>
+
+          {# Llista Interactiva de Verificació #}
+          <div class="space-y-2 bg-cream-50/70 p-3.5 rounded-xl border border-steel/15">
+            <div class="text-[10px] font-mono uppercase tracking-wider text-steel font-bold">Checklist abans de fotografiar</div>
+            <label class="flex items-start gap-2.5 text-xs text-ink cursor-pointer">
+              <input type="checkbox" class="manual-check mt-0.5 accent-ink" onchange="updateManualChecklist()" />
+              <span><strong>Enquadrament i llum natural:</strong> mostra l'objecte sencer sobre fons neutre i sense reflexos que ocultin gravats o desgast únic.</span>
+            </label>
+            <label class="flex items-start gap-2.5 text-xs text-ink cursor-pointer">
+              <input type="checkbox" class="manual-check mt-0.5 accent-ink" onchange="updateManualChecklist()" />
+              <span><strong>Número de sèrie visible:</strong> a mòbil utilitza la càmera directa; des de PC utilitza el <strong>Pont QR temporal</strong> (10 min) per disparar amb el telèfon.</span>
+            </label>
+          </div>
+
+          <details class="group rounded-xl border border-steel/20 bg-white px-3.5 py-2.5 text-xs">
+            <summary class="font-bold text-ink cursor-pointer flex items-center justify-between list-none">
+              <span>Per què es rebutgen imatges amb segell C2PA?</span>
+              <span class="text-gold font-mono group-open:rotate-45 transition-transform text-sm">+</span>
+            </summary>
+            <p class="text-ink/75 mt-2 leading-relaxed">
+              Per protegir la integritat del registre contra fraus sintètics, el validador bloqueja instantàniament qualsevol fitxer amb manifest C2PA de generadors d'IA (DALL-E, Firefly, Midjourney o edició sintètica generativa). Fes sempre fotografies reals directes.
+            </p>
+          </details>
+        </div>
+
+        <div class="guide-note !mt-0">
+          <strong>Reordenació i canvi de foto principal:</strong> Afegir o reordenar fotos crea una nova versió immutable del hash <code>SHA-256</code> mestre del bé.
+        </div>
+      </section>
+
+      {# BLOC 2: Factures, Tiquets i Assistència d'IA Sobirana #}
+      <section id="factures" class="manual-card bg-whitef rounded-2xl border border-gold/30 p-5 sm:p-6 shadow-2xs flex flex-col justify-between space-y-4" data-topic="factures">
+        <div class="space-y-3.5">
+          <div class="flex items-start justify-between gap-3 pb-3 border-b border-steel/15">
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="w-8 h-8 rounded-xl bg-ink text-gold flex items-center justify-center font-bold text-sm font-mono shrink-0">2</span>
+              <div class="min-w-0">
+                <h2 class="font-marcellus text-lg font-bold text-ink leading-tight">Factures, Comprovants i IA Sobirana</h2>
+                <p class="text-[11px] text-steel font-mono">Validació Base+IVA · NIF/CIF · Node Local Qwen-VL</p>
+              </div>
+            </div>
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-cream text-ink border border-gold/35 whitespace-nowrap shrink-0">
+              Free: {{ freeEvidences }} · Plus: {{ plusEvidences }}
+            </span>
+          </div>
+
+          <p class="text-xs sm:text-sm text-ink/80 leading-relaxed">
+            Pots adjuntar factures oficials, tiquets de compra o pòlisses de garantia. L'<strong>assistència de lectura sobirana (execució local protegida)</strong> llegeix import i data mitjançant el nostre node privat Qwen-VL sense enviar mai les teves factures a tercers.
+          </p>
+
+          <div class="space-y-2 bg-cream-50/70 p-3.5 rounded-xl border border-steel/15">
+            <div class="text-[10px] font-mono uppercase tracking-wider text-steel font-bold">Checklist de documents admesos</div>
+            <label class="flex items-start gap-2.5 text-xs text-ink cursor-pointer">
+              <input type="checkbox" class="manual-check mt-0.5 accent-ink" onchange="updateManualChecklist()" />
+              <span><strong>Dades fiscals llegibles:</strong> verifica que la data d'adquisició, el NIF/CIF de l'emissor i el desglossament Base + IVA siguin nítids.</span>
+            </label>
+            <label class="flex items-start gap-2.5 text-xs text-ink cursor-pointer">
+              <input type="checkbox" class="manual-check mt-0.5 accent-ink" onchange="updateManualChecklist()" />
+              <span><strong>Supervisió Humana (Art. 22 RGPD):</strong> revisa sempre els camps suggerits abans de guardar; la validació final és exclusivament teva.</span>
+            </label>
+          </div>
+
+          <details class="group rounded-xl border border-steel/20 bg-white px-3.5 py-2.5 text-xs">
+            <summary class="font-bold text-ink cursor-pointer flex items-center justify-between list-none">
+              <span>Quantes consultes d'IA inclou cada pla?</span>
+              <span class="text-gold font-mono group-open:rotate-45 transition-transform text-sm">+</span>
+            </summary>
+            <p class="text-ink/75 mt-2 leading-relaxed">
+              El Pla Free inclou <strong>{{ freeAi }} consultes d'IA</strong> i el Pla Plus <strong>{{ plusAi }} consultes</strong>. Si esgotes els crèdits d'assistència, pots continuar registrant béns i proves introduint les dades manualment amb normalitat.
+            </p>
+          </details>
+        </div>
+
+        <div class="guide-note !mt-0">
+          <strong>Sense factura?</strong> També pots declarar adquisicions per herència, regal o fabricació artesanal seleccionant el tipus d'origen al Pas 4 del Wizard.
+        </div>
+      </section>
+
+      {# BLOC 3: Certificats Digitals, Hash SHA-256 i Verificació QR #}
+      <section id="certificats" class="manual-card bg-whitef rounded-2xl border border-gold/30 p-5 sm:p-6 shadow-2xs flex flex-col justify-between space-y-4" data-topic="certificats">
+        <div class="space-y-3.5">
+          <div class="flex items-start justify-between gap-3 pb-3 border-b border-steel/15">
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="w-8 h-8 rounded-xl bg-ink text-gold flex items-center justify-center font-bold text-sm font-mono shrink-0">3</span>
+              <div class="min-w-0">
+                <h2 class="font-marcellus text-lg font-bold text-ink leading-tight">Certificats Digitals, Hash i Codi QR</h2>
+                <p class="text-[11px] text-steel font-mono">Esborrany vs Oficial eIDAS · Polygon PoS · /verify</p>
+              </div>
+            </div>
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-ink text-gold border border-gold/40 whitespace-nowrap shrink-0">
+              eIDAS + L2
+            </span>
+          </div>
+
+          <p class="text-xs sm:text-sm text-ink/80 leading-relaxed">
+            Cada bé genera una empremta <code>SHA-256</code> determinista ancorada a <strong>Polygon L2</strong>. Pots generar documents gratuïts (esborranys amb marca d'aigua) o emetre <strong>Certificats Oficials eIDAS</strong> individuals o per lot des del Dashboard.
+          </p>
+
+          <div class="space-y-2 bg-cream-50/70 p-3.5 rounded-xl border border-steel/15">
+            <div class="text-[10px] font-mono uppercase tracking-wider text-steel font-bold">Checklist abans d'emetre un certificat oficial</div>
+            <label class="flex items-start gap-2.5 text-xs text-ink cursor-pointer">
+              <input type="checkbox" class="manual-check mt-0.5 accent-ink" onchange="updateManualChecklist()" />
+              <span><strong>Fitxa definitiva tancada:</strong> confirma que totes les fotos i factures ja són al bé abans d'emetre el certificat oficial.</span>
+            </label>
+            <label class="flex items-start gap-2.5 text-xs text-ink cursor-pointer">
+              <input type="checkbox" class="manual-check mt-0.5 accent-ink" onchange="updateManualChecklist()" />
+              <span><strong>Comprovació de QR públic:</strong> qualsevol tercer pot escanejar el QR del PDF per contrastar l'estat (inclosa alerta de robatori) a <code>/verify</code> i Polygonscan.</span>
+            </label>
+          </div>
+
+          <details class="group rounded-xl border border-steel/20 bg-white px-3.5 py-2.5 text-xs">
+            <summary class="font-bold text-ink cursor-pointer flex items-center justify-between list-none">
+              <span>Què passa si edito un bé ja certificat?</span>
+              <span class="text-gold font-mono group-open:rotate-45 transition-transform text-sm">+</span>
+            </summary>
+            <p class="text-ink/75 mt-2 leading-relaxed">
+              Qualsevol modificació posterior (afegir fotos, esborrar documents o canviar dades) genera una nova versió (<code>v1 → v2</code>). El certificat anterior passa a estat històric (<code>SUPERSEDED</code>) i el verificador indicarà que existeix una versió posterior.
+            </p>
+          </details>
+        </div>
+
+        <div class="guide-note !mt-0">
+          <strong>Idempotència garantida:</strong> Si sol·licites un certificat d'un bé que no ha canviat, la plataforma reutilitza el document vigent sense gastar quota.
+        </div>
+      </section>
+
+      {# BLOC 4: Traspassos C2C, Custòdia en Fred i Quotes #}
+      <section id="traspassos" class="manual-card bg-whitef rounded-2xl border border-gold/30 p-5 sm:p-6 shadow-2xs flex flex-col justify-between space-y-4" data-topic="traspassos">
+        <div class="space-y-3.5">
+          <div class="flex items-start justify-between gap-3 pb-3 border-b border-steel/15">
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="w-8 h-8 rounded-xl bg-ink text-gold flex items-center justify-center font-bold text-sm font-mono shrink-0">4</span>
+              <div class="min-w-0">
+                <h2 class="font-marcellus text-lg font-bold text-ink leading-tight">Traspassos C2C, Custòdia en Fred i Quotes</h2>
+                <p class="text-[11px] text-steel font-mono">Caducitat 72h · Traspàs per Lot · Capacitat vs Altes</p>
+              </div>
+            </div>
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-cream text-ink border border-gold/35 whitespace-nowrap shrink-0">
+              C2C · 72h
+            </span>
+          </div>
+
+          <p class="text-xs sm:text-sm text-ink/80 leading-relaxed">
+            En vendre o cedir un bé, pots transferir-ne la titularitat individualment o per lot al nou propietari sense revelar els teus certificats antics. La sol·licitud té una validesa de <strong>72 hores</strong> i pot protegir-se amb PIN de doble factor.
+          </p>
+
+          <div class="space-y-2 bg-cream-50/70 p-3.5 rounded-xl border border-steel/15">
+            <div class="text-[10px] font-mono uppercase tracking-wider text-steel font-bold">Checklist de gestió patrimonial</div>
+            <label class="flex items-start gap-2.5 text-xs text-ink cursor-pointer">
+              <input type="checkbox" class="manual-check mt-0.5 accent-ink" onchange="updateManualChecklist()" />
+              <span><strong>Traspàs C2C segur:</strong> al Pla Free costa <strong>{{ freeTransferFee }} €</strong> per operació; al Pla Plus ({{ plusPrice }} €/any) gaudeixes de traspassos inclosos.</span>
+            </label>
+            <label class="flex items-start gap-2.5 text-xs text-ink cursor-pointer">
+              <input type="checkbox" class="manual-check mt-0.5 accent-ink" onchange="updateManualChecklist()" />
+              <span><strong>Capacitat Activa vs Altes Anuals:</strong> Free admet <strong>{{ freeActive }} actius</strong> i <strong>{{ freeYearly }} altes/any</strong> (Plus: {{ plusActive }} actius / {{ plusYearly }} altes/any). Arxivar un bé allibera plaça activa, però no retorna altes gastades.</span>
+            </label>
+          </div>
+
+          <details class="group rounded-xl border border-steel/20 bg-white px-3.5 py-2.5 text-xs">
+            <summary class="font-bold text-ink cursor-pointer flex items-center justify-between list-none">
+              <span>Reactivar un bé de la Custòdia en Fred gasta una alta?</span>
+              <span class="text-gold font-mono group-open:rotate-45 transition-transform text-sm">+</span>
+            </summary>
+            <p class="text-ink/75 mt-2 leading-relaxed">
+              No. Els béns arxivats o congelats ja estaven registrats al sistema. Si disposes de capacitat activa lliure al teu pla, pots descongelar-los i tornar-los al patrimoni actiu amb 1 clic sense consumir cap alta anual.
+            </p>
+          </details>
+        </div>
+
+        <div class="guide-note !mt-0">
+          <strong>Accions ràpides per lot:</strong> Marca diversos béns al Dashboard per emetre certificats, iniciar un traspàs conjunt o arxivar-los en un sol pas.
+        </div>
+      </section>
+
+    </div>
+
+    {# Franja Compacta d'Accés a Documentació Legal #}
+    <div class="mt-6 bg-whitef border border-gold/30 rounded-2xl p-4 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-2xs">
+      <div class="flex items-center gap-2.5">
+        <span class="w-7 h-7 rounded-lg bg-cream text-gold border border-gold/35 flex items-center justify-center shrink-0">⚖️</span>
+        <div>
+          <strong class="text-ink">Vols consultar el detall normatiu complet?</strong>
+          <span class="text-steel block sm:inline sm:ml-1">Revisa les clàusules de custòdia, RGPD i transparència algorítmica.</span>
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center gap-2 shrink-0">
+        <a href="{{ path('app_legal_ai_sovereign') }}" class="px-3 py-1.5 rounded-xl bg-cream/60 border border-gold/35 text-ink font-semibold hover:bg-cream transition-colors whitespace-nowrap">
+          IA Sobirana & AI Act
+        </a>
+        <a href="{{ path('app_legal') }}" class="px-3 py-1.5 rounded-xl bg-ink text-gold border border-gold/40 font-semibold hover:bg-ink/90 transition-colors whitespace-nowrap">
+          Avís Legal & Privadesa
+        </a>
+      </div>
+    </div>
+  </main>
+
+  {% if not app.user %}
+    {{ include('page/home/_footer.html.twig') }}
+  {% else %}
+    {% include 'partials/_pwa_bottom_nav.html.twig' with { active_tab: 'profile' } %}
+  {% endif %}
+
+<script>
+  function filterManualSection(topic, evt) {
+    const cards = document.querySelectorAll('.manual-card');
+    const buttons = document.querySelectorAll('.manual-tab-btn');
+    const grid = document.getElementById('manual-grid');
+
+    buttons.forEach(btn => {
+      btn.classList.remove('bg-ink', 'text-cream', 'border-ink');
+      btn.classList.add('bg-white', 'text-ink/80', 'border-steel/30');
+    });
+
+    const targetBtn = evt ? evt.currentTarget : null;
+    if (targetBtn) {
+      targetBtn.classList.remove('bg-white', 'text-ink/80', 'border-steel/30');
+      targetBtn.classList.add('bg-ink', 'text-cream', 'border-ink');
+    }
+
+    cards.forEach(card => {
+      card.style.display = (topic === 'all' || card.dataset.topic === topic) ? 'flex' : 'none';
+    });
+
+    if (grid) {
+      if (topic === 'all') {
+        grid.classList.add('lg:grid-cols-2');
+      } else {
+        grid.classList.remove('lg:grid-cols-2');
+      }
+    }
+  }
+
+  function updateManualChecklist() {
+    const checks = document.querySelectorAll('.manual-check');
+    const checked = document.querySelectorAll('.manual-check:checked');
+    const counter = document.getElementById('manual-checklist-counter');
+    if (counter) {
+      counter.textContent = `${checked.length} / ${checks.length}`;
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const hash = window.location.hash.replace('#', '');
+    if (['fotos', 'factures', 'certificats', 'traspassos'].includes(hash)) {
+      const btn = document.querySelector(`.manual-tab-btn[onclick*="'${hash}'"]`);
+      if (btn) btn.click();
+    }
+  });
+</script>
+{% endblock %}

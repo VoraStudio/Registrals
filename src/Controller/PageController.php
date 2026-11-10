@@ -96,4 +96,18 @@ final class PageController extends AbstractController
     {
         return $this->render('page/contact.html.twig');
     }
+
+    #[Route('/manual', name: 'app_manual', methods: ['GET', 'HEAD'])]
+    #[Route('/ajuda', name: 'app_help', methods: ['GET', 'HEAD'])]
+    public function manual(\App\Repository\PlanRepository $planRepository): Response
+    {
+        $plans = [];
+        foreach ($planRepository->findBy(['isActive' => true]) as $plan) {
+            $plans[$plan->getCode()] = $plan;
+        }
+
+        return $this->render('page/manual.html.twig', [
+            'plans' => $plans,
+        ]);
+    }
 }

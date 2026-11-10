@@ -337,9 +337,9 @@ Cada subiteració segueix un flux d'enginyeria estricte:
     - [ ] Avaluar si les Condicions Generals i la Política de Privadesa es presenten juntes o separades a `/legal`.
     - [ ] Revisió integral de la redacció d'IA Sobirana a `/legal/ia-sobirana`.
     - [ ] Permetre selecció / canvi d'idioma a la pantalla de clàusules (enllaçat amb Iteració 9).
-- [ ] **Subiteració 8.2: Guia d'Ús i Manual Interactiu del Titular (`/manual` o `/ajuda`)**
-  - [ ] Manual pràctic interactiu pas a pas: com preparar fotografies probatòries nítides, requisits de factures i tiquets, emetre certificats oficials i flux de traspàs C2C.
-  - [ ] Accés directe des del desplegable d'usuari i des del peu de pàgina de l'aplicació.
+- [x] **Subiteració 8.2: Guia d'Ús i Manual Interactiu del Titular (`/manual` o `/ajuda`)** *(Completada)*
+  - [x] Manual pràctic interactiu pas a pas a [`PageController::manual`](file:///d:/webs/Registrals/Registrals/src/Controller/PageController.php) i [`templates/page/manual.html.twig`](file:///d:/webs/Registrals/Registrals/templates/page/manual.html.twig): com preparar fotografies probatòries nítides (C2PA, EXIF, Pont QR), requisits de factures i tiquets (IA Sobirana local), emetre certificats oficials/per lot i flux de traspàs C2C, amb quotes en viu parametritzades des de `PlanRepository`.
+  - [x] Accés directe des del desplegable d'usuari ([`templates/partials/_private_header.html.twig`](file:///d:/webs/Registrals/Registrals/templates/partials/_private_header.html.twig)) i des del peu de pàgina públic de l'aplicació ([`templates/page/home/_footer.html.twig`](file:///d:/webs/Registrals/Registrals/templates/page/home/_footer.html.twig)).
 - [ ] **Subiteració 8.3: Verificació & Validació HITL Final del Marc Legal**
   - [ ] Auditoria de navegabilitat de totes les pàgines legals i manual al navegador.
   - [ ] Validació dels registres forenses d'auditoria d'acceptació a MySQL.
@@ -375,7 +375,7 @@ Cada subiteració segueix un flux d'enginyeria estricte:
 | **Iteració 5** | 5.1 Model Certificats <br> 5.2 Motor PDF Vectorial <br> 5.3 eIDAS Signaturit/Namirial & QR <br> 5.4 Validació HITL | Chromium Headless, Signaturit API | **100% Completada** |
 | **Iteració 6** | 6.1 Model Traspassos <br> 6.2 Symfony Workflow <br> 6.3 UI Traspàs Certificat <br> 6.4 Validació HITL | Symfony Workflow, Mailer | **100% Completada** |
 | **Iteració 7** | 7.1 Backoffice Admin <br> 7.2 Editor de Plans <br> 7.3 Passarel·la Stripe (Sandbox) <br> 7.4 Doble Verificació QR + Polygonscan <br> 7.5 Validació Integral & Go-Live | Symfony Admin, Stripe API, Signaturit, Polygon RPC | **Subiteracions 7.1, 7.2, 7.3 i 7.4 100% Completades (90%)**; pendent 7.5 (validació final integral i credencials de producció reals). |
-| **Iteració 8** | 8.1 Blindatge & Legal Gate <br> 8.2 Guia d'Ús i Manual <br> 8.3 Validació HITL | Twig, Guia d'Estils, Marc Normatiu, EventSubscriber | **75% Completada** (Legal Gate tancat; esborrany ampliat de textos legals a templates pendent de revisió i ajustos finals pel titular; pendent 8.2 manual d'ajuda). |
+| **Iteració 8** | 8.1 Blindatge & Legal Gate <br> 8.2 Guia d'Ús i Manual <br> 8.3 Validació HITL | Twig, Guia d'Estils, Marc Normatiu, EventSubscriber | **90% Completada** (8.1 Legal Gate i 8.2 Manual Interactiu `/manual` implementats; pendent revisió HITL dels textos legals i auditoria final 8.3). |
 | **Iteració 9** | 9.1 Enrutament Locale & SEO <br> 9.2 Catàlegs YAML <br> 9.3 Validació HITL | Symfony Translation, Twig, SEO | Pendent (Planificada) |
 
 ---
