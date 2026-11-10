@@ -289,7 +289,7 @@
                        data-has-official-cert="{{ item.certificates|filter(c => c.mode.isOfficial)|length > 0 ? '1' : '0' }}"
                        data-has-transfers="{{ item.transfers|length > 0 ? '1' : '0' }}"
                        data-show-url="{{ path('app_item_show', {'cui': item.cui}) }}"
-                       onchange="handleItemCheckboxChange()"
+                       onchange="handleItemCheckboxChange(this)"
                        class="item-checkbox w-3.5 h-3.5 text-ink rounded accent-ink cursor-pointer" />
               </label>
 
@@ -384,7 +384,7 @@
                              data-has-official-cert="{{ item.certificates|filter(c => c.mode.isOfficial)|length > 0 ? '1' : '0' }}"
                              data-has-transfers="{{ item.transfers|length > 0 ? '1' : '0' }}"
                              data-show-url="{{ path('app_item_show', {'cui': item.cui}) }}"
-                             onchange="handleItemCheckboxChange()"
+                             onchange="handleItemCheckboxChange(this)"
                              class="item-checkbox w-3.5 h-3.5 text-ink rounded accent-ink cursor-pointer" />
                     </label>
                     <span class="bg-ink/90 backdrop-blur-xs text-cream text-[9px] font-mono px-1.5 py-0.5 rounded font-semibold shadow-2xs">
@@ -646,8 +646,30 @@
   // ==========================================
   // Gestió de Selecció Múltiple i Barres d'Acció
   // ==========================================
-  function handleItemCheckboxChange() {
-    const selectedCheckboxes = document.querySelectorAll('.item-checkbox:checked');
+  function getSelectedCheckboxes() {
+    const byCui = new Map();
+    document.querySelectorAll('.item-checkbox:checked').forEach(cb => {
+      const cui = cb.dataset.cui;
+      if (cui && !byCui.has(cui)) {
+        byCui.set(cui, cb);
+      }
+    });
+    return Array.from(byCui.values());
+  }
+
+  function handleItemCheckboxChange(changedCheckbox = null) {
+    // Sincronitza l'estat seleccionat entre la targeta mòbil i la d'escriptori pel seu CUI
+    if (changedCheckbox && changedCheckbox.dataset.cui) {
+      const targetCui = changedCheckbox.dataset.cui;
+      const isChecked = changedCheckbox.checked;
+      document.querySelectorAll('.item-checkbox').forEach(cb => {
+        if (cb.dataset.cui === targetCui) {
+          cb.checked = isChecked;
+        }
+      });
+    }
+
+    const selectedCheckboxes = getSelectedCheckboxes();
     const count = selectedCheckboxes.length;
 
     const desktopBar = document.getElementById('desktop-batch-bar');
@@ -694,7 +716,7 @@
   }
 
   function executeBatchAction(action) {
-    const selectedCheckboxes = Array.from(document.querySelectorAll('.item-checkbox:checked'));
+    const selectedCheckboxes = getSelectedCheckboxes();
     if (selectedCheckboxes.length === 0) return;
 
     if (action === 'certificate') {
