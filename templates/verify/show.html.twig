@@ -62,7 +62,7 @@
           <code class="text-xs text-ink font-mono bg-cream px-2 py-0.5 rounded">{{ certificate.certificateNumber }}</code>
         </div>
         <h2 class="font-marcellus text-2xl sm:text-3xl text-ink">
-          Certificat de Propietat i Custòdia
+          {{ isLegacyInventory|default(false) ? 'Certificat d\'Inventari Global de Llegat Digital' : 'Certificat de Propietat i Custòdia' }}
         </h2>
         <p class="text-xs sm:text-sm text-steel mt-0.5">
           Emès el {{ certificate.createdAt|date('d/m/Y H:i:s') }} UTC
@@ -110,14 +110,35 @@
       </div>
     {% endif %}
 
-    {# 3. IDENTIFICACIÓ PÚBLICA DEL BÉ #}
+    {# 3. IDENTIFICACIÓ PÚBLICA DEL BÉ O DE L'INVENTARI DE LLEGAT #}
     <div class="p-6 sm:p-8 space-y-6">
       <div>
         <h3 class="text-xs font-bold uppercase tracking-widest text-steel mb-3 flex items-center gap-2">
-          <span>Identificació del Bé Registrat</span>
+          <span>{{ isLegacyInventory|default(false) ? 'Identificació de l\'Inventari de Llegat (Pseudonimitzat RGPD)' : 'Identificació del Bé Registrat' }}</span>
           <div class="flex-1 h-px bg-steel/15"></div>
         </h3>
-        
+
+        {% if isLegacyInventory|default(false) %}
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="p-4 rounded-2xl bg-cream-50 border border-steel/15">
+              <span class="block text-xs text-steel uppercase font-semibold">Titular Registrat (Pseudonimitzat)</span>
+              <span class="font-mono text-sm text-ink font-bold mt-1 block">{{ maskedOwnerName }}</span>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-cream-50 border border-steel/15">
+              <span class="block text-xs text-steel uppercase font-semibold">Persona de Confiança Designada</span>
+              <span class="font-mono text-sm text-ink font-bold mt-1 block">{{ maskedContactName|default('P****** C******') }}</span>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-cream-50 border border-steel/15">
+              <span class="block text-xs text-steel uppercase font-semibold">Béns Custodiats a la Fotografia</span>
+              <span class="font-marcellus text-xl text-ink font-bold mt-0.5 block">{{ legacySnapshotCount|default(0) }} {{ (legacySnapshotCount|default(0)) == 1 ? 'bé actiu' : 'béns actius' }}</span>
+            </div>
+          </div>
+          <p class="text-[11px] text-steel mt-3 leading-relaxed">
+            Per privadesa per disseny (Art. 14 i Art. 5 RGPD), la verificació pública d'un certificat global de llegat confirma exclusivament la vigència del document sense divulgar el detall ni el valor dels béns inclosos.
+          </p>
+        {% else %}
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div class="p-4 rounded-2xl bg-cream-50 border border-steel/15">
             <span class="block text-xs text-steel uppercase font-semibold">Codi Únic d'Identificació (CUI)</span>
@@ -163,6 +184,7 @@
             </span>
           </div>
         </div>
+        {% endif %}
       </div>
 
       {# 4. DOBLE CAPA DE VERIFICACIÓ (eIDAS & BLOCKCHAIN) #}
@@ -245,7 +267,7 @@
                 </div>
               {% else %}
                 <div class="text-steel italic text-[11px]">
-                  Ancoratge pendent de sincronització a la xarxa.
+                  {{ isLegacyInventory|default(false) ? 'Cada bé actiu conserva el seu ancoratge individual a Polygon L2.' : 'Ancoratge pendent de sincronització a la xarxa.' }}
                 </div>
               {% endif %}
             </div>
@@ -264,7 +286,7 @@
             <code class="text-ink font-bold break-all select-all">{{ certificate.pdfSha256 }}</code>
           </div>
           <div>
-            <span class="text-steel block">Fingerprint Bé en Emissió:</span>
+            <span class="text-steel block">{{ isLegacyInventory|default(false) ? 'Empremta Global de l\'Inventari:' : 'Fingerprint Bé en Emissió:' }}</span>
             <code class="text-ink font-bold break-all select-all">{{ certificate.itemFingerprintAtIssue }}</code>
           </div>
         </div>

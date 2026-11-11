@@ -243,9 +243,10 @@ Seguim estrictament la regla d'or SDD (4 passos per subiteració: Model -> Domin
   - Targeta a `/app/perfil` (`LegacyProfileController` — designació exclusiva de titulars Pla Plus amb nom i cognoms informats) + revocació amb modal institucional dual `#modal-legacy-revoke` i invalidació automàtica de certificats vinculats (`LegacyDesignationService`).
   - Panell recíproc **«Designacions rebudes com a Persona de Confiança»** a `/app/perfil#herencia-digital` visible tant a **Pla Free** com a **Pla Plus** (zero revelació patrimonial Art. 14 RGPD), amb acceptació/refús directe de pendents i renúncia voluntària Art. 7.3 RGPD per al contacte acceptat (`renounceByBeneficiary`).
   - Flux `/llegat/acceptar/{token}` (`LegacyInvitationController`) amb avís Art. 14 RGPD (sense detall de béns) i alta directa al Pla Free (OTP 6 dígits + Legal Gate).
-- [ ] **Subiteració 10.3 — Certificat d'Inventari Global de Llegat i QR Successori**
-  - Plantilla PDF consolidada amb taula de béns actius, esment de persona de confiança i doble codi QR.
-  - Integració nativa a la safata global `/app/certificats` i invalidació automàtica en revocar o canviar persona de confiança.
+- [x] **Subiteració 10.3 — Certificat d'Inventari Global de Llegat i QR Successori** *(Completada)*
+  - Servei [`LegacyCertificateIssuerService`](../src/Service/Legacy/LegacyCertificateIssuerService.php) i plantilla multipàgina A4 [`legacy_pdf_template.html.twig`](../templates/certificate/legacy_pdf_template.html.twig) amb taula consolidada de béns actius, parts pseudonimitzades (`PrivacyMasker`), segell eIDAS, supersessió idempotent d'exemplars previs i doble codi QR (`/verify/{uuid}` + `/herencia/reclamar/{token}`).
+  - Integració nativa a la safata global `/app/certificats` (`POST /app/certificats/llegat/emetre`, targeta SVG específica a `_certificate_tile.html.twig`) i acció contextual a `/app/perfil#herencia-digital`.
+  - Verificació pública pseudonimitzada a `/verify/{uuid}` sense divulgació d'objectes i punt d'entrada públic [`LegacyClaimController`](../src/Controller/LegacyClaimController.php) (`/herencia/reclamar/{token}`).
 - [ ] **Subiteració 10.4 — Expedient Post-Mortem QR, IA Qwen-VL i Cua `ROLE_GESTOR`**
   - Controlador públic `/herencia/reclamar/{token}` (verificació OTP, càrrega segura a Flysystem, Checkout Stripe de taxa d'obertura i alerta preventiva 72 hores).
   - Prompt `'legacy_claim'` a `SglangVisionClient` + handler asíncron.

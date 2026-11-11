@@ -13,6 +13,7 @@ use App\Enum\CertificateStatus;
 use App\Repository\CertificateRepository;
 use App\Repository\ItemRepository;
 use App\Security\Voter\ItemVoter;
+use App\Service\Legacy\LegacyCertificateIssuerService;
 use League\Flysystem\FilesystemOperator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,7 +32,8 @@ class UserCertificateController extends AbstractController
         private readonly \App\Service\Certificate\CertificateIssuerService $certificateIssuer,
         private readonly ?\App\Service\Certificate\CertificateQrGeneratorService $qrGenerator = null,
         private readonly ?ItemRepository $itemRepository = null,
-        private readonly ?UserActivityLogger $activityLogger = null
+        private readonly ?UserActivityLogger $activityLogger = null,
+        private readonly ?LegacyCertificateIssuerService $legacyCertificateIssuer = null,
     ) {
     }
 
@@ -71,15 +73,54 @@ class UserCertificateController extends AbstractController
         }
 
         return $this->render('certificate/index.html.twig', [
+            'user' => $user,
             'certificates' => $certificates,
             'metrics' => $metrics,
             'qrCodes' => $qrCodes,
+            'legacyEligibility' => $this->legacyCertificateIssuer?->evaluateEmissionEligibility($user),
             'currentSearch' => $search,
             'currentMode' => $mode ?: 'all',
             'currentStatus' => $status ?: 'all',
             'modes' => CertificateMode::cases(),
             'statuses' => CertificateStatus::cases(),
         ]);
+    }
+
+    #[Route('/llegat/emetre', name: 'app_certificate_legacy_issue', methods: ['POST'])]
+    public function issueLegacy(Request $request): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $token = (string) $request->request->get('_token', '');
+        if (!$this->isCsrfTokenValid('legacy_certificate_issue', $token)) {
+            $this->addFlash('error', 'El testimoni de seguretat no és vàlid. Si us plau, torna-ho a provar.');
+
+            return $this->redirectToRoute('app_certificates_index');
+        }
+
+        if ($this->legacyCertificateIssuer === null) {
+            $this->addFlash('error', 'El servei d\'emissió de certificats d\'Inventari Global de Llegat no està disponible.');
+
+            return $this->redirectToRoute('app_certificates_index');
+        }
+
+        try {
+            $certificate = $this->legacyCertificateIssuer->issueLegacyInventoryCertificate(
+                $user,
+                clientIp: $request->getClientIp()
+            );
+
+            $this->addFlash('success', sprintf(
+                'Certificat d\'Inventari Global de Llegat %s preparat (%d béns custodiats i doble codi QR actiu).',
+                $certificate->getCertificateNumber(),
+                count($certificate->getIncludedItemCuisSnapshot() ?? [])
+            ));
+        } catch (\DomainException $e) {
+            $this->addFlash('error', $e->getMessage());
+        }
+
+        return $this->redirectToRoute('app_certificates_index');
     }
 
     #[Route('/{uuid}/descarregar', name: 'app_certificate_direct_download', methods: ['GET'])]

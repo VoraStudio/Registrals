@@ -112,6 +112,29 @@ class ItemRepository extends ServiceEntityRepository
         return $this->findOneBy(['cui' => $cui]);
     }
 
+    /**
+     * Retorna tots els béns actius del titular ordenats deterministament per CUI
+     * per generar l'Inventari Global de Llegat Digital.
+     *
+     * @return list<Item>
+     */
+    public function findActiveForLegacyInventory(User $owner): array
+    {
+        return $this->createQueryBuilder('i')
+            ->distinct()
+            ->leftJoin('i.category', 'c')
+            ->addSelect('c')
+            ->leftJoin('i.documents', 'd')
+            ->addSelect('d')
+            ->andWhere('i.owner = :owner')
+            ->andWhere('i.status = :status')
+            ->setParameter('owner', $owner)
+            ->setParameter('status', \App\Enum\ItemStatus::ACTIVE)
+            ->orderBy('i.cui', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
     public function countActiveByOwner(User $owner): int
     {
         return (int) $this->createQueryBuilder('i')

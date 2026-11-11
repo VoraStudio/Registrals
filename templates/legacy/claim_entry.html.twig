@@ -1,0 +1,112 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+  {% if state == 'valid' %}
+    Canal d'Obertura Successòria {{ certificate.certificateNumber }} — Registrals
+  {% else %}
+    Certificat Successori No Vàlid — Registrals
+  {% endif %}
+{% endblock %}
+{% block meta_robots %}noindex, nofollow{% endblock %}
+
+{% block body_class %}bg-cream-50 text-ink antialiased min-h-screen flex flex-col font-raleway{% endblock %}
+
+{% block body %}
+<header class="bg-white border-b border-steel/20 sticky top-0 z-40 shadow-xs">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
+    <a href="{{ path('app_home') }}" class="flex items-center gap-2.5 group">
+      <img src="{{ asset('img/logos/Isotip/1-transparent.svg') }}" alt="Registrals" class="w-8 h-8 group-hover:scale-105 transition-transform" />
+      <span class="font-marcellus text-xl text-ink tracking-wide">REGISTRALS</span>
+    </a>
+    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-ink text-gold border border-gold/30">
+      Custòdia Successòria
+    </span>
+  </div>
+</header>
+
+<main class="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
+  {% if state == 'invalid' %}
+    <div class="bg-white rounded-3xl border border-steel/20 shadow-xl p-8 text-center relative overflow-hidden">
+      <div class="h-1 bg-red-600 absolute top-0 inset-x-0"></div>
+      <h1 class="font-marcellus text-2xl text-ink mb-2">Enllaç Successori No Vàlid</h1>
+      <p class="text-sm text-steel mb-6">
+        Aquest codi QR no correspon a cap Certificat d'Inventari Global de Llegat registrat o el testimoni criptogràfic és incorrecte.
+      </p>
+      <a href="{{ path('app_home') }}" class="inline-flex items-center px-5 py-2.5 rounded-xl bg-ink text-gold text-xs font-bold uppercase tracking-wider">
+        Tornar a Registrals
+      </a>
+    </div>
+  {% elseif state in ['revoked', 'superseded'] %}
+    <div class="bg-white rounded-3xl border border-red-200 shadow-xl p-8 relative overflow-hidden">
+      <div class="h-1 bg-red-600 absolute top-0 inset-x-0"></div>
+      <div class="text-xs font-mono uppercase tracking-wider text-red-700 font-bold mb-1">
+        {{ state == 'revoked' ? 'Certificat Revocat' : 'Certificat Superat per Nova Versió' }} · {{ certificate.certificateNumber }}
+      </div>
+      <h1 class="font-marcellus text-2xl text-ink mb-3">Document No Apte per a Tramitació Successòria</h1>
+      <p class="text-sm text-ink/80 leading-relaxed mb-5">
+        {% if state == 'revoked' %}
+          Aquest Certificat d'Inventari Global de Llegat va quedar revocat automàticament arran de la revocació o renúncia de la Persona de Confiança vinculada.
+        {% else %}
+          El titular va emetre una versió posterior actualitzada d'aquest inventari global. Cal escanejar el codi QR del certificat vigent més recent.
+        {% endif %}
+      </p>
+      <div class="border-l-[3.5px] border-gold bg-gold/10 p-3.5 rounded-r-xl text-xs text-ink/85">
+        <strong>Seguretat jurídica:</strong> Per protegir la voluntat actualitzada del titular, els documents revocats o superats no admeten l'obertura d'expedients post-mortem.
+      </div>
+    </div>
+  {% else %}
+    <div class="bg-white rounded-3xl border border-gold/40 shadow-xl overflow-hidden">
+      <div class="h-1.5 bg-gradient-to-r from-ink via-gold to-ink"></div>
+      <div class="p-6 sm:p-8 border-b border-steel/15 bg-cream-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div class="text-[11px] font-mono uppercase tracking-widest text-steel font-bold">
+            Certificat d'Inventari Global de Llegat · {{ certificate.certificateNumber }}
+          </div>
+          <h1 class="font-marcellus text-2xl sm:text-3xl text-ink mt-1">Canal d'Obertura d'Expedient Successori</h1>
+        </div>
+        <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-bold shrink-0">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          DOCUMENT VIGENT
+        </span>
+      </div>
+
+      <div class="p-6 sm:p-8 space-y-5">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+          <div class="p-3.5 rounded-xl bg-cream-50 border border-steel/15">
+            <span class="block text-[10px] uppercase tracking-wider font-bold text-steel">Titular Registrat</span>
+            <span class="font-mono font-bold text-ink mt-1 block">{{ maskedOwnerName }}</span>
+          </div>
+          <div class="p-3.5 rounded-xl bg-cream-50 border border-steel/15">
+            <span class="block text-[10px] uppercase tracking-wider font-bold text-steel">Persona de Confiança</span>
+            <span class="font-mono font-bold text-ink mt-1 block">{{ maskedContactName ?? 'Confirmada' }}</span>
+          </div>
+          <div class="p-3.5 rounded-xl bg-cream-50 border border-steel/15">
+            <span class="block text-[10px] uppercase tracking-wider font-bold text-steel">Abast de Custòdia</span>
+            <span class="font-marcellus text-base font-bold text-ink mt-0.5 block">{{ itemsCount }} {{ itemsCount == 1 ? 'bé actiu' : 'béns actius' }}</span>
+          </div>
+        </div>
+
+        <div class="border-l-[3.5px] border-gold bg-gold/10 p-4 rounded-r-xl text-xs text-ink/85 leading-relaxed space-y-1.5">
+          <div><strong>Procediment acreditat de tramitació successòria:</strong></div>
+          <div>1. Verificació d'identitat del sol·licitant mitjançant codi OTP de 6 dígits al correu electrònic.</div>
+          <div>2. Aportació custodiada del <strong>Certificat Oficial de Defunció</strong> i del <strong>Títol Successori</strong> (darreres voluntats, testament o declaració d'hereus).</div>
+          <div>3. Taxa d'obertura i auditoria documental: <strong>{{ (openingFeeCents / 100)|number_format(2, ',', '.') }} €</strong>, amb <strong>finestra preventiva de seguretat de 72 hores</strong> abans de la resolució per part de l'equip de gestió de custòdia.</div>
+        </div>
+
+        {% if not isCurrentSnapshot %}
+          <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900">
+            <strong>Avís d'inventari actualitzat:</strong> El compte del titular ha registrat canvis de patrimoni posteriors a l'emissió d'aquest exemplar. En aprovar un expedient, la custòdia es resoldrà segons l'estat vigent acreditat al registre.
+          </div>
+        {% endif %}
+
+        <div class="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-steel/15 text-xs text-steel">
+          <span>Aquest canal no exposa béns ni valors sense expedient documental validat.</span>
+          <a href="{{ path('app_verify_certificate', { uuid: certificate.uuid.toRfc4122 }) }}" class="text-ink font-semibold underline hover:text-gold">
+            Comprovar vigència pública eIDAS →
+          </a>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+</main>
+{% endblock %}

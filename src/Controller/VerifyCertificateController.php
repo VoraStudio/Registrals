@@ -11,8 +11,11 @@ use App\Audit\Enum\UserActivityAction;
 use App\Audit\Service\UserActivityLogger;
 use App\Enum\CertificateStatus;
 use App\Enum\ItemStatus;
+use App\Enum\LegacyContactStatus;
 use App\Repository\CertificateRepository;
 use App\Service\ItemFingerprintCalculator;
+use App\Service\Legacy\LegacyCertificateIssuerService;
+use App\Service\Security\PrivacyMasker;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -28,7 +31,8 @@ class VerifyCertificateController extends AbstractController
     public function __construct(
         private readonly CertificateRepository $certificateRepository,
         private readonly ItemFingerprintCalculator $fingerprintCalculator,
-        private readonly ?UserActivityLogger $activityLogger = null
+        private readonly ?UserActivityLogger $activityLogger = null,
+        private readonly ?LegacyCertificateIssuerService $legacyCertificateIssuer = null
     ) {
     }
 
@@ -54,11 +58,8 @@ class VerifyCertificateController extends AbstractController
         }
 
         $item = $certificate->getItem();
-        if ($item === null) {
-            return $this->render('verify/not_found.html.twig', [
-                'identifier' => $uuid,
-                'reason' => 'Aquest certificat correspon a un Inventari Global de Llegat i disposa del seu canal dedicat de verificació successòria.',
-            ], new Response('', Response::HTTP_NOT_FOUND));
+        if ($certificate->isLegacyInventory() || $item === null) {
+            return $this->verifyLegacyInventory($uuid, $certificate);
         }
 
         // 3. Comprovació de vigència i integritat del bé respecte al certificat
@@ -106,33 +107,61 @@ class VerifyCertificateController extends AbstractController
         ]);
     }
 
+    private function verifyLegacyInventory(string $uuid, Certificate $certificate): Response
+    {
+        $legacyContact = $certificate->getLegacyContact();
+        $contactAccepted = $legacyContact !== null && $legacyContact->getStatus() === LegacyContactStatus::ACCEPTED;
+        $isSnapshotCurrent = $this->legacyCertificateIssuer !== null
+            ? $this->legacyCertificateIssuer->isLegacyInventorySnapshotCurrent($certificate)
+            : $certificate->isValid();
+
+        $verificationStatus = match (true) {
+            !$certificate->isValid() || !$contactAccepted => 'revoked',
+            !$isSnapshotCurrent => 'superseded',
+            default => 'valid',
+        };
+
+        $maskedOwnerName = $this->maskPersonalName($certificate->getIssuedBy()->getFullName());
+        $maskedContactName = $legacyContact !== null
+            ? $this->maskPersonalName($legacyContact->getFullName())
+            : null;
+        $snapshotCount = count($certificate->getIncludedItemCuisSnapshot() ?? []);
+
+        $this->activityLogger?->logAnonymous(
+            identifier: $certificate->getCertificateNumber(),
+            action: UserActivityAction::CERTIFICATE_VERIFIED,
+            description: sprintf('Verificació pública del certificat d\'Inventari Global de Llegat %s', $certificate->getCertificateNumber()),
+            details: [
+                'certificate_uuid' => $uuid,
+                'certificate_number' => $certificate->getCertificateNumber(),
+                'scope' => $certificate->getScope()->value,
+                'status' => $verificationStatus,
+                'items_count' => $snapshotCount,
+            ],
+            userName: 'Verificador públic'
+        );
+
+        return $this->render('verify/show.html.twig', [
+            'certificate' => $certificate,
+            'item' => null,
+            'isLegacyInventory' => true,
+            'legacySnapshotCount' => $snapshotCount,
+            'isStolen' => false,
+            'isFingerprintMatching' => $verificationStatus !== 'superseded',
+            'currentFingerprint' => $certificate->getItemFingerprintAtIssue(),
+            'verificationStatus' => $verificationStatus,
+            'maskedOwnerName' => $maskedOwnerName,
+            'maskedContactName' => $maskedContactName,
+            'latestBlockchainReceipt' => null,
+        ]);
+    }
+
     /**
      * Aplica màscara de privadesa RGPD a noms i cognoms per a consulta pública:
      * "Carles Sánchez" -> "C***** S******"
      */
     private function maskPersonalName(string $name): string
     {
-        $trimmed = trim($name);
-        if ($trimmed === '') {
-            return 'T****** A******';
-        }
-
-        $parts = preg_split('/\s+/', $trimmed);
-        if ($parts === false || count($parts) === 0) {
-            return 'T******';
-        }
-
-        $maskedParts = [];
-        foreach ($parts as $part) {
-            $length = mb_strlen($part);
-            if ($length <= 1) {
-                $maskedParts[] = $part . '***';
-            } else {
-                $firstChar = mb_substr($part, 0, 1);
-                $maskedParts[] = $firstChar . str_repeat('*', min(6, $length - 1));
-            }
-        }
-
-        return implode(' ', $maskedParts);
+        return PrivacyMasker::maskName($name);
     }
 }

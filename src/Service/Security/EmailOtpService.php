@@ -177,20 +177,7 @@ class EmailOtpService
 
     public function maskEmail(string $email): string
     {
-        $parts = explode('@', trim($email), 2);
-        if (count($parts) !== 2) {
-            return $email;
-        }
-
-        [$local, $domain] = $parts;
-        $len = mb_strlen($local);
-        if ($len <= 1) {
-            return '*@' . $domain;
-        }
-
-        $visible = $len >= 4 ? mb_substr($local, 0, 2) : mb_substr($local, 0, 1);
-
-        return $visible . str_repeat('*', max(2, $len - mb_strlen($visible))) . '@' . $domain;
+        return PrivacyMasker::maskEmail($email);
     }
 
     private function registerFailedAttempt(User $user, EmailOtpPurpose $purpose): EmailOtpVerificationStatus
@@ -251,3 +238,4 @@ class EmailOtpService
         }
     }
 }
+

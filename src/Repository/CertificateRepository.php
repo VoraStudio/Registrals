@@ -8,6 +8,7 @@ use App\Entity\Certificate;
 use App\Entity\Item;
 use App\Entity\User;
 use App\Enum\CertificateMode;
+use App\Enum\CertificateScope;
 use App\Enum\CertificateStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -74,14 +75,22 @@ class CertificateRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('c')
             ->leftJoin('c.item', 'i')
             ->addSelect('i')
+            ->leftJoin('c.legacyContact', 'lc')
+            ->addSelect('lc')
             ->andWhere('c.issuedBy = :user OR i.owner = :user')
             ->setParameter('user', $user)
             ->orderBy('c.createdAt', 'DESC');
 
         if ($search !== null && trim($search) !== '') {
+            $normalized = mb_strtolower(trim($search));
             $term = '%' . trim($search) . '%';
-            $qb->andWhere('c.certificateNumber LIKE :search OR i.name LIKE :search OR i.cui LIKE :search')
-               ->setParameter('search', $term);
+            if (str_contains('inventari global llegat digital', $normalized)) {
+                $qb->andWhere('c.certificateNumber LIKE :search OR i.name LIKE :search OR i.cui LIKE :search OR lc.fullName LIKE :search OR c.scope = :legacyScope')
+                   ->setParameter('legacyScope', CertificateScope::LEGACY_INVENTORY);
+            } else {
+                $qb->andWhere('c.certificateNumber LIKE :search OR i.name LIKE :search OR i.cui LIKE :search OR lc.fullName LIKE :search');
+            }
+            $qb->setParameter('search', $term);
         }
 
         if ($mode !== null && $mode !== '' && $mode !== 'all') {
@@ -178,5 +187,31 @@ class CertificateRepository extends ServiceEntityRepository
             ->setParameter('status', \App\Enum\CertificateStatus::VALID)
             ->getQuery()
             ->getSingleScalarResult();
+    }
+
+    /**
+     * Retorna tots els certificats d'Inventari Global de Llegat vigents d'un titular.
+     *
+     * @return list<Certificate>
+     */
+    public function findValidLegacyInventoryByOwner(User $owner): array
+    {
+        return $this->createQueryBuilder('c')
+            ->leftJoin('c.legacyContact', 'lc')
+            ->addSelect('lc')
+            ->andWhere('c.issuedBy = :owner')
+            ->andWhere('c.scope = :scope')
+            ->andWhere('c.status = :status')
+            ->setParameter('owner', $owner)
+            ->setParameter('scope', CertificateScope::LEGACY_INVENTORY)
+            ->setParameter('status', CertificateStatus::VALID)
+            ->orderBy('c.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findByClaimTokenHash(string $claimTokenHash): ?Certificate
+    {
+        return $this->findOneBy(['claimTokenHash' => $claimTokenHash]);
     }
 }

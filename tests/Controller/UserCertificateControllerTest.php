@@ -14,6 +14,7 @@ use App\Enum\CertificateStatus;
 use App\Repository\CertificateRepository;
 use App\Repository\ItemRepository;
 use App\Service\Certificate\CertificateIssuerService;
+use App\Service\Legacy\LegacyCertificateIssuerService;
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -352,5 +353,45 @@ class UserCertificateControllerTest extends TestCase
 
         $this->assertSame(Response::HTTP_FOUND, $response->getStatusCode());
         $this->assertSame('/app_dashboard', $response->headers->get('Location'));
+    }
+
+    public function testIssueLegacyGeneratesCertificateAndRedirectsToIndex(): void
+    {
+        $owner = (new User())
+            ->setEmail('albert@registrals.com')
+            ->setFirstName('Albert')
+            ->setLastName('Vora');
+        $certRepo = $this->createMock(CertificateRepository::class);
+        $flysystem = $this->createMock(FilesystemOperator::class);
+        $issuer = $this->createMock(CertificateIssuerService::class);
+
+        $contact = new \App\Entity\LegacyContact($owner, 'Maria Puig', 'maria@exemple.cat');
+        $legacyCert = new Certificate(
+            item: null,
+            issuedBy: $owner,
+            certificateNumber: 'CERT-2026-000950',
+            mode: CertificateMode::OFFICIAL,
+            pdfFilePath: 'certificates/2026/LEGAT_950.pdf',
+            pdfSha256: str_repeat('a', 64),
+            itemFingerprintAtIssue: str_repeat('b', 64),
+            scope: \App\Enum\CertificateScope::LEGACY_INVENTORY,
+            legacyContact: $contact,
+            includedItemCuisSnapshot: [['cui' => 'REG-1', 'name' => 'Rellotge']],
+        );
+
+        $legacyIssuer = $this->createMock(LegacyCertificateIssuerService::class);
+        $legacyIssuer->expects($this->once())
+            ->method('issueLegacyInventoryCertificate')
+            ->with($owner, null, $this->anything())
+            ->willReturn($legacyCert);
+
+        $controller = new UserCertificateController($certRepo, $flysystem, $issuer, null, null, null, $legacyIssuer);
+        $request = new Request([], ['_token' => 'valid']);
+        $controller->setContainer($this->createContainerWithUser($owner, null, true, true, $request));
+
+        $response = $controller->issueLegacy($request);
+
+        $this->assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+        $this->assertSame('/app_certificates_index', $response->headers->get('Location'));
     }
 }

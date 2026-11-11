@@ -65,15 +65,21 @@
               fill="#1D2F4B" letter-spacing="0.6">REGISTRALS</text>
         <rect x="44" y="53" width="112" height="2" rx="1" fill="#6A86A2" opacity="0.75"/>
 
-        {# Identity block: photo + name + CUI #}
-        <rect x="44" y="60" width="30" height="30" rx="3" fill="#FAF1E2"/>
-        <path d="M51 82 L57 74 L62 80 L65 77 L69 82 Z" fill="#CAA36C" opacity="0.55"/>
-        {% if hasItem and cert.item.mainPhoto %}
-          <image href="{{ path('app_media_document', { uuid: cert.item.mainPhoto.uuid }) }}"
-                 x="44" y="60" width="30" height="30"
-                 preserveAspectRatio="xMidYMid slice" clip-path="url(#{{ uid }}-photo)"/>
+        {# Identity block: photo + name + CUI (or Legacy Inventory Crest) #}
+        {% if hasItem %}
+          <rect x="44" y="60" width="30" height="30" rx="3" fill="#FAF1E2"/>
+          <path d="M51 82 L57 74 L62 80 L65 77 L69 82 Z" fill="#CAA36C" opacity="0.55"/>
+          {% if cert.item.mainPhoto %}
+            <image href="{{ path('app_media_document', { uuid: cert.item.mainPhoto.uuid }) }}"
+                   x="44" y="60" width="30" height="30"
+                   preserveAspectRatio="xMidYMid slice" clip-path="url(#{{ uid }}-photo)"/>
+          {% endif %}
+          <rect x="44" y="60" width="30" height="30" rx="3" fill="none" stroke="url(#{{ uid }}-gold)" stroke-width="1.2"/>
+        {% else %}
+          <rect x="44" y="60" width="30" height="30" rx="3" fill="#1D2F4B" stroke="url(#{{ uid }}-gold)" stroke-width="1.2"/>
+          <text x="59" y="73" text-anchor="middle" font-family="'Marcellus', Georgia, serif" font-size="6.4" font-weight="700" fill="#CAA36C">LLEGAT</text>
+          <text x="59" y="83" text-anchor="middle" font-family="'SFMono-Regular', Consolas, monospace" font-size="6.2" font-weight="700" fill="#FAF6F0">{{ cert.includedItemCuisSnapshot|length }} BÉNS</text>
         {% endif %}
-        <rect x="44" y="60" width="30" height="30" rx="3" fill="none" stroke="url(#{{ uid }}-gold)" stroke-width="1.2"/>
 
         <text x="80" y="68" font-family="'Raleway', 'Helvetica Neue', Arial, sans-serif"
               font-size="7" font-weight="700" fill="#1D2F4B">{{ itemName }}</text>

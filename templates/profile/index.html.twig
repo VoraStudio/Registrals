@@ -242,7 +242,24 @@
                     </div>
 
                     {% if not lc.status.isTerminated %}
-                      <div class="flex items-center gap-2 shrink-0">
+                      <div class="flex items-center gap-2 shrink-0 flex-wrap justify-end">
+                        {% if lc.status.isAccepted and legacyCertEligibility is defined and legacyCertEligibility is not null %}
+                          {% if legacyCertEligibility.canIssue and not legacyCertEligibility.alreadyUpToDate %}
+                            <form method="post" action="{{ path('app_certificate_legacy_issue') }}">
+                              <input type="hidden" name="_token" value="{{ csrf_token('legacy_certificate_issue') }}">
+                              <button type="submit" class="px-2.5 py-1.5 rounded-lg bg-ink text-gold border border-gold/40 hover:bg-ink/90 text-[11px] font-bold uppercase tracking-wider transition-colors cursor-pointer">
+                                {{ legacyCertEligibility.isSnapshotStale ? '↻ Actualitzar Certificat' : '📜 Emetre Certificat' }}
+                              </button>
+                            </form>
+                          {% elseif legacyCertEligibility.latestValidCert %}
+                            <a href="{{ path('app_certificate_direct_download', { uuid: legacyCertEligibility.latestValidCert.uuid }) }}"
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               class="px-2.5 py-1.5 rounded-lg bg-ink text-gold border border-gold/40 hover:bg-ink/90 text-[11px] font-bold uppercase tracking-wider transition-colors">
+                              Veure Certificat →
+                            </a>
+                          {% endif %}
+                        {% endif %}
                         {% if lc.status.isPending %}
                           <form method="post" action="{{ path('app_profile_legacy_resend', {uuid: lc.uuid.toRfc4122}) }}">
                             <input type="hidden" name="_token" value="{{ csrf_token('legacy_resend_' ~ lc.uuid.toRfc4122) }}">

@@ -58,6 +58,71 @@
       </div>
     </div>
 
+    {# Acció directa: Certificat d'Inventari Global de Llegat Digital (Subiteració 10.3) #}
+    {% if legacyEligibility is defined and legacyEligibility is not null and ((user is defined and user.plan and user.plan.allowLegacyDesignation) or legacyEligibility.acceptedContact is not null or legacyEligibility.latestValidCert is not null) %}
+      <div class="bg-white rounded-xl border border-gold/35 px-4 py-3 shadow-2xs mb-3.5 sm:mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="flex items-start sm:items-center gap-3 min-w-0">
+          <div class="w-8 h-8 rounded-lg bg-ink text-gold border border-gold/40 flex items-center justify-center shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </div>
+          <div class="min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="font-marcellus text-sm text-ink">Certificat d'Inventari Global de Llegat</span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-cream text-ink border border-gold/40">Art. 96 LOPDGDD</span>
+            </div>
+            <p class="text-[11px] text-steel font-raleway mt-0.5">
+              {% if legacyEligibility.alreadyUpToDate and legacyEligibility.latestValidCert %}
+                Vigent (<strong>{{ legacyEligibility.latestValidCert.certificateNumber }}</strong>) · Persona de confiança: <strong class="text-ink">{{ legacyEligibility.acceptedContact.fullName }}</strong> · {{ legacyEligibility.activeItemsCount }} {{ legacyEligibility.activeItemsCount == 1 ? 'bé actiu' : 'béns actius' }} amb doble QR.
+              {% elseif legacyEligibility.isSnapshotStale and legacyEligibility.latestValidCert %}
+                El teu patrimoni ha canviat des de <strong class="text-ink">{{ legacyEligibility.latestValidCert.certificateNumber }}</strong>. Pots emetre una versió actualitzada amb {{ legacyEligibility.activeItemsCount }} {{ legacyEligibility.activeItemsCount == 1 ? 'bé actiu' : 'béns actius' }}.
+              {% elseif legacyEligibility.canIssue %}
+                Persona de confiança confirmada (<strong class="text-ink">{{ legacyEligibility.acceptedContact.fullName }}</strong>) · {{ legacyEligibility.activeItemsCount }} {{ legacyEligibility.activeItemsCount == 1 ? 'bé actiu' : 'béns actius' }} preparats per certificar amb QR d'obertura successòria.
+              {% elseif legacyEligibility.reason == 'no_accepted_contact' %}
+                Designa i confirma una Persona de Confiança a <a href="{{ path('app_profile') }}#herencia-digital" class="text-ink underline hover:text-gold font-semibold">El meu Perfil</a> per habilitar aquest certificat.
+              {% elseif legacyEligibility.reason == 'missing_full_name' %}
+                Completa el teu nom i cognoms reals al perfil abans d'emetre el certificat de llegat.
+              {% elseif legacyEligibility.reason == 'no_active_items' %}
+                Registra com a mínim un bé actiu al teu patrimoni per poder emetre aquest certificat consolidat.
+              {% elseif legacyEligibility.reason == 'quota_reached' %}
+                Has assolit la quota mensual de certificats oficials del teu pla actual.
+              {% else %}
+                Funció reservada als plans amb continuïtat patrimonial activa.
+              {% endif %}
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
+          {% if legacyEligibility.canIssue %}
+            {% if legacyEligibility.alreadyUpToDate and legacyEligibility.latestValidCert %}
+              <a href="{{ path('app_certificate_direct_download', { uuid: legacyEligibility.latestValidCert.uuid }) }}"
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 class="px-3.5 py-2 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-raleway font-bold text-xs shadow-xs transition-all inline-flex items-center gap-1.5">
+                <span>Obrir PDF Vigent</span>
+                <span>→</span>
+              </a>
+            {% else %}
+              <form method="post" action="{{ path('app_certificate_legacy_issue') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('legacy_certificate_issue') }}">
+                <button type="submit" class="px-3.5 py-2 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-raleway font-bold text-xs shadow-xs transition-all cursor-pointer inline-flex items-center gap-1.5">
+                  <span>{{ legacyEligibility.isSnapshotStale ? '↻ Actualitzar Certificat de Llegat' : '+ Emetre Certificat d\'Inventari Global de Llegat' }}</span>
+                </button>
+              </form>
+            {% endif %}
+          {% elseif legacyEligibility.reason in ['no_accepted_contact', 'missing_full_name'] %}
+            <a href="{{ path('app_profile') }}#herencia-digital" class="px-3 py-1.5 rounded-xl bg-cream hover:bg-cream/80 text-ink border border-gold/40 font-raleway font-semibold text-xs transition-colors">
+              Configurar a Perfil →
+            </a>
+          {% elseif legacyEligibility.reason == 'no_active_items' %}
+            <a href="{{ path('app_item_new') }}" class="px-3 py-1.5 rounded-xl bg-cream hover:bg-cream/80 text-ink border border-gold/40 font-raleway font-semibold text-xs transition-colors">
+              + Registrar Bé →
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+
     {# Barra de Filtres & Cerca Notarial (Condensada a Mòbil amb Acordió) #}
     {% set hasActiveFilters = (currentMode != 'all' or currentStatus != 'all') %}
     <div class="bg-white rounded-2xl border border-steel/20 p-3 sm:p-4 shadow-xs mb-4 sm:mb-5">

@@ -8,12 +8,15 @@ use App\Controller\VerifyCertificateController;
 use App\Entity\Category;
 use App\Entity\Certificate;
 use App\Entity\Item;
+use App\Entity\LegacyContact;
 use App\Entity\User;
 use App\Enum\CertificateMode;
+use App\Enum\CertificateScope;
 use App\Enum\CertificateStatus;
 use App\Enum\ItemStatus;
 use App\Repository\CertificateRepository;
 use App\Service\ItemFingerprintCalculator;
+use App\Service\Legacy\LegacyCertificateIssuerService;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -154,6 +157,62 @@ class VerifyCertificateControllerTest extends TestCase
         $container = $this->createContainerWithTwig('verify/show.html.twig', function (array $params) {
             $this->assertSame('stolen', $params['verificationStatus']);
             $this->assertTrue($params['isStolen']);
+        });
+        $controller->setContainer($container);
+
+        $response = $controller->verify($certUuid->toRfc4122());
+
+        $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
+    }
+
+    public function testLegacyInventoryCertificateRendersPseudonymizedVerificationWithoutAssetDisclosure(): void
+    {
+        $owner = (new User())
+            ->setEmail('carles.sanchez@registrals.cat')
+            ->setFirstName('Carles')
+            ->setLastName('Sánchez');
+        $beneficiary = (new User())
+            ->setEmail('maria.puig@exemple.cat')
+            ->setFirstName('Maria')
+            ->setLastName('Puig');
+        $contact = (new LegacyContact($owner, 'Maria Puig', 'maria.puig@exemple.cat'))
+            ->accept($beneficiary, '127.0.0.1');
+
+        $certUuid = Uuid::v7();
+        $certificate = new Certificate(
+            item: null,
+            issuedBy: $owner,
+            certificateNumber: 'CERT-2026-000960',
+            mode: CertificateMode::OFFICIAL,
+            pdfFilePath: 'certificates/2026/LEGAT_960.pdf',
+            pdfSha256: str_repeat('a', 64),
+            itemFingerprintAtIssue: str_repeat('b', 64),
+            status: CertificateStatus::VALID,
+            uuid: $certUuid,
+            scope: CertificateScope::LEGACY_INVENTORY,
+            legacyContact: $contact,
+            includedItemCuisSnapshot: [['cui' => 'REG-1'], ['cui' => 'REG-2']],
+        );
+
+        $certRepo = $this->createMock(CertificateRepository::class);
+        $certRepo->method('findByUuid')->willReturn($certificate);
+
+        $legacyIssuer = $this->createMock(LegacyCertificateIssuerService::class);
+        $legacyIssuer->method('isLegacyInventorySnapshotCurrent')->with($certificate)->willReturn(true);
+
+        $controller = new VerifyCertificateController(
+            $certRepo,
+            $this->createMock(ItemFingerprintCalculator::class),
+            null,
+            $legacyIssuer,
+        );
+        $container = $this->createContainerWithTwig('verify/show.html.twig', function (array $params) {
+            $this->assertTrue($params['isLegacyInventory']);
+            $this->assertSame('valid', $params['verificationStatus']);
+            $this->assertSame(2, $params['legacySnapshotCount']);
+            $this->assertSame('C***** S******', $params['maskedOwnerName']);
+            $this->assertSame('M**** P***', $params['maskedContactName']);
+            $this->assertNull($params['item']);
         });
         $controller->setContainer($container);
 

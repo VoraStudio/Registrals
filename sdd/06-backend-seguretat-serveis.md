@@ -116,7 +116,11 @@ Totes les rutes de l'àrea privada requereixen autenticació (ROLE_USER o ROLE_A
 - 
 - GET /certificates/{uuid}/download: Descàrrega del fitxer PDF generat.
 - 
-- GET /verify/{uuid}: **Endpoint públic (sense login)** que valida l'estat del certificat mitjançant la lectura del codi QR.
+- `GET /verify/{uuid}`: **Endpoint públic (sense login)** que valida l'estat del certificat mitjançant la lectura del codi QR (incloent-hi exemplars d'Inventari Global de Llegat pseudonimitzats sense exposició de béns).
+
+- `POST /app/certificats/llegat/emetre`: Emissió del Certificat d'Inventari Global de Llegat consolidat amb doble QR i segell eIDAS (`UserCertificateController` + `LegacyCertificateIssuerService`).
+
+- `GET /herencia/reclamar/{token}`: Punt d'entrada públic vinculat al QR d'obertura successòria per comprovar vigència i iniciar el canal post-mortem (`LegacyClaimController`).
 - 
 
 ### 2.4. Traspàs de Titularitat (C2C)

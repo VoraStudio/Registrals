@@ -11,6 +11,7 @@ use App\Form\ChangePasswordFormType;
 use App\Form\LegacyDesignationFormType;
 use App\Form\ProfileFormType;
 use App\Repository\LegacyContactRepository;
+use App\Service\Legacy\LegacyCertificateIssuerService;
 use App\Service\Legacy\LegacyDesignationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -30,7 +31,8 @@ class ProfileController extends AbstractController
         EntityManagerInterface $entityManager,
         UserPasswordHasherInterface $passwordHasher,
         ?LegacyContactRepository $legacyContactRepository = null,
-        ?LegacyDesignationService $legacyDesignationService = null
+        ?LegacyDesignationService $legacyDesignationService = null,
+        ?LegacyCertificateIssuerService $legacyCertificateIssuer = null
     ): Response {
         /** @var User $user */
         $user = $this->getUser();
@@ -90,6 +92,7 @@ class ProfileController extends AbstractController
             'legacyContacts' => $legacyContacts,
             'incomingLegacyContacts' => $incomingLegacyContacts,
             'legacyEligibility' => $legacyEligibility,
+            'legacyCertEligibility' => $legacyCertificateIssuer?->evaluateEmissionEligibility($user),
             'legacyForm' => $legacyForm,
         ]);
     }
