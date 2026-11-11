@@ -24,7 +24,7 @@ class ChangePasswordFormType extends AbstractType
                 'attr' => [
                     'placeholder' => 'Contrasenya actual',
                     'autocomplete' => 'current-password',
-                    'class' => 'w-full px-3 py-1.5 rounded-lg border border-steel/30 bg-white text-ink text-xs font-raleway focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-colors',
+                    'class' => 'w-full pl-3 pr-9 py-1.5 rounded-lg border border-steel/30 bg-white text-ink text-xs font-raleway focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-colors',
                 ],
                 'constraints' => [
                     new NotBlank(['message' => 'Introdueix la teva contrasenya actual.']),
@@ -42,7 +42,7 @@ class ChangePasswordFormType extends AbstractType
                     'attr' => [
                         'placeholder' => 'Mínim 8 caràcters',
                         'autocomplete' => 'new-password',
-                        'class' => 'w-full px-3 py-1.5 rounded-lg border border-steel/30 bg-white text-ink text-xs font-raleway focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-colors',
+                        'class' => 'w-full pl-3 pr-9 py-1.5 rounded-lg border border-steel/30 bg-white text-ink text-xs font-raleway focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-colors',
                     ],
                 ],
                 'second_options' => [
@@ -50,7 +50,7 @@ class ChangePasswordFormType extends AbstractType
                     'attr' => [
                         'placeholder' => 'Repeteix la contrasenya',
                         'autocomplete' => 'new-password',
-                        'class' => 'w-full px-3 py-1.5 rounded-lg border border-steel/30 bg-white text-ink text-xs font-raleway focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-colors',
+                        'class' => 'w-full pl-3 pr-9 py-1.5 rounded-lg border border-steel/30 bg-white text-ink text-xs font-raleway focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-colors',
                     ],
                 ],
                 'constraints' => [

@@ -116,17 +116,26 @@
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 text-xs">
                 <div>
                   {{ form_label(passwordForm.currentPassword, null, {'label_attr': {'class': 'block text-[11px] font-semibold text-ink/80 mb-0.5'}}) }}
-                  {{ form_widget(passwordForm.currentPassword) }}
+                  <div class="relative">
+                    {{ form_widget(passwordForm.currentPassword) }}
+                    {% include 'partials/_password_toggle_button.html.twig' with { target_id: passwordForm.currentPassword.vars.id, icon_class: 'w-4 h-4', btn_class: 'pr-2.5' } %}
+                  </div>
                   {{ form_errors(passwordForm.currentPassword, {'attr': {'class': 'text-[10px] text-red-600 mt-0.5'}}) }}
                 </div>
                 <div>
                   {{ form_label(passwordForm.newPassword.first, null, {'label_attr': {'class': 'block text-[11px] font-semibold text-ink/80 mb-0.5'}}) }}
-                  {{ form_widget(passwordForm.newPassword.first) }}
+                  <div class="relative">
+                    {{ form_widget(passwordForm.newPassword.first) }}
+                    {% include 'partials/_password_toggle_button.html.twig' with { target_id: passwordForm.newPassword.first.vars.id, icon_class: 'w-4 h-4', btn_class: 'pr-2.5' } %}
+                  </div>
                   {{ form_errors(passwordForm.newPassword.first, {'attr': {'class': 'text-[10px] text-red-600 mt-0.5'}}) }}
                 </div>
                 <div>
                   {{ form_label(passwordForm.newPassword.second, null, {'label_attr': {'class': 'block text-[11px] font-semibold text-ink/80 mb-0.5'}}) }}
-                  {{ form_widget(passwordForm.newPassword.second) }}
+                  <div class="relative">
+                    {{ form_widget(passwordForm.newPassword.second) }}
+                    {% include 'partials/_password_toggle_button.html.twig' with { target_id: passwordForm.newPassword.second.vars.id, icon_class: 'w-4 h-4', btn_class: 'pr-2.5' } %}
+                  </div>
                   {{ form_errors(passwordForm.newPassword.second, {'attr': {'class': 'text-[10px] text-red-600 mt-0.5'}}) }}
                 </div>
               </div>
