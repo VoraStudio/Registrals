@@ -94,17 +94,22 @@ Quan l'usuari puja la foto d'un bé o un tiquet:
 - El número de bloc.
 - L'enllaç directe a l'explorador públic (Polygonscan) per a màxima transparència.
 
-### 3.3. Notificacions Globals (Toast / Flash Messages)
+### 3.3. Notificacions Globals (Toast / Flash Messages Unificats)
 
-Per garantir coherència visual absoluta a tota la plataforma, qualsevol notificació o feedback temporal utilitza el **Sistema de Toast Notarial Universal**:
+Per garantir coherència visual absoluta a tota la plataforma i eliminar banners duplicats, les notificacions segueixen un **sistema dual unificat**:
 
-- **Contenidor i Posició:** Fix a la cantonada inferior dreta (`bottom-5 right-5 z-50 max-w-sm w-full`), amb transició suau de lliscament i opacitat (transform translate-y i opacity).
-- **Estètica Notarial:** Fons Blau Marí `bg-ink`, vora subtil `border border-gold/50`, ombrejat elevat `shadow-[0_20px_50px_rgba(0,0,0,0.6)]`, text `text-cream` i tipografia `font-raleway`.
-- **Tipus Estàndard:**
-  - `info` / `pending`: Icona circular d'informació daurada `text-gold` i barra de progrés de temps daurada.
-  - `success`: Icona de verificació `text-emerald-400` amb fons d'èxit.
-  - `error`: Icona d'alerta `text-red-400`.
-- **API JavaScript Universal:** Accessible globalment mitjançant `window.RegistralsToast.show(message, type = 'info', durationMs = 4000)`.
+- **Missatges `success` i `info` (Toast Universal):** Es rendeixen exclusivament mitjançant el **Toast Corporatiu Universal**:
+  - **Contenidor i Posició:** Fix a la cantonada inferior dreta (`bottom-5 right-5 z-50 max-w-sm w-full`), amb transició suau de lliscament i opacitat (`translate-y` i `opacity`).
+  - **Estètica Institucional:** Fons Blau Marí `bg-ink`, vora subtil `border border-gold/50`, ombrejat elevat `shadow-[0_20px_50px_rgba(0,0,0,0.6)]`, text `text-cream` i tipografia `font-raleway`.
+  - **Tipus Estàndard:** `info` / `pending` (icona i barra de progrés `text-gold`), `success` (icona `text-emerald-400`), `error` (icona `text-red-400`).
+  - **API JavaScript Universal:** Accessible globalment mitjançant `window.RegistralsToast.show(message, type = 'info', durationMs = 4000)`.
+- **Errors i Avisos Crítics (`error` / `warning` persistents):** Es rendeixen al cos superior del formulari o pàgina a través del component compartit [`templates/partials/_persistent_flashes.html.twig`](../templates/partials/_persistent_flashes.html.twig) amb `role="alert"`, contrast d'alta llegibilitat (`bg-red-50` / `bg-amber-50`) i botó manual de tancament (`✕`).
+
+### 3.3bis. Components Compartits de Feedback, Estats Buits i Formularis
+
+- **Targeta Unificada d'Estat Buit (`_empty_state_card.html.twig`):** [`templates/partials/_empty_state_card.html.twig`](../templates/partials/_empty_state_card.html.twig) centralitza els estats buits de l'àrea privada (Dashboard `/app/dashboard` i Certificats `/app/certificats`) amb contenidor `max-w-2xl`, rivet superior daurat, iconografia configurable (`cube`, `document`, `search`) i CTA opcional `bg-ink text-cream-50` amb icona `text-gold`.
+- **Commutador de Visibilitat de Contrasenya (`_password_toggle_button.html.twig`):** [`templates/partials/_password_toggle_button.html.twig`](../templates/partials/_password_toggle_button.html.twig) afegeix el control accessible mostrar/amagar (`data-password-toggle`, `aria-pressed`) als camps de contrasenya del login, registre, recuperació i canvi de contrasenya al perfil.
+- **Macros Compartides de Plans (`_plan_macros.html.twig`):** [`templates/partials/_plan_macros.html.twig`](../templates/partials/_plan_macros.html.twig) garanteix que totes les taules comparatives (Landing Page, `/app/perfil/pla` i Backoffice) renderitzin els preus en cèntims amb format europeu de 2 decimals (`0,00 €`) i quotes reals directament des de la base de dades.
 
 ### 3.4. Modals i Diàlegs Notarials de Decisió Solemne (`.notarial-modal`)
 
@@ -204,6 +209,13 @@ A la vista de detall (`/app/items/{cui}`), tant a PC com a dispositiu mòbil:
 - **Safata de Proves Documentals Custodiades:**
   - Llistat de factures, pòlisses i certificats amb icona segons tipologia, mida de fitxer, data de custòdia Flysystem i botó d'obertura segura.
 
+### 4.6. Seguretat d'Accés (OTP / 2FA), Recuperació i Clàusules al Perfil (`/app/perfil`)
+
+- **Verificació Obligatòria d'Email al Registre Local (`/register/verify-email`):** Després de completar el registre local, la pantalla dual de verificació exigeix el codi OTP de 6 dígits enviat per correu (amb reenviament i cancel·lació). Un cop verificat, el titular passa obligatòriament pel **Legal Gate (`/app/legal/acceptar-condicions`)** abans d'entrar al Dashboard.
+- **Autenticació en Dos Passos Opcional (`/app/perfil` -> `/login/2fa`):** Des de la secció *Seguretat d'Accés* del perfil (`/app/perfil`), els titulars locals poden activar o desactivar el repte 2FA per correu (`POST /app/perfil/seguretat/2fa`).
+- **Recuperació de Contrasenya (`/forgot-password` / `/reset-password/{token}`):** Disseny en targeta solemne amb protecció anti-enumeració, commutador visual de contrasenya (`_password_toggle_button.html.twig`) i avís transparent si el compte pertany a Google OAuth2.
+- **Consulta Permanent de Clàusules i Perfil Net:** La targeta *Credencial de Certificació* del perfil enllaça directament a la vista en mode només lectura `/app/legal/clausules` (*«Veure clàusules →»*). S'ha retirat de `/app/perfil` la targeta redundant *App per al Mòbil* per prioritzar claredat visual (l'accés a la instal·lació PWA roman al desplegable superior de l'usuari).
+
 Aquesta especificació tradueix de manera coherent tota la identitat visual de la guia d'estils cap a una aplicació de gestió patrimonial i de seguretat.
 
 ---
@@ -247,5 +259,13 @@ A les columnes d'accions de les taules notarials, mai s'utilitzen textos llargs 
   1. **Dashboard de Guàrdia:** En accedir des de mòbil, la portada mostra únicament un seguiment compacte de salut i KPIs principals (estat dels nodes, usuaris actius, béns registrats i certificats).
   2. **Menú Lateral Plegat:** La barra lateral blava (`<aside>`) es plega darrere un control superior desplegable per no ocupar ni desplaçar el contingut del viewport.
   3. **Avís Notarial de Gestió Completa en PC:** A les seccions d'alta densitat (gestió d'usuaris, auditoria, edició de plans i configuració), s'informa solemnement a l'administrador mitjançant un patró `.guide-note` que cal acudir a la interfície d'escriptori (PC) per a la gestió avançada i presa de decisions operatives.
+
+### 5.7. Analítica Geogràfica Interactiva (`/admin`) i Modals Operatius a `/admin/serveis`
+
+- **Mapa Interactiu GeoChart (`/admin` + `GET /admin/api/geo`):**
+  - Selector de **zoom regional** ràpid (`Món`, `Europa`, `Espanya`, `Amèriques`), zoom interactiu directe en clicar sobre un país (`regionClick`), rànquing lateral de territoris amb desplaçament intern (*scroll*) i badge de frescor de la base GeoLite2 (`GeoIpDatabaseManager`, actualitzable per mirall públic sense clau).
+  - Telemetria sense galetes alimentada per `site_visits` (`VisitTelemetrySubscriber`) combinada amb `user_activity_logs` i `feature_interest_events`, suportant tant capçaleres `CF-IPCountry` com adreces IPv4/IPv6.
+- **Diàlegs de Confirmació a `/admin/serveis`:** Totes les accions d'operació de sistema empren modals de confirmació integrats d'acord amb la prohibició general de diàlegs natius `confirm()` / `alert()`.
+- **Separació Futura `GESTIÓ & CUSTÒDIA` (Iteració 10):** La barra lateral integra la cua operativa [`Expedients & Herències`](09-herencia-digital.md#4-arquitectura-de-rols-i-separació-funcional-al-backoffice-admin) sota el bloc `GESTIÓ & CUSTÒDIA`, accessible per a `ROLE_GESTOR` i `ROLE_ADMIN`.
 
 

@@ -43,25 +43,28 @@ Cada subiteració segueix un flux d'enginyeria estricte:
   - [x] Entitat [`src/Entity/User.php`](../src/Entity/User.php) amb suport per a `Uuid::v7()`, `taxId` (DNI/NIE/CIF) i rols de seguretat.
   - [x] Migració executada a MySQL 8.4 i esquema validat.
   - [x] Comanda [`app:init-plans`](../src/Command/InitPlansCommand.php) per poblar els plans `free`, `plus` i `unlimited`.
-- [x] **Subiteració 1.2: Autenticació Nativa (Register / Login / Logout)** *(Completada)*
-  - [x] Formulari Symfony de Registre (`/register`) amb validació de nom, correu i contrasenya segura.
-  - [x] Formulari de Login (`/login`) integrat amb `security.yaml` i `UserPasswordHasherInterface`.
-  - [x] Maquetació segons la Guia d'Estils (paleta fosca/or, inputs estilitzats, missatges flash i botons de degradat daurat).
-  - [x] Dashboard base (`/app/dashboard`) amb estat buit i targetes de resum de patrimoni i consultes d'IA de tast.
-  - [x] Validació funcional E2E executada amb èxit al navegador.
+- [x] **Subiteració 1.2: Autenticació Nativa, Seguretat d'Accés (OTP / 2FA) i Recuperació** *(Completada)*
+  - [x] Formulari Symfony de Registre (`/register`) amb validació de nom, correu, contrasenya segura i commutador accessible de visibilitat (`_password_toggle_button.html.twig`).
+  - [x] **Verificació obligatòria de correu al registre per OTP de 6 dígits** (`/register/verify-email`): bloqueig d'accés definitiu fins a validar l'adreça via [`EmailOtpService`](../src/Service/Security/EmailOtpService.php) i entrada obligatòria posterior al **Legal Gate (`v1.0`)**.
+  - [x] **2FA opcional per correu al Login (`/login/2fa`):** configurable pel titular des de `/app/perfil` (`POST /app/perfil/seguretat/2fa`) mitjançant [`EmailSecurityChallengeSubscriber`](../src/EventSubscriber/EmailSecurityChallengeSubscriber.php) i `AuthChallengeStorage`, amb autoverificació automàtica per a Google OAuth2 i restabliments de contrasenya.
+  - [x] **Recuperació segura de contrasenya (`/forgot-password` i `/reset-password/{token}`):** token criptogràfic SHA-256 amb caducitat de 60 minuts (`PasswordResetService`), missatges anti-enumeració, protecció de comptes Google OAuth2 i correu transaccional multipart 12-Factor (`info@registrals.com` / Mailpit en DEV).
+  - [x] Formulari de Login (`/login`) integrat amb `security.yaml`, `LoginAuthenticationFailureHandler` i `UserPasswordHasherInterface`.
+  - [x] Dashboard base (`/app/dashboard`) amb estat buit unificat (`_empty_state_card.html.twig`) i targetes de resum de patrimoni i consultes d'IA de tast.
+  - [x] Validació funcional E2E executada amb èxit al navegador i suites PHPUnit.
 - [x] **Subiteració 1.3: OAuth2 Social Login & Galeta de Reconeixement de Dispositiu**
   - [x] Autenticació amb Google OAuth2 (Google Cloud Console configurat, flux complet i alta d'usuari amb Pla Free).
   - [x] Implementació de la galeta segura de dispositiu (`reg_device_user`, HttpOnly, 1 any) per recordar l'usuari i agilitzar el login.
-  - [x] Botó Apple ID en mode "Smoke Test" amb Toast Notarial Universal i telemetria de clics anònima a MySQL (`feature_interest_events`).
+  - [x] Botó Apple ID en mode "Smoke Test" amb Toast Universal i telemetria de clics anònima a MySQL (`feature_interest_events`).
   - [x] Validació HITL del flux OAuth2 de Google al navegador amb èxit.
 - [x] **Subiteració 1.4: Onboarding de Benvinguda i Àrea Privada Inicial**
   - [x] Selector de pla per defecte (Pla Free assignat automàticament, Plus i Unlimited deshabilitats amb Toast informatiu).
   - [x] Pàgina de benvinguda (`/onboarding/welcome`) i redirecció al Dashboard privat (`/app/dashboard`) amb estat buit elegant.
   - [x] Validació HITL completa de l'Onboarding.
-- [x] **Subiteració 1.5: Gestió del Perfil d'Usuari i Panell "El meu Pla i Quotes"** *(Completada)*
-  - [x] Pàgina de Perfil d'Usuari (`/app/perfil`): dades personals (nom, cognoms, email, NIF/CIF fiscal, telèfon amb migració a `users`), canvi segur de contrasenya (o delegació transparent a Google OAuth2) i targeta de credencial notarial.
-  - [x] Pàgina "El meu Pla i Quotes" (`/app/perfil/pla`) i Facturació (`/app/perfil/facturacio`): estat del pla contractat, comptador visual de consum en calent (béns registrats, fotos, consultes d'IA consumides, certificats emesos), renovació anual, comparador notarial dels 3 plans i Modal Notarial de sol·licitud d'upgrade.
-  - [x] Enllaços directes des del desplegable notarial de l'avatar d'usuari (`partials/_private_header.html.twig`).
+- [x] **Subiteració 1.5: Gestió del Perfil d'Usuari, Seguretat i Panell "El meu Pla i Quotes"** *(Completada)*
+  - [x] Pàgina de Perfil d'Usuari (`/app/perfil`): dades personals (nom, cognoms, email, NIF/CIF fiscal, telèfon amb migració a `users`), canvi segur de contrasenya (o delegació transparent a Google OAuth2), **commutador de 2FA opcional per correu** i enllaç directe a la vista només lectura **`Veure clàusules →` (`/app/legal/clausules`)**; retirada la targeta redundant `App per al Mòbil` del perfil per mantenir netedat visual (accés preservat al menú de capçalera).
+  - [x] Pàgina "El meu Pla i Quotes" (`/app/perfil/pla`) i Facturació (`/app/perfil/facturacio`): preus reals sincronitzats en cèntims (2 decimals) amb la Landing Page mitjançant macros compartides [`_plan_macros.html.twig`](../templates/partials/_plan_macros.html.twig), comptador visual de consum en calent i Modal de sol·licitud d'upgrade.
+  - [x] Sistema dual unificat de notificacions: `RegistralsToast` per a missatges `success`/`info` i partial compartit [`_persistent_flashes.html.twig`](../templates/partials/_persistent_flashes.html.twig) per a `error`/`warning`.
+  - [x] Enllaços directes des del desplegable institucional de l'avatar d'usuari (`partials/_private_header.html.twig`).
 - [x] **Subiteració 1.6: PWA & Guia Dual d'Instal·lació de l'App Mòbil (`/app/perfil/instal-lar-app`)** *(Completada)*
   - [x] Manifest oficial PWA (`web/manifest.json`) amb icones corporatives, `theme_color: #1D2F4B` i `display: standalone`.
   - [x] Nova pàgina `/app/perfil/instal-lar-app`: experiència dual amb Codi QR dinàmic en directe per a PC (captura amb càmera) i instruccions visuals pas a pas per a iOS (Safari) i Android (Chrome), amb disseny fluid `max-w-[1680px]`.
@@ -255,10 +258,14 @@ Cada subiteració segueix un flux d'enginyeria estricte:
     - Seguiment de canals d'alta (% Email/Contrasenya vs % Google OAuth2).
     - Mesura de demanda / leads per a Apple ID (clics d'interès des de login i registre a `feature_interest_events`).
     - Traçabilitat de sol·licituds de recuperació de contrasenya (`password_reset`).
-  - [x] Distribució Geogràfica de Trànsit & Connexions (`/admin`):
-    - Integració de mapa interactiu de coropletes **Google GeoChart** adaptat a la paleta notarial corporativa (`#FAF6F0`, `#CAA36C`, `#1D2F4B`).
-    - Servei de resolució sobirana d'adreces IP ([`GeoLocationService`](file:///d:/webs/Registrals/Registrals/src/Service/GeoIp/GeoLocationService.php)) que agrega logs d'auditoria i telemetria per codi ISO-3166-1 amb rànquing de Top Territoris.
-- [x] **Subiteració 7.2: Mòdul de Parametrització de Plans, Tarifes i Àmbit Geogràfic** *(100% Completada)*
+  - [x] **Distribució Geogràfica de Trànsit & Connexions (`/admin`, arquitectura VoraData):**
+    - Integració de mapa interactiu de coropletes **Google GeoChart** adaptat a la paleta institucional corporativa (`#FAF6F0`, `#CAA36C`, `#1D2F4B`), amb **zoom regional (`Món`, `Europa`, `Espanya`, `Amèriques`)**, filtre per clic directe sobre països, rànquing lateral amb desplaçament intern (*scroll*) i actualització via `GET /admin/api/geo`.
+    - Telemetria sense galetes a [`SiteVisit`](../src/Entity/SiteVisit.php) + [`VisitTelemetrySubscriber`](../src/EventSubscriber/VisitTelemetrySubscriber.php) (`KernelEvents::TERMINATE`, filtrant bots i escàners `>= 400`).
+    - Servei [`GeoLocationService`](file:///d:/webs/Registrals/Registrals/src/Service/GeoIp/GeoLocationService.php) amb prioritat `CF-IPCountry`, correcció IPv6 a `isPrivateOrLoopback()`, catàleg de 31 països en català i descàrrega de base GeoLite2 per mirall públic sense clau a [`GeoIpDatabaseManager`](../src/Service/GeoIp/GeoIpDatabaseManager.php).
+  - [x] Consola `/admin/serveis` equipada amb **modals institucionals de confirmació** (zero diàlegs `confirm()` natius) i diagnòstic de Mailer 12-Factor (`info@registrals.com` / Mailpit local en DEV vs SMTP real en PROD).
+- [x] **Subiteració 7.2: Mòdul de Parametrització de Plans, Tarifes Pay-per-Value i Àmbit Geogràfic** *(100% Completada)*
+  - [x] Parametrització completa a `Plan` (`/admin/plans`) de tarifes Pay-per-Value: `extraCertificatePriceCents`, `kycIncluded` i `kycPriceCents` (`Version20261111095600`).
+  - [x] Càlcul dinàmic d'ARR al Dashboard `/admin` llegint els preus reals configurats a BDD i unificació de la matriu comparativa mitjançant [`templates/partials/_plan_macros.html.twig`](../templates/partials/_plan_macros.html.twig) (preus en cèntims amb 2 decimals sincronitzats entre Landing Page i `/app/perfil/pla`).
   - [x] Formulari d'edició en calent dels paràmetres de cada pla des de Backoffice: màxim de béns actius simultanis (`maxActiveItems`: Free: 20, Plus: 100, Unlimited: -1 il·limitat), pressupost d'altes anuals per rotació anti-carrusel (`maxYearlyRegistrations`: Free: 20/any, Plus: 120/any, Unlimited: -1 il·limitat), límit de fotografies per bé (Free: 1, Plus: 5, Unlimited: -1 il·limitat), límit de proves/evidències per bé (Free: 1, Plus: 5, Unlimited: -1 il·limitat), quotes de certificats oficials, assistència d'IA (Free: 20, Plus: 100, Unlimited: 9.999) i paràmetres de traspassos C2C (`transfersIncluded`, `extraTransferPriceCents`).
   - [x] Interruptor global i per pla per activar o desactivar l'ús d'Assistència d'IA en calent (Feature Toggle d'IA des de Backoffice), amb gestió de quotes i consums per usuari.
   - [x] Parametrització geogràfica i monetària: abast operatiu inicial centrat a la Unió Europea (EUR); selecció i acotament de països admesos al registre de plans Plus i Unlimited amb moneda ISO associada gestionable des de Backoffice.
@@ -326,6 +333,7 @@ Cada subiteració segueix un flux d'enginyeria estricte:
   - [x] Formulari de registre (`/register`) amb casella de verificació obligatòria de consentiment exprés (`agreeTerms`).
   - [x] **Persistència Forense a la Base de Dades (taula `users`):** Camps `legal_terms_accepted_at` (UTC), `legal_terms_version` (`v1.0`) i `registration_ip` integrats a l'entitat `User` amb migració versionada executada a MySQL 8.4 ([`Version20261105235700.php`](file:///d:/webs/Registrals/Registrals/migrations/Version20261105235700.php)).
   - [x] **Mecanisme de Bloqueig Obligatori d'Accés («Legal Gate»):**
+    - [x] Obligatorietat estesa també als registres locals després de l'OTP de 6 dígits (eliminada l'acceptació implícita durant l'alta) + vista permanent de consulta en només lectura a `/app/legal/clausules`.
     - Interceptor [`LegalGateSubscriber`](file:///d:/webs/Registrals/Registrals/src/EventSubscriber/LegalGateSubscriber.php): intercepta a nivell de nucli (`KernelEvents::REQUEST`) qualsevol petició a l'àrea privada (`/app/*`). Si l'usuari no té acceptada la versió vigent (`v1.0`) —per haver-se donat d'alta via Google OAuth2 o per canvi de versió contractual— el redirigeix forçosament a `/app/legal/acceptar-condicions`.
     - Controlador [`LegalTermsGateController`](file:///d:/webs/Registrals/Registrals/src/Controller/LegalTermsGateController.php) i plantilla solemne [`templates/legal/accept_terms.html.twig`](file:///d:/webs/Registrals/Registrals/templates/legal/accept_terms.html.twig): presenta les 4 clàusules claus de custòdia i certificació (Immutabilitat SHA-256, Custòdia Flysystem, Segellat eIDAS Namirial/Signaturit i IA Sobirana local) amb confirmació protegida per CSRF.
     - Traçabilitat d'auditoria automàtica a `registrals_audit` ([`UserActivityAction::LEGAL_TERMS_ACCEPTED`](file:///d:/webs/Registrals/Registrals/src/Audit/Enum/UserActivityAction.php)).
@@ -374,9 +382,21 @@ Cada subiteració segueix un flux d'enginyeria estricte:
 | **Iteració 4** | 4.1 Model Blockchain <br> 4.2 Càlcul Hash & RPC <br> 4.3 Cua & UI Insígnia <br> 4.4 Validació HITL | Polygon/Base RPC, SHA-256 | **100% Completada** |
 | **Iteració 5** | 5.1 Model Certificats <br> 5.2 Motor PDF Vectorial <br> 5.3 eIDAS Signaturit/Namirial & QR <br> 5.4 Validació HITL | Chromium Headless, Signaturit API | **100% Completada** |
 | **Iteració 6** | 6.1 Model Traspassos <br> 6.2 Symfony Workflow <br> 6.3 UI Traspàs Certificat <br> 6.4 Validació HITL | Symfony Workflow, Mailer | **100% Completada** |
-| **Iteració 7** | 7.1 Backoffice Admin <br> 7.2 Editor de Plans <br> 7.3 Passarel·la Stripe (Sandbox) <br> 7.4 Doble Verificació QR + Polygonscan <br> 7.5 Validació Integral & Go-Live | Symfony Admin, Stripe API, Signaturit, Polygon RPC | **Subiteracions 7.1, 7.2, 7.3 i 7.4 100% Completades (90%)**; pendent 7.5 (validació final integral i credencials de producció reals). |
-| **Iteració 8** | 8.1 Blindatge & Legal Gate <br> 8.2 Guia d'Ús i Manual <br> 8.3 Validació HITL | Twig, Guia d'Estils, Marc Normatiu, EventSubscriber | **90% Completada** (8.1 Legal Gate i 8.2 Manual Interactiu `/manual` implementats; pendent revisió HITL dels textos legals i auditoria final 8.3). |
+| **Iteració 7** | 7.1 Backoffice Admin & GeoIP VoraData <br> 7.2 Editor Plans Pay-per-Value <br> 7.3 Passarel·la Stripe (Sandbox) <br> 7.4 Doble Verificació QR + Polygonscan <br> 7.5 Validació Integral & Go-Live | Symfony Admin, GeoIP Mirror, Stripe API, Signaturit, Polygon RPC | **Subiteracions 7.1, 7.2, 7.3 i 7.4 100% Completades (95%)**; pendent 7.5 (validació final integral i credencials de producció reals). |
+| **Iteració 8** | 8.1 Blindatge, Legal Gate & Clàusules (`/app/legal/clausules`) <br> 8.2 Guia d'Ús i Manual <br> 8.3 Validació HITL | Twig, Guia d'Estils, Marc Normatiu, EventSubscriber | **90% Completada** (8.1 Legal Gate obligatori també en altes locals + consulta només lectura `/app/legal/clausules` i 8.2 Manual Interactiu `/manual` implementats; pendent revisió HITL dels textos legals i auditoria final 8.3). |
 | **Iteració 9** | 9.1 Enrutament Locale & SEO <br> 9.2 Catàlegs YAML <br> 9.3 Validació HITL | Symfony Translation, Twig, SEO | Pendent (Planificada) |
+| **Iteració 10** | 10.1 Model, `ROLE_GESTOR` & Quotes <br> 10.2 Persona de Confiança + Viral Free <br> 10.3 Certificat Inventari Global QR <br> 10.4 Expedients Post-Mortem + IA Qwen-VL <br> 10.5 PHPUnit & Validació HITL | Doctrine, EmailOtpService, PdfRendererService, SglangVisionClient, Stripe, ItemLifecycleService | SDD Tancat ([`09-herencia-digital.md`](09-herencia-digital.md)) — Pendent d'Execució |
+
+---
+
+### Iteració 10: Herència Digital, Persona de Confiança i Expedients Successoris ([`09-herencia-digital.md`](09-herencia-digital.md))
+**Objectiu:** Habilitar al Pla Plus la designació consentida d'una persona de confiança (Art. 96 LOPDGDD / Art. 14 RGPD), bucle d'alta gratuïta al Pla Free, emissió de Certificats d'Inventari Global de Llegat amb QR post-mortem, taxa Stripe d'obertura, finestra preventiva de 72 h, triatge OCR local amb Qwen-VL i resolució humana acotada sota `ROLE_GESTOR` dins de `GESTIÓ & CUSTÒDIA`.
+
+- [ ] **Subiteració 10.1:** Enums (`LegacyContactStatus`, `CertificateScope`, `SuccessionClaimStatus`), `LegacyContact`, `SuccessionClaim`, `Certificate::$item` nullable, paràmetres a `Plan` i rol `ROLE_GESTOR`.
+- [ ] **Subiteració 10.2:** Targeta a `/app/perfil` (només Pla Plus + nom real informat) i flux `/llegat/acceptar/{token}` amb alta viral al Pla Free (OTP 6 dígits + Legal Gate).
+- [ ] **Subiteració 10.3:** Generació PDF d'Inventari Global de Llegat amb QR d'obertura, visualització nativa a `/app/certificats` i invalidació automàtica per revocació.
+- [ ] **Subiteració 10.4:** Expedient públic `/herencia/reclamar/{token}` (OTP + documents Flysystem + taxa Stripe + avís preventiu 72 h), triatge `SglangVisionClient` (`'legacy_claim'`) i cua `/admin/gestions/herencies`.
+- [ ] **Subiteració 10.5:** Bateria PHPUnit integral i validació HITL al navegador.
 
 ---
 

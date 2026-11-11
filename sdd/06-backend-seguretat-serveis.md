@@ -72,27 +72,20 @@ public function anchorHash(string $cui, string $sha256Hash): BlockchainTransacti
 
 Totes les rutes de l'àrea privada requereixen autenticació (ROLE_USER o ROLE_ADMIN).
 
-### 2.1. Autenticació i Onboarding
+### 2.1. Autenticació, Seguretat d'Accés i Onboarding
 
-- GET /login: Formulari d'accés amb correu/contrasenya i botons OAuth.
-- 
-- POST /login: Processament d'autenticació local (Symfony Form Login).
-- 
-- GET /connect/google: Inici del flux OAuth2 amb Google.
-- 
-- GET /connect/google/check: Retorn del callback de Google.
-- 
-- GET /connect/apple: Inici del flux OIDC amb Apple.
-- 
-- POST /connect/apple/check: Retorn del callback d'Apple (amb gestió d'àlies Private Relay).
-- 
-- GET /onboarding/plan: Pantalla de selecció de pla (Free, Plus, Unlimited).
-- 
-- POST /onboarding/plan/select: Assignació de pla o redirecció a passarel·la de pagament.
-- 
-- GET /kyc/verify: Inici del procés de verificació amb Signaturit.
-- 
-- POST /api/webhooks/signaturit: Webhook asíncron que rep el resultat de la validació KYC.
+- `GET /login` / `POST /login`: Formulari d'accés local i OAuth amb control de seguretat i reconeixement de dispositiu.
+- `GET/POST /register`: Alta local amb verificació obligatòria prèvia per OTP de correu i pas posterior pel Legal Gate (`v1.0`).
+- `GET/POST /register/verify-email`, `POST /register/verify-email/resend`, `GET /register/verify-email/cancel`: Repte obligatori d'OTP de 6 dígits en registres locals (`SecurityChallengeController`).
+- `GET/POST /login/2fa`, `POST /login/2fa/resend`, `GET /login/2fa/cancel`: Verificació opcional en dos passos per correu electrònic quan el titular té activat `twoFactorEnabled` (`SecurityChallengeController` + `EmailSecurityChallengeSubscriber`).
+- `GET/POST /forgot-password`, `GET/POST /reset-password/{token}`: Flux de recuperació segura de contrasenya mitjançant token SHA-256 amb caducitat de 60 minuts (`ResetPasswordController` + `PasswordResetService`).
+- `GET /connect/google` & `GET /connect/google/check`: Flux OAuth2 amb Google (autoverifica el correu electrònic amb el proveïdor).
+- `GET /connect/apple` & `POST /connect/apple/check`: Flux OIDC / Smoke Test amb Apple.
+- `GET/POST /app/legal/acceptar-condicions`: Pantalla obligatòria del Legal Gate per acceptar les clàusules de custòdia i certificació (`LegalTermsGateController` + `LegalGateSubscriber`).
+- `GET /app/legal/clausules`: Consulta permanent en mode només lectura de les clàusules acceptades des del perfil.
+- `GET/POST /app/perfil`, `POST /app/perfil/seguretat/2fa`: Edició de dades personals, canvi de contrasenya local i commutador de 2FA per correu (`ProfileController`).
+- `GET /app/perfil/pla` & `GET /app/perfil/facturacio`: Visualització de quotes actives, consum i facturació Stripe (`PlanController`).
+- `GET /kyc/verify` & `POST /api/webhooks/signaturit`: Flux de verificació d'identitat eIDV amb Signaturit.
 - 
 
 ### 2.2. Gestió de Béns (Wizard Mòbil 1-2-3 i Escriptori)
@@ -136,15 +129,15 @@ Totes les rutes de l'àrea privada requereixen autenticació (ROLE_USER o ROLE_A
 
 ### 2.5. Panell d'Administració (**/admin**)
 
-- GET /admin: Dashboard amb mètriques (usuaris, béns, certificats, consum de GPU).
-- 
-- GET /admin/users: Gestió d'usuaris (bloqueig, assignació de quotes, canvi de pla).
-- 
-- GET /admin/plans: Configuració en calent de límits i preus per a cada pla.
-- 
-- POST /admin/plans/{id}: Actualització de quotes i preus d'un pla.
-- 
-- GET /admin/legal: Publicació i control de versions dels termes legals.
+- `GET /admin`: Dashboard amb mètriques globals, ARR calculat en calent des de `plans` i mapa interactiu de trànsit.
+- `GET /admin/api/geo`: Endpoint JSON per alimentar el mapa interactiu GeoIP (`GeoLocationService` agregant `site_visits`, `user_activity_logs` i `feature_interest_events`).
+- `GET /admin/usuaris`: Gestió d'usuaris (activació, bloqueig, auditoria forense i canvi de pla).
+- `GET /admin/bens`: Supervisió global de béns custodiats i certificats.
+- `GET /admin/plans` & `POST /admin/plans/{id}`: Configuració en calent de quotes, límits i tarifes Pay-per-Value (`extraCertificatePriceCents`, `kycIncluded`, `kycPriceCents`, `extraTransferPriceCents`).
+- `GET /admin/serveis`: Salut tècnica dels nodes (MySQL, `registrals_audit`, SGLang, Mailer, GeoIP amb mirall GeoLite2 i modals confirmatoris sense `confirm()` natius).
+- `GET /admin/configuracio`: Interruptors globals de sistema.
+- **Telemetria Sense Galetes (`VisitTelemetrySubscriber`):** Listener a `KernelEvents::TERMINATE` que resol codis de país via `CF-IPCountry` o `GeoLocationService` (IPv4/IPv6 segur) i persisteix a `site_visits` ignorant bots i peticions d'error (`>= 400`).
+- *(Planificat — Iteració 10 / `09-herencia-digital.md`)* `GET/POST /admin/gestions/herencies*`: Safata d'expedients successoris acotada per a **`ROLE_GESTOR`** i `ROLE_ADMIN`.
 - 
 
 ## 3. Seguretat, Voters i Control d'Accés
@@ -219,8 +212,9 @@ Protegeix els fitxers emmagatzemats al disc local:
 
 | **Rol** | **Àmbit** | **Permisos** |
 | --- | --- | --- |
-| ROLE_USER | Àrea privada del client | Registre d'actius, càrrega de factures, ús del model d'IA, descàrrega de certificats i traspassos particulars segons els límits del pla contractat. |
-| ROLE_ADMIN | Panell /admin | Accés al panell de control, parametrització de quotes de plans, publicació de termes legals, desbloqueig de comptes i auditoria d'incidències. |
+| `ROLE_USER` | Àrea privada del client | Registre d'actius, càrrega de factures, ús del model d'IA, descàrrega de certificats, gestió del perfil/2FA, traspassos particulars i designació de persona de confiança (Pla Plus) segons les quotes del pla contractat. |
+| `ROLE_GESTOR` *(Planificat — Iteració 10)* | Bloc `GESTIÓ & CUSTÒDIA` de `/admin` | Accés acotat exclusivament a la safata `/admin/gestions/herencies` per revisar expedients successoris documentals custodiats a Flysystem, validar resultats d'IA sobirana i aprovar o rebutjar traspassos d'herència sense accés a configuració tècnica ni tarifària. |
+| `ROLE_ADMIN` | Panell `/admin` complet *(hereta `ROLE_GESTOR`)* | Accés total al panell de control, parametrització de quotes i tarifes Pay-per-Value (`/admin/plans`), diagnòstic de serveis (`/admin/serveis`), termes legals, desbloqueig de comptes i auditoria d'incidències. |
 
 Aquest disseny completa l'apartat 6 i 7 de l'arquitectura SSD, deixant l'estructura de backend, els serveis d'integració, la llista d'endpoints i el model de seguretat definits per començar a programar sobre Symfony 7.
 

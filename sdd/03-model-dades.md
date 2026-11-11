@@ -56,6 +56,18 @@ enum DocumentType: string {
     case POLICE_REPORT = 'police_report';
     case LEGAL_DECLARATION = 'legal_declaration';
 }
+
+enum EmailOtpPurpose: string {
+    case REGISTRATION_VERIFY = 'registration_verify';
+    case LOGIN_2FA = 'login_2fa';
+}
+
+enum EmailOtpVerificationStatus: string {
+    case VALID = 'valid';
+    case INVALID = 'invalid';
+    case EXPIRED_OR_MISSING = 'expired_or_missing';
+    case MAX_ATTEMPTS_EXCEEDED = 'max_attempts_exceeded';
+}
 ```
 
 ## 2. Entitats Principals de Domini
@@ -545,6 +557,21 @@ private string $lastName;
 #[ORM\Column(type: 'string', length: 20, nullable: true)]
 private ?string $taxId = null;
 
+#[ORM\Column(type: 'string', length: 30, nullable: true)]
+private ?string $phone = null;
+
+#[ORM\Column(type: 'string', length: 2, options: ['default' => 'ES'])]
+private string $countryCode = 'ES';
+
+#[ORM\Column(type: 'boolean', options: ['default' => true])]
+private bool $isActive = true;
+
+#[ORM\Column(type: 'datetime_immutable', nullable: true)]
+private ?\DateTimeImmutable $blockedAt = null;
+
+#[ORM\Column(type: 'string', length: 255, nullable: true)]
+private ?string $blockReason = null;
+
 #[ORM\Column(type: 'string', length: 20, options: ['default' => 'local'])]
 private string $authProvider = 'local';
 
@@ -561,14 +588,23 @@ private ?string $signaturitKycId = null;
 private ?\DateTimeImmutable $identityVerifiedAt = null;
 
 #[ORM\ManyToOne(targetEntity: Plan::class)]
-#[ORM\JoinColumn(name: 'plan_id', referencedColumnName: 'id', nullable: false)]
-private Plan $plan;
+#[ORM\JoinColumn(name: 'plan_id', referencedColumnName: 'id', nullable: true)]
+private ?Plan $plan = null;
 
-#[ORM\Column(type: 'datetime_immutable')]
-private \DateTimeImmutable $planStartedAt;
+#[ORM\Column(type: 'datetime_immutable', nullable: true)]
+private ?\DateTimeImmutable $planStartedAt = null;
 
 #[ORM\Column(type: 'datetime_immutable', nullable: true)]
 private ?\DateTimeImmutable $planExpiresAt = null;
+
+#[ORM\Column(type: 'string', length: 100, unique: true, nullable: true)]
+private ?string $stripeCustomerId = null;
+
+#[ORM\Column(type: 'string', length: 100, nullable: true)]
+private ?string $stripeSubscriptionId = null;
+
+#[ORM\Column(type: 'string', length: 50, nullable: true)]
+private ?string $subscriptionStatus = null;
 
 #[ORM\Column(type: 'integer', options: ['default' => 0])]
 private int $aiUsageCount = 0;
@@ -584,6 +620,48 @@ private int $periodItemsRegistered = 0;
 
 #[ORM\Column(type: 'datetime_immutable', nullable: true)]
 private ?\DateTimeImmutable $periodStartedAt = null;
+
+#[ORM\Column(type: 'boolean', options: ['default' => false])]
+private bool $onboardingCompleted = false;
+
+#[ORM\Column(type: 'datetime_immutable', nullable: true)]
+private ?\DateTimeImmutable $legalTermsAcceptedAt = null;
+
+#[ORM\Column(type: 'string', length: 20, nullable: true)]
+private ?string $legalTermsVersion = null;
+
+#[ORM\Column(type: 'string', length: 45, nullable: true)]
+private ?string $registrationIp = null;
+
+#[ORM\Column(type: 'datetime_immutable', nullable: true)]
+private ?\DateTimeImmutable $downgradeGracePeriodExpiresAt = null;
+
+#[ORM\Column(type: 'string', length: 64, nullable: true)]
+private ?string $resetPasswordTokenHash = null;
+
+#[ORM\Column(type: 'datetime_immutable', nullable: true)]
+private ?\DateTimeImmutable $resetPasswordExpiresAt = null;
+
+#[ORM\Column(type: 'datetime_immutable', nullable: true)]
+private ?\DateTimeImmutable $emailVerifiedAt = null;
+
+#[ORM\Column(type: 'boolean', options: ['default' => false])]
+private bool $twoFactorEnabled = false;
+
+#[ORM\Column(type: 'string', length: 64, nullable: true)]
+private ?string $emailOtpHash = null;
+
+#[ORM\Column(type: 'string', length: 30, enumType: EmailOtpPurpose::class, nullable: true)]
+private ?EmailOtpPurpose $emailOtpPurpose = null;
+
+#[ORM\Column(type: 'datetime_immutable', nullable: true)]
+private ?\DateTimeImmutable $emailOtpExpiresAt = null;
+
+#[ORM\Column(type: 'datetime_immutable', nullable: true)]
+private ?\DateTimeImmutable $emailOtpSentAt = null;
+
+#[ORM\Column(type: 'integer', options: ['default' => 0])]
+private int $emailOtpAttempts = 0;
 
 #[ORM\Column(type: 'datetime_immutable')]
 private \DateTimeImmutable $createdAt;
@@ -653,17 +731,32 @@ private int $maxLifetimeItems = 50;
 #[ORM\Column(type: 'integer')]
 private int $monthlyCertificatesQuota = 0;
 
+#[ORM\Column(type: 'integer', options: ['default' => 590])]
+private int $extraCertificatePriceCents = 590;
+
 #[ORM\Column(type: 'boolean', options: ['default' => false])]
 private bool $allowOfficialCertificates = false;
 
 #[ORM\Column(type: 'integer', options: ['default' => 0])]
+private int $kycIncluded = 0;
+
+#[ORM\Column(type: 'integer', options: ['default' => 350])]
+private int $kycPriceCents = 350;
+
+#[ORM\Column(type: 'integer', options: ['default' => 0])]
 private int $aiAssistanceQuota = 0;
+
+#[ORM\Column(type: 'boolean', options: ['default' => true])]
+private bool $aiAssistanceEnabled = true;
 
 #[ORM\Column(type: 'integer', options: ['default' => 0])]
 private int $transfersIncluded = 0;
 
 #[ORM\Column(type: 'integer', options: ['default' => 200])]
 private int $extraTransferPriceCents = 200;
+
+#[ORM\Column(type: 'integer', options: ['default' => 4])]
+private int $maxDocumentsPerItem = 4;
 
 #[ORM\Column(type: 'integer', options: ['default' => 1])]
 private int $maxPhotosPerItem = 1;
@@ -684,7 +777,18 @@ private \DateTimeImmutable $createdAt;
 - `maxYearlyRegistrations`: FREE: 20 | PLUS: 120 *(configurable a Admin)* | UNLIMITED: -1 (il·limitat). Pressupost d'altes permeses per cicle de 12 mesos (regla anti-carrusel i anti round-robin).
 - `maxPhotosPerItem`: FREE: 1 | PLUS: 5 | UNLIMITED: -1 (il·limitat).
 - `maxEvidencesPerItem`: FREE: 1 | PLUS: 5 | UNLIMITED: -1 (il·limitat).
-- Totes les quotes han de ser modificables en calent pels administradors des de `/admin/plans` (EasyAdmin / Symfony Form).
+- `extraCertificatePriceCents`, `kycIncluded`, `kycPriceCents` i `extraTransferPriceCents`: tarifes Pay-per-Value modificables en calent pels administradors des de `/admin/plans`, consumides dinàmicament tant al càlcul d'ARR del Dashboard `/admin` com a la matriu unificada [`_plan_macros.html.twig`](../templates/partials/_plan_macros.html.twig).
+
+### 2.8. Entitat **SiteVisit** (Telemetria Geogràfica sense Galetes)
+
+Taula: `site_visits` (`src/Entity/SiteVisit.php`)
+
+- `id`: INTEGER (PK).
+- `path`: VARCHAR(255) (ruta visitada truncada a 255 caràcters).
+- `country_code`: VARCHAR(2) INDEXAT (`idx_site_visits_country`, ISO-3166-1 resolt per `CF-IPCountry` o `GeoLocationService` sense emmagatzemar IPs en clar).
+- `ip_hash`: VARCHAR(64) (resum anonimitzat per deduplicació sense galetes).
+- `device_type`: VARCHAR(20) (`desktop` / `mobile`, per defecte `desktop`).
+- `created_at`: DATETIME_IMMUTABLE INDEXAT (`idx_site_visits_created`).
 
 ---
 
@@ -701,12 +805,19 @@ Per garantir la immutabilitat forense, protegir el rendiment transaccional del n
 - `user_uuid`: VARCHAR(36) INDEXAT (UUID v7 del compte de l'usuari).
 - `user_email`: VARCHAR(180).
 - `user_name`: VARCHAR(180).
-- `action`: VARCHAR(50) — Enum `UserActivityAction` (`login`, `logout`, `register`, `password_changed`, `item_created`, `item_updated`, `item_deleted`, `status_changed`, `certificate_issued`, `transfer_initiated`, `transfer_accepted`).
+- `action`: VARCHAR(50) — Enum `UserActivityAction`:
+  - *Autenticació i Seguretat:* `login`, `login_failed`, `logout`, `register`, `email_verified`, `password_changed`, `password_reset_requested`, `two_factor_challenge_sent`, `two_factor_verified`, `two_factor_failed`, `two_factor_toggled`, `legal_terms_accepted`.
+  - *Béns, Certificats i Traspassos:* `item_created`, `item_updated`, `item_deleted`, `status_changed`, `certificate_issued`, `certificate_verified`, `transfer_initiated`, `transfer_accepted`, `transfer_cancelled`, `transfer_rejected`, `transfer_expired`.
+  - *Pagaments i Identitat eIDV:* `payment_completed`, `payment_failed`, `subscription_started`, `subscription_cancelled`, `refund_processed`, `kyc_initiated`, `kyc_approved`, `kyc_rejected`.
 - `description`: VARCHAR(255).
 - `ip_address`: VARCHAR(45) NULLABLE (IPv4 o IPv6 de la sol·licitud).
 - `user_agent`: VARCHAR(255) NULLABLE.
-- `details`: JSON NULLABLE (metadades estructurades com firewall, motiu de suspensió, etc.).
+- `details`: JSON NULLABLE (metadades estructurades com firewall, motiu de suspensió, versió de clàusules acceptades, etc.).
 - `created_at`: DATETIME INDEXAT (segell de temps immutable UTC).
+
+## 9. Extensió Planificada — Herència Digital (Iteració 10)
+
+Les evolucions previstes al model de dades per al mòdul d'**Herència Digital** (`LegacyContact`, `SuccessionClaim`, `Certificate::$item` nullable amb `CertificateScope` i paràmetres successoris a `Plan` i `UserActivityAction`) es troben especificades íntegrament a [`09-herencia-digital.md`](09-herencia-digital.md#3-model-de-dades-proposat-srcentity--srcenum).
 
 Aquest model connecta directament l'estat de l'ítem amb el seu cicle de vida i la blockchain.
 
