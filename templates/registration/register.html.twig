@@ -159,13 +159,19 @@
           <div class="space-y-3.5 flex flex-col justify-between">
             <div>
               {{ form_label(registrationForm.plainPassword.first, null, {'label_attr': {'class': 'block text-xs font-semibold uppercase tracking-wider text-ink mb-1.5 font-raleway'}}) }}
-              {{ form_widget(registrationForm.plainPassword.first, {'attr': {'class': 'block w-full px-3.5 py-2.5 bg-white/90 border border-steel/30 rounded-xl text-ink text-sm placeholder-steel/60 focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/30 focus:bg-white transition-all'}}) }}
+              <div class="relative">
+                {{ form_widget(registrationForm.plainPassword.first, {'attr': {'class': 'block w-full pl-3.5 pr-11 py-2.5 bg-white/90 border border-steel/30 rounded-xl text-ink text-sm placeholder-steel/60 focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/30 focus:bg-white transition-all'}}) }}
+                {% include 'partials/_password_toggle_button.html.twig' with { target_id: registrationForm.plainPassword.first.vars.id } %}
+              </div>
               {{ form_errors(registrationForm.plainPassword.first, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
             </div>
 
             <div>
               {{ form_label(registrationForm.plainPassword.second, null, {'label_attr': {'class': 'block text-xs font-semibold uppercase tracking-wider text-ink mb-1.5 font-raleway'}}) }}
-              {{ form_widget(registrationForm.plainPassword.second, {'attr': {'class': 'block w-full px-3.5 py-2.5 bg-white/90 border border-steel/30 rounded-xl text-ink text-sm placeholder-steel/60 focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/30 focus:bg-white transition-all'}}) }}
+              <div class="relative">
+                {{ form_widget(registrationForm.plainPassword.second, {'attr': {'class': 'block w-full pl-3.5 pr-11 py-2.5 bg-white/90 border border-steel/30 rounded-xl text-ink text-sm placeholder-steel/60 focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/30 focus:bg-white transition-all'}}) }}
+                {% include 'partials/_password_toggle_button.html.twig' with { target_id: registrationForm.plainPassword.second.vars.id } %}
+              </div>
               {{ form_errors(registrationForm.plainPassword.second, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
             </div>
 

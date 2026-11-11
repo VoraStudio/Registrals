@@ -11,6 +11,7 @@ enum UserActivityAction: string
     case LOGOUT = 'logout';
     case REGISTER = 'register';
     case PASSWORD_CHANGED = 'password_changed';
+    case PASSWORD_RESET_REQUESTED = 'password_reset_requested';
     case ITEM_CREATED = 'item_created';
     case ITEM_UPDATED = 'item_updated';
     case ITEM_DELETED = 'item_deleted';
@@ -40,6 +41,7 @@ enum UserActivityAction: string
             self::LOGOUT => 'Tancament de sessió',
             self::REGISTER => 'Registre de compte',
             self::PASSWORD_CHANGED => 'Canvi de contrasenya',
+            self::PASSWORD_RESET_REQUESTED => 'Sol·licitud de recuperació de contrasenya',
             self::ITEM_CREATED => 'Creació de bé',
             self::ITEM_UPDATED => 'Modificació de bé',
             self::ITEM_DELETED => 'Eliminació de bé',
@@ -70,7 +72,8 @@ enum UserActivityAction: string
             self::LOGIN_FAILED => 'bg-rose-100 text-rose-900 border-rose-300 font-bold',
             self::LOGOUT => 'bg-slate-100 text-slate-700 border-slate-300',
             self::REGISTER => 'bg-indigo-50 text-indigo-800 border-indigo-300',
-            self::PASSWORD_CHANGED => 'bg-amber-50 text-amber-800 border-amber-300',
+            self::PASSWORD_CHANGED,
+            self::PASSWORD_RESET_REQUESTED => 'bg-amber-50 text-amber-800 border-amber-300',
             self::LEGAL_TERMS_ACCEPTED => 'bg-blue-50 text-blue-800 border-blue-300 font-medium',
             self::KYC_INITIATED => 'bg-amber-50 text-amber-800 border-amber-300',
             self::KYC_APPROVED => 'bg-emerald-50 text-emerald-800 border-emerald-300 font-bold',
@@ -97,6 +100,7 @@ enum UserActivityAction: string
             self::LOGOUT,
             self::REGISTER,
             self::PASSWORD_CHANGED,
+            self::PASSWORD_RESET_REQUESTED,
             self::STATUS_CHANGED,
             self::LEGAL_TERMS_ACCEPTED,
             self::KYC_INITIATED,
@@ -138,6 +142,7 @@ enum UserActivityAction: string
                 self::LOGOUT,
                 self::REGISTER,
                 self::PASSWORD_CHANGED,
+                self::PASSWORD_RESET_REQUESTED,
                 self::STATUS_CHANGED,
                 self::LEGAL_TERMS_ACCEPTED,
                 self::KYC_INITIATED,

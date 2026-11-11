@@ -36,22 +36,6 @@
         <p class="text-xs sm:text-sm text-cream/75 mt-1 font-raleway">Entra al teu espai segur de custòdia i certificació</p>
       </div>
 
-      {# Missatges Flash via Notarial Toast #}
-      {% for message in app.flashes('success') %}
-        <script>
-          document.addEventListener('DOMContentLoaded', function() {
-            if (window.RegistralsToast) {
-              window.RegistralsToast.show(
-                'Registre Completat',
-                '{{ message|e('js') }}',
-                'info',
-                5500
-              );
-            }
-          });
-        </script>
-      {% endfor %}
-
       {% if error %}
         <div class="mb-5 p-3.5 rounded-xl bg-red-950/80 border border-red-400/50 text-red-200 text-xs sm:text-sm flex items-start gap-2.5">
           <svg class="w-4 h-4 shrink-0 text-red-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -154,7 +138,7 @@
           <div>
             <div class="flex justify-between items-center mb-1.5">
               <label for="inputPassword" class="block text-xs font-semibold uppercase tracking-wider text-cream/90 font-raleway">Contrasenya</label>
-              <a href="#" id="btn-forgot-password" onclick="event.preventDefault(); if (window.RegistralsToast) { window.RegistralsToast.show('Recuperació de Contrasenya', 'Aquesta funcionalitat d\'enviament d\'enllaç al correu estarà disponible properament.', 'info', 4500); } fetch('{{ path('api_track_feature_interest') }}', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ feature: 'password_reset', origin: 'login_form' }) }).catch(function(){}); return false;" class="text-[11px] text-gold hover:underline font-semibold font-raleway">
+              <a href="{{ path('app_forgot_password') }}" id="btn-forgot-password" class="text-[11px] text-gold hover:underline font-semibold font-raleway">
                 Has oblidat la contrasenya?
               </a>
             </div>
@@ -162,7 +146,8 @@
               <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-steel">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
               </div>
-              <input type="password" name="_password" id="inputPassword" class="block w-full pl-10 pr-3.5 py-2.5 bg-white/90 border border-steel/30 rounded-xl text-ink text-sm placeholder-steel/60 focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/40 focus:bg-white transition-all" autocomplete="current-password" placeholder="••••••••" required {% if recognized_user %}autofocus{% endif %}>
+              <input type="password" name="_password" id="inputPassword" class="block w-full pl-10 pr-11 py-2.5 bg-white/90 border border-steel/30 rounded-xl text-ink text-sm placeholder-steel/60 focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/40 focus:bg-white transition-all" autocomplete="current-password" placeholder="••••••••" required {% if recognized_user %}autofocus{% endif %}>
+              {% include 'partials/_password_toggle_button.html.twig' with { target_id: 'inputPassword' } %}
             </div>
           </div>
 

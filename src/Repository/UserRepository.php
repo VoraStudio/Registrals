@@ -164,4 +164,9 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 
         return (int) $qb->getQuery()->getSingleScalarResult();
     }
+
+    public function findOneByResetTokenHash(string $tokenHash): ?User
+    {
+        return $this->findOneBy(['resetPasswordTokenHash' => $tokenHash]);
+    }
 }

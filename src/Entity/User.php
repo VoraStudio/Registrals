@@ -17,6 +17,7 @@ use Symfony\Component\Uid\Uuid;
 #[ORM\Table(name: 'users')]
 #[ORM\Index(columns: ['email'], name: 'idx_users_email')]
 #[ORM\Index(columns: ['auth_provider', 'auth_provider_id'], name: 'idx_users_oauth')]
+#[ORM\Index(columns: ['reset_password_token_hash'], name: 'idx_users_reset_token')]
 #[UniqueEntity(fields: ['email'], message: 'Ja existeix un compte registrat amb aquesta adreça electrònica.')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -127,6 +128,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $downgradeGracePeriodExpiresAt = null;
+
+    #[ORM\Column(type: 'string', length: 64, nullable: true)]
+    private ?string $resetPasswordTokenHash = null;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $resetPasswordExpiresAt = null;
 
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
@@ -622,5 +629,41 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $now = new \DateTimeImmutable();
         $diff = $now->diff($this->downgradeGracePeriodExpiresAt);
         return max(1, (int) $diff->days);
+    }
+
+    public function getResetPasswordTokenHash(): ?string
+    {
+        return $this->resetPasswordTokenHash;
+    }
+
+    public function setResetPasswordTokenHash(?string $resetPasswordTokenHash): static
+    {
+        $this->resetPasswordTokenHash = $resetPasswordTokenHash;
+        return $this;
+    }
+
+    public function getResetPasswordExpiresAt(): ?\DateTimeImmutable
+    {
+        return $this->resetPasswordExpiresAt;
+    }
+
+    public function setResetPasswordExpiresAt(?\DateTimeImmutable $resetPasswordExpiresAt): static
+    {
+        $this->resetPasswordExpiresAt = $resetPasswordExpiresAt;
+        return $this;
+    }
+
+    public function isResetPasswordTokenValid(): bool
+    {
+        return $this->resetPasswordTokenHash !== null
+            && $this->resetPasswordExpiresAt !== null
+            && $this->resetPasswordExpiresAt > new \DateTimeImmutable();
+    }
+
+    public function clearResetPasswordToken(): static
+    {
+        $this->resetPasswordTokenHash = null;
+        $this->resetPasswordExpiresAt = null;
+        return $this;
     }
 }
