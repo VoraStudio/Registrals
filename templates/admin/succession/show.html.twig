@@ -278,7 +278,7 @@
     const isApprove = mode === 'approve';
     document.getElementById('sd-modal-title').textContent = isApprove ? 'Aprovar i Executar Traspàs Successori' : 'Rebutjar Expedient Successori';
     document.getElementById('sd-modal-body').textContent = isApprove
-      ? 'Estàs a punt d\'aprovar l\'expedient {{ claim.claimReference }} i transferir els {{ activeItems|length }} béns actius cap a {{ claim.claimantEmail|e('js') }}. Aquesta acció és definitiva.'
+      ? 'Estàs a punt d\'aprovar l\'expedient {{ claim.claimReference }}, transferir els {{ activeItems|length }} béns actius cap a {{ claim.claimantEmail|e('js') }} i tancar definitivament el compte i la subscripció del titular causant. Aquesta acció és irreversible.'
       : 'Confirmes el rebuig motivat de l\'expedient {{ claim.claimReference }}? No es mourà cap bé i es notificarà el sol·licitant.';
     const btn = document.getElementById('sd-modal-confirm');
     btn.textContent = isApprove ? 'Confirmar Aprovació i Traspàs' : 'Confirmar Rebuig';

@@ -229,7 +229,7 @@ A la barra lateral d'administració ([`templates/admin/layout.html.twig`](../tem
      - Estat del comptador preventiu de les **72 hores** i coincidència amb la Persona de Confiança acceptada.
 3. **Execució Atòmica en Aprovar:**
    - Si no hi ha usuari receptor amb el `claimantEmail` / `beneficiaryUser`, se li genera o exigeix compte previ Pla Free amb acceptació de clàusules legals.
-   - El servei [`ItemLifecycleService`](../src/Service/Item/ItemLifecycleService.php) executa la reassignació massiva de tots els béns actius inclosos (`AcquisitionType::INHERITANCE`), registra la traça a cada `ItemHistory`, despacha l'ancoratge corresponent a Polygon Layer 2, i anota tots els esdeveniments a `registrals_audit`.
+   - El servei [`ItemLifecycleService`](../src/Service/Item/ItemLifecycleService.php) executa la reassignació massiva de tots els béns actius inclosos (`AcquisitionType::INHERITANCE`), registra la traça a cada `ItemHistory`, despacha l'ancoratge corresponent a Polygon Layer 2, tanca definitivament el compte causant (`isActive = false`, revocació de designacions i certificats globals pendents i cancel·lació de la subscripció Stripe vigent) i anota tots els esdeveniments a `registrals_audit`.
 
 ---
 

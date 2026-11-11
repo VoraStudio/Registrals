@@ -13,9 +13,11 @@ use App\Entity\User;
 use App\Enum\CertificateStatus;
 use App\Enum\SuccessionClaimStatus;
 use App\Infrastructure\Adapter\Ai\AiVisionAnalyzerInterface;
+use App\Infrastructure\Adapter\Payment\PaymentGatewayInterface;
 use App\Message\AnalyzeSuccessionClaimMessage;
 use App\Repository\CertificateRepository;
 use App\Repository\ItemRepository;
+use App\Repository\LegacyContactRepository;
 use App\Repository\PlanRepository;
 use App\Repository\SuccessionClaimRepository;
 use App\Repository\UserRepository;
@@ -72,6 +74,8 @@ class SuccessionClaimWorkflowService
         private readonly string $mailerFromName = 'Registrals',
         private readonly ?LoggerInterface $logger = null,
         private readonly ?CertificateRepository $certificateRepository = null,
+        private readonly ?PaymentGatewayInterface $paymentGateway = null,
+        private readonly ?LegacyContactRepository $legacyContactRepository = null,
     ) {
     }
 
@@ -191,6 +195,92 @@ class SuccessionClaimWorkflowService
 
         $this->entityManager->remove($claim);
         $this->entityManager->flush();
+    }
+
+    /**
+     * Tanca de manera definitiva el compte del titular causant un cop acreditada la defunció:
+     * cancel·la la subscripció Stripe vigent per evitar cobraments recurrents, revoca les
+     * designacions i certificats globals pendents i bloqueja l'accés al compte.
+     *
+     * @return array{
+     *     stripe_subscription_cancelled: bool,
+     *     revoked_remaining_contacts: int,
+     *     revoked_remaining_certificates: int
+     * }
+     */
+    private function closeDeceasedOwnerAccountPostMortem(User $deceasedOwner, SuccessionClaim $claim): array
+    {
+        $now = new \DateTimeImmutable();
+        $hadActiveSubscription = ($deceasedOwner->getStripeSubscriptionId() !== null && $deceasedOwner->getStripeSubscriptionId() !== '')
+            || $deceasedOwner->getSubscriptionStatus() === 'active';
+        $stripeCancelled = false;
+
+        if ($hadActiveSubscription && $this->paymentGateway !== null) {
+            try {
+                $stripeCancelled = $this->paymentGateway->cancelSubscription($deceasedOwner);
+            } catch (\Throwable $e) {
+                $this->logger?->warning('No s\'ha pogut cancel·lar la subscripció Stripe del titular difunt: ' . $e->getMessage(), [
+                    'claim_reference' => $claim->getClaimReference(),
+                    'owner_email' => $deceasedOwner->getEmail(),
+                ]);
+            }
+        }
+
+        if ($hadActiveSubscription) {
+            $freePlan = $this->planRepository->findDefaultFreePlan();
+            if ($freePlan !== null) {
+                $deceasedOwner->setPlan($freePlan);
+            }
+            $deceasedOwner->setSubscriptionStatus('canceled');
+            $deceasedOwner->setStripeSubscriptionId(null);
+            $deceasedOwner->setDowngradeGracePeriodExpiresAt(null);
+
+            $this->recordAudit(
+                $deceasedOwner,
+                UserActivityAction::SUBSCRIPTION_CANCELLED,
+                sprintf('Subscripció cancel·lada automàticament per defunció acreditada (%s)', $claim->getClaimReference()),
+                [
+                    'claim_reference' => $claim->getClaimReference(),
+                    'stripe_cancelled' => $stripeCancelled,
+                ]
+            );
+        }
+
+        $revokedContacts = 0;
+        if ($this->legacyContactRepository !== null) {
+            foreach ($this->legacyContactRepository->findByOwnerOrdered($deceasedOwner) as $contact) {
+                if (!$contact->getStatus()->isTerminated()) {
+                    $contact->revoke();
+                    ++$revokedContacts;
+                }
+            }
+        }
+
+        $revokedCerts = 0;
+        $sourceCertId = $claim->getSourceCertificate()?->getId();
+        if ($this->certificateRepository !== null) {
+            foreach ($this->certificateRepository->findValidLegacyInventoryByOwner($deceasedOwner) as $cert) {
+                if ($cert->getStatus() === CertificateStatus::VALID && ($sourceCertId === null || $cert->getId() !== $sourceCertId)) {
+                    $cert->setStatus(CertificateStatus::REVOKED);
+                    $cert->setRevokedAt($now);
+                    ++$revokedCerts;
+                }
+            }
+        }
+
+        $deceasedOwner->setIsActive(false);
+        $deceasedOwner->setBlockedAt($now);
+        $deceasedOwner->setBlockReason(sprintf(
+            'Compte tancat per defunció acreditada i resolució successòria (%s).',
+            $claim->getClaimReference()
+        ));
+        $deceasedOwner->setUpdatedAt($now);
+
+        return [
+            'stripe_subscription_cancelled' => $stripeCancelled,
+            'revoked_remaining_contacts' => $revokedContacts,
+            'revoked_remaining_certificates' => $revokedCerts,
+        ];
     }
 
     private function persistClaimWithDocuments(
@@ -408,6 +498,7 @@ class SuccessionClaimWorkflowService
 
         $claim->approve($reviewer, $transferredCount, $cleanNotes);
         $claim->getSourceCertificate()?->setStatus(CertificateStatus::SUPERSEDED);
+        $closureMeta = $this->closeDeceasedOwnerAccountPostMortem($claim->getDeceasedOwner(), $claim);
 
         $this->entityManager->flush();
         $this->planDowngradeService->checkAndEnforceQuota($heirUser);
@@ -420,6 +511,10 @@ class SuccessionClaimWorkflowService
             'heir_email' => $heirUser->getEmail(),
             'reviewed_by' => $reviewer->getEmail(),
             'provisioned_new_account' => $provisionedNewAccount,
+            'deceased_account_closed' => true,
+            'stripe_subscription_cancelled' => $closureMeta['stripe_subscription_cancelled'],
+            'revoked_remaining_contacts' => $closureMeta['revoked_remaining_contacts'],
+            'revoked_remaining_certificates' => $closureMeta['revoked_remaining_certificates'],
         ];
 
         $this->recordAudit(

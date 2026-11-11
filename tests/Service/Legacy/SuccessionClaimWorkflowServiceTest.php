@@ -18,11 +18,14 @@ use App\Enum\AcquisitionType;
 use App\Enum\CertificateMode;
 use App\Enum\CertificateScope;
 use App\Enum\CertificateStatus;
+use App\Enum\LegacyContactStatus;
 use App\Enum\SuccessionClaimStatus;
 use App\Infrastructure\Adapter\Ai\AiVisionAnalyzerInterface;
+use App\Infrastructure\Adapter\Payment\PaymentGatewayInterface;
 use App\Message\AnalyzeSuccessionClaimMessage;
 use App\Repository\CertificateRepository;
 use App\Repository\ItemRepository;
+use App\Repository\LegacyContactRepository;
 use App\Repository\PlanRepository;
 use App\Repository\SuccessionClaimRepository;
 use App\Repository\UserRepository;
@@ -112,6 +115,8 @@ class SuccessionClaimWorkflowServiceTest extends TestCase
         ?UserActivityLogger $auditLogger = null,
         ?PlanDowngradeService $downgradeService = null,
         ?CertificateRepository $certificateRepo = null,
+        ?PaymentGatewayInterface $paymentGateway = null,
+        ?LegacyContactRepository $legacyContactRepo = null,
     ): SuccessionClaimWorkflowService {
         $em ??= $this->createMock(EntityManagerInterface::class);
         $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
@@ -143,6 +148,8 @@ class SuccessionClaimWorkflowServiceTest extends TestCase
             messageBus: $bus,
             activityLogger: $auditLogger,
             certificateRepository: $certificateRepo,
+            paymentGateway: $paymentGateway,
+            legacyContactRepository: $legacyContactRepo,
         );
     }
 
@@ -541,6 +548,91 @@ class SuccessionClaimWorkflowServiceTest extends TestCase
         $this->assertNull($claim->getSourceCertificate());
         $this->assertSame(SuccessionClaimStatus::APPROVED, $claim->getStatus());
         $this->assertSame($heir, $item->getOwner());
+        $this->assertFalse($owner->isActive());
+    }
+
+    public function testApproveClaimClosesDeceasedAccountCancelsStripeAndRevokesLegacyArtifacts(): void
+    {
+        $plusPlan = (new Plan('plus', 'Pla Plus', 2200))->setAllowLegacyDesignation(true);
+        $freePlan = (new Plan('free', 'Pla Free', 0))->setMaxActiveItems(20);
+
+        $owner = $this->createUser('difunt@registrals.cat', 'Pere', 'Mas', 1)
+            ->setPlan($plusPlan)
+            ->setStripeSubscriptionId('sub_live_deceased_123')
+            ->setSubscriptionStatus('active');
+        $heir = $this->createUser('hereu@exemple.cat', 'Marta', 'Mas', 30);
+        $reviewer = $this->createUser('gestor@registrals.cat', 'Gestor', 'Custòdia', 99);
+
+        $acceptedContact = (new LegacyContact($owner, 'Marta Mas', 'hereu@exemple.cat'))
+            ->accept($heir, '127.0.0.1');
+        $pendingSecondary = new LegacyContact($owner, 'Segon Contacte', 'segon@exemple.cat');
+
+        $sourceCert = $this->createLegacySourceCert($owner, $acceptedContact);
+        (new \ReflectionProperty(Certificate::class, 'id'))->setValue($sourceCert, 101);
+
+        $strayCert = $this->createLegacySourceCert($owner, $acceptedContact);
+        (new \ReflectionProperty(Certificate::class, 'id'))->setValue($strayCert, 102);
+
+        $claim = new SuccessionClaim(
+            'LEG-2026-000040',
+            $sourceCert,
+            $owner,
+            'Marta Mas',
+            'hereu@exemple.cat',
+            '12345678Z',
+            new \DateTimeImmutable(),
+            'legacy/claims/LEG-2026-000040/d.pdf',
+            str_repeat('1', 64),
+            'legacy/claims/LEG-2026-000040/t.pdf',
+            str_repeat('2', 64),
+            $acceptedContact,
+            $heir,
+        );
+        $claim->activateOwnerNoticeWindow(1900, 'pi_1', new \DateTimeImmutable('-5 hours'));
+        $claim->setStatus(SuccessionClaimStatus::UNDER_HUMAN_REVIEW);
+
+        $planRepo = $this->createMock(PlanRepository::class);
+        $planRepo->method('findDefaultFreePlan')->willReturn($freePlan);
+
+        $itemRepo = $this->createMock(ItemRepository::class);
+        $itemRepo->method('findActiveForLegacyInventory')->willReturn([]);
+
+        $userRepo = $this->createMock(UserRepository::class);
+        $userRepo->method('findOneBy')->willReturn($heir);
+
+        $legacyContactRepo = $this->createMock(LegacyContactRepository::class);
+        $legacyContactRepo->method('findByOwnerOrdered')->with($owner)->willReturn([$acceptedContact, $pendingSecondary]);
+
+        $certRepo = $this->createMock(CertificateRepository::class);
+        $certRepo->method('findValidLegacyInventoryByOwner')->with($owner)->willReturn([$sourceCert, $strayCert]);
+
+        $paymentGateway = $this->createMock(PaymentGatewayInterface::class);
+        $paymentGateway->expects($this->once())
+            ->method('cancelSubscription')
+            ->with($owner)
+            ->willReturn(true);
+
+        $service = $this->createService(
+            userRepo: $userRepo,
+            planRepo: $planRepo,
+            itemRepo: $itemRepo,
+            certificateRepo: $certRepo,
+            paymentGateway: $paymentGateway,
+            legacyContactRepo: $legacyContactRepo,
+        );
+
+        $service->approveClaim($claim, $reviewer, 'Tancament complet successori verificat amb documents.');
+
+        $this->assertFalse($owner->isActive());
+        $this->assertNotNull($owner->getBlockedAt());
+        $this->assertStringContainsString('LEG-2026-000040', (string) $owner->getBlockReason());
+        $this->assertSame('canceled', $owner->getSubscriptionStatus());
+        $this->assertNull($owner->getStripeSubscriptionId());
+        $this->assertSame($freePlan, $owner->getPlan());
+        $this->assertSame(LegacyContactStatus::REVOKED, $acceptedContact->getStatus());
+        $this->assertSame(LegacyContactStatus::REVOKED, $pendingSecondary->getStatus());
+        $this->assertSame(CertificateStatus::SUPERSEDED, $sourceCert->getStatus());
+        $this->assertSame(CertificateStatus::REVOKED, $strayCert->getStatus());
     }
 }
 
