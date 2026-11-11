@@ -8,21 +8,68 @@
   {% set planPlus = plans['plus']|default(null) %}
   {% set planUnlimited = plans['unlimited']|default(null) %}
 
+  {% macro format_price(priceCents) %}
+    {%- set euros = priceCents / 100 -%}
+    {{- (priceCents % 100 == 0) ? euros|number_format(0, ',', '.') ~ '€' : euros|number_format(2, ',', '.') ~ '€' -}}
+  {% endmacro %}
+
+  {% macro render_features(plan, defaultActive, defaultYearly, defaultPhotos, defaultEvidences, defaultAi, allowOfficialDefault, defaultCerts, defaultTransfersIncluded, defaultTransferPriceCents) %}
+    {% set maxActive = plan ? plan.maxActiveItems : defaultActive %}
+    {% set maxYearly = plan ? plan.maxYearlyRegistrations : defaultYearly %}
+    {% set maxPhotos = plan ? plan.maxPhotosPerItem : defaultPhotos %}
+    {% set maxEvidences = plan ? plan.maxEvidencesPerItem : defaultEvidences %}
+    {% set aiEnabled = plan ? plan.aiAssistanceEnabled : true %}
+    {% set aiQuota = plan ? plan.aiAssistanceQuota : defaultAi %}
+    {% set allowOfficial = plan ? plan.allowOfficialCertificates : allowOfficialDefault %}
+    {% set certQuota = plan ? plan.monthlyCertificatesQuota : defaultCerts %}
+    {% set transfersIncluded = plan ? plan.transfersIncluded : defaultTransfersIncluded %}
+    {% set extraTransferPrice = plan ? plan.extraTransferPriceCents : defaultTransferPriceCents %}
+
+    <li>
+      {{ maxActive == -1 or maxActive >= 9999 ? 'Béns actius il·limitats' : 'Fins a ' ~ maxActive ~ ' béns actius' }}
+      ({{ maxYearly == -1 or maxYearly >= 9999 ? 'altes il·limitades' : maxYearly ~ ' altes/any' }})
+    </li>
+    <li>
+      {{ maxPhotos == -1 or maxPhotos >= 9999 ? 'Fotos il·limitades' : maxPhotos ~ (maxPhotos == 1 ? ' foto' : ' fotos') }} i
+      {{ maxEvidences == -1 or maxEvidences >= 9999 ? 'proves il·limitades' : maxEvidences ~ (maxEvidences == 1 ? ' prova' : ' proves') }} per bé
+    </li>
+    {% if aiEnabled %}
+      <li>{{ aiQuota == -1 or aiQuota >= 9999 ? 'Consultes d\'IA sobirana il·limitades' : aiQuota ~ ' consultes d\'IA sobirana' }}</li>
+    {% else %}
+      <li>Assistència IA sobirana desactivada</li>
+    {% endif %}
+    {% if allowOfficial %}
+      <li>Certificats oficials eIDAS ({{ certQuota == -1 or certQuota >= 9999 ? 'il·limitats' : certQuota ~ '/mes' }})</li>
+      <li>Identificació de titular eIDAS (Namirial)</li>
+    {% else %}
+      <li>Esborranys digitals amb verificació QR</li>
+    {% endif %}
+    {% if transfersIncluded == -1 or transfersIncluded >= 9999 %}
+      <li>Traspassos de propietat C2C il·limitats</li>
+    {% elseif transfersIncluded > 0 %}
+      <li>{{ transfersIncluded }} traspassos de propietat C2C inclosos</li>
+    {% else %}
+      <li>Traspassos C2C a {{ (extraTransferPrice / 100)|number_format(2, ',', '.') }} €/operació</li>
+    {% endif %}
+    <li>Ancoratge criptogràfic Polygon L2</li>
+  {% endmacro %}
+
   <div class="mx-auto max-w-6xl">
     <h2 id="s7-title" class="font-marcellus text-4xl md:text-5xl">Transparent des del primer dia</h2>
     <p data-reveal="description" class="mt-4 max-w-3xl text-xl text-ink/80">La seguretat bàsica és un dret, no un producte de pagament.</p>
     <div class="mt-12 grid grid-cols-1 items-end gap-6 md:grid-cols-3">
       
       {# 1. PLA FREE #}
-      <article class="flex flex-col rounded-3xl border border-gold/40 bg-ink p-8 text-cream md:mt-28">
-        <h3 class="font-marcellus text-4xl">Free</h3>
+      <article class="flex flex-col rounded-3xl border border-gold/40 bg-ink p-8 text-cream md:mt-24">
+        <h3 class="font-marcellus text-4xl">{{ planFree ? (planFree.name|split('(')[0]|replace({'Pla ': ''})|trim) : 'Free' }}</h3>
         <p class="mt-1 text-base text-cream/90">Per descobrir la plataforma</p>
-        <p class="mt-4 text-3xl font-bold">{{ planFree and planFree.priceCents > 0 ? (planFree.priceCents / 100)|number_format(0, ',', '.') ~ '€' : '0€' }}</p>
+        {% set freeCents = planFree ? planFree.priceCents : 0 %}
+        <p class="mt-4 text-3xl font-bold">{{ _self.format_price(freeCents) }}</p>
+        {% if freeCents > 0 and (not planFree or planFree.billingPeriod == 'yearly') %}
+          <p class="text-sm text-cream/75">per any: {{ ((freeCents / 100) / 12)|number_format(2, ',', '.') }}€/mes</p>
+        {% endif %}
         <ul class="mt-6 list-disc space-y-2 pl-5 text-base text-cream marker:text-gold">
-          <li>Fins a {{ planFree ? planFree.maxActiveItems : 20 }} béns registrats</li>
-          <li>Certificat digital bàsic</li>
-          <li>Verificació pública per QR</li>
-          <li>Suport per correu electrònic</li>
+          {{ _self.render_features(planFree, 20, 20, 1, 1, 20, false, 0, 0, 200) }}
         </ul>
         <a href="{{ path('app_register', {'plan': 'free'}) }}" class="mt-8 rounded-full bg-gold px-6 py-3 text-center text-sm font-medium text-ink hover:bg-gold/90 transition-all active:scale-[0.99]"
           >COMENÇA GRATIS</a
@@ -31,18 +78,22 @@
 
       {# 2. PLA PLUS #}
       <article class="flex flex-col rounded-3xl bg-gold p-8 text-ink md:mt-12">
-        <h3 class="font-marcellus text-4xl">Plus</h3>
+        <h3 class="font-marcellus text-4xl">{{ planPlus ? (planPlus.name|replace({'Pla ': ''})|trim) : 'Plus' }}</h3>
         <p class="mt-1 text-base text-ink/90">Per a col·leccionistes i usuaris actius</p>
-        {% set plusPriceEuros = planPlus ? (planPlus.priceCents / 100) : 22 %}
-        <p class="mt-4 text-3xl font-bold">{{ plusPriceEuros|number_format(0, ',', '.') }}€</p>
-        <p class="text-sm text-ink/90">per any: {{ (plusPriceEuros / 12)|number_format(2, ',', '.') }}€/mes</p>
+        {% set plusCents = planPlus ? planPlus.priceCents : 2200 %}
+        {% set plusPeriod = planPlus ? planPlus.billingPeriod : 'yearly' %}
+        <p class="mt-4 text-3xl font-bold">{{ _self.format_price(plusCents) }}</p>
+        <p class="text-sm text-ink/90">
+          {% if plusPeriod == 'monthly' %}
+            per mes
+          {% elseif plusPeriod == 'lifetime' %}
+            pagament únic
+          {% else %}
+            per any: {{ ((plusCents / 100) / 12)|number_format(2, ',', '.') }}€/mes
+          {% endif %}
+        </p>
         <ul class="mt-6 list-disc space-y-2 pl-5 text-base text-ink marker:text-ink">
-          <li>Fins a {{ planPlus ? planPlus.maxActiveItems : 100 }} béns registrats</li>
-          <li>Certificats d'alta seguretat</li>
-          <li>Identificació de titular eIDAS (Namirial)</li>
-          <li>Transferència de propietat</li>
-          <li>Informe assegurador inclòs</li>
-          <li>Suport prioritari 24h</li>
+          {{ _self.render_features(planPlus, 100, 120, 5, 5, 100, true, 10, 5, 0) }}
         </ul>
         {% if app.user %}
           <a href="{{ path('app_plan') }}" class="mt-8 rounded-full bg-ink hover:bg-ink-light px-6 py-3 text-center text-sm font-bold text-gold shadow-xs transition-all active:scale-[0.99] block">
@@ -55,35 +106,55 @@
         {% endif %}
       </article>
 
-      {# 3. PLA UNLIMITED (PROPERAMENT) #}
-      <article class="flex flex-col justify-between rounded-3xl border border-gold/40 bg-ink p-8 text-cream md:min-h-[570px] relative opacity-90">
+      {# 3. PLA UNLIMITED (PROPERAMENT si inactiu) #}
+      {% set isUnlimitedActive = planUnlimited and planUnlimited.isActive %}
+      <article class="flex flex-col justify-between rounded-3xl border border-gold/40 bg-ink p-8 text-cream md:min-h-[570px] relative {{ isUnlimitedActive ? '' : 'opacity-90' }}">
         <div>
           <div class="flex items-center justify-between gap-2">
-            <h3 class="font-marcellus text-4xl">Unlimited</h3>
-            <span class="px-2.5 py-0.5 rounded-full bg-gold/20 text-gold border border-gold/40 text-[10px] font-mono font-bold uppercase tracking-wider">
-              Properament
-            </span>
+            <h3 class="font-marcellus text-4xl">{{ planUnlimited ? (planUnlimited.name|split('/')[0]|replace({'Pla ': ''})|trim) : 'Unlimited' }}</h3>
+            {% if not isUnlimitedActive %}
+              <span class="px-2.5 py-0.5 rounded-full bg-gold/20 text-gold border border-gold/40 text-[10px] font-mono font-bold uppercase tracking-wider whitespace-nowrap">
+                Properament
+              </span>
+            {% endif %}
           </div>
           <p class="mt-1 text-base text-cream/90">Per a patrimoni d'alt valor</p>
-          {% set unlPriceEuros = planUnlimited ? (planUnlimited.priceCents / 100) : 0 %}
-          {% if unlPriceEuros > 0 %}
-            <p class="mt-16 text-3xl font-bold text-cream/80">{{ unlPriceEuros|number_format(0, ',', '.') }}€</p>
-            <p class="text-sm text-cream/70">per any: {{ (unlPriceEuros / 12)|number_format(2, ',', '.') }}€/mes</p>
+          {% set unlCents = planUnlimited ? planUnlimited.priceCents : 0 %}
+          {% set unlPeriod = planUnlimited ? planUnlimited.billingPeriod : 'yearly' %}
+          {% if unlCents > 0 %}
+            <p class="mt-4 text-3xl font-bold text-cream">{{ _self.format_price(unlCents) }}</p>
+            <p class="text-sm text-cream/80">
+              {% if unlPeriod == 'monthly' %}
+                per mes
+              {% elseif unlPeriod == 'lifetime' %}
+                pagament únic
+              {% else %}
+                per any: {{ ((unlCents / 100) / 12)|number_format(2, ',', '.') }}€/mes
+              {% endif %}
+            </p>
           {% else %}
-            <p class="mt-16 text-3xl font-bold text-cream/80">A consultar</p>
+            <p class="mt-4 text-3xl font-bold text-cream/80">A consultar</p>
             <p class="text-sm text-cream/70">preu segons el patrimoni</p>
           {% endif %}
-          <ul class="mt-6 list-disc space-y-2 pl-5 text-base text-cream/80 marker:text-gold/60">
-            <li>Béns de més de 5.000€</li>
-            <li>{{ planUnlimited and planUnlimited.maxActiveItems >= 9999 ? 'Ítems il·limitats' : (planUnlimited ? 'Fins a ' ~ planUnlimited.maxActiveItems ~ ' béns' : 'Ítems il·limitats') }}</li>
-            <li>Verificació reforçada</li>
-            <li>Gestor personal assignat</li>
-            <li>Certificat d'alta seguretat</li>
+          <ul class="mt-6 list-disc space-y-2 pl-5 text-base text-cream/85 marker:text-gold/70">
+            {{ _self.render_features(planUnlimited, 9999, 9999, 9999, 9999, 9999, true, 9999, 9999, 0) }}
           </ul>
         </div>
-        <button type="button" onclick="if (window.RegistralsToast) { window.RegistralsToast.show('Pla Unlimited', 'La contractació d\'aquest pla per a grans patrimonis estarà disponible properament. Pots activar ara el Pla Plus!', 'info', 4500); }" class="mt-8 rounded-full bg-cream/15 text-cream/60 border border-steel/30 hover:bg-cream/20 px-6 py-3 text-sm font-semibold cursor-pointer transition-all">
-          PROPERAMENT
-        </button>
+        {% if isUnlimitedActive %}
+          {% if app.user %}
+            <a href="{{ path('app_plan') }}" class="mt-8 rounded-full bg-gold hover:bg-gold/90 px-6 py-3 text-center text-sm font-bold text-ink shadow-xs transition-all active:scale-[0.99] block">
+              CONTRACTAR UNLIMITED
+            </a>
+          {% else %}
+            <a href="{{ path('app_register', {'plan': 'unlimited'}) }}" class="mt-8 rounded-full bg-gold hover:bg-gold/90 px-6 py-3 text-center text-sm font-bold text-ink shadow-xs transition-all active:scale-[0.99] block">
+              CONTRACTAR UNLIMITED
+            </a>
+          {% endif %}
+        {% else %}
+          <button type="button" onclick="if (window.RegistralsToast) { window.RegistralsToast.show('Pla Unlimited', 'La contractació d\'aquest pla per a grans patrimonis estarà disponible properament. Pots activar ara el Pla Plus!', 'info', 4500); }" class="mt-8 rounded-full bg-cream/15 text-cream/60 border border-steel/30 hover:bg-cream/20 px-6 py-3 text-sm font-semibold cursor-pointer transition-all">
+            PROPERAMENT
+          </button>
+        {% endif %}
       </article>
     </div>
   </div>

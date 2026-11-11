@@ -19,16 +19,18 @@ class PageControllerTest extends TestCase
     public function testHomePassesPlansToTemplate(): void
     {
         $planFree = new Plan('free', 'Pla Free', 0);
-        $planFree->setMaxActiveItems(20);
+        $planFree->setMaxActiveItems(10);
 
         $planPlus = new Plan('plus', 'Pla Plus', 2200);
         $planPlus->setMaxActiveItems(100);
 
+        $planUnlimited = new Plan('unlimited', 'Pla Unlimited / Business', 5999);
+        $planUnlimited->setIsActive(false);
+
         $planRepo = $this->createMock(PlanRepository::class);
         $planRepo->expects($this->once())
-            ->method('findBy')
-            ->with(['isActive' => true])
-            ->willReturn([$planFree, $planPlus]);
+            ->method('findAll')
+            ->willReturn([$planFree, $planPlus, $planUnlimited]);
 
         $userRepo = $this->createMock(\App\Repository\UserRepository::class);
         $userRepo->method('countNonAdmin')->willReturn(10);
@@ -44,11 +46,12 @@ class PageControllerTest extends TestCase
         $twig = $this->createMock(Environment::class);
         $twig->expects($this->once())
             ->method('render')
-            ->with('page/home.html.twig', $this->callback(function (array $context) use ($planFree, $planPlus): bool {
+            ->with('page/home.html.twig', $this->callback(function (array $context) use ($planFree, $planPlus, $planUnlimited): bool {
                 $this->assertArrayHasKey('stats', $context);
                 $this->assertArrayHasKey('plans', $context);
                 $this->assertSame($planFree, $context['plans']['free']);
                 $this->assertSame($planPlus, $context['plans']['plus']);
+                $this->assertSame($planUnlimited, $context['plans']['unlimited']);
                 return true;
             }))
             ->willReturn('<html>Home</html>');
@@ -87,8 +90,7 @@ class PageControllerTest extends TestCase
 
         $planRepo = $this->createMock(PlanRepository::class);
         $planRepo->expects($this->once())
-            ->method('findBy')
-            ->with(['isActive' => true])
+            ->method('findAll')
             ->willReturn([$planFree, $planPlus]);
 
         $twig = $this->createMock(Environment::class);

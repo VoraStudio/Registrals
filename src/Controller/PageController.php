@@ -27,11 +27,8 @@ final class PageController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        // 3. Plans actius per a la secció de tarifes parametritzada des de backoffice
-        $plans = [];
-        foreach ($planRepository->findBy(['isActive' => true]) as $plan) {
-            $plans[$plan->getCode()] = $plan;
-        }
+        // 3. Tots els plans (incloent Properament/inactius) parametritzats des de backoffice
+        $plans = $this->getPlansByCode($planRepository);
 
         // 4. Visitant nou o sessió desconeguda: mostra la Landing Page corporativa amb mètriques reals
         return $this->render('page/home.html.twig', [
@@ -101,13 +98,21 @@ final class PageController extends AbstractController
     #[Route('/ajuda', name: 'app_help', methods: ['GET', 'HEAD'])]
     public function manual(\App\Repository\PlanRepository $planRepository): Response
     {
+        return $this->render('page/manual.html.twig', [
+            'plans' => $this->getPlansByCode($planRepository),
+        ]);
+    }
+
+    /**
+     * @return array<string, \App\Entity\Plan>
+     */
+    private function getPlansByCode(\App\Repository\PlanRepository $planRepository): array
+    {
         $plans = [];
-        foreach ($planRepository->findBy(['isActive' => true]) as $plan) {
+        foreach ($planRepository->findAll() as $plan) {
             $plans[$plan->getCode()] = $plan;
         }
 
-        return $this->render('page/manual.html.twig', [
-            'plans' => $plans,
-        ]);
+        return $plans;
     }
 }
