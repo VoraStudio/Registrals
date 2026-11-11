@@ -260,8 +260,8 @@
                   </span>
                 {% endif %}
               </div>
-              <a href="{{ path('app_legal') }}" class="text-[10px] font-bold text-steel hover:text-ink hover:underline font-raleway uppercase tracking-wider">
-                Veure text →
+              <a href="{{ path('app_legal_view_clauses') }}" class="text-[10px] font-bold text-gold hover:text-ink hover:underline font-raleway uppercase tracking-wider shrink-0">
+                Veure clàusules →
               </a>
             </div>
           </div>
@@ -277,24 +277,6 @@
           <p class="text-cream/85 text-[11px] leading-snug font-raleway">
             El teu NIF/CIF i nom complet queden indissolublement vinculats als segellats eIDAS i Polygon L2 davant tercers i traspassos.
           </p>
-        </div>
-
-        {# Targeta d'Instal·lació App Mòbil (PWA) #}
-        <div class="bg-white rounded-xl border border-gold/30 shadow-2xs p-3.5 sm:p-4">
-          <div class="flex items-center justify-between pb-2 mb-2 border-b border-steel/15">
-            <div class="flex items-center gap-1.5">
-              <span class="text-gold text-sm">📲</span>
-              <h3 class="font-marcellus text-xs sm:text-sm text-ink font-bold">App per al Mòbil</h3>
-            </div>
-            <span class="px-1.5 py-0.5 rounded-full bg-cream text-ink text-[9px] font-mono font-bold border border-gold/30">PWA</span>
-          </div>
-          <p class="text-[11px] text-ink/75 leading-snug font-raleway mb-2.5">
-            Porta el teu patrimoni a la pantalla d'inici amb accés directe a la càmera de fotos per registrar béns a l'instant.
-          </p>
-          <a href="{{ path('app_profile_install_app') }}" class="w-full py-1.5 px-3 rounded-lg bg-cream/70 hover:bg-cream border border-gold/40 text-ink text-xs font-semibold flex items-center justify-between transition-colors shadow-2xs group">
-            <span class="text-[11px]">Com instal·lar l'App</span>
-            <span class="text-gold font-bold group-hover:translate-x-0.5 transition-transform">→</span>
-          </a>
         </div>
 
         {# Targeta d'IA Sobirana & Marc Legal #}

@@ -16,6 +16,11 @@
         <span class="font-marcellus tracking-widest uppercase text-lg sm:text-2xl text-ink font-medium">Registrals</span>
       </div>
       <div class="flex items-center gap-2">
+        {% if readOnly|default(false) %}
+          <a href="{{ path('app_profile') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-cream text-ink border border-steel/25 hover:border-gold hover:text-gold transition-colors">
+            ← Tornar al Perfil
+          </a>
+        {% endif %}
         <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-gold/15 text-ink border border-gold/40">
           <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
           Marc Jurídic eIDAS
@@ -127,28 +132,49 @@
         </div>
       </div>
 
-      {# Formulari d'Acceptació #}
-      <form method="POST" action="{{ path('app_legal_accept_terms') }}" class="border-t border-steel/15 pt-6 space-y-5">
-        <input type="hidden" name="_token" value="{{ csrf_token('legal_terms_accept') }}" />
+      {% if readOnly|default(false) %}
+        <div class="border-t border-steel/15 pt-5 space-y-4">
+          <div class="border-l-[3.5px] border-gold bg-gold/10 p-4 rounded-r-xl text-xs sm:text-sm text-ink/85 leading-relaxed flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <strong class="font-bold text-ink">Consentiment legal vigent ({{ termsVersion }}):</strong>
+              Acceptat expressament el <code>{{ user.legalTermsAcceptedAt ? user.legalTermsAcceptedAt|date('d/m/Y H:i') : '—' }}</code>
+              {% if user.registrationIp %}des de la IP <code>{{ user.registrationIp }}</code>{% endif %}.
+            </div>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-mono font-bold shrink-0 self-start sm:self-center">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Actiu
+            </span>
+          </div>
 
-        <div class="flex items-start gap-3 bg-cream/30 p-3.5 rounded-xl border border-steel/20">
-          <input type="checkbox" id="chk-accept" name="confirm_checkbox" required class="mt-1 w-4 h-4 text-gold rounded border-steel/40 focus:ring-gold focus:ring-offset-0 cursor-pointer" />
-          <label for="chk-accept" class="text-xs sm:text-sm text-ink leading-relaxed cursor-pointer select-none">
-            He llegit atentament, comprenc i accepto expressament les <strong>Condicions Generals del Servei de Certificació Digital (versió {{ termsVersion }})</strong>, el règim de responsabilitat del titular sobre els béns declarats i la <strong>Política de Privadesa RGPD</strong> de Registrals.
-          </label>
+          <div class="flex justify-end">
+            <a href="{{ path('app_profile') }}" class="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-ink text-gold font-medium text-xs sm:text-sm hover:bg-ink/90 transition-all shadow-sm border border-gold/40">
+              ← Tornar al meu Perfil
+            </a>
+          </div>
         </div>
+      {% else %}
+        {# Formulari d'Acceptació #}
+        <form method="POST" action="{{ path('app_legal_accept_terms') }}" class="border-t border-steel/15 pt-6 space-y-5">
+          <input type="hidden" name="_token" value="{{ csrf_token('legal_terms_accept') }}" />
 
-        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
-          <a href="{{ path('app_logout') }}" class="text-xs text-steel hover:text-rose-600 transition-colors">
-            No accepto ara (Tancar sessió)
-          </a>
+          <div class="flex items-start gap-3 bg-cream/30 p-3.5 rounded-xl border border-steel/20">
+            <input type="checkbox" id="chk-accept" name="confirm_checkbox" required class="mt-1 w-4 h-4 text-gold rounded border-steel/40 focus:ring-gold focus:ring-offset-0 cursor-pointer" />
+            <label for="chk-accept" class="text-xs sm:text-sm text-ink leading-relaxed cursor-pointer select-none">
+              He llegit atentament, comprenc i accepto expressament les <strong>Condicions Generals del Servei de Certificació Digital (versió {{ termsVersion }})</strong>, el règim de responsabilitat del titular sobre els béns declarats i la <strong>Política de Privadesa RGPD</strong> de Registrals.
+            </label>
+          </div>
 
-          <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-ink text-gold font-medium text-sm hover:bg-ink-light transition-all shadow-sm cursor-pointer border border-gold/40">
-            <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-            Acceptar i Continuar a l'Àrea Privada
-          </button>
-        </div>
-      </form>
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+            <a href="{{ path('app_logout') }}" class="text-xs text-steel hover:text-rose-600 transition-colors">
+              No accepto ara (Tancar sessió)
+            </a>
+
+            <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-ink text-gold font-medium text-sm hover:bg-ink-light transition-all shadow-sm cursor-pointer border border-gold/40">
+              <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              Acceptar i Continuar a l'Àrea Privada
+            </button>
+          </div>
+        </form>
+      {% endif %}
 
     </div>
 

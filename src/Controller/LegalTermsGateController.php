@@ -71,6 +71,24 @@ class LegalTermsGateController extends AbstractController
         return $this->render('legal/accept_terms.html.twig', [
             'termsVersion' => LegalGateSubscriber::CURRENT_TERMS_VERSION,
             'user' => $user,
+            'readOnly' => false,
+        ]);
+    }
+
+    #[Route('/app/legal/clausules', name: 'app_legal_view_clauses', methods: ['GET'])]
+    public function viewClauses(): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if (!$user->hasAcceptedLegalTerms(LegalGateSubscriber::CURRENT_TERMS_VERSION)) {
+            return $this->redirectToRoute('app_legal_accept_terms');
+        }
+
+        return $this->render('legal/accept_terms.html.twig', [
+            'termsVersion' => LegalGateSubscriber::CURRENT_TERMS_VERSION,
+            'user' => $user,
+            'readOnly' => true,
         ]);
     }
 }

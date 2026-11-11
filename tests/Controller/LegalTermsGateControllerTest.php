@@ -143,4 +143,38 @@ class LegalTermsGateControllerTest extends TestCase
         self::assertNotNull($user->getLegalTermsAcceptedAt());
         self::assertSame('192.168.1.100', $user->getRegistrationIp());
     }
+
+    public function testViewClausesRendersReadOnlyWhenAlreadyAccepted(): void
+    {
+        $user = new User();
+        $user->setLegalTermsAcceptedAt(new \DateTimeImmutable('2026-11-11 11:19:42'));
+        $user->setLegalTermsVersion(LegalGateSubscriber::CURRENT_TERMS_VERSION);
+
+        $twig = $this->createMock(Environment::class);
+        $twig->expects($this->once())
+            ->method('render')
+            ->with('legal/accept_terms.html.twig', self::callback(function (array $params) use ($user): bool {
+                return $params['termsVersion'] === LegalGateSubscriber::CURRENT_TERMS_VERSION
+                    && $params['user'] === $user
+                    && ($params['readOnly'] ?? false) === true;
+            }))
+            ->willReturn('<html>clauses readonly</html>');
+
+        $controller = $this->createControllerWithUser($user, twig: $twig);
+        $response = $controller->viewClauses();
+
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        self::assertSame('<html>clauses readonly</html>', $response->getContent());
+    }
+
+    public function testViewClausesRedirectsToGateWhenNotYetAccepted(): void
+    {
+        $user = new User();
+
+        $controller = $this->createControllerWithUser($user);
+        $response = $controller->viewClauses();
+
+        self::assertInstanceOf(RedirectResponse::class, $response);
+        self::assertSame('/app_legal_accept_terms', $response->getTargetUrl());
+    }
 }
