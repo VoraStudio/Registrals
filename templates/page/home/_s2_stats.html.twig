@@ -1,28 +1,41 @@
 <!-- === S2 · STATS === -->
 <section id="s2" aria-labelledby="s2-title" class="relative z-10 -mt-4 rounded-t-[1rem] bg-cream px-4 py-16 md:py-24">
   <div class="mx-auto max-w-7xl md:grid md:grid-cols-12">
-    <div class="md:col-span-8 md:col-start-4">
+    <div class="md:col-span-9 md:col-start-4">
       <h2 id="s2-title" class="text-xl sm:leading-none font-bold md:text-2xl">
         Acredita de manera segura la propietat dels teus objectes i béns per poder demostrar que són teus en cas de robatori, pèrdua,
         assegurança, venda o conflicte legal.
       </h2>
       <p data-reveal="description" class="mt-4 text-lg text-ink/80 font-medium">Protegeix el que és teu amb una prova digital verificable.</p>
-      {% if stats.showStats|default(false) %}
-        <dl class="mt-10 max-w-2xl space-y-4">
-          <div data-reveal="pill" class="flex items-center justify-between gap-4 rounded-full bg-cream-50 py-1.5 pr-1.5 pl-5">
-            <dt class="font-semibold">Usuaris registrats</dt>
-            <dd class="min-w-32 rounded-3xl bg-ink px-6 py-1.5 text-center text-cream font-semibold">{{ stats.registeredUsers|default(0)|number_format(0, ',', '.') }}</dd>
-          </div>
-          <div data-reveal="pill" class="flex items-center justify-between gap-4 rounded-full bg-cream-50 py-1.5 pr-1.5 pl-5">
-            <dt class="font-semibold">Béns custodiats</dt>
-            <dd class="min-w-32 rounded-3xl bg-ink px-6 py-1.5 text-center text-cream font-semibold">{{ stats.custodiedItems|default(0)|number_format(0, ',', '.') }}</dd>
-          </div>
-          <div data-reveal="pill" class="flex items-center justify-between gap-4 rounded-full bg-cream-50 py-1.5 pr-1.5 pl-5">
-            <dt class="font-semibold">Certificats emesos</dt>
-            <dd class="min-w-32 rounded-3xl bg-ink px-6 py-1.5 text-center text-cream font-semibold">{{ stats.issuedCertificates|default(0)|number_format(0, ',', '.') }}</dd>
-          </div>
-        </dl>
+      {% set freeMaxActive = (plans.free is defined and plans.free) ? ((plans.free.maxActiveItems == -1 or plans.free.maxActiveItems >= 9999) ? '∞' : plans.free.maxActiveItems) : 20 %}
+      {% set showLiveStats = stats.showStats|default(false) %}
+      {% set columns = [
+        [
+          { label: 'Béns gratuïts per compte', value: freeMaxActive is same as('∞') ? 'Il·limitats' : 'Fins a ' ~ freeMaxActive },
+          { label: 'Empremta criptogràfica', value: 'SHA-256' },
+          { label: 'Verificació pública QR', value: '24/7 amb Polygon L2' }
+        ]
+      ] %}
+      {% if showLiveStats %}
+        {% set columns = columns|merge([[
+          { label: 'Usuaris registrats', value: stats.registeredUsers|default(0)|number_format(0, ',', '.') },
+          { label: 'Béns custodiats', value: stats.custodiedItems|default(0)|number_format(0, ',', '.') },
+          { label: 'Certificats emesos', value: stats.issuedCertificates|default(0)|number_format(0, ',', '.') }
+        ]]) %}
       {% endif %}
+
+      <div class="mt-10 grid grid-cols-1 gap-4 {{ showLiveStats ? 'lg:grid-cols-2 lg:gap-6' : 'max-w-2xl' }}">
+        {% for pillList in columns %}
+          <dl class="space-y-4">
+            {% for row in pillList %}
+              <div data-reveal="pill" class="flex items-center justify-between gap-2 sm:gap-4 rounded-full bg-cream-50 py-1.5 pr-1.5 pl-4 sm:pl-5">
+                <dt class="text-xs sm:text-sm md:text-base font-semibold truncate">{{ row.label }}</dt>
+                <dd class="min-w-24 sm:min-w-32 rounded-3xl bg-ink px-3.5 sm:px-5 py-1.5 text-center text-cream text-xs sm:text-sm font-semibold whitespace-nowrap shrink-0">{{ row.value }}</dd>
+              </div>
+            {% endfor %}
+          </dl>
+        {% endfor %}
+      </div>
     </div>
   </div>
 </section>

@@ -49,7 +49,9 @@ class PlatformStatsServiceTest extends TestCase
         $certRepoBelow = $this->createMock(CertificateRepository::class);
         $certRepoBelow->method('countValid')->willReturn(400);
 
-        $serviceBelow = new PlatformStatsService($userRepoBelow, $itemRepoBelow, $certRepoBelow, 1000);
+        $this->assertSame(1000, PlatformStatsService::DEFAULT_MIN_THRESHOLD);
+
+        $serviceBelow = new PlatformStatsService($userRepoBelow, $itemRepoBelow, $certRepoBelow);
         $statsBelow = $serviceBelow->getHomeStats();
 
         $this->assertSame(999, $statsBelow['registeredUsers']);
@@ -58,7 +60,7 @@ class PlatformStatsServiceTest extends TestCase
         $userRepoAt = $this->createMock(UserRepository::class);
         $userRepoAt->method('countNonAdmin')->willReturn(1000);
 
-        $serviceAt = new PlatformStatsService($userRepoAt, $itemRepoBelow, $certRepoBelow, 1000);
+        $serviceAt = new PlatformStatsService($userRepoAt, $itemRepoBelow, $certRepoBelow);
         $statsAt = $serviceAt->getHomeStats();
 
         $this->assertTrue($statsAt['showStats']);

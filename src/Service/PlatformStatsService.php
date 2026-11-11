@@ -13,8 +13,7 @@ use App\Repository\UserRepository;
  */
 final class PlatformStatsService
 {
-    // Temporalment a 0 per validar les mètriques abans d'activar el llindar de 1000.
-    public const DEFAULT_MIN_THRESHOLD = 0;
+    public const DEFAULT_MIN_THRESHOLD = 1000;
 
     public function __construct(
         private readonly UserRepository $userRepository,
