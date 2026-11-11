@@ -24,3 +24,4 @@ final class Version20261111125500 extends AbstractMigration
         $this->addSql('DROP TABLE site_visits');
     }
 }
+

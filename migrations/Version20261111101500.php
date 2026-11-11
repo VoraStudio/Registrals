@@ -26,3 +26,4 @@ final class Version20261111101500 extends AbstractMigration
         $this->addSql('ALTER TABLE users DROP reset_password_token_hash, DROP reset_password_expires_at');
     }
 }
+

@@ -234,3 +234,4 @@ class LegacyInvitationControllerTest extends TestCase
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
 }
+

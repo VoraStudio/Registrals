@@ -132,3 +132,4 @@ class LoginAuthenticationFailureHandlerTest extends TestCase
         self::assertSame('/login', $response->getTargetUrl());
     }
 }
+

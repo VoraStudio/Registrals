@@ -31,3 +31,4 @@ class AdminQueueExtension extends AbstractExtension
         }
     }
 }
+

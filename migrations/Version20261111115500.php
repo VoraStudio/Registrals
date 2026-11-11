@@ -25,3 +25,4 @@ final class Version20261111115500 extends AbstractMigration
         $this->addSql('ALTER TABLE users DROP email_verified_at, DROP two_factor_enabled, DROP email_otp_hash, DROP email_otp_purpose, DROP email_otp_expires_at, DROP email_otp_sent_at, DROP email_otp_attempts');
     }
 }
+

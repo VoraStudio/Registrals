@@ -34,3 +34,4 @@ final readonly class AnalyzeSuccessionClaimMessageHandler
         $this->workflowService->runAiPrescreening($claim);
     }
 }
+

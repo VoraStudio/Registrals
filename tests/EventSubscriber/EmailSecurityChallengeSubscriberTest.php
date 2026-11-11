@@ -103,3 +103,4 @@ class EmailSecurityChallengeSubscriberTest extends TestCase
         self::assertFalse($user->isTwoFactorEnabled());
     }
 }
+

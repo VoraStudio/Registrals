@@ -52,3 +52,4 @@ class ResetPasswordFormType extends AbstractType
         $resolver->setDefaults([]);
     }
 }
+

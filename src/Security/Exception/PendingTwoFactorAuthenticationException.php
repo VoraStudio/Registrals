@@ -31,3 +31,4 @@ class PendingTwoFactorAuthenticationException extends AuthenticationException
         return 'Cal completar la verificació en dos passos (2FA) per iniciar sessió.';
     }
 }
+

@@ -51,3 +51,4 @@ class InitPlansCommandTest extends TestCase
         $this->assertStringContainsString('Preserving existing plan', $tester->getDisplay());
     }
 }
+

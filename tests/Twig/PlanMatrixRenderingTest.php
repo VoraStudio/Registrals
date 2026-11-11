@@ -67,3 +67,4 @@ TWIG
         $this->assertStringContainsString('UNL_KYC=Inclosa (∞)', $rendered);
     }
 }
+

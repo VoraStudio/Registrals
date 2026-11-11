@@ -62,3 +62,4 @@ class AuthChallengeStorage
         $session->remove(self::SESSION_KEY);
     }
 }
+

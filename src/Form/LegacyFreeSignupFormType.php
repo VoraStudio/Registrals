@@ -76,3 +76,4 @@ class LegacyFreeSignupFormType extends AbstractType
             ]);
     }
 }
+

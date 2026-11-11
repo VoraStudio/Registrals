@@ -108,3 +108,4 @@ class VisitTelemetrySubscriber implements EventSubscriberInterface
         return false;
     }
 }
+

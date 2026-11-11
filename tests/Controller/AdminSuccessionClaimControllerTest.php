@@ -187,3 +187,4 @@ class AdminSuccessionClaimControllerTest extends TestCase
         $this->assertInstanceOf(RedirectResponse::class, $response);
     }
 }
+

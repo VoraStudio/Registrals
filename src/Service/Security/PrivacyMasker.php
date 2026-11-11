@@ -54,3 +54,4 @@ final class PrivacyMasker
         return $visible . str_repeat('*', max(2, $len - mb_strlen($visible))) . '@' . $domain;
     }
 }
+

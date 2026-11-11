@@ -70,3 +70,4 @@ class VisitTelemetrySubscriberTest extends TestCase
         $subscriber->onKernelTerminate(new TerminateEvent($kernel, $botReq, new Response('OK', 200)));
     }
 }
+

@@ -76,3 +76,4 @@ enum EmailOtpPurpose: string
         };
     }
 }
+

@@ -27,3 +27,4 @@ final class Version20261111095600 extends AbstractMigration
         $this->addSql('ALTER TABLE plans DROP extra_certificate_price_cents, DROP kyc_included, DROP kyc_price_cents');
     }
 }
+

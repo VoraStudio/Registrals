@@ -77,3 +77,4 @@ class ResetPasswordController extends AbstractController
         return $response;
     }
 }
+

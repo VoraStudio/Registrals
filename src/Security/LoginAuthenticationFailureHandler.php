@@ -88,3 +88,4 @@ class LoginAuthenticationFailureHandler extends DefaultAuthenticationFailureHand
         return new RedirectResponse($this->urlGenerator->generate($targetRoute));
     }
 }
+

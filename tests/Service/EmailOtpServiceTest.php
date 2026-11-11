@@ -190,3 +190,4 @@ class EmailOtpServiceTest extends TestCase
         self::assertSame('a**@x.cat', $service->maskEmail('ab@x.cat'));
     }
 }
+

@@ -31,3 +31,4 @@ class PendingEmailVerificationException extends AuthenticationException
         return 'Cal verificar el teu correu electrònic amb el codi de 6 dígits abans d\'accedir.';
     }
 }
+

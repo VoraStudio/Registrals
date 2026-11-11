@@ -276,3 +276,4 @@ class SecurityChallengeControllerTest extends TestCase
         self::assertSame('/app_login_2fa', $response->getTargetUrl());
     }
 }
+

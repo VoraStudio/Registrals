@@ -206,3 +206,4 @@ class ResetPasswordControllerTest extends TestCase
         $this->assertNotEmpty($session->getFlashBag()->get('success'));
     }
 }
+

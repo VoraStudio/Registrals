@@ -14,3 +14,4 @@ enum EmailOtpVerificationStatus: string
     case EXPIRED_OR_MISSING = 'expired_or_missing';
     case MAX_ATTEMPTS_EXCEEDED = 'max_attempts_exceeded';
 }
+

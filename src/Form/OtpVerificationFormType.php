@@ -42,3 +42,4 @@ class OtpVerificationFormType extends AbstractType
         $resolver->setDefaults([]);
     }
 }
+

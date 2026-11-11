@@ -75,3 +75,4 @@ class SiteVisit
         return $this->createdAt;
     }
 }
+

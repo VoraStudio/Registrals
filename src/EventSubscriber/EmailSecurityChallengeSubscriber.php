@@ -49,3 +49,4 @@ class EmailSecurityChallengeSubscriber implements EventSubscriberInterface
         }
     }
 }
+

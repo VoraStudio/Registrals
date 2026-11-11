@@ -64,3 +64,4 @@ class LegacyDesignationFormType extends AbstractType
             ]);
     }
 }
+
