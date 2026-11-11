@@ -63,6 +63,15 @@ services:
             $apiToken: '%env(default::string:SIGNATURIT_API_TOKEN)%'
             $baseUrl: '%env(string:SIGNATURIT_BASE_URL)%'
 
+    App\Infrastructure\Adapter\Identity\IdentityVerificationGatewayInterface: '@App\Infrastructure\Adapter\Identity\NamirialOnboardingClient'
+
+    App\Infrastructure\Adapter\Identity\NamirialOnboardingClient:
+        arguments:
+            $baseUrl: '%env(string:NAMIRIAL_ONBOARDING_BASE_URL)%'
+            $apiKey: '%env(default::string:NAMIRIAL_ONBOARDING_API_KEY)%'
+            $requestTypeId: '%env(default::string:NAMIRIAL_ONBOARDING_REQUEST_TYPE_ID)%'
+            $webhookSecret: '%env(default::string:NAMIRIAL_ONBOARDING_WEBHOOK_SECRET)%'
+
     App\Infrastructure\Adapter\Payment\PaymentGatewayInterface: '@App\Infrastructure\Adapter\Payment\StripeGatewayClient'
 
     App\Infrastructure\Adapter\Payment\StripeGatewayClient:

@@ -24,7 +24,7 @@ v1.0 · Base: disseny aprovat (SDD-01 a SDD-05) · Implementació: Iteració 7 (
 Aquest document és el **Marc Arquitectural Global** dels tres components externs de Registrals. Per garantir el màxim rigor operatiu i d'enginyeria, la documentació s'estructura en tres guies monogràfiques exhaustives de referència obligatòria:
 
 * 📘 [**`sdd/06a-stripe.md` — Stripe: Guia d'Ús, Arquitectura i Configuració**](06a-stripe.md): Manual operatiu de 16 capítols per a subscripcions recurrents (Plans Plus i Unlimited), micropagaments de certificats i traspassos solts, tractament d'esdeveniments webhooks amb Messenger, gestió de fallades i Customer Portal.
-* 📕 [**`sdd/06b-signaturit.md` — Signaturit: Guia de Segellat Qualificat eIDAS i KYC**](06b-signaturit.md): Manual de 12 capítols per al Time Stamping conforme a l'estàndard RFC 3161 (segellat de fitxers PDF mitjançant hash SHA-256 amb privadesa per disseny) i verificació biomètrica d'identitat (eIDV).
+* 📕 [**`sdd/06b-signaturit.md` — Signaturit & Namirial OnBoarding: Guia de Segellat eIDAS i KYC**](06b-signaturit.md): Manual operatiu per al Time Stamping conforme a l'estàndard RFC 3161 (Signaturit API v3 en Fase II) i verificació biomètrica d'identitat eIDV al MVP amb **Namirial OnBoarding API v2**.
 * 📗 [**`sdd/06c-polygon.md` — Polygon PoS: Guia d'Ancoratge Criptogràfic Layer 2**](06c-polygon.md): Manual de 12 capítols per a l'ancoratge descentralitzat en Calldata de 0 POL (zero smart contracts vulnerables), xarxa Amoy de proves, gestió de gas EIP-1559 i explorador Polygonscan.
 
 ### On està cada informació a l'arquitectura SDD
@@ -37,7 +37,7 @@ Aquest document és el **Marc Arquitectural Global** dels tres components extern
 | [`sdd/05-disseny-ui-ux.md`](05-disseny-ui-ux.md) | Disseny de la safata de certificats, botons de pagament i modals notarials. |
 | [`sdd/05-guia-interficies.md`](05-guia-interficies.md) | Arquitectura de pantalles, targetes `.cert-tile`, PDF notarial en mil·límetres i paleta. |
 | [`sdd/06a-stripe.md`](06a-stripe.md) | **Monogràfic Stripe:** Billing, Checkout, Webhooks, Reintents i Customer Portal. |
-| [`sdd/06b-signaturit.md`](06b-signaturit.md) | **Monogràfic Signaturit:** Segellat de Temps eIDAS RFC 3161 i Verificació eIDV. |
+| [`sdd/06b-signaturit.md`](06b-signaturit.md) | **Monogràfic Signaturit & Namirial OnBoarding:** Segellat de Temps eIDAS RFC 3161 (Fase II) i Verificació eIDV API v2 (MVP). |
 | [`sdd/06c-polygon.md`](06c-polygon.md) | **Monogràfic Polygon:** Calldata, Hot Wallet, Amoy Testnet i Gas EIP-1559. |
 | [`sdd/07-iteracions.md`](07-iteracions.md) | Full de ruta: Iteració 7 (Backoffice 7.2 tancat, Passarel·la Stripe 7.3 en curs). |
 | [`sdd/08-annexes.md`](08-annexes.md) | Anàlisi estratègica PLG, càlculs de marges bruts i marc legal de consum europeu. |
@@ -67,15 +67,15 @@ Aquest document és el **Marc Arquitectural Global** dels tres components extern
 
 # 2. Com mouen els diners i les proves Registrals
 
-Registrals té dos fluxos operatius clarament diferenciats: el **flux econòmic (Stripe)** i el **flux probatori notarial (Signaturit + Polygon)**.
+Registrals té dos fluxos operatius clarament diferenciats: el **flux econòmic (Stripe)** i el **flux probatori certificat (Namirial OnBoarding / Signaturit + Polygon)**.
 
 ### Matriu de Fluxos
 | Flux Operatiu | Canal / Proveïdor | Objectiu | Com es controla |
 | :--- | :--- | :--- | :--- |
 | **Subscripcions Anuals** | Stripe Billing (Checkout Hosted) | Cobrament recurrent de plans Plus (22 €) i Unlimited (59 €) | Automàtic: Checkout + Webhooks de renovació |
-| **Micro-pagaments Puntuals** | Stripe Payments (Checkout Hosted) | Cobrament de certificats solts (5,90 €) i traspassos solts (2,90 €) | Automàtic: Checkout + Webhooks d'activació |
-| **Segellat de Temps Legal** | Signaturit / Grup Namirial (QTSP) | Prova de data i hora fefaent davant tribunals i asseguradores (eIDAS RFC 3161) | Síncron/Asíncron mitjançant hash SHA-256 |
-| **Verificació d'Identitat (KYC)** | Signaturit / Namirial eIDV | Validació biomètrica facial i OCR de documents oficials d'identitat | Redirecció a WebApp Signaturit + Webhook de resultat |
+| **Micro-pagaments Puntuals** | Stripe Payments (Checkout Hosted) | Cobrament de certificats solts (5,90 €), traspassos (2,00 €/2,90 €) i KYC Free (3,50 €) | Automàtic: Checkout + Webhooks d'activació |
+| **Segellat de Temps Legal** | Signaturit / Grup Namirial (QTSP · Fase II) | Prova de data i hora fefaent davant tribunals i asseguradores (eIDAS RFC 3161) | Síncron/Asíncron mitjançant hash SHA-256 |
+| **Verificació d'Identitat (KYC)** | Namirial OnBoarding API v2 (eIDV · MVP) | Validació biomètrica facial i OCR de documents oficials d'identitat | Redirecció a *wizard* Namirial + Verificació servidor-a-servidor + Webhook |
 | **Ancoratge Criptogràfic L2** | Polygon PoS (JSON-RPC) | Immutabilització pública i descentralitzada del fingerprint | Cua asíncrona de Symfony Messenger (`async_chain`) |
 
 > [!IMPORTANT]
@@ -98,13 +98,13 @@ Aquesta taula es llegeix de dalt a baix: quan un concepte aparegui més endavant
 | **Mode `subscription`** | Paràmetre de Checkout per crear una subscripció anual amb renovació periòdica. | S'utilitza a la contractació dels plans Plus i Unlimited. |
 | **Mode `payment`** | Paràmetre de Checkout per cobrar una transacció única immediata sense renovació. | S'utilitza a la compra de certificats oficials solts i traspassos puntuals. |
 | **Stripe Customer Portal** | Pàgina allotjada per Stripe on el client pot canviar la targeta o cancel·lar la renovació. | Enllaçada des de `/app/plan` per als subscriptors de pagament. |
-| **Webhook** | Notificació HTTP POST que un proveïdor extern envia al nostre servidor quan passa un fet. | Endpoint `/webhook/stripe` i `/webhook/signaturit`. |
+| **Webhook** | Notificació HTTP POST que un proveïdor extern envia al nostre servidor quan passa un fet. | Endpoints `/webhook/stripe` i `/webhook/namirial/onboarding`. |
 | **Secret de Signat (`whsec_...`)**| Clau secreta que Stripe utilitza per signar digitalment cada webhook que ens envia. | Permet verificar que la notificació prové realment de Stripe i no d'un atacant. |
 | **Consum Idempotent** | Patró de seguretat: processar el mateix webhook dues vegades produeix exactament el mateix efecte que una sola vegada. | Taula `payment_transactions` amb clau única `stripe_event_id`. |
-| **Import en Cèntims** | A les APIs financeres els imports sempre s'expressen com a enters en cèntims (mai amb decimals). | `2200` = 22,00 €; `590` = 5,90 €; `290` = 2,90 €. |
-| **Signaturit / Namirial (QTSP)** | Prestador Qualificat de Serveis de Confiança reconegut oficialment per la Comissió Europea (*Signaturit, a Namirial Company*). | Emet el segellat de temps qualificat eIDAS amb validesa jurídica plena a la UE. |
-| **Segell de Temps (TSP / RFC 3161)** | Certificat digital que demostra de manera inalterable que un hash existia en una data i hora exactes. | Secció 3 del Certificat Notarial PDF de Registrals. |
-| **eIDV (Identity Verification)** | Mòdul de validació d'identitat: comprovació OCR de documents oficials + prova de vida facial. | Flux de verificació d'identitat per a usuaris prèmium i certificats d'alta gamma. |
+| **Import en Cèntims** | A les APIs financeres els imports sempre s'expressen com a enters en cèntims (mai amb decimals). | `2200` = 22,00 €; `590` = 5,90 €; `350` = 3,50 €. |
+| **Signaturit / Namirial (QTSP)** | Prestador Qualificat de Serveis de Confiança reconegut oficialment per la Comissió Europea (*Signaturit, a Namirial Company*). | Emet el segellat de temps qualificat eIDAS (Fase II) i la verificació biomètrica Namirial OnBoarding (MVP). |
+| **Segell de Temps (TSP / RFC 3161)** | Certificat digital que demostra de manera inalterable que un hash existia en una data i hora exactes. | Secció de Segellat Certificat al PDF de Registrals. |
+| **eIDV (Namirial OnBoarding API v2)** | Mòdul de validació d'identitat sota ETSI TS 119 461: comprovació antifrau de documents oficials + *passive liveness* + comparativa de nom/cognoms. | Flux de verificació d'identitat obligatori per emetre certificats oficials. |
 | **Polygon PoS (Layer 2)** | Cadena de blocs pública compatible amb Ethereum que processa transaccions ràpides i econòmiques. | Xarxa on s'immutabilitza el fingerprint SHA-256 de cada bé moble. |
 | **Token POL** | Moneda nativa utilitzada per pagar el cost de computació (gas) a la xarxa Polygon. | Saldo que conté la Hot Wallet del sistema per pagar les transaccions d'ancoratge. |
 | **Hot Wallet** | Cartera de criptomonedes connectada al servidor, controlada per una clau privada a `.env.local`. | L'adreça pública que signa els ancoratges de fingerprints a la blockchain. |

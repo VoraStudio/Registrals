@@ -12,11 +12,11 @@ v1.0 · Base: disseny aprovat (D-025, D-055, D-082) · Implementació: Iteració
 
 | Camp | Detall |
 | :--- | :--- |
-| **Versió** | v1.1 (Actualització Namirial & Estat del Codi) |
-| **Data** | 2026-11-05 |
-| **Àmbit** | Seguretat Jurídica — Segellat de Temps Qualificat (RFC 3161) i Verificació Biomètrica (eIDV) |
+| **Versió** | v1.2 (Separació Signaturit TSA v3 i Namirial OnBoarding API v2) |
+| **Data** | 2026-11-11 |
+| **Àmbit** | Seguretat Jurídica — Segellat de Temps Qualificat (RFC 3161 · Fase II) i Verificació Biomètrica eIDV (Namirial OnBoarding v2 · MVP) |
 | **Entitat** | Registrals (Vora Studio) |
-| **Proveïdor QTSP** | Signaturit Group, a Namirial Company |
+| **Proveïdors QTSP** | Signaturit Group & Namirial OnBoarding (Grup Namirial) |
 | **Document de referència** | Document confidencial · Ús intern de l'equip tècnic |
 
 ---
@@ -26,8 +26,9 @@ v1.0 · Base: disseny aprovat (D-025, D-055, D-082) · Implementació: Iteració
 > [!NOTE]
 > **Adquisició Corporativa i Identitat de Marca (Namirial / Signaturit):**
 > L'1 de juliol de 2025, el grup italià **Namirial** (líder paneuropeu en serveis de confiança digital) va completar l'adquisició oficial de **Signaturit Group** (*Signaturit, a Namirial Company*).
-> A efectes d'aquesta arquitectura i de la plataforma **Registrals**, la condició de **Prestador Qualificat de Serveis de Confiança (QTSP)** acreditat sota el Reglament eIDAS (UE 910/2014) es manté plenament vigent i harmonitzada a tota la Unió Europea.
-> L'API v3 (`https://api.signaturit.com/v3` i sandbox `https://api.sandbox.signaturit.com/v3`) continua operativa i retrocompatible. A la interfície d'usuari, certificats PDF i panell d'administració es referència oficialment com **«Signaturit (Grup Namirial)»** o **«Namirial / Signaturit»**.
+> A efectes d'aquesta arquitectura i de la plataforma **Registrals**, la condició de **Prestador Qualificat de Serveis de Confiança (QTSP)** acreditat sota el Reglament eIDAS (UE 910/2014) es manté plenament vigent i harmonitzada a tota la Unió Europea, separant clarament dues APIs:
+> - **Signaturit API v3** (`https://api.signaturit.com/v3`, header `Authorization: Bearer`) per al **Segellat de Temps Qualificat RFC 3161 (Fase II)** via [`SignaturitClient.php`](../src/Infrastructure/Adapter/Signature/SignaturitClient.php).
+> - **Namirial OnBoarding API v2** (`https://test-eu-ie1-api.namirialonboarding.com/api/v2`, header `X-Api-Key`) per a la **Verificació d'Identitat Biomètrica eIDV / KYC (MVP)** via [`NamirialOnboardingClient.php`](../src/Infrastructure/Adapter/Identity/NamirialOnboardingClient.php).
 
 Aquesta guia explica **com configurar i utilitzar l'API de Signaturit / Namirial a Registrals pas a pas, per a qui parteix de zero: no cal saber res de criptografia de clau pública ni de normativa eIDAS per llegir-la**.
 
@@ -43,7 +44,7 @@ Recull el que ja està decidit al projecte (Decisions d'Arquitectura `D-xxx` i R
 | [`sdd/02-trd.md`](02-trd.md) | Protecció d'arxius fora del web root (Flysystem), aïllament d'accés i timeouts de petició HTTP. |
 | [`sdd/03-model-dades.md`](03-model-dades.md) | Camps `signaturit_timestamp_id`, `signaturit_sealed_at`, `timestamp_token_path` a l'entitat `Certificate`. |
 | [`sdd/04-fluxos-maquines-estat.md`](04-fluxos-maquines-estat.md) | Cua asíncrona de segellat (`async_chain`) i transició d'estats del certificat. |
-| [`sdd/05-guia-interficies.md`](05-guia-interficies.md) | Disseny del PDF notarial amb les insígnies oficials de garantia eIDAS i codi QR de validació. |
+| [`sdd/05-guia-interficies.md`](05-guia-interficies.md) | Disseny del PDF certificat amb les insígnies oficials de garantia eIDAS i codi QR de validació. |
 | [`sdd/07-iteracions.md`](07-iteracions.md) | Subiteració 7.5 (Verificació d'Identitat eIDV al MVP per a Plus i Certificats Solts) & Fase II (Segellat TSA RFC 3161). |
 | [`sdd/08-annexes.md`](08-annexes.md) | Marc jurídic europeu eIDAS (Reglament UE 910/2014, Art. 41 i 42) i valor probatori en judici. |
 
@@ -95,38 +96,46 @@ Registrals integra Signaturit com a **Prestador Qualificat de Serveis de Confian
 | **Timestamp Token (TSR)** | Fitxer binari que conté el hash, la data/hora atòmica UTC i la signatura digital del QTSP. | Custodiat a Flysystem com a prova pericial descarregable. |
 | **eIDV (Identity Verification)** | Procés d'inspecció automatitzada de documents d'identitat i biometria facial de l'usuari. | Pas de verificació d'identitat opcional o obligatori en traspassos d'alt valor. |
 | **Liveness Detection** | Tecnologia que assegura que l'usuari que fa la prova selfie és una persona viva i present (anti-spoofing). | Gestionat per la WebApp segura de Signaturit durant el flux eIDV. |
-| **Bearer Token** | Clau d'accés secreta per autenticar les crides HTTP a l'API de Signaturit. | Variable d'entorn `SIGNATURIT_API_TOKEN`. |
+| **Bearer Token / `X-Api-Key`** | Claus secretes d'autenticació: `SIGNATURIT_API_TOKEN` (`Bearer`, Signaturit v3) i `NAMIRIAL_ONBOARDING_API_KEY` (`X-Api-Key`, OnBoarding v2). | Configurades exclusivament a `.env.local` (mai al repositori). |
 
 ---
 
-# 4. El compte i API de Signaturit
+# 4. Els comptes i APIs (Signaturit v3 & Namirial OnBoarding v2)
 
-1. **Compte de Desenvolupador (Sandbox):** Sol·licitar l'accés d'integrador a [signaturit.com](https://www.signaturit.com/) per obtenir credencials de l'entorn de proves (`api.sandbox.signaturit.com`).
-2. **Obtenció del Token d'Accés:**
-   * Entrar al tauler de control de Signaturit → **Configuració → API**.
-   * Copiar el token d'accés de Sandbox (`Bearer xxxxxxxxxxxxxxxxxxxxxxxxxxxx`).
-3. **Endpoints de l'API v3:**
-   * **Sandbox:** `https://api.sandbox.signaturit.com/v3`
-   * **Producció:** `https://api.signaturit.com/v3`
+### 4.1 · Signaturit API v3 (Segellat TSA — Fase II)
+1. **Compte de Desenvolupador (Sandbox):** Portal d'integrador de Signaturit (`api.sandbox.signaturit.com/v3`).
+2. **Autenticació:** Capçalera `Authorization: Bearer <SIGNATURIT_API_TOKEN>`.
+
+### 4.2 · Namirial OnBoarding API v2 (Verificació eIDV / KYC — MVP)
+1. **Entorn Demo / Sandbox verificado:** `https://test-eu-ie1-api.namirialonboarding.com/api/v2`.
+2. **Autenticació:** Capçalera HTTP **`X-Api-Key: <NAMIRIAL_ONBOARDING_API_KEY>`**.
+3. **Plantilles (`RequestTypes`) operatives al tenant Demo:**
+   * `idself` (sense comparativa): només valida autenticitat documental + *passive liveness* + biometria facial.
+   * `idself with check` (**recomanat per a Registrals**, `personDataFieldsToValidate: ["FIRST_NAME", "LAST_NAME"]`): exigeix coincidència entre el document oficial i el nom/cognoms del titular a Registrals.
+   * **Documents i països habilitats al tenant Demo:** `ID_CARD`, `PASSPORT`, `DRIVER_LICENSE` per a `["ESP", "ITA"]` (idiomes `es`, `en`; caducitat 30 dies).
 
 ---
 
 # 5. Entorn i mode de prova (Desenvolupament local)
 
-Tot el desenvolupament i execució de tests automatitzats a Registrals es realitza contra el Sandbox oficial o mitjançant el mecanisme integrat de fallback deterministic (*Local Mock Mode*).
+Tot el desenvolupament i execució de tests automatitzats a Registrals opera contra l'entorn Demo oficial quan existeixen claus reals a `.env.local`, o mitjançant fallback determinista (*Local Mock Mode*) en tests i desenvolupament sense clau.
 
 > [!TIP]
-> **Comportament de Fallback Automàtic (`SignaturitClient`):**
-> A l'adaptador [`src/Infrastructure/Adapter/Signature/SignaturitClient.php`](../src/Infrastructure/Adapter/Signature/SignaturitClient.php), si la variable `SIGNATURIT_API_TOKEN` no està configurada a `.env.local` o conté una clau buida/mock, el client **no llança cap excepció ni bloqueja l'execució**.
-> Genera automàticament un token simulat determinista (`eIDAS-SIG-[hash-8]-[timestamp]`) amb l'emissor `Signaturit (Grup Namirial) Qualified Trust Service Provider (eIDAS EU 910/2014)`. Això permet provar tota la cadena d'emissió de certificats en PDF, generació de codis QR i comprovació pública a `/verify/{uuid}` en local sense dependre d'accés a internet ni de credencials de pagament.
+> **Comportament de Fallback Automàtic:**
+> - **`SignaturitClient` (TSA):** si `SIGNATURIT_API_TOKEN` és buit, genera un segell simulat determinista (`eIDAS-SIG-...`) sense excepció.
+> - **`NamirialOnboardingClient` (eIDV):** si `NAMIRIAL_ONBOARDING_API_KEY` o `NAMIRIAL_ONBOARDING_REQUEST_TYPE_ID` estan buits (per exemple a `.env.test` / PHPUnit), activa la simulació local determinista; en producció o quan hi ha clau real configurada, qualsevol fallada d'API falla tancat sense simular cap aprovació KYC.
 
-### 5.1 · Variables d'entorn a `.env.local`
+### 5.1 · Variables d'entorn a `.env` (plantilla buida) i `.env.local` (claus reals)
 
 ```ini
-# .env.local (fora del repositori)
-SIGNATURIT_API_URL=https://api.sandbox.signaturit.com/v3
-SIGNATURIT_API_TOKEN=Bearer sandbox_token_secret_12345
-SIGNATURIT_WEBHOOK_SECRET=signaturit_whsec_secret_67890
+# .env (valors per defecte segurs, sense secrets)
+SIGNATURIT_API_TOKEN=
+SIGNATURIT_BASE_URL=https://api.signaturit.com/v3
+
+NAMIRIAL_ONBOARDING_BASE_URL=https://test-eu-ie1-api.namirialonboarding.com/api/v2
+NAMIRIAL_ONBOARDING_API_KEY=
+NAMIRIAL_ONBOARDING_REQUEST_TYPE_ID=
+NAMIRIAL_ONBOARDING_WEBHOOK_SECRET=
 ```
 
 ### 5.2 · Configuració del client HTTP a Symfony (`config/packages/framework.yaml`)
@@ -210,39 +219,45 @@ Data atòmica UTC: 2026-10-31T10:14:02Z
 
 ---
 
-# 7. Flux B · Verificació d'Identitat Biomètrica (eIDV / KYC)
+# 7. Flux B · Verificació d'Identitat Biomètrica (Namirial OnBoarding API v2 · eIDV / KYC)
 
-**Objectiu:** Validar la identitat fefaent d'un usuari mitjançant DNI/Passaport i reconeixement facial de prova de vida (*Liveness*) sota eIDAS. Aquest procés s'integra com a requisit consolidat al MVP per a:
-1. **Pla Plus:** Activació obligatòria després del cobrament de la quota anual a Stripe Checkout per gaudir de la quota de certificats oficials i obtenir la insígnia «Titular Verificat».
-2. **Pla Free amb Certificat Solt:** Activació obligatòria després del pagament de 5,90 € a Stripe per convertir l'esborrany informatiu en un certificat oficial net i acreditat.
+**Objectiu:** Validar la identitat fefaent del titular mitjançant document oficial (DNI/Passaport/Permís de conduir, lectura OCR/antifrau), reconeixement facial de prova de vida (*Passive Liveness*) i comparativa de nom i cognoms sota eIDAS / ETSI TS 119 461. Aquest procés s'integra com a requisit consolidat al MVP per a:
+1. **Pla Plus (`kycIncluded >= 1`):** inclòs en la quota anual (un cop cobrada la subscripció o actiu el pla).
+2. **Pla Free (`kycIncluded = 0`):** activació prèvia amb cobrament Stripe (`PaymentType::KYC`, import configurable `Plan::$kycPriceCents`, `3,50 €` per defecte) abans d'obrir sessió a Namirial.
 
-> **Regla Financera d'Or:** El cobrament a Stripe sempre precedeix la crida d'OnBoarding per garantir que mai es consumeixen costos de verificació en transaccions no cobrades.
+> **Regla Financera d'Or:** En comptes Free, el cobrament a Stripe (`PaymentType::KYC`) sempre precedeix la crida a Namirial OnBoarding per garantir que mai no es consumeixen costos externs en transaccions no cobrades.
 
-### Seqüència Pas a Pas
+### Seqüència Pas a Pas (API v2)
 
-1. **Inici del procés:** L'usuari completa el pagament a Stripe o accedeix a `/app/perfil/verificacio` i fa clic a *"Verificar la meva Identitat Oficial"*.
-2. **Creació del procés eIDV via API:** El controlador crida `SignaturitGatewayService::createIdentityVerification($user)`:
-   * `POST /v3/identity-verifications.json`
-   * Paràmetres:
+1. **Inici del procés:** L'usuari accedeix a `/app/perfil` (bloc de Verificació KYC) i inicia el procés (al Free passa prèviament per Stripe Checkout `PaymentType::KYC`, que acredita un ús KYC).
+2. **Validació prèvia del perfil:** S'exigeix que `User::$firstName` i `User::$lastName` estiguin informats perquè el `RequestType` `"idself with check"` valida `["FIRST_NAME", "LAST_NAME"]`.
+3. **Creació de la sol·licitud eIDV via `IdentityVerificationGatewayInterface`:**
+   * **`POST /api/v2/requests`** (amb capçalera `X-Api-Key`):
      ```json
      {
-       "user": { "name": "Joan Garcia", "email": "joan@registrals.com" },
-       "callback_url": "https://registrals.com/webhook/signaturit/identity",
-       "return_url": "https://registrals.com/perfil/verificacio/retorn"
+       "requestTypeId": "<NAMIRIAL_ONBOARDING_REQUEST_TYPE_ID>",
+       "referenceId": "REG-KYC-<USER_ID>-<HEX>",
+       "parameters": {
+         "firstName": "Carles",
+         "lastName": "Mellado Bosch",
+         "email": "titular@exemple.cat"
+       },
+       "settings": {
+         "wizardUrlBack": "https://registrals.cat/app/perfil/verificacio/retorn?requestId=<requestId>&referenceId=<referenceId>&status=<status>&actor=<actor>"
+       }
      }
      ```
-3. **Redirecció a la WebApp segura de Signaturit:** L'usuari és redirigit a la URL d'experiència mòbil segura proporcionada per Signaturit.
-4. **Captura del Document d'Identitat:** L'usuari fa una fotografia de l'anvers i revers del seu DNI o Passaport. L'algorisme comprova hologrames, MRZ i possibles alteracions.
-5. **Prova de Vida Facial (*Liveness Detection*):** L'usuari realitza un breu escaneig facial en moviment per verificar que és una persona real i que el seu rostre coincideix amb la fotografia del document.
-6. **Retorn a Registrals:** L'usuari torna a la `return_url`. L'aplicació mostra l'estat: *"La teva verificació s'està processant de forma segura..."*.
-7. **Webhook `identity_verification.completed`:**
-   * Signaturit envia el resultat al nostre endpoint `POST /webhook/signaturit/identity`.
-   * L'aplicació valida la signatura del webhook.
-   * Si el resultat és favorable (`status == 'approved'` i coincidència biomètrica > 90%):
-     * `user.is_identity_verified = true`
-     * `user.verified_at = new \DateTimeImmutable()`
-     * S'envia una notificació de confirmació a l'usuari.
-   * Si és rebutjat (`rejected`), s'informa a l'usuari del motiu (ex: document borrós o caducat) perquè pugui reintentar-ho.
+   * Si la resposta de creació no inclou directament l'enllaç d'actor, s'invoca **`POST /api/v2/request/{id}/links`** per obtenir la URL segura del *wizard* de Namirial.
+   * Registrals desa `signaturitKycId = <id>`, `kycReferenceId = <referenceId>`, posa `kycStatus = KycStatus::PENDING` i registra `UserActivityAction::KYC_INITIATED` a `registrals_audit`.
+4. **Procés guiat al *wizard* segur de Namirial:** L'usuari captura el document oficial i supera la prova de vida (*Passive Liveness*) i comparació facial/nominal sense que cap imatge biomètrica entri als servidors de Registrals (zero emmagatzematge biomètric).
+5. **Retorn segur via `wizardUrlBack` + Contrast Servidor-a-Servidor:** En tornar a `/app/perfil/verificacio/retorn`, Registrals **mai no confia en els paràmetres query de la URL**; consulta directament Namirial:
+   * **`GET /api/v2/request/{id}`** (`status`: `DRAFT`, `CREATED`, `RUNNING`, `COMPLETED`, `EXPIRED`, `FAILED`, `CANCELLED`).
+   * **`GET /api/v2/request/{id}/verdicts`** i **`GET /api/v2/request/{id}/identityVerifications`** per comprovar el veredicte real (una sol·licitud pot acabar `COMPLETED` però amb veredicte rebutjat per nom discordant o document invàlid).
+6. **Confirmació asíncrona via Webhook (`POST /webhook/namirial/onboarding`):**
+   * Rep els tòpics `REQUEST_STATUS` i `REQUEST_LIFECYCLE` (`REQUEST_FINALIZED`) protegits amb secret configurat a `CUSTOM_HEADERS` (`X-Registrals-Webhook-Secret` o equivalent).
+   * Consulta `fetchVerificationVerdict($requestId)` al servidor de Namirial de forma idempotent.
+   * Si el veredicte és positiu: `kycStatus = APPROVED`, `identityVerifiedAt = UTC now`, `kycLastReason = null`, log `KYC_APPROVED`.
+   * Si és negatiu / caducat / discordant: `kycStatus = REJECTED`, `kycLastReason = motiu net`, log `KYC_REJECTED` perquè l'usuari pugui corregir dades o reintentar-ho.
 
 ---
 
@@ -262,30 +277,25 @@ Signaturit és un servei extern d'alta disponibilitat, però un tall de xarxa o 
 
 ---
 
-# 9. Com tracta l'aplicació Signaturit (Arquitectura Hexagonal)
+# 9. Com tracta l'aplicació Signaturit i Namirial OnBoarding (Arquitectura Hexagonal)
 
-Aïllament estricte del domini respecte a la infraestructura externa:
+Aïllament estricte del domini respecte a la infraestructura externa mitjançant dos ports desacoblats:
 
 ```
-[ Capa de Domini de Registrals ]
-               │
-               ▼  (Interfície PHP neta)
-[ SignaturitGatewayInterface ]
-               │
-       ┌───────┴────────────────────────┐
-       ▼                                ▼
-[ SignaturitHttpAdapter ]    [ NullSignaturitAdapter ]
-  (Crides reals API v3)        (Per a Entorn Test / PHPUnit)
+[ Domini de Registrals ]
+       ├──► [ SignaturitTimestampInterface ] ──► [ SignaturitClient ] (API v3 TSA · Fase II)
+       └──► [ IdentityVerificationGatewayInterface ] ──► [ NamirialOnboardingClient ] (API v2 eIDV · MVP)
 ```
 
 ### Classes del Sistema
 
 | Classe | Capa | Funció |
 | :--- | :--- | :--- |
-| `SignaturitGatewayInterface` | Domini (Capa 4) | Contracte amb els mètodes `createTimestamp(string $hash)` i `verifyIdentity(User $user)`. |
-| `SignaturitHttpAdapter` | Infraestructura (Capa 3) | Implementació que fa les crides HTTP reals amb autenticació i control d'errors. |
-| `NullSignaturitAdapter` | Infraestructura (Capa 3) | Implementació simulada que retorna segells falsos vàlids per a tests automatitzats sense consumir saldo. |
-| `SealCertificateHandler` | Aplicació (Capa 4) | Gestor de cua de Messenger que coordina el segellat, guarda a Flysystem i actualitza la BD. |
+| `SignaturitTimestampInterface` | Infraestructura / Port | Contracte de segellat de temps (`timestampHash(string $sha256Hash)`). |
+| `SignaturitClient` | Infraestructura (Capa 3) | Client HTTP per a Signaturit v3 TSA RFC 3161 (mode sandbox automàtic en dev). |
+| `IdentityVerificationGatewayInterface` | Infraestructura / Port | Contracte eIDV (`startVerificationSession`, `fetchVerificationVerdict`, `verifyWebhookSecret`). |
+| `NamirialOnboardingClient` | Infraestructura (Capa 3) | Adaptador HTTP per a Namirial OnBoarding API v2 (`X-Api-Key`), amb fallback simulat en entorns sense clau (`tests`). |
+| `KycVerificationService` | Aplicació / Domini | Orquestra el pagament previ Stripe (Free), creació de sessió, contrast servidor-a-servidor, webhooks i auditoria. |
 
 ---
 
@@ -293,33 +303,30 @@ Aïllament estricte del domini respecte a la infraestructura externa:
 
 > [!NOTE]
 > **Canvi de mode, no de codi**
-> L'adaptador de Symfony funciona exactament igual en desenvolupament i en producció; només cal canviar la URL base de l'API i la clau de producció a través de **Symfony Secrets**.
+> Els adaptadors de Symfony funcionen idènticament en desenvolupament/demo i en producció; només cal actualitzar la URL base i les claus a `.env.local` o **Symfony Secrets**.
 
 ### Llista de Verificació per al Pas a Producció
-* [ ] Contracte comercial signat amb Signaturit per al paquet anual de Segells Qualificats de Temps (TSP) i Verificacions eIDV.
-* [ ] Clau d'accés de producció configurada amb Symfony Secrets:
-  ```bash
-  php bin/console secrets:set SIGNATURIT_API_TOKEN
-  php bin/console secrets:set SIGNATURIT_WEBHOOK_SECRET
+* [ ] Contracte comercial actiu amb Namirial OnBoarding (eIDV producció) i configuració dels països admesos al `RequestType`.
+* [ ] Variables d'entorn de producció configurades fora del repositori (`.env.local` / Symfony Secrets):
+  ```ini
+  NAMIRIAL_ONBOARDING_BASE_URL=https://...namirialonboarding.com/api/v2
+  NAMIRIAL_ONBOARDING_API_KEY=...
+  NAMIRIAL_ONBOARDING_REQUEST_TYPE_ID=...
+  NAMIRIAL_ONBOARDING_WEBHOOK_SECRET=...
   ```
-* [ ] Variable `SIGNATURIT_API_URL` apuntant a `https://api.signaturit.com/v3`.
-* [ ] Permisos del sistema d'arxius Flysystem verificats per assegurar que el directori `private_storage/timestamps/` té permisos d'escriptura exclusius pel servei PHP-FPM.
-* [ ] Execució d'un segellat real de prova i verificació del fitxer `.tsr` mitjançant un validador criptogràfic oficial RFC 3161 (com OpenSSL):
-  ```bash
-  openssl ts -reply -in certificat.tsr -text
-  ```
+* [ ] Webhook registrat al `RequestType` de Namirial apuntant a `POST https://registrals.cat/webhook/namirial/onboarding` per als tòpics `REQUEST_STATUS` i `REQUEST_LIFECYCLE` (`REQUEST_FINALIZED`).
+* [ ] *(Fase II)* Configuració de `SIGNATURIT_API_TOKEN` per al segellat TSA qualificat RFC 3161 i validació de tokens `.tsr`.
 
 ---
 
 # 11. Matriu de Responsabilitats: Qui fa què
 
-| Àmbit | Registrals (Plataforma) | Usuari Titular | Signaturit (QTSP) |
+| Àmbit | Registrals (Plataforma) | Usuari Titular | Namirial / Signaturit (QTSP) |
 | :--- | :--- | :--- | :--- |
-| **Generació de documents** | Renderitza el PDF notarial i calcula el hash SHA-256. | Revisa i valida les dades de la seva propietat. | Mai té accés al contingut del document. |
-| **Emissió del segell de temps** | Envia el hash i rep el token binari `.tsr`. | Descarrega i conserva el seu certificat. | Genera el segell de temps certificat sota eIDAS. |
-| **Garantia davant tribunals** | Aporta el document i el token custodiat. | Presenta la prova a qui correspongui (asseguradora/jutge). | Respon com a prestador de confiança acreditat per la UE. |
-| **Verificació d'identitat** | Envia la sol·licitud i rep el veredicte. | Aporta DNI/Passaport i fa la prova de vida facial. | Processa la biometria i assegura el compliment KYC. |
-| **Custòdia a llarg termini** | Custodia els fitxers a Flysystem amb còpies de seguretat. | Disposa de còpia descarregable en qualsevol moment. | Conserva el registre d'auditoria del segell durant el termini legal. |
+| **Generació de documents** | Renderitza el PDF certificat i calcula el hash SHA-256. | Revisa i valida les dades de la seva propietat. | Mai té accés al contingut dels béns ni factures. |
+| **Emissió del segell de temps** | Envia el hash i rep el token binari `.tsr` (Fase II). | Descarrega i conserva el seu certificat. | Genera el segell de temps certificat sota eIDAS. |
+| **Verificació d'identitat (eIDV)** | Envia `firstName`/`lastName`/`email`, contrasta el veredicte i guarda estat/auditoria. | Aporta document oficial i fa la prova de vida facial al *wizard*. | Processa l'antifrau documental, *liveness*, comparativa nominal i guarda l'evidència. |
+| **Custòdia a llarg termini** | Custodia certificats i logs sense emmagatzemar selfies biomètrics. | Disposa de còpia descarregable en qualsevol moment. | Conserva el registre d'auditoria legal durant la retenció contractada. |
 
 ---
 
@@ -329,11 +336,12 @@ Aïllament estricte del domini respecte a la infraestructura externa:
 
 | Codi | Descripció del Risc | Impacte a Registrals | Estat |
 | :--- | :--- | :--- | :--- |
-| **R-020** | Esgotament de la quota de segells contractada amb Signaturit. | L'API retorna HTTP 402/403 i els certificats no es poden segellar. | **Mitigat:** Alerta automàtica quan la bossa de segells baixa del 15% del volum mensual. |
-| **R-021** | Caiguda o manteniment de l'API de Signaturit. | El procés de segellat asíncron falla. | **Mitigat:** Cua de Messenger amb reintents automàtics i sistema de contingència en estat *Pending Seal*. |
-| **R-022** | Rebutjos eIDV per càmeres mòbils de baixa resolució. | Frustració de l'usuari en no poder verificar la seva identitat. | **Mitigat:** Instruccions clares d'il·luminació i suport per a múltiples intents gratuïts. |
+| **R-020** | Esgotament de la quota de segells/verificacions contractades. | L'API retorna HTTP 402/403 i s'atura l'emissió/KYC. | **Mitigat:** Control de costos amb pagament previ Stripe (`PaymentType::KYC`) per a comptes Free. |
+| **R-021** | Diferències en noms compostos o segon cognom a `idself with check`. | Fals rebuig en la comparativa `FIRST_NAME` / `LAST_NAME`. | **Mitigat:** Aviso clar previ d'escriure nom i cognoms exactes del DNI abans d'iniciar la sessió. |
+| **R-022** | Rebutjos eIDV per càmeres mòbils de baixa resolució. | L'usuari no supera la captura documental. | **Mitigat:** Retorn clar amb `kycLastReason` i possibilitat de reintentar. |
 
 ### On llegir més
+* **Documentació oficial de Namirial OnBoarding API v2:** [https://docs.namirial.app/products/namirialonboarding/openapi-1](https://docs.namirial.app/products/namirialonboarding/openapi-1)
 * **Documentació oficial de l'API de Signaturit:** [https://docs.signaturit.com/](https://docs.signaturit.com/)
 * **Especificació RFC 3161 (Internet X.509 PKI Time-Stamp Protocol):** [https://datatracker.ietf.org/doc/html/rfc3161](https://datatracker.ietf.org/doc/html/rfc3161)
-* **Reglament Europeu eIDAS (UE 910/2014):** [https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX%3A32014R0910](https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX%3A32014R0910)
+* **Reglament Europeu eIDAS (UE 910/2014) i ETSI TS 119 461:** [https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX%3A32014R0910](https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX%3A32014R0910)

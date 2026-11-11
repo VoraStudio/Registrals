@@ -70,16 +70,16 @@ L'aplicació es dissenya com un **monòlit modular basat en Symfony 7**, allotja
 - Protocol: Compatible amb l'API OpenAI Chat Completions (POST /v1/chat/completions) enviant imatges en format Base64 dins de la càrrega JSON.
 - Formats estructurats: Peticions forçades amb response_format: { type: "json_object" } per mapar directament a un objecte ItemExtractionResultDTO (marca, model, categoria, núm. de sèrie, import factura, NIF emissor, data compra).
 
-### 3.2. Identitat Digital eIDAS (Signaturit KYC / eIDV)
+### 3.2. Identitat Digital eIDAS (Namirial OnBoarding API v2 / eIDV)
 
-- **Finalitat:** Assegurar la identitat real del titular abans de l'emissió de certificats d'alta validesa o en plans de pagament.
+- **Finalitat:** Assegurar la identitat real del titular abans de l'emissió de certificats oficials sota eIDAS / ETSI TS 119 461.
 - **Flux de treball:**
-- L'usuari sol·licita verificar la seva identitat des del Dashboard.
-- Symfony invoca l'endpoint de Signaturit Identity (POST /v3/identities.json).
-- Signaturit genera una URL de procés KYC (verificació documental DNI/Passaport + prova de vida facial).
-- L'usuari completa el flux guiat al seu dispositiu.
-- Signaturit envia un Webhook a POST /api/webhooks/signaturit/identity amb la resolució (approved o rejected) i l'identificador de l'Audit Trail.
-- Symfony actualitza l'estat del compte a l'entitat User.
+- L'usuari sol·licita verificar la seva identitat des de `/app/perfil` (al Pla Free, previ pagament Stripe `PaymentType::KYC`; al Pla Plus, inclòs en quota).
+- Symfony invoca l'API REST v2 de **Namirial OnBoarding** (`POST /api/v2/requests` amb autenticació `X-Api-Key` i validació creuada `FIRST_NAME` + `LAST_NAME`, seguida de `POST /api/v2/request/{id}/links`).
+- Namirial genera la URL segura del *wizard* eIDV (captura antifrau DNI/Passaport + prova de vida facial *passive liveness*).
+- L'usuari completa el flux guiat al seu dispositiu i retorna via `wizardUrlBack` a `/app/perfil/verificacio/retorn`, on Symfony contrasta el resultat real servidor-a-servidor (`GET /api/v2/request/{id}`, `/verdicts` i `/identityVerifications`).
+- Addicionalment, Namirial envia notificacions Webhook (`REQUEST_STATUS` / `REQUEST_FINALIZED`) a `POST /webhook/namirial/onboarding` verificades per secret de capçalera (`CUSTOM_HEADERS`).
+- Symfony actualitza `kycStatus`, `signaturitKycId`, `identityVerifiedAt`, `kycReferenceId` i `kycLastReason` a l'entitat `User` i enregistra traçabilitat forense a `registrals_audit`.
 
 ### 3.3. Notarització Pública (Blockchain Layer 2)
 
@@ -209,7 +209,9 @@ src/
 │   ├── Adapter/
 │   │   ├── Ai/SglangVisionClient.php
 │   │   ├── Blockchain/PolygonRpcClient.php
-│   │   ├── Identity/SignaturitKycClient.php
+│   │   ├── Identity/IdentityVerificationGatewayInterface.php
+│   │   ├── Identity/NamirialOnboardingClient.php
+│   │   ├── Signature/SignaturitClient.php
 │   │   └── Storage/LocalSecuredStorage.php
 │   ├── Controller/                # Web Controllers (Twig) i Webhook Endpoints
 │   ├── EventListener/            # Interceptors de seguretat i termes legals

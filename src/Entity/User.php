@@ -81,6 +81,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $identityVerifiedAt = null;
 
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    private ?string $kycReferenceId = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $kycLastReason = null;
+
+    #[ORM\Column(type: 'integer', options: ['default' => 0])]
+    private int $kycPaidCredits = 0;
+
     #[ORM\ManyToOne(targetEntity: Plan::class)]
     #[ORM\JoinColumn(name: 'plan_id', referencedColumnName: 'id', nullable: true)]
     private ?Plan $plan = null;
@@ -351,6 +360,60 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->identityVerifiedAt = $identityVerifiedAt;
         return $this;
+    }
+
+    public function getKycReferenceId(): ?string
+    {
+        return $this->kycReferenceId;
+    }
+
+    public function setKycReferenceId(?string $kycReferenceId): static
+    {
+        $this->kycReferenceId = $kycReferenceId;
+        return $this;
+    }
+
+    public function getKycLastReason(): ?string
+    {
+        return $this->kycLastReason;
+    }
+
+    public function setKycLastReason(?string $kycLastReason): static
+    {
+        $this->kycLastReason = $kycLastReason;
+        return $this;
+    }
+
+    public function getKycPaidCredits(): int
+    {
+        return $this->kycPaidCredits;
+    }
+
+    public function setKycPaidCredits(int $kycPaidCredits): static
+    {
+        $this->kycPaidCredits = max(0, $kycPaidCredits);
+        return $this;
+    }
+
+    public function incrementKycPaidCredits(int $delta = 1): static
+    {
+        $this->kycPaidCredits += max(0, $delta);
+        return $this;
+    }
+
+    public function consumeKycPaidCredit(): bool
+    {
+        if ($this->kycPaidCredits <= 0) {
+            return false;
+        }
+
+        --$this->kycPaidCredits;
+        return true;
+    }
+
+    public function isIdentityVerified(): bool
+    {
+        return $this->kycStatus === KycStatus::APPROVED;
     }
 
     public function getPlan(): ?Plan
