@@ -34,6 +34,8 @@
   {% set plusEvidences = plusPlan ? plusPlan.maxEvidencesPerItem : 5 %}
   {% set plusAi = plusPlan ? plusPlan.aiAssistanceQuota : 100 %}
   {% set plusPrice = plusPlan ? (plusPlan.priceCents / 100)|number_format(2, ',', '.') : '22,00' %}
+  {% set plusLegacyContacts = plusPlan ? plusPlan.maxLegacyContacts : 1 %}
+  {% set plusClaimFee = (plusPlan and plusPlan.legacyClaimOpeningFeeCents is not null) ? (plusPlan.legacyClaimOpeningFeeCents / 100)|number_format(2, ',', '.') : '19,00' %}
 
   <main id="main" class="max-w-[1680px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-3.5 sm:py-5 flex-1 {{ app.user ? 'pb-20 md:pb-8' : 'pb-12' }}">
     {% include 'partials/_subpage_header.html.twig' with {
@@ -58,7 +60,7 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5 pb-3 border-b border-steel/15">
       <div class="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 no-scrollbar">
         <button type="button" onclick="filterManualSection('all', event)" class="manual-tab-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-ink text-cream border border-ink transition-all whitespace-nowrap shrink-0">
-          Totes les Guies (4)
+          Totes les Guies (5)
         </button>
         <button type="button" onclick="filterManualSection('fotos', event)" class="manual-tab-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white border border-steel/30 text-ink/80 hover:bg-cream/40 transition-all whitespace-nowrap shrink-0">
           1 · Fotografies i C2PA
@@ -72,11 +74,14 @@
         <button type="button" onclick="filterManualSection('traspassos', event)" class="manual-tab-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white border border-steel/30 text-ink/80 hover:bg-cream/40 transition-all whitespace-nowrap shrink-0">
           4 · Traspassos i Quotes
         </button>
+        <button type="button" onclick="filterManualSection('herencia', event)" class="manual-tab-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white border border-steel/30 text-ink/80 hover:bg-cream/40 transition-all whitespace-nowrap shrink-0">
+          5 · Herència Digital
+        </button>
       </div>
 
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-gold/35 text-[11px] font-mono text-ink shrink-0 self-start sm:self-auto">
         <span class="text-steel">Progrés de lectura:</span>
-        <strong id="manual-checklist-counter" class="text-ink">0 / 8</strong>
+        <strong id="manual-checklist-counter" class="text-ink">0 / 10</strong>
         <span class="text-gold">★</span>
       </div>
     </div>
@@ -277,6 +282,72 @@
         </div>
       </section>
 
+      {# BLOC 5: Herència Digital, Persona de Confiança i Custòdia Successòria (Amplada completa 16:9) #}
+      <section id="herencia" class="manual-card lg:col-span-2 bg-whitef rounded-2xl border border-gold/30 p-5 sm:p-6 shadow-2xs flex flex-col justify-between space-y-4" data-topic="herencia">
+        <div class="space-y-4">
+          <div class="flex flex-wrap items-start justify-between gap-3 pb-3 border-b border-steel/15">
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="w-8 h-8 rounded-xl bg-ink text-gold flex items-center justify-center font-bold text-sm font-mono shrink-0">5</span>
+              <div class="min-w-0">
+                <h2 class="font-marcellus text-lg font-bold text-ink leading-tight">Herència Digital &amp; Persona de Confiança</h2>
+                <p class="text-[11px] text-steel font-mono">Art. 96 LOPDGDD · Privadesa Art. 14 RGPD · Doble Porta (Perfil o QR) · Finestra 72 h</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0 flex-wrap">
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-cream text-ink border border-gold/35 whitespace-nowrap">
+                Plus: {{ plusLegacyContacts }} {{ plusLegacyContacts == 1 ? 'contacte' : 'contactes' }} · Receptor: 0 €
+              </span>
+              {% if app.user %}
+                <a href="{{ path('app_profile') }}#herencia-digital" class="px-2.5 py-1 rounded-lg bg-ink text-gold border border-gold/40 hover:bg-ink/90 text-[11px] font-bold transition-colors whitespace-nowrap">
+                  Obrir al meu Perfil →
+                </a>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+            <div class="space-y-3">
+              <p class="text-xs sm:text-sm text-ink/80 leading-relaxed">
+                Des de <strong>El meu Perfil → Herència Digital</strong>, un titular amb <strong>Pla Plus</strong> (amb nom i cognoms informats) pot designar una Persona de Confiança amb consentiment exprés sota l'<strong>Art. 96 LOPDGDD</strong> (no substitueix un testament civil) i emetre un <strong>Certificat d'Inventari Global de Llegat</strong> amb doble codi QR. Acceptar i mantenir el rol com a receptor dins el <strong>Pla Free és 100% gratuït (0 €)</strong>.
+              </p>
+
+              <div class="space-y-2 bg-cream-50/70 p-3.5 rounded-xl border border-steel/15">
+                <div class="text-[10px] font-mono uppercase tracking-wider text-steel font-bold">Checklist de continuïtat patrimonial</div>
+                <label class="flex items-start gap-2.5 text-xs text-ink cursor-pointer">
+                  <input type="checkbox" class="manual-check mt-0.5 accent-ink" onchange="updateManualChecklist()" />
+                  <span><strong>Consentiment i revocació lliure:</strong> la invitació té una vigència de 14 dies; ambdues parts poden revocar o renunciar-hi (Art. 7.3 RGPD) en qualsevol moment des del perfil.</span>
+                </label>
+                <label class="flex items-start gap-2.5 text-xs text-ink cursor-pointer">
+                  <input type="checkbox" class="manual-check mt-0.5 accent-ink" onchange="updateManualChecklist()" />
+                  <span><strong>Doble porta post-mortem:</strong> l'hereu designat i acceptat pot iniciar l'expedient tant escanejant el QR del PDF com <strong>directament des del seu propi perfil</strong>, sense dependre de tenir el PDF físic.</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <details class="group rounded-xl border border-steel/20 bg-white px-3.5 py-2.5 text-xs">
+                <summary class="font-bold text-ink cursor-pointer flex items-center justify-between list-none">
+                  <span>Com es tramita i què passa en aprovar-se un expedient successori?</span>
+                  <span class="text-gold font-mono group-open:rotate-45 transition-transform text-sm">+</span>
+                </summary>
+                <div class="text-ink/75 mt-2 leading-relaxed space-y-1.5">
+                  <p>
+                    1. <strong>Aportació i salvaguarda 72 h:</strong> cal adjuntar el <strong>Certificat Oficial de Defunció</strong> i el <strong>Títol Successori</strong>, i abonar la taxa única d'obertura (<strong>{{ plusClaimFee }} €</strong>). Automàticament s'envia una alerta urgent al titular i queda bloquejada qualsevol aprovació durant <strong>72 hores</strong>.
+                  </p>
+                  <p>
+                    2. <strong>Resolució humana i tancament complet (Art. 22 RGPD):</strong> vençudes les 72 h, un gestor verifica la documentació (amb suport local no decisori de Qwen-VL) i aprova el traspàs de tots els béns actius cap al receptor amb registre a Polygon L2 i finestra de gràcia de 7 dies si supera la quota Free. Simultàniament, <strong>el compte causant queda tancat definitivament i la seva subscripció Stripe cancel·lada</strong>.
+                  </p>
+                </div>
+              </details>
+
+              <div class="guide-note !mt-0">
+                <strong>Privadesa absoluta en vida (Art. 14 RGPD):</strong> Ni el correu d'invitació ni la targeta del receptor dins del perfil mostren mai els béns, imports, fotografies ni el PDF d'inventari mentre el titular romangui actiu.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </div>
 
     {# Franja Compacta d'Accés a Documentació Legal #}
@@ -345,8 +416,9 @@
   }
 
   document.addEventListener('DOMContentLoaded', function() {
+    updateManualChecklist();
     const hash = window.location.hash.replace('#', '');
-    if (['fotos', 'factures', 'certificats', 'traspassos'].includes(hash)) {
+    if (['fotos', 'factures', 'certificats', 'traspassos', 'herencia'].includes(hash)) {
       const btn = document.querySelector(`.manual-tab-btn[onclick*="'${hash}'"]`);
       if (btn) btn.click();
     }

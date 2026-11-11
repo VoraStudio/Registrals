@@ -200,19 +200,24 @@
               </div>
             </div>
 
-            {% if canDesignateLegacy %}
-              <span class="px-2 py-0.5 rounded-full bg-cream border border-gold/40 text-[10px] font-mono font-bold text-ink shrink-0">
-                {{ legacyEligibility.usedSlots|default(0) }} / {{ legacyEligibility.maxSlots|default(1) >= 9999 or legacyEligibility.maxSlots|default(1) == -1 ? '∞' : legacyEligibility.maxSlots|default(1) }} places
-              </span>
-            {% elseif isRecipientOnlyMode %}
-              <span class="px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-[10px] font-mono font-bold text-emerald-800 shrink-0">
-                Rol Receptor · 0 €
-              </span>
-            {% else %}
-              <span class="px-2 py-0.5 rounded-full bg-cream/70 border border-steel/25 text-[10px] font-mono font-bold text-steel shrink-0">
-                Funció Pla Plus
-              </span>
-            {% endif %}
+            <div class="flex items-center gap-2 shrink-0 flex-wrap">
+              <a href="{{ path('app_manual') }}#herencia" class="px-2 py-0.5 rounded-full bg-white border border-steel/25 text-[10px] font-raleway font-semibold text-steel hover:border-gold hover:text-ink transition-colors">
+                ? Guia d'ús
+              </a>
+              {% if canDesignateLegacy %}
+                <span class="px-2 py-0.5 rounded-full bg-cream border border-gold/40 text-[10px] font-mono font-bold text-ink">
+                  {{ legacyEligibility.usedSlots|default(0) }} / {{ legacyEligibility.maxSlots|default(1) >= 9999 or legacyEligibility.maxSlots|default(1) == -1 ? '∞' : legacyEligibility.maxSlots|default(1) }} places
+                </span>
+              {% elseif isRecipientOnlyMode %}
+                <span class="px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-[10px] font-mono font-bold text-emerald-800">
+                  Rol Receptor · 0 €
+                </span>
+              {% else %}
+                <span class="px-2 py-0.5 rounded-full bg-cream/70 border border-steel/25 text-[10px] font-mono font-bold text-steel">
+                  Funció Pla Plus
+                </span>
+              {% endif %}
+            </div>
           </div>
 
           {% if isRecipientOnlyMode %}
