@@ -75,4 +75,103 @@ class LegacyProfileControllerTest extends TestCase
         $this->assertNotEmpty($flashes);
         $this->assertStringContainsString('1 certificat(s)', $flashes[0]);
     }
+
+    public function testAcceptIncomingDelegatesToServiceAndRedirectsWithSuccessFlash(): void
+    {
+        $owner = (new User())->setEmail('titular@registrals.cat')->setFirstName('Anna')->setLastName('Puig');
+        $recipient = (new User())->setEmail('maria@exemple.cat')->setFirstName('Maria')->setLastName('Soler');
+        $contact = new LegacyContact($owner, 'Maria Soler', 'maria@exemple.cat');
+        $uuid = $contact->getUuid()->toRfc4122();
+
+        $legacyService = $this->createMock(LegacyDesignationService::class);
+        $legacyService->expects($this->once())->method('accept')->with($contact, $recipient, $this->anything());
+
+        [$controller, $request, $session] = $this->buildAuthenticatedController($recipient, $contact, $legacyService);
+
+        $response = $controller->acceptIncoming($uuid, $request);
+
+        $this->assertInstanceOf(RedirectResponse::class, $response);
+        $this->assertSame('/app/perfil#herencia-digital', $response->getTargetUrl());
+        $this->assertNotEmpty($session->getFlashBag()->get('success'));
+    }
+
+    public function testDeclineIncomingDelegatesToServiceAndRedirectsWithInfoFlash(): void
+    {
+        $owner = (new User())->setEmail('titular@registrals.cat')->setFirstName('Anna')->setLastName('Puig');
+        $recipient = (new User())->setEmail('maria@exemple.cat')->setFirstName('Maria')->setLastName('Soler');
+        $contact = new LegacyContact($owner, 'Maria Soler', 'maria@exemple.cat');
+        $uuid = $contact->getUuid()->toRfc4122();
+
+        $legacyService = $this->createMock(LegacyDesignationService::class);
+        $legacyService->expects($this->once())->method('declineByRecipient')->with($contact, $recipient, $this->anything());
+
+        [$controller, $request, $session] = $this->buildAuthenticatedController($recipient, $contact, $legacyService);
+
+        $response = $controller->declineIncoming($uuid, $request);
+
+        $this->assertInstanceOf(RedirectResponse::class, $response);
+        $this->assertSame('/app/perfil#herencia-digital', $response->getTargetUrl());
+        $this->assertNotEmpty($session->getFlashBag()->get('info'));
+    }
+
+    public function testRenounceIncomingDelegatesToServiceAndRedirectsWithInfoFlash(): void
+    {
+        $owner = (new User())->setEmail('titular@registrals.cat')->setFirstName('Anna')->setLastName('Puig');
+        $recipient = (new User())->setEmail('maria@exemple.cat')->setFirstName('Maria')->setLastName('Soler');
+        $contact = new LegacyContact($owner, 'Maria Soler', 'maria@exemple.cat');
+        $uuid = $contact->getUuid()->toRfc4122();
+
+        $legacyService = $this->createMock(LegacyDesignationService::class);
+        $legacyService->expects($this->once())->method('renounceByBeneficiary')->with($contact, $recipient, $this->anything())->willReturn(0);
+
+        [$controller, $request, $session] = $this->buildAuthenticatedController($recipient, $contact, $legacyService);
+
+        $response = $controller->renounceIncoming($uuid, $request);
+
+        $this->assertInstanceOf(RedirectResponse::class, $response);
+        $this->assertSame('/app/perfil#herencia-digital', $response->getTargetUrl());
+        $this->assertNotEmpty($session->getFlashBag()->get('info'));
+    }
+
+    /**
+     * @return array{LegacyProfileController, Request, Session}
+     */
+    private function buildAuthenticatedController(User $actor, LegacyContact $contact, LegacyDesignationService $legacyService): array
+    {
+        $repo = $this->createMock(LegacyContactRepository::class);
+        $repo->method('findOneBy')->willReturn($contact);
+
+        $request = new Request([], ['_token' => 'csrf_ok']);
+        $request->setMethod('POST');
+        $session = new Session(new MockArraySessionStorage());
+        $request->setSession($session);
+        $requestStack = new RequestStack();
+        $requestStack->push($request);
+
+        $csrf = $this->createMock(CsrfTokenManagerInterface::class);
+        $csrf->method('isTokenValid')->willReturn(true);
+
+        $tokenStorage = $this->createMock(TokenStorageInterface::class);
+        $tokenStorage->method('getToken')->willReturn(new UsernamePasswordToken($actor, 'main', $actor->getRoles()));
+
+        $container = $this->createMock(ContainerInterface::class);
+        $container->method('has')->willReturnCallback(fn (string $id): bool => in_array($id, ['security.token_storage', 'security.csrf.token_manager', 'request_stack', 'router'], true));
+        $container->method('get')->willReturnCallback(fn (string $id) => match ($id) {
+            'security.token_storage' => $tokenStorage,
+            'security.csrf.token_manager' => $csrf,
+            'request_stack' => $requestStack,
+            'router' => new class {
+                public function generate(string $route): string {
+                    return '/app/perfil';
+                }
+            },
+            default => null,
+        });
+
+        $controller = new LegacyProfileController($legacyService, $repo);
+        $controller->setContainer($container);
+
+        return [$controller, $request, $session];
+    }
 }
+

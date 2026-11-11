@@ -1,8 +1,9 @@
+{% set isRenounced = renounced|default(false) %}
 <!DOCTYPE html>
 <html lang="ca">
 <head>
   <meta charset="UTF-8">
-  <title>{{ accepted ? 'Designació acceptada' : 'Designació declinada' }} — Registrals</title>
+  <title>{{ accepted ? 'Designació acceptada' : (isRenounced ? 'Renúncia de persona de confiança' : 'Designació declinada') }} — Registrals</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #FAF6F0; font-family: 'Raleway', Helvetica, Arial, sans-serif; color: #1D2F4B;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #FAF6F0; padding: 30px 15px;">
@@ -23,7 +24,13 @@
           <tr>
             <td style="padding: 35px 40px;">
               <h2 style="font-family: 'Marcellus', Georgia, serif; font-size: 20px; color: #1D2F4B; margin: 0 0 15px;">
-                {{ accepted ? 'Consentiment de Persona de Confiança Confirmat' : 'Designació de Persona de Confiança Declinada' }}
+                {% if accepted %}
+                  Consentiment de Persona de Confiança Confirmat
+                {% elseif isRenounced %}
+                  Renúncia de Persona de Confiança (Art. 7.3 RGPD)
+                {% else %}
+                  Designació de Persona de Confiança Declinada
+                {% endif %}
               </h2>
 
               <p style="font-size: 14px; line-height: 1.6; color: #1D2F4B; margin: 0 0 16px;">
@@ -37,6 +44,10 @@
                 <div style="border-left: 3.5px solid #10B981; background-color: rgba(16, 185, 129, 0.08); padding: 12px 16px; border-radius: 0 10px 10px 0; margin-bottom: 24px; font-size: 12.5px; color: #1D2F4B; line-height: 1.55;">
                   <strong>Estat actualitzat:</strong> El consentiment ja consta actiu al teu perfil. Recorda que pots revocar aquesta designació en qualsevol moment des del teu espai privat.
                 </div>
+              {% elseif isRenounced %}
+                <p style="font-size: 14px; line-height: 1.6; color: #1D2F4B; margin: 0 0 22px;">
+                  T'informem que <strong>{{ contact.fullName }}</strong> (<code>{{ contact.email }}</code>) ha exercit el dret de retirada de consentiment i ha <strong>renunciat</strong> a continuar figurant com la teva Persona de Confiança. Qualsevol certificat d'Inventari Global de Llegat vinculat ha quedat revocat automàticament i ja disposes de la plaça lliure al teu perfil.
+                </p>
               {% else %}
                 <p style="font-size: 14px; line-height: 1.6; color: #1D2F4B; margin: 0 0 22px;">
                   T'informem que <strong>{{ contact.fullName }}</strong> (<code>{{ contact.email }}</code>) ha optat per declinar la designació com a Persona de Confiança. La teva capacitat disponible al perfil s'ha alliberat perquè puguis designar un altre contacte si ho desitges.
@@ -66,3 +77,4 @@
   </table>
 </body>
 </html>
+

@@ -195,23 +195,7 @@ class LegacyDesignationService
         }
 
         $contact->revoke();
-
-        $linkedCertificates = $this->certificateRepository->findBy([
-            'legacyContact' => $contact,
-            'scope' => CertificateScope::LEGACY_INVENTORY,
-            'status' => CertificateStatus::VALID,
-        ]);
-
-        $revokedCount = 0;
-        $now = new \DateTimeImmutable();
-        foreach ($linkedCertificates as $cert) {
-            if ($cert instanceof Certificate) {
-                $cert->setStatus(CertificateStatus::REVOKED);
-                $cert->setRevokedAt($now);
-                $revokedCount++;
-            }
-        }
-
+        $revokedCount = $this->revokeLinkedLegacyCertificates($contact);
         $this->entityManager->flush();
 
         $this->recordAudit(
@@ -222,8 +206,93 @@ class LegacyDesignationService
                 'legacy_contact_uuid' => $contact->getUuid()->toRfc4122(),
                 'contact_email' => $contact->getEmail(),
                 'revoked_certificates' => $revokedCount,
+                'initiated_by' => 'owner',
             ]
         );
+
+        return $revokedCount;
+    }
+
+    /**
+     * Retorna les designacions rebudes actives o pendents vigents per al destinatari
+     * (caducant automàticament les invitacions que hagin superat el termini).
+     *
+     * @return list<LegacyContact>
+     */
+    public function getIncomingDesignations(User $recipient): array
+    {
+        $rows = $this->legacyContactRepository->findIncomingActiveOrPendingForUser($recipient);
+        $active = [];
+        $expiredUpdated = false;
+
+        foreach ($rows as $contact) {
+            if ($contact->getStatus() === LegacyContactStatus::PENDING && $contact->isInvitationExpired()) {
+                $contact->setStatus(LegacyContactStatus::EXPIRED);
+                $contact->setInvitationTokenHash(null);
+                $expiredUpdated = true;
+                continue;
+            }
+            $active[] = $contact;
+        }
+
+        if ($expiredUpdated) {
+            $this->entityManager->flush();
+        }
+
+        return $active;
+    }
+
+    public function declineByRecipient(LegacyContact $contact, User $actor, ?string $clientIp): void
+    {
+        if (!$this->isRecipientActor($contact, $actor)) {
+            throw new DomainException('No tens permisos per respondre aquesta designació.');
+        }
+
+        $this->decline($contact, $clientIp);
+    }
+
+    /**
+     * Permet a la persona designada retirar el seu consentiment (Art. 7.3 RGPD) des del seu propi perfil.
+     */
+    public function renounceByBeneficiary(LegacyContact $contact, User $actor, ?string $clientIp): int
+    {
+        if (!$this->isRecipientActor($contact, $actor)) {
+            throw new DomainException('No tens permisos per renunciar a aquesta designació.');
+        }
+
+        if ($contact->getStatus() !== LegacyContactStatus::ACCEPTED) {
+            throw new DomainException('Només pots renunciar a una designació que figuri acceptada i activa.');
+        }
+
+        $contact->revoke();
+        $revokedCount = $this->revokeLinkedLegacyCertificates($contact);
+        $this->entityManager->flush();
+
+        $details = [
+            'legacy_contact_uuid' => $contact->getUuid()->toRfc4122(),
+            'contact_email' => $contact->getEmail(),
+            'revoked_certificates' => $revokedCount,
+            'initiated_by' => 'beneficiary',
+            'ip' => $clientIp,
+        ];
+
+        $this->recordAudit(
+            $contact->getOwner(),
+            UserActivityAction::LEGACY_CONTACT_REVOKED,
+            sprintf('%s ha renunciat al seu consentiment com a persona de confiança (%d certificats invalidats)', $actor->getFullName(), $revokedCount),
+            $details
+        );
+
+        if ($actor->getId() !== $contact->getOwner()->getId()) {
+            $this->recordAudit(
+                $actor,
+                UserActivityAction::LEGACY_CONTACT_REVOKED,
+                sprintf('Renúncia voluntària de persona de confiança designada per %s', $contact->getOwner()->getFullName()),
+                $details
+            );
+        }
+
+        $this->sendOwnerResponseEmail($contact, accepted: false, renounced: true);
 
         return $revokedCount;
     }
@@ -353,7 +422,39 @@ class LegacyDesignationService
         }
     }
 
-    private function sendOwnerResponseEmail(LegacyContact $contact, bool $accepted): void
+    private function revokeLinkedLegacyCertificates(LegacyContact $contact): int
+    {
+        $now = new \DateTimeImmutable();
+        $revokedCount = 0;
+
+        $linkedCerts = $this->certificateRepository->findBy([
+            'legacyContact' => $contact,
+            'scope' => CertificateScope::LEGACY_INVENTORY,
+        ]);
+
+        foreach ($linkedCerts as $certificate) {
+            if ($certificate->getStatus() === CertificateStatus::VALID) {
+                $certificate->setStatus(CertificateStatus::REVOKED);
+                $certificate->setRevokedAt($now);
+                ++$revokedCount;
+            }
+        }
+
+        return $revokedCount;
+    }
+
+    private function isRecipientActor(LegacyContact $contact, User $actor): bool
+    {
+        if ($contact->getBeneficiaryUser()?->getId() !== null && $actor->getId() !== null) {
+            if ($contact->getBeneficiaryUser()->getId() === $actor->getId()) {
+                return true;
+            }
+        }
+
+        return mb_strtolower(trim($actor->getEmail())) === $contact->getEmail();
+    }
+
+    private function sendOwnerResponseEmail(LegacyContact $contact, bool $accepted, bool $renounced = false): void
     {
         $profileUrl = $this->urlGenerator->generate(
             'app_profile',
@@ -361,19 +462,24 @@ class LegacyDesignationService
             UrlGeneratorInterface::ABSOLUTE_URL
         ) . '#herencia-digital';
 
+        $subject = match (true) {
+            $accepted => sprintf('%s ha acceptat ser la teva Persona de Confiança — Registrals', $contact->getFullName()),
+            $renounced => sprintf('%s ha renunciat com a Persona de Confiança — Registrals', $contact->getFullName()),
+            default => sprintf('%s ha declinat la designació de Persona de Confiança — Registrals', $contact->getFullName()),
+        };
+
         try {
             $email = (new TemplatedEmail())
                 ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
                 ->to(new Address($contact->getOwner()->getEmail(), $contact->getOwner()->getFullName()))
-                ->subject($accepted
-                    ? sprintf('%s ha acceptat ser la teva Persona de Confiança — Registrals', $contact->getFullName())
-                    : sprintf('%s ha declinat la designació de Persona de Confiança — Registrals', $contact->getFullName()))
+                ->subject($subject)
                 ->htmlTemplate('emails/legacy_designation_response.html.twig')
                 ->textTemplate('emails/legacy_designation_response.txt.twig')
                 ->context([
                     'contact' => $contact,
                     'owner' => $contact->getOwner(),
                     'accepted' => $accepted,
+                    'renounced' => $renounced,
                     'profileUrl' => $profileUrl,
                 ]);
 
@@ -401,3 +507,4 @@ class LegacyDesignationService
         }
     }
 }
+

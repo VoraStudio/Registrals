@@ -186,7 +186,11 @@ A la barra lateral d'administració ([`templates/admin/layout.html.twig`](../tem
 4. **Accés del destinatari (`GET /llegat/acceptar/{token}`):**
    - **Si ja té compte a Registrals:** es demana autenticació vinculada al correu designat (o verificació de sessió activa) i s'ofereixen els botons `[Acceptar Designació]` o `[Rebutjar]`.
    - **Si encara no té compte:** la mateixa pàgina ofereix completar l'acceptació creant un compte gratuït **Pla Free** en un pas (amb verificació obligatòria del correu per **OTP de 6 dígits** via [`EmailOtpService`](../src/Service/Security/EmailOtpService.php) i acceptació de clàusules via **Legal Gate**), vinculant automàticament `$beneficiaryUser`.
-5. Un cop acceptat (`ACCEPTED`), el titular veu l'estat verd actiu a `/app/perfil`. En qualsevol moment pot prémer **`Revocar Designació`**: l'estat passa a `REVOKED` i tots els certificats `LEGACY_INVENTORY` previs passen automàticament a `REVOKED`.
+5. **Visibilitat recíproca i retirada de consentiment al perfil del destinatari (`/app/perfil#herencia-digital`):**
+   - Tant si el destinatari té **Pla Free** com **Pla Plus**, sempre que tingui designacions rebudes en estat `PENDING` o `ACCEPTED` (consultades per `beneficiaryUser` o coincidència de correu verificat), visualitza dins `/app/perfil#herencia-digital` el bloc dedicat **«Designacions rebudes com a Persona de Confiança»** amb transparència estricta Art. 14 RGPD (**zero detall de béns, valors ni certificats del titular**).
+   - **En estat `PENDING`:** pot acceptar o refusar directament la invitació des del seu perfil autenticat (`POST /app/perfil/herencia/{uuid}/acceptar-rebuda` / `refusar-rebuda`) sense haver de cercar el correu original.
+   - **En estat `ACCEPTED`:** pot exercir en qualsevol moment el dret de retirada de consentiment (Art. 7.3 RGPD) mitjançant modal dual institucional (`POST /app/perfil/herencia/{uuid}/renunciar`), que passa el registre a `REVOKED`, invalida automàticament qualsevol certificat `LEGACY_INVENTORY` vinculat i notifica per correu electrònic al titular originari.
+6. Un cop acceptat (`ACCEPTED`), el titular veu l'estat verd actiu a `/app/perfil`. En qualsevol moment pot prémer **`Revocar Designació`**: l'estat passa a `REVOKED` i tots els certificats `LEGACY_INVENTORY` previs passen automàticament a `REVOKED`.
 
 ### Flux B — Emissió del Certificat d'Inventari Global de Llegat (`/app/certificats`)
 1. A la safata [`/app/certificats`](../src/Controller/UserCertificateController.php) (o des del botó contextual a `/app/perfil`), un titular **Pla Plus** amb un `LegacyContact` en estat `ACCEPTED` pot sol·licitar **`+ Emetre Certificat d'Inventari Global de Llegat`**.
@@ -236,7 +240,8 @@ Seguim estrictament la regla d'or SDD (4 passos per subiteració: Model -> Domin
   - Entitats `LegacyContact`, `SuccessionClaim`, evolució de `Certificate::$item` (nullable + protecció d'invariants i consultes `leftJoin`) i camps a `Plan`.
   - Migració Doctrine `Version20261111170000` executada i validada a MySQL 8.4 + rol `ROLE_GESTOR` a `security.yaml` + editor de paràmetres a `/admin/plans`.
 - [x] **Subiteració 10.2 — Designació a `/app/perfil`, Consentiment i Bucle Pla Free** *(Completada)*
-  - Targeta a `/app/perfil` (`LegacyProfileController` — només Pla Plus amb nom i cognoms informats) + revocació amb modal institucional `#modal-legacy-revoke` i invalidació automàtica de certificats vinculats (`LegacyDesignationService`).
+  - Targeta a `/app/perfil` (`LegacyProfileController` — designació exclusiva de titulars Pla Plus amb nom i cognoms informats) + revocació amb modal institucional dual `#modal-legacy-revoke` i invalidació automàtica de certificats vinculats (`LegacyDesignationService`).
+  - Panell recíproc **«Designacions rebudes com a Persona de Confiança»** a `/app/perfil#herencia-digital` visible tant a **Pla Free** com a **Pla Plus** (zero revelació patrimonial Art. 14 RGPD), amb acceptació/refús directe de pendents i renúncia voluntària Art. 7.3 RGPD per al contacte acceptat (`renounceByBeneficiary`).
   - Flux `/llegat/acceptar/{token}` (`LegacyInvitationController`) amb avís Art. 14 RGPD (sense detall de béns) i alta directa al Pla Free (OTP 6 dígits + Legal Gate).
 - [ ] **Subiteració 10.3 — Certificat d'Inventari Global de Llegat i QR Successori**
   - Plantilla PDF consolidada amb taula de béns actius, esment de persona de confiança i doble codi QR.

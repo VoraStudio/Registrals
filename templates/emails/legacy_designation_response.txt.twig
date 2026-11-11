@@ -1,4 +1,5 @@
-REGISTRALS — {{ accepted ? 'Designació de Persona de Confiança Acceptada' : 'Designació de Persona de Confiança Declinada' }}
+{% set isRenounced = renounced|default(false) %}
+REGISTRALS — {{ accepted ? 'Designació de Persona de Confiança Acceptada' : (isRenounced ? 'Renúncia de Persona de Confiança (Art. 7.3 RGPD)' : 'Designació de Persona de Confiança Declinada') }}
 
 Hola {{ owner.firstName }},
 
@@ -6,6 +7,8 @@ Hola {{ owner.firstName }},
 {{ contact.fullName }} ({{ contact.email }}) ha acceptat formalment figurar com la teva Persona de Confiança dins el marc de l'Art. 96 de la LOPDGDD.
 
 Ja pots revisar l'estat actiu al teu perfil o revocar-lo en qualsevol moment:
+{% elseif isRenounced %}
+{{ contact.fullName }} ({{ contact.email }}) ha retirat el seu consentiment i ha renunciat a continuar figurant com a Persona de Confiança. Qualsevol certificat d'Inventari Global de Llegat vinculat ha quedat revocat i la plaça torna a estar lliure al teu perfil:
 {% else %}
 {{ contact.fullName }} ({{ contact.email }}) ha declinat la designació com a Persona de Confiança. Pots designar una altra persona des del teu perfil:
 {% endif %}
@@ -13,3 +16,4 @@ Ja pots revisar l'estat actiu al teu perfil o revocar-lo en qualsevol moment:
 
 ---
 Registrals · Custòdia i certificació digital de propietat
+

@@ -126,15 +126,102 @@ class LegacyProfileController extends AbstractController
         return $this->redirectToProfileHeritage();
     }
 
-    private function findOwnedContact(User $owner, string $uuid): ?LegacyContact
+    #[Route('/{uuid}/acceptar-rebuda', name: 'app_profile_legacy_incoming_accept', methods: ['POST'])]
+    public function acceptIncoming(string $uuid, Request $request): Response
     {
-        if (!\Symfony\Component\Uid\Uuid::isValid($uuid)) {
-            return null;
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $token = (string) $request->request->get('_token', '');
+        if (!$this->isCsrfTokenValid('legacy_incoming_accept_' . $uuid, $token)) {
+            $this->addFlash('error', 'El testimoni de seguretat no és vàlid.');
+
+            return $this->redirectToProfileHeritage();
         }
 
-        $contact = $this->legacyContactRepository->findOneBy([
-            'uuid' => \Symfony\Component\Uid\Uuid::fromString($uuid),
-        ]);
+        $contact = $this->findContactByUuid($uuid);
+        if (!$contact instanceof LegacyContact) {
+            throw $this->createNotFoundException('No s\'ha trobat la designació sol·licitada.');
+        }
+
+        try {
+            $this->legacyService->accept($contact, $user, $request->getClientIp());
+            $this->addFlash('success', sprintf(
+                'Has confirmat el teu consentiment com a Persona de Confiança de %s.',
+                $contact->getOwner()->getFullName()
+            ));
+        } catch (\DomainException $e) {
+            $this->addFlash('error', $e->getMessage());
+        }
+
+        return $this->redirectToProfileHeritage();
+    }
+
+    #[Route('/{uuid}/refusar-rebuda', name: 'app_profile_legacy_incoming_decline', methods: ['POST'])]
+    public function declineIncoming(string $uuid, Request $request): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $token = (string) $request->request->get('_token', '');
+        if (!$this->isCsrfTokenValid('legacy_incoming_decline_' . $uuid, $token)) {
+            $this->addFlash('error', 'El testimoni de seguretat no és vàlid.');
+
+            return $this->redirectToProfileHeritage();
+        }
+
+        $contact = $this->findContactByUuid($uuid);
+        if (!$contact instanceof LegacyContact) {
+            throw $this->createNotFoundException('No s\'ha trobat la designació sol·licitada.');
+        }
+
+        try {
+            $this->legacyService->declineByRecipient($contact, $user, $request->getClientIp());
+            $this->addFlash('info', sprintf(
+                'Has declinat la designació rebuda de %s.',
+                $contact->getOwner()->getFullName()
+            ));
+        } catch (\DomainException $e) {
+            $this->addFlash('error', $e->getMessage());
+        }
+
+        return $this->redirectToProfileHeritage();
+    }
+
+    #[Route('/{uuid}/renunciar', name: 'app_profile_legacy_incoming_renounce', methods: ['POST'])]
+    public function renounceIncoming(string $uuid, Request $request): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $token = (string) $request->request->get('_token', '');
+        if (!$this->isCsrfTokenValid('legacy_incoming_renounce_' . $uuid, $token)) {
+            $this->addFlash('error', 'El testimoni de seguretat no és vàlid.');
+
+            return $this->redirectToProfileHeritage();
+        }
+
+        $contact = $this->findContactByUuid($uuid);
+        if (!$contact instanceof LegacyContact) {
+            throw $this->createNotFoundException('No s\'ha trobat la designació sol·licitada.');
+        }
+
+        try {
+            $this->legacyService->renounceByBeneficiary($contact, $user, $request->getClientIp());
+            $this->addFlash('info', sprintf(
+                'Has renunciat al rol de Persona de Confiança de %s i se n\'ha notificat el titular.',
+                $contact->getOwner()->getFullName()
+            ));
+        } catch (\DomainException $e) {
+            $this->addFlash('error', $e->getMessage());
+        }
+
+        return $this->redirectToProfileHeritage();
+    }
+
+    private function findOwnedContact(User $owner, string $uuid): ?LegacyContact
+    {
+        $contact = $this->findContactByUuid($uuid);
 
         if (!$contact instanceof LegacyContact || $contact->getOwner()->getId() !== $owner->getId()) {
             return null;
@@ -143,8 +230,20 @@ class LegacyProfileController extends AbstractController
         return $contact;
     }
 
+    private function findContactByUuid(string $uuid): ?LegacyContact
+    {
+        if (!\Symfony\Component\Uid\Uuid::isValid($uuid)) {
+            return null;
+        }
+
+        return $this->legacyContactRepository->findOneBy([
+            'uuid' => \Symfony\Component\Uid\Uuid::fromString($uuid),
+        ]);
+    }
+
     private function redirectToProfileHeritage(): Response
     {
         return $this->redirect($this->generateUrl('app_profile') . '#herencia-digital');
     }
 }
+

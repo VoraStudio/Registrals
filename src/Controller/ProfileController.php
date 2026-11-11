@@ -68,6 +68,7 @@ class ProfileController extends AbstractController
         }
 
         $legacyContacts = $legacyContactRepository?->findByOwnerOrdered($user) ?? [];
+        $incomingLegacyContacts = $legacyDesignationService?->getIncomingDesignations($user) ?? [];
         $legacyEligibility = $legacyDesignationService?->evaluateDesignationEligibility($user) ?? [
             'allowed' => false,
             'reason' => 'plan_not_allowed',
@@ -87,6 +88,7 @@ class ProfileController extends AbstractController
             'passwordForm' => $passwordForm?->createView(),
             'isOAuthUser' => $isOAuthUser,
             'legacyContacts' => $legacyContacts,
+            'incomingLegacyContacts' => $incomingLegacyContacts,
             'legacyEligibility' => $legacyEligibility,
             'legacyForm' => $legacyForm,
         ]);

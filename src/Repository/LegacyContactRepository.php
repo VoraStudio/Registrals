@@ -73,5 +73,31 @@ class LegacyContactRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    /**
+     * Retorna les designacions rebudes per un usuari (per compte vinculat o correu electrònic)
+     * en estat pendent o acceptat, sense exposar dades del patrimoni del titular.
+     *
+     * @return list<LegacyContact>
+     */
+    public function findIncomingActiveOrPendingForUser(User $user): array
+    {
+        $normalizedEmail = mb_strtolower(trim($user->getEmail()));
+
+        return $this->createQueryBuilder('lc')
+            ->leftJoin('lc.owner', 'o')
+            ->addSelect('o')
+            ->andWhere('lc.beneficiaryUser = :user OR lc.email = :email')
+            ->andWhere('lc.status IN (:statuses)')
+            ->setParameter('user', $user)
+            ->setParameter('email', $normalizedEmail)
+            ->setParameter('statuses', [
+                LegacyContactStatus::PENDING,
+                LegacyContactStatus::ACCEPTED,
+            ])
+            ->orderBy('lc.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }
 

@@ -84,6 +84,9 @@ Totes les rutes de l'àrea privada requereixen autenticació (ROLE_USER o ROLE_A
 - `GET/POST /app/legal/acceptar-condicions`: Pantalla obligatòria del Legal Gate per acceptar les clàusules de custòdia i certificació (`LegalTermsGateController` + `LegalGateSubscriber`).
 - `GET /app/legal/clausules`: Consulta permanent en mode només lectura de les clàusules acceptades des del perfil.
 - `GET/POST /app/perfil`, `POST /app/perfil/seguretat/2fa`: Edició de dades personals, canvi de contrasenya local i commutador de 2FA per correu (`ProfileController`).
+- `POST /app/perfil/herencia/designar`, `POST /app/perfil/herencia/{uuid}/reenviar`, `POST /app/perfil/herencia/{uuid}/revocar`: Gestió pel titular (Pla Plus) de la seva Persona de Confiança sota Art. 96 LOPDGDD (`LegacyProfileController`).
+- `POST /app/perfil/herencia/{uuid}/acceptar-rebuda`, `POST /app/perfil/herencia/{uuid}/refusar-rebuda`, `POST /app/perfil/herencia/{uuid}/renunciar`: Visibilitat recíproca, resposta directa i retirada voluntària de consentiment (Art. 7.3 RGPD) per a persones designades tant en Pla Free com en Pla Plus, sense exposició patrimonial (`LegacyProfileController`).
+- `GET/POST /llegat/acceptar/{token}`, `POST /llegat/acceptar/{token}/alta-free`: Consentiment públic de Persona de Confiança i bucle d'alta gratuïta al Pla Free amb verificació OTP de 6 dígits i Legal Gate (`LegacyInvitationController`).
 - `GET /app/perfil/pla` & `GET /app/perfil/facturacio`: Visualització de quotes actives, consum i facturació Stripe (`PlanController`).
 - `GET /kyc/verify` & `POST /api/webhooks/signaturit`: Flux de verificació d'identitat eIDV amb Signaturit.
 - 

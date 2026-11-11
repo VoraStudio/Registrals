@@ -207,4 +207,98 @@ class LegacyDesignationServiceTest extends TestCase
         $this->assertSame(CertificateStatus::REVOKED, $legacyCert->getStatus());
         $this->assertNotNull($legacyCert->getRevokedAt());
     }
+
+    public function testGetIncomingDesignationsAutoExpiresOverduePendingAndReturnsActive(): void
+    {
+        $owner = $this->createPlusOwner();
+        $recipient = (new User())->setEmail('maria@exemple.cat')->setFirstName('Maria')->setLastName('Soler');
+
+        $expiredPending = (new LegacyContact($owner, 'Maria Soler', 'maria@exemple.cat'))
+            ->issueInvitationToken(hash('sha256', 't1'), new \DateTimeImmutable('-1 hour'));
+
+        $acceptedContact = (new LegacyContact($owner, 'Maria Soler', 'maria@exemple.cat'))
+            ->accept($recipient, '127.0.0.1');
+
+        $repo = $this->createMock(LegacyContactRepository::class);
+        $repo->expects($this->once())
+            ->method('findIncomingActiveOrPendingForUser')
+            ->with($recipient)
+            ->willReturn([$expiredPending, $acceptedContact]);
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects($this->once())->method('flush');
+
+        $service = $this->createService(contactRepo: $repo, em: $em);
+
+        $result = $service->getIncomingDesignations($recipient);
+
+        $this->assertSame([$acceptedContact], $result);
+        $this->assertSame(LegacyContactStatus::EXPIRED, $expiredPending->getStatus());
+        $this->assertNull($expiredPending->getInvitationTokenHash());
+    }
+
+    public function testDeclineByRecipientRejectsUnrelatedUser(): void
+    {
+        $owner = $this->createPlusOwner();
+        $contact = (new LegacyContact($owner, 'Maria Puig', 'maria@exemple.cat'))
+            ->issueInvitationToken(hash('sha256', 't2'), new \DateTimeImmutable('+2 days'));
+
+        $stranger = (new User())->setEmail('altre@exemple.cat');
+        $service = $this->createService();
+
+        $this->expectException(DomainException::class);
+        $service->declineByRecipient($contact, $stranger, '10.0.0.5');
+    }
+
+    public function testRenounceByBeneficiaryRevokesLinkedCertificatesAndNotifiesOwner(): void
+    {
+        $owner = $this->createPlusOwner();
+        (new \ReflectionProperty(User::class, 'id'))->setValue($owner, 1);
+
+        $recipient = (new User())->setEmail('maria@exemple.cat')->setFirstName('Maria')->setLastName('Puig');
+        (new \ReflectionProperty(User::class, 'id'))->setValue($recipient, 2);
+
+        $contact = (new LegacyContact($owner, 'Maria Puig', 'maria@exemple.cat'))
+            ->accept($recipient, '127.0.0.1');
+
+        $legacyCert = new Certificate(
+            item: null,
+            issuedBy: $owner,
+            certificateNumber: 'CERT-2026-000801',
+            mode: CertificateMode::OFFICIAL,
+            pdfFilePath: 'certificates/2026/LEGAT2.pdf',
+            pdfSha256: hash('sha256', 'pdf2'),
+            itemFingerprintAtIssue: hash('sha256', 'fp2'),
+            status: CertificateStatus::VALID,
+            scope: CertificateScope::LEGACY_INVENTORY,
+            legacyContact: $contact,
+        );
+
+        $certRepo = $this->createMock(CertificateRepository::class);
+        $certRepo->expects($this->once())->method('findBy')->willReturn([$legacyCert]);
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects($this->once())->method('flush');
+
+        $mailer = $this->createMock(MailerInterface::class);
+        $mailer->expects($this->once())
+            ->method('send')
+            ->with($this->callback(function (TemplatedEmail $email): bool {
+                $context = $email->getContext();
+
+                return ($context['accepted'] ?? null) === false
+                    && ($context['renounced'] ?? null) === true
+                    && str_contains((string) $email->getSubject(), 'renunciat');
+            }));
+
+        $service = $this->createService(certRepo: $certRepo, em: $em, mailer: $mailer);
+
+        $revokedCount = $service->renounceByBeneficiary($contact, $recipient, '10.0.0.9');
+
+        $this->assertSame(1, $revokedCount);
+        $this->assertSame(LegacyContactStatus::REVOKED, $contact->getStatus());
+        $this->assertSame(CertificateStatus::REVOKED, $legacyCert->getStatus());
+        $this->assertNotNull($legacyCert->getRevokedAt());
+    }
 }
+
