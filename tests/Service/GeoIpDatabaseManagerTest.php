@@ -8,6 +8,7 @@ use App\Service\GeoIp\GeoIpDatabaseManager;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class GeoIpDatabaseManagerTest extends TestCase
 {
@@ -80,5 +81,27 @@ class GeoIpDatabaseManagerTest extends TestCase
         $this->assertFalse($status['is_stale']);
         $this->assertSame(0, $status['age_days']);
         $this->assertTrue($status['has_license_key']);
+    }
+
+    public function testPublicMirrorFallbackDownloadsDatabaseWhenAuthorizedWithoutLicenseKey(): void
+    {
+        $payload = str_repeat('MMDB', 30_000); // > 100KB
+
+        $response = $this->createMock(ResponseInterface::class);
+        $response->method('getStatusCode')->willReturn(200);
+        $response->method('getContent')->willReturn($payload);
+
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient->expects($this->once())
+            ->method('request')
+            ->with('GET', GeoIpDatabaseManager::PUBLIC_MMDB_MIRROR_URL, ['timeout' => 60.0])
+            ->willReturn($response);
+
+        $manager = new GeoIpDatabaseManager($httpClient, new NullLogger(), $this->tempDir, null);
+        $res = $manager->updateDatabase(force: true, allowPublicMirrorFallback: true);
+
+        $this->assertTrue($res['success']);
+        $this->assertFileExists($manager->getDatabasePath());
+        $this->assertSame($payload, file_get_contents($manager->getDatabasePath()));
     }
 }

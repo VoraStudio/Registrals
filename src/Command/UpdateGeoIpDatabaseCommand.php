@@ -31,6 +31,7 @@ class UpdateGeoIpDatabaseCommand extends Command
             ->addOption('key', 'k', InputOption::VALUE_REQUIRED, 'Clau de llicència de MaxMind (si no està configurada a MAXMIND_LICENSE_KEY)')
             ->addOption('file', null, InputOption::VALUE_REQUIRED, 'Importa directament un fitxer GeoLite2-Country.mmdb local')
             ->addOption('status', 's', InputOption::VALUE_NONE, 'Mostra únicament l\'estat actual de la base de dades sense descarregar')
+            ->addOption('mirror', 'm', InputOption::VALUE_NONE, 'Utilitza el mirall públic de GeoLite2 si no hi ha MAXMIND_LICENSE_KEY configurada')
         ;
     }
 
@@ -74,11 +75,12 @@ class UpdateGeoIpDatabaseCommand extends Command
         // 3. Descàrrega automàtica des de MaxMind
         $force = (bool) $input->getOption('force');
         $key = $input->getOption('key');
+        $allowMirror = (bool) $input->getOption('mirror') || ($key === null && !$status['has_license_key']);
 
         $io->section('Actualització des de MaxMind');
         $io->comment('Descarregant i verificant el paquet GeoLite2-Country...');
 
-        $res = $this->dbManager->updateDatabase($key ? (string) $key : null, $force);
+        $res = $this->dbManager->updateDatabase($key ? (string) $key : null, $force, $allowMirror);
 
         if ($res['success']) {
             $io->success($res['message']);

@@ -105,7 +105,7 @@ class AdminSystemController extends AbstractController
             return $this->redirectToRoute('app_admin_dashboard');
         }
 
-        $res = $geoIpDatabaseManager->updateDatabase(force: true);
+        $res = $geoIpDatabaseManager->updateDatabase(force: true, allowPublicMirrorFallback: true);
 
         if ($res['success']) {
             $this->addFlash('success', $res['message']);

@@ -12,6 +12,7 @@ class GeoIpDatabaseManager
 {
     public const DB_FILENAME = 'GeoLite2-Country.mmdb';
     public const STALE_DAYS_THRESHOLD = 30;
+    public const PUBLIC_MMDB_MIRROR_URL = 'https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb';
 
     public function __construct(
         private readonly HttpClientInterface $httpClient,
@@ -78,25 +79,30 @@ class GeoIpDatabaseManager
     }
 
     /**
-     * Descarrega i actualitza la base de dades des de MaxMind amb reanomenat atòmic.
+     * Descarrega i actualitza la base de dades des de MaxMind (o mirall GeoLite2 si s'autoritza sense clau) amb reanomenat atòmic.
      *
      * @return array{success: bool, message: string}
      */
-    public function updateDatabase(?string $licenseKeyOverride = null, bool $force = false): array
+    public function updateDatabase(?string $licenseKeyOverride = null, bool $force = false, bool $allowPublicMirrorFallback = false): array
     {
         $key = trim($licenseKeyOverride ?? $this->licenseKey ?? '');
-        if ($key === '') {
-            return [
-                'success' => false,
-                'message' => 'Cal una clau de llicència de MaxMind (MAXMIND_LICENSE_KEY al fitxer .env) o passar-la com a paràmetre. Es pot obtenir gratuïtament a maxmind.com.',
-            ];
-        }
 
         $status = $this->getDatabaseStatus();
         if (!$force && $status['exists'] && !$status['is_stale']) {
             return [
                 'success' => true,
                 'message' => "La base de dades està actualitzada (té {$status['age_days']} dies, límit " . self::STALE_DAYS_THRESHOLD . ' dies). Fes servir --force per forçar la descàrrega.',
+            ];
+        }
+
+        if ($key === '') {
+            if ($allowPublicMirrorFallback) {
+                return $this->downloadFromPublicMirror();
+            }
+
+            return [
+                'success' => false,
+                'message' => 'Cal una clau de llicència de MaxMind (MAXMIND_LICENSE_KEY al fitxer .env) o passar-la com a paràmetre. Es pot obtenir gratuïtament a maxmind.com.',
             ];
         }
 
@@ -159,17 +165,7 @@ class GeoIpDatabaseManager
                 ];
             }
 
-            // Destí final
-            $targetPath = $this->getDatabasePath();
-            $targetDir = \dirname($targetPath);
-            if (!is_dir($targetDir)) {
-                @mkdir($targetDir, 0775, true);
-            }
-
-            // Copia atòmica
-            $tempFinal = $targetPath . '.tmp.' . bin2hex(random_bytes(4));
-            copy($extractedMmdb, $tempFinal);
-            rename($tempFinal, $targetPath);
+            $targetPath = $this->replaceDatabaseAtomically($extractedMmdb);
 
             $this->logger->info('Base de dades GeoIP actualitzada amb èxit a ' . $targetPath);
 
@@ -221,6 +217,69 @@ class GeoIpDatabaseManager
         }
         fclose($fh);
 
+        $targetPath = $this->replaceDatabaseAtomically($sourcePath);
+
+        return [
+            'success' => true,
+            'message' => "Fitxer GeoIP importat amb èxit a {$targetPath}.",
+        ];
+    }
+
+    /**
+     * Descàrrega directa des del mirall públic de GeoLite2 (mateixa estratègia que VoraData quan no hi ha clau pròpia).
+     *
+     * @return array{success: bool, message: string}
+     */
+    private function downloadFromPublicMirror(): array
+    {
+        $tempFile = sys_get_temp_dir() . \DIRECTORY_SEPARATOR . 'geoip_mirror_' . bin2hex(random_bytes(6)) . '.mmdb';
+
+        try {
+            $this->logger->info('Descarregant GeoLite2-Country.mmdb des del mirall públic...');
+            $response = $this->httpClient->request('GET', self::PUBLIC_MMDB_MIRROR_URL, [
+                'timeout' => 60.0,
+            ]);
+
+            $statusCode = $response->getStatusCode();
+            if ($statusCode !== 200) {
+                return [
+                    'success' => false,
+                    'message' => sprintf('El mirall GeoLite2 ha retornat HTTP %d.', $statusCode),
+                ];
+            }
+
+            $content = $response->getContent();
+            if (strlen($content) < 100_000) {
+                return [
+                    'success' => false,
+                    'message' => 'El fitxer GeoLite2 descarregat sembla incomplet o invàlid.',
+                ];
+            }
+
+            file_put_contents($tempFile, $content);
+            $this->replaceDatabaseAtomically($tempFile);
+            $sizeMb = round(strlen($content) / (1024 * 1024), 2);
+
+            return [
+                'success' => true,
+                'message' => sprintf('Base de dades GeoLite2 actualitzada correctament des del mirall públic (%.2f MB).', $sizeMb),
+            ];
+        } catch (\Throwable $e) {
+            $this->logger->error('Error descarregant GeoLite2 des del mirall públic: ' . $e->getMessage(), ['exception' => $e]);
+
+            return [
+                'success' => false,
+                'message' => 'No s\'ha pogut actualitzar GeoLite2 des del mirall públic: ' . $e->getMessage(),
+            ];
+        } finally {
+            if (file_exists($tempFile)) {
+                @unlink($tempFile);
+            }
+        }
+    }
+
+    private function replaceDatabaseAtomically(string $sourcePath): string
+    {
         $targetPath = $this->getDatabasePath();
         $targetDir = \dirname($targetPath);
         if (!is_dir($targetDir)) {
@@ -231,9 +290,6 @@ class GeoIpDatabaseManager
         copy($sourcePath, $tempFinal);
         rename($tempFinal, $targetPath);
 
-        return [
-            'success' => true,
-            'message' => "Fitxer GeoIP importat amb èxit a {$targetPath}.",
-        ];
+        return $targetPath;
     }
 }

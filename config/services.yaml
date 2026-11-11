@@ -33,6 +33,11 @@ services:
         arguments:
             $appSecret: '%kernel.secret%'
 
+    App\EventSubscriber\VisitTelemetrySubscriber:
+        arguments:
+            $appSecret: '%kernel.secret%'
+            $environment: '%kernel.environment%'
+
     App\Service\OAuth\GoogleOAuthService:
         arguments:
             $clientId: '%env(string:OAUTH_GOOGLE_CLIENT_ID)%'

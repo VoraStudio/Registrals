@@ -80,4 +80,44 @@ class GeoLocationServiceTest extends TestCase
         $this->assertTrue($status['is_stale']);
         $this->assertFalse($status['has_license_key']);
     }
+
+    public function testResolvesCfIpCountryHeaderOverLoopbackAndIgnoresUnknownMarkers(): void
+    {
+        $resFr = $this->service->resolveCountry('127.0.0.1', 'fr');
+        $this->assertSame('FR', $resFr['code']);
+        $this->assertSame('França', $resFr['name']);
+
+        $resMx = $this->service->resolveCountry('127.0.0.1', 'MX');
+        $this->assertSame('MX', $resMx['code']);
+        $this->assertSame('Mèxic', $resMx['name']);
+
+        // XX / T1 no han de sobreescriure la resolució normal
+        $resUnknown = $this->service->resolveCountry('213.140.100.5', 'XX');
+        $this->assertSame('AD', $resUnknown['code']);
+    }
+
+    public function testDoesNotClassifyPublicIpv6AsPrivateOrLoopback(): void
+    {
+        $method = new \ReflectionMethod(GeoLocationService::class, 'isPrivateOrLoopback');
+
+        $this->assertTrue($method->invoke($this->service, '::1'));
+        $this->assertTrue($method->invoke($this->service, 'fd00::1'));
+        $this->assertFalse($method->invoke($this->service, '2001:4860:4860::8888'));
+    }
+
+    public function testAggregatesMixedCountryCodeAndIpRows(): void
+    {
+        $rows = [
+            ['country_code' => 'DE', 'cnt' => 5],
+            ['country_code' => 'ES', 'cnt' => 10],
+            ['ip_address' => '51.15.20.10', 'cnt' => 5],
+        ];
+
+        $aggregated = $this->service->aggregateGeoTraffic($rows);
+
+        $this->assertSame(20, $aggregated['totalRequests']);
+        $this->assertSame('ES', $aggregated['topCountries'][0]['code']);
+        $this->assertSame(50.0, $aggregated['topCountries'][0]['percent']);
+        $this->assertCount(3, $aggregated['topCountries']);
+    }
 }

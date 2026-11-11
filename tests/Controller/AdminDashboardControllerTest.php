@@ -106,4 +106,29 @@ class AdminDashboardControllerTest extends TestCase
 
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
+
+    public function testApiGeoReturnsAggregatedJson(): void
+    {
+        $doctrine = $this->createMock(ManagerRegistry::class);
+        $doctrine->method('getConnection')->willThrowException(new \RuntimeException('No DB'));
+
+        $geoService = $this->createMock(GeoLocationService::class);
+        $geoService->expects($this->once())
+            ->method('aggregateGeoTraffic')
+            ->with([])
+            ->willReturn([
+                'chartData' => [['Country', 'Peticions'], ['ES', 1]],
+                'topCountries' => [['code' => 'ES', 'name' => 'Espanya', 'count' => 1, 'percent' => 100.0]],
+                'totalRequests' => 1,
+            ]);
+
+        $controller = new AdminDashboardController();
+        $response = $controller->apiGeo($doctrine, $geoService);
+
+        $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $data = json_decode((string) $response->getContent(), true);
+        $this->assertSame(1, $data['totalRequests']);
+        $this->assertSame('ES', $data['topCountries'][0]['code']);
+    }
 }
+

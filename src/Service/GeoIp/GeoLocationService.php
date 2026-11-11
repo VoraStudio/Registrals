@@ -25,6 +25,25 @@ class GeoLocationService
         'NL' => 'Països Baixos',
         'BE' => 'Bèlgica',
         'IE' => 'Irlanda',
+        'CA' => 'Canadà',
+        'MX' => 'Mèxic',
+        'BR' => 'Brasil',
+        'AR' => 'Argentina',
+        'CL' => 'Xile',
+        'CO' => 'Colòmbia',
+        'SE' => 'Suècia',
+        'NO' => 'Noruega',
+        'DK' => 'Dinamarca',
+        'AT' => 'Àustria',
+        'PL' => 'Polònia',
+        'FI' => 'Finlàndia',
+        'GR' => 'Grècia',
+        'CZ' => 'República Txeca',
+        'RO' => 'Romania',
+        'UA' => 'Ucraïna',
+        'CN' => 'Xina',
+        'JP' => 'Japó',
+        'AU' => 'Austràlia',
     ];
 
     private ?Reader $reader = null;
@@ -87,12 +106,20 @@ class GeoLocationService
 
     /**
      * Resol una IP a un codi de país ISO-3166-1 alpha-2 i nom en català.
-     * En entorn local o xarxa privada, assigna Espanya com a territori per defecte.
+     * Ordre de resolució: capçalera de xarxa/CDN -> privada/loopback -> MaxMind GeoLite2 -> heurística local.
      *
      * @return array{code: string, name: string}
      */
-    public function resolveCountry(?string $ip): array
+    public function resolveCountry(?string $ip, ?string $headerCountry = null): array
     {
+        $headerCode = $headerCountry !== null ? strtoupper(trim($headerCountry)) : '';
+        if (strlen($headerCode) === 2 && ctype_alpha($headerCode) && !in_array($headerCode, ['XX', 'T1'], true)) {
+            return [
+                'code' => $headerCode,
+                'name' => self::COUNTRY_NAMES[$headerCode] ?? $headerCode,
+            ];
+        }
+
         if (empty($ip) || $this->isPrivateOrLoopback($ip)) {
             return [
                 'code' => 'ES',
@@ -100,13 +127,14 @@ class GeoLocationService
             ];
         }
 
-        // 1. Intent de resolució via base de dades oficial MaxMind (alta precisió)
+        // 1. Intent de resolució via base de dades oficial MaxMind (alta precisió IPv4 + IPv6)
         $reader = $this->getReader();
         if ($reader !== null) {
             try {
                 $record = $reader->country($ip);
                 $isoCode = $record->country->isoCode;
                 if ($isoCode !== null && $isoCode !== '') {
+                    $isoCode = strtoupper($isoCode);
                     $name = self::COUNTRY_NAMES[$isoCode]
                         ?? $record->country->names['es']
                         ?? $record->country->names['en']
@@ -133,9 +161,10 @@ class GeoLocationService
     }
 
     /**
-     * Agrega un conjunt de peticions per IP i retorna les dades preparades per a Google GeoChart.
+     * Agrega un conjunt de peticions (per IP o directament per country_code)
+     * i retorna les dades preparades per a Google GeoChart.
      *
-     * @param array<int, array{ip_address: ?string, cnt: int|string}> $rawRows
+     * @param array<int, array{ip_address?: ?string, country_code?: ?string, cnt: int|string}> $rawRows
      * @return array{
      *     chartData: list<array{0: string, 1: string|int}>,
      *     topCountries: list<array{code: string, name: string, count: int, percent: float}>,
@@ -148,19 +177,25 @@ class GeoLocationService
         $totalRequests = 0;
 
         foreach ($rawRows as $row) {
-            $ip = $row['ip_address'] ?? null;
             $count = (int) ($row['cnt'] ?? 0);
             if ($count <= 0) {
                 continue;
             }
 
-            $geo = $this->resolveCountry($ip);
-            $code = $geo['code'];
+            if (!empty($row['country_code'])) {
+                $code = strtoupper(trim((string) $row['country_code']));
+                $name = self::COUNTRY_NAMES[$code] ?? $code;
+            } else {
+                $ip = $row['ip_address'] ?? null;
+                $geo = $this->resolveCountry($ip);
+                $code = $geo['code'];
+                $name = $geo['name'];
+            }
 
             if (!isset($countryCounts[$code])) {
                 $countryCounts[$code] = [
                     'code' => $code,
-                    'name' => $geo['name'],
+                    'name' => $name,
                     'count' => 0,
                 ];
             }
@@ -215,7 +250,7 @@ class GeoLocationService
         return filter_var(
             $ip,
             FILTER_VALIDATE_IP,
-            FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
+            FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
         ) === false;
     }
 

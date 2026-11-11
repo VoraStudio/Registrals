@@ -11,6 +11,7 @@ use App\Repository\SystemSettingRepository;
 use App\Repository\UserRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -138,23 +139,8 @@ class AdminDashboardController extends AbstractController
         }
         $totalAppleClicks = $appleLoginClicks + $appleRegisterClicks;
 
-        // 7. Distribució Geogràfica de Trànsit (Google GeoChart)
-        $ipRows = [];
-        try {
-            // Logs d'auditoria (registrals_audit)
-            $auditConn = $doctrine->getConnection('audit');
-            $auditIps = $auditConn->executeQuery("SELECT ip_address, COUNT(*) as cnt FROM user_activity_logs WHERE ip_address IS NOT NULL GROUP BY ip_address")->fetchAllAssociative();
-            $ipRows = array_merge($ipRows, $auditIps);
-        } catch (\Throwable) {}
-
-        try {
-            // Esdeveniments d'interès (registrals)
-            $defaultConn = $doctrine->getConnection('default');
-            $featureIps = $defaultConn->executeQuery("SELECT ip_address, COUNT(*) as cnt FROM feature_interest_events WHERE ip_address IS NOT NULL GROUP BY ip_address")->fetchAllAssociative();
-            $ipRows = array_merge($ipRows, $featureIps);
-        } catch (\Throwable) {}
-
-        $geoData = $geoLocationService->aggregateGeoTraffic($ipRows);
+        // 7. Distribució Geogràfica de Trànsit (Telemetria web + Auditoria + Leads)
+        $geoData = $this->collectGeoTrafficData($doctrine, $geoLocationService);
 
         $recentUsers = $userRepository->findRecent(6);
         $recentItems = $itemRepository->findRecent(6);
@@ -196,5 +182,52 @@ class AdminDashboardController extends AbstractController
             'totalGeoRequests' => $geoData['totalRequests'],
             'geoDbStatus' => $geoLocationService->getDatabaseStatus(),
         ]);
+    }
+
+    #[Route('/api/geo', name: 'app_admin_api_geo', methods: ['GET'])]
+    public function apiGeo(ManagerRegistry $doctrine, GeoLocationService $geoLocationService): JsonResponse
+    {
+        return new JsonResponse($this->collectGeoTrafficData($doctrine, $geoLocationService));
+    }
+
+    /**
+     * @return array{
+     *     chartData: list<array{0: string, 1: string|int}>,
+     *     topCountries: list<array{code: string, name: string, count: int, percent: float}>,
+     *     totalRequests: int
+     * }
+     */
+    private function collectGeoTrafficData(ManagerRegistry $doctrine, GeoLocationService $geoLocationService): array
+    {
+        $geoRows = [];
+
+        try {
+            $defaultConn = $doctrine->getConnection('default');
+            $visitCountries = $defaultConn->executeQuery(
+                "SELECT country_code, COUNT(*) as cnt FROM site_visits WHERE country_code IS NOT NULL GROUP BY country_code"
+            )->fetchAllAssociative();
+            $geoRows = array_merge($geoRows, $visitCountries);
+        } catch (\Throwable) {
+        }
+
+        try {
+            $auditConn = $doctrine->getConnection('audit');
+            $auditIps = $auditConn->executeQuery(
+                "SELECT ip_address, COUNT(*) as cnt FROM user_activity_logs WHERE ip_address IS NOT NULL GROUP BY ip_address"
+            )->fetchAllAssociative();
+            $geoRows = array_merge($geoRows, $auditIps);
+        } catch (\Throwable) {
+        }
+
+        try {
+            $defaultConn = $doctrine->getConnection('default');
+            $featureIps = $defaultConn->executeQuery(
+                "SELECT ip_address, COUNT(*) as cnt FROM feature_interest_events WHERE ip_address IS NOT NULL GROUP BY ip_address"
+            )->fetchAllAssociative();
+            $geoRows = array_merge($geoRows, $featureIps);
+        } catch (\Throwable) {
+        }
+
+        return $geoLocationService->aggregateGeoTraffic($geoRows);
     }
 }
