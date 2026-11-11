@@ -6,6 +6,7 @@ namespace App\Service\Item;
 
 use App\Entity\Item;
 use App\Entity\User;
+use App\Enum\AcquisitionType;
 use App\Enum\BlockchainActionType;
 use App\Message\AnchorBlockchainMessage;
 use Doctrine\ORM\EntityManagerInterface;
@@ -116,6 +117,35 @@ class ItemLifecycleService
             'cui' => $item->getCui(),
             'previous_owner' => $previousOwner->getEmail(),
             'new_owner' => $newOwner->getEmail(),
+        ]);
+    }
+
+    /**
+     * Executa el traspàs per causa de successió acreditada al nou titular designat/hereu,
+     * registrant l'origen successori i ancorant la titularitat a Polygon Layer 2.
+     */
+    public function completeInheritanceTransfer(Item $item, User $heir): void
+    {
+        $previousOwner = $item->getOwner();
+
+        $this->apply($item, 'complete_inheritance');
+        $item->setOwner($heir);
+        $item->setAcquisitionType(AcquisitionType::INHERITANCE);
+        $item->setAcquisitionDate(new \DateTimeImmutable());
+        $item->setUpdatedAt(new \DateTimeImmutable());
+        $this->entityManager->flush();
+
+        if ($item->getId() !== null) {
+            $this->messageBus?->dispatch(new AnchorBlockchainMessage(
+                $item->getId(),
+                BlockchainActionType::TRANSFER
+            ));
+        }
+
+        $this->logger?->info('Traspàs successori completat amb èxit', [
+            'cui' => $item->getCui(),
+            'previous_owner' => $previousOwner->getEmail(),
+            'new_owner' => $heir->getEmail(),
         ]);
     }
 

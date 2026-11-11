@@ -5,7 +5,7 @@
     
     {# Esquerra: Logotip Solemne Registrals #}
     <div class="flex items-center gap-2.5 sm:gap-4">
-      <a href="{{ app.request.pathInfo starts with '/admin' ? path('app_admin_dashboard') : path('app_dashboard') }}" class="flex items-center gap-2 sm:gap-3.5 group focus:outline-none focus-visible:ring-2 focus-visible:ring-gold rounded-xl p-1" aria-label="Inici Dashboard">
+      <a href="{{ app.request.pathInfo starts with '/admin' ? (is_granted('ROLE_ADMIN') ? path('app_admin_dashboard') : path('app_admin_gestions_herencies')) : path('app_dashboard') }}" class="flex items-center gap-2 sm:gap-3.5 group focus:outline-none focus-visible:ring-2 focus-visible:ring-gold rounded-xl p-1" aria-label="Inici Dashboard">
         <img src="{{ asset(isDark ? 'img/logos/Isotip/3-transparent.svg' : 'img/logos/Isotip/1-transparent.svg') }}" alt="Isotip Registrals" class="w-8 h-8 sm:w-10 sm:h-10 transition-transform group-hover:scale-105" />
         <span class="font-marcellus tracking-widest uppercase text-lg sm:text-2xl {{ isDark ? 'text-white' : 'text-ink' }} font-medium">Registrals</span>
       </a>
@@ -64,9 +64,13 @@
               </div>
 
               {# Micro-Badge a la cantonada inferior dreta #}
-              {% if is_granted('ROLE_ADMIN') or app.user.plan is null %}
+              {% if is_granted('ROLE_ADMIN') %}
                 <span class="absolute -bottom-1 -right-1 px-1.5 py-0.2 rounded-md bg-ink text-gold border border-gold/50 text-[9px] font-mono font-bold uppercase tracking-wider shadow-xs">
                   ADMIN
+                </span>
+              {% elseif is_granted('ROLE_GESTOR') or app.user.plan is null %}
+                <span class="absolute -bottom-1 -right-1 px-1.5 py-0.2 rounded-md bg-ink text-gold border border-gold/50 text-[9px] font-mono font-bold uppercase tracking-wider shadow-xs">
+                  GESTOR
                 </span>
               {% else %}
                 {% set planCode = app.user.plan.code|default('free') %}
@@ -89,7 +93,7 @@
 
           {# Menú Desplegable Notarial per a Escriptori (>= md) #}
           <div id="user-menu-dropdown" class="hidden md:absolute right-0 mt-2.5 w-64 sm:w-72 rounded-2xl bg-white border border-gold/40 shadow-2xl shadow-ink/20 py-3 z-50 animate-in fade-in zoom-in-95 duration-150">
-            {% if is_granted('ROLE_ADMIN') or app.user.plan is null %}
+            {% if is_granted('ROLE_ADMIN') %}
               {# Capçalera Simplificada Exclusiva per a Administració #}
               <div class="px-4 py-3 border-b border-steel/15 bg-cream-50/60 rounded-t-2xl">
                 <div class="text-sm font-bold text-ink truncate">{{ app.user.fullName }}</div>
@@ -105,6 +109,29 @@
                 <a href="{{ path('app_admin_dashboard') }}" class="flex items-center gap-3 px-4 py-2.5 bg-ink text-gold hover:bg-ink/90 font-bold transition-colors">
                   <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                   <span>Panell d'Administració</span>
+                </a>
+
+                <div class="pt-1.5 border-t border-steel/15">
+                  <a href="{{ path('app_logout') }}" class="flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-red-700 hover:bg-red-50 hover:text-red-900 transition-colors">
+                    <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                    <span>Tancar Sessió</span>
+                  </a>
+                </div>
+              </div>
+            {% elseif is_granted('ROLE_GESTOR') or app.user.plan is null %}
+              <div class="px-4 py-3 border-b border-steel/15 bg-cream-50/60 rounded-t-2xl">
+                <div class="text-sm font-bold text-ink truncate">{{ app.user.fullName }}</div>
+                <div class="text-xs text-ink/65 truncate font-raleway">{{ app.user.email }}</div>
+                <div class="mt-2 inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-ink text-gold font-mono text-[10px] font-bold uppercase tracking-wider">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  GESTOR DE CUSTÒDIA
+                </div>
+              </div>
+
+              <div class="py-1.5 text-xs font-semibold text-ink/80">
+                <a href="{{ path('app_admin_gestions_herencies') }}" class="flex items-center gap-3 px-4 py-2.5 bg-ink text-gold hover:bg-ink/90 font-bold transition-colors">
+                  <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                  <span>Expedients &amp; Herències</span>
                 </a>
 
                 <div class="pt-1.5 border-t border-steel/15">
@@ -227,6 +254,11 @@
                     <a href="{{ path('app_admin_dashboard') }}" class="flex items-center gap-3 px-4 py-3 bg-ink text-gold font-bold transition-colors">
                       <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                       <span>Panell d'Administració</span>
+                    </a>
+                  {% elseif is_granted('ROLE_GESTOR') %}
+                    <a href="{{ path('app_admin_gestions_herencies') }}" class="flex items-center gap-3 px-4 py-3 bg-ink text-gold font-bold transition-colors">
+                      <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                      <span>Expedients &amp; Herències</span>
                     </a>
                   {% endif %}
 

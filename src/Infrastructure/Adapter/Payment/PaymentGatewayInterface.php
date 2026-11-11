@@ -7,6 +7,7 @@ namespace App\Infrastructure\Adapter\Payment;
 use App\Entity\Item;
 use App\Entity\ItemTransfer;
 use App\Entity\Plan;
+use App\Entity\SuccessionClaim;
 use App\Entity\User;
 
 /**
@@ -28,6 +29,11 @@ interface PaymentGatewayInterface
      * @return array{sessionId: string, url: string}
      */
     public function createTransferCheckout(User $user, ItemTransfer $transfer, int $amountCents, string $successUrl, string $cancelUrl): array;
+
+    /**
+     * @return array{sessionId: string, url: string}
+     */
+    public function createSuccessionClaimCheckout(SuccessionClaim $claim, int $amountCents, string $successUrl, string $cancelUrl): array;
 
     public function createCustomerPortalSession(User $user, string $returnUrl): string;
 

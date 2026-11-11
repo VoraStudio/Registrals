@@ -44,12 +44,15 @@
               </span>
             </div>
           </div>
-          <span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-gold text-ink">ADMIN</span>
+          <span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-gold text-ink">
+            {{ is_granted('ROLE_ADMIN') ? 'ADMIN' : 'GESTOR' }}
+          </span>
         </div>
 
         {# Menú de Navegació de la Barra Lateral Blava #}
         <nav class="space-y-6 text-xs font-raleway">
           
+          {% if is_granted('ROLE_ADMIN') %}
           {# Grup 1: Supervisió Global #}
           <div>
             <div class="px-3 mb-2 text-[10px] font-bold uppercase tracking-wider text-gold font-mono">
@@ -63,6 +66,7 @@
               </a>
             </div>
           </div>
+          {% endif %}
 
           {# Grup 2: Gestió d'Usuaris & Patrimoni #}
           <div>
@@ -70,6 +74,7 @@
               GESTIÓ & CUSTÒDIA
             </div>
             <div class="space-y-1">
+              {% if is_granted('ROLE_ADMIN') %}
               <a href="{{ path('app_admin_users') }}" 
                  class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold transition-all {{ app.current_route starts with 'app_admin_user' ? 'bg-gold text-ink shadow-xs font-bold' : 'text-white/80 hover:text-white hover:bg-white/10' }}">
                 <svg class="w-4 h-4 {{ app.current_route starts with 'app_admin_user' ? 'text-ink' : 'text-gold' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
@@ -81,9 +86,27 @@
                 <svg class="w-4 h-4 {{ app.current_route starts with 'app_admin_item' ? 'text-ink' : 'text-gold' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                 <span>Béns & Patrimoni</span>
               </a>
+              {% endif %}
+
+              {% if is_granted('ROLE_GESTOR') %}
+              {% set pendingClaimsCount = pending_succession_claims_count() %}
+              <a href="{{ path('app_admin_gestions_herencies') }}" 
+                 class="flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl font-semibold transition-all {{ app.current_route starts with 'app_admin_gestions_herenci' ? 'bg-gold text-ink shadow-xs font-bold' : 'text-white/80 hover:text-white hover:bg-white/10' }}">
+                <span class="flex items-center gap-3">
+                  <svg class="w-4 h-4 {{ app.current_route starts with 'app_admin_gestions_herenci' ? 'text-ink' : 'text-gold' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                  <span>Expedients &amp; Herències</span>
+                </span>
+                {% if pendingClaimsCount > 0 %}
+                  <span class="px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold {{ app.current_route starts with 'app_admin_gestions_herenci' ? 'bg-ink text-gold' : 'bg-gold text-ink' }}">
+                    {{ pendingClaimsCount }}
+                  </span>
+                {% endif %}
+              </a>
+              {% endif %}
             </div>
           </div>
 
+          {% if is_granted('ROLE_ADMIN') %}
           {# Grup 3: Negoci, Tarifes & Costos #}
           <div>
             <div class="px-3 mb-2 text-[10px] font-bold uppercase tracking-wider text-gold font-mono">
@@ -123,6 +146,7 @@
               </a>
             </div>
           </div>
+          {% endif %}
 
         </nav>
 

@@ -9,6 +9,8 @@
 #}
 {% set uid = 'c' ~ cert.id %}
 {% set isDraft = cert.mode.isDraft %}
+{% set isLegacy = cert.isLegacyInventory %}
+{% set accentGrad = isLegacy ? uid ~ '-ink' : uid ~ '-gold' %}
 {% set status = cert.status.value %}
 {% set hasItem = cert.item is not null %}
 {% set displayTitle = hasItem ? cert.item.name : 'Inventari Global Llegat' %}
@@ -26,16 +28,21 @@
       <defs>
         <linearGradient id="{{ uid }}-paper" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stop-color="#FFFFFF"/>
-          <stop offset="1" stop-color="#F3EFE7"/>
+          <stop offset="1" stop-color="{{ isLegacy ? '#EAF0F7' : '#F3EFE7' }}"/>
         </linearGradient>
         <linearGradient id="{{ uid }}-gold" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0" stop-color="#EDD3A1"/>
           <stop offset="0.5" stop-color="#CAA36C"/>
           <stop offset="1" stop-color="#9E7841"/>
         </linearGradient>
-        <radialGradient id="{{ uid }}-sealcore" cx="0.4" cy="0.35" r="0.7">
-          <stop offset="0" stop-color="#2F67A8"/>
+        <linearGradient id="{{ uid }}-ink" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#4A7FB3"/>
+          <stop offset="0.5" stop-color="#244B7A"/>
           <stop offset="1" stop-color="#1D2F4B"/>
+        </linearGradient>
+        <radialGradient id="{{ uid }}-sealcore" cx="0.4" cy="0.35" r="0.7">
+          <stop offset="0" stop-color="{{ isLegacy ? '#3B78BD' : '#2F67A8' }}"/>
+          <stop offset="1" stop-color="{{ isLegacy ? '#162742' : '#1D2F4B' }}"/>
         </radialGradient>
         <filter id="{{ uid }}-shadow" x="-20%" y="-20%" width="140%" height="140%">
           <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#1D2F4B" flood-opacity="0.18"/>
@@ -51,19 +58,19 @@
         <path d="M34 18 L152 18 L170 36 L170 194 Q170 198 166 198 L34 198 Q30 198 30 194 L30 22 Q30 18 34 18 Z"
               fill="url(#{{ uid }}-paper)" filter="url(#{{ uid }}-shadow)"/>
 
-        {# Gold frame #}
+        {# Outer frame (sapphire blue for Legacy Inventory, gold for single-item certificates) #}
         <path d="M37 25 L148 25 L163 40 L163 191 L37 191 Z"
-              fill="none" stroke="url(#{{ uid }}-gold)" stroke-width="2.4" stroke-linejoin="round"/>
+              fill="none" stroke="url(#{{ accentGrad }})" stroke-width="2.4" stroke-linejoin="round"/>
 
         {# Folded corner #}
-        <path d="M152 18 L152 31 Q152 36 157 36 L170 36 Z" fill="url(#{{ uid }}-gold)"/>
-        <path d="M152 18 L170 36" stroke="#9E7841" stroke-width="0.6" opacity="0.6"/>
+        <path d="M152 18 L152 31 Q152 36 157 36 L170 36 Z" fill="url(#{{ accentGrad }})"/>
+        <path d="M152 18 L170 36" stroke="{{ isLegacy ? '#1D2F4B' : '#9E7841' }}" stroke-width="0.6" opacity="0.65"/>
 
         {# Header #}
         <text x="44" y="49" textLength="102" lengthAdjust="spacingAndGlyphs"
               font-family="'Marcellus', Georgia, serif" font-size="15" font-weight="700"
               fill="#1D2F4B" letter-spacing="0.6">REGISTRALS</text>
-        <rect x="44" y="53" width="112" height="2" rx="1" fill="#6A86A2" opacity="0.75"/>
+        <rect x="44" y="53" width="112" height="2" rx="1" fill="{{ isLegacy ? '#2F67A8' : '#6A86A2' }}" opacity="{{ isLegacy ? '0.9' : '0.75' }}"/>
 
         {# Identity block: photo + name + CUI (or Legacy Inventory Crest) #}
         {% if hasItem %}
@@ -84,7 +91,7 @@
         <text x="80" y="68" font-family="'Raleway', 'Helvetica Neue', Arial, sans-serif"
               font-size="7" font-weight="700" fill="#1D2F4B">{{ itemName }}</text>
         <text x="80" y="78" font-family="'SFMono-Regular', Consolas, monospace"
-              font-size="6.4" font-weight="700" fill="#9E7841">{{ hasItem ? cert.item.cui : cert.certificateNumber }}</text>
+              font-size="6.4" font-weight="700" fill="{{ isLegacy ? '#244B7A' : '#9E7841' }}">{{ hasItem ? cert.item.cui : cert.certificateNumber }}</text>
         <rect x="80" y="83" width="62" height="2.4" rx="1.2" fill="#1D2F4B"/>
         <rect x="80" y="88" width="44" height="2" rx="1" fill="#1D2F4B" opacity="0.55"/>
 
@@ -97,8 +104,8 @@
         <rect x="96" y="108" width="50" height="2" rx="1" fill="#6A86A2" opacity="0.45"/>
         <rect x="96" y="113" width="60" height="2" rx="1" fill="#6A86A2" opacity="0.45"/>
 
-        {# Cream integrity box #}
-        <rect x="44" y="121" width="112" height="27" rx="2.5" fill="#FAF1E2" stroke="url(#{{ uid }}-gold)" stroke-width="1.2"/>
+        {# Integrity box (soft blue for Legacy Inventory, cream gold for item certs) #}
+        <rect x="44" y="121" width="112" height="27" rx="2.5" fill="{{ isLegacy ? '#E6EFF8' : '#FAF1E2' }}" stroke="url(#{{ accentGrad }})" stroke-width="1.2"/>
         <rect x="50" y="128" width="36" height="2" rx="1" fill="#1D2F4B" opacity="0.8"/>
         <rect x="50" y="134" width="28" height="2" rx="1" fill="#1D2F4B" opacity="0.8"/>
         <rect x="50" y="140" width="40" height="2" rx="1" fill="#1D2F4B" opacity="0.8"/>
@@ -112,7 +119,7 @@
         <rect x="52" y="160" width="70" height="1.6" rx="0.8" fill="#6A86A2" opacity="0.35"/>
 
         {# QR code #}
-        <rect x="134" y="160" width="26" height="26" rx="2" fill="#FFFFFF" stroke="url(#{{ uid }}-gold)" stroke-width="1.2"/>
+        <rect x="134" y="160" width="26" height="26" rx="2" fill="#FFFFFF" stroke="url(#{{ accentGrad }})" stroke-width="1.2"/>
         {% if qr %}
           <image href="{{ qr }}" x="136" y="162" width="22" height="22" preserveAspectRatio="xMidYMid meet"/>
         {% else %}
@@ -127,7 +134,7 @@
         <g>
           <polygon points="117,176 114,190 119,187 122,190 121,176" fill="#2F5D8C"/>
           <polygon points="122,176 121,190 125,187 129,190 126,176" fill="#1D2F4B"/>
-          <circle cx="121.5" cy="174" r="7" fill="url(#{{ uid }}-gold)"/>
+          <circle cx="121.5" cy="174" r="7" fill="url(#{{ accentGrad }})"/>
           <circle cx="121.5" cy="174" r="4.5" fill="none" stroke="#FFFFFF" stroke-width="0.8" stroke-dasharray="1.2 1"/>
         </g>
 
@@ -139,10 +146,10 @@
             <circle cx="76" cy="184" r="13.5" fill="#E8EFF5" stroke="#9AAFC4" stroke-width="1.4"/>
             <circle cx="76" cy="184" r="9" fill="none" stroke="#9AAFC4" stroke-width="1" stroke-dasharray="1.5 1.5"/>
           {% else %}
-            <circle cx="76" cy="184" r="18" fill="url(#{{ uid }}-gold)"/>
-            <circle cx="76" cy="184" r="18" fill="none" stroke="#9E7841" stroke-width="3" stroke-dasharray="2.2 2"/>
-            <circle cx="76" cy="184" r="13.5" fill="url(#{{ uid }}-sealcore)" stroke="#EDD3A1" stroke-width="1.4"/>
-            <path d="M69.5 184.5 L74.5 189.5 L83.5 179" fill="none" stroke="url(#{{ uid }}-gold)" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="76" cy="184" r="18" fill="url(#{{ accentGrad }})"/>
+            <circle cx="76" cy="184" r="18" fill="none" stroke="{{ isLegacy ? '#132138' : '#9E7841' }}" stroke-width="3" stroke-dasharray="2.2 2"/>
+            <circle cx="76" cy="184" r="13.5" fill="url(#{{ uid }}-sealcore)" stroke="{{ isLegacy ? '#93B9E0' : '#EDD3A1' }}" stroke-width="1.4"/>
+            <path d="M69.5 184.5 L74.5 189.5 L83.5 179" fill="none" stroke="{{ isLegacy ? '#FFFFFF' : 'url(#' ~ uid ~ '-gold)' }}" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
           {% endif %}
         </g>
 

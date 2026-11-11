@@ -22,7 +22,9 @@ use App\Repository\PaymentTransactionRepository;
 use App\Repository\PlanRepository;
 use App\Repository\UserRepository;
 use App\Infrastructure\Adapter\Payment\PaymentGatewayInterface;
+use App\Repository\SuccessionClaimRepository;
 use App\Service\Certificate\CertificateIssuerService;
+use App\Service\Legacy\SuccessionClaimWorkflowService;
 use App\Service\Plan\PlanDowngradeService;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -40,7 +42,9 @@ class PaymentManager
         private readonly EntityManagerInterface $entityManager,
         private readonly LoggerInterface $logger,
         private readonly ?UserActivityLogger $activityLogger = null,
-        private readonly ?PlanDowngradeService $planDowngradeService = null
+        private readonly ?PlanDowngradeService $planDowngradeService = null,
+        private readonly ?SuccessionClaimRepository $successionClaimRepository = null,
+        private readonly ?SuccessionClaimWorkflowService $successionClaimWorkflow = null
     ) {
     }
 
@@ -239,6 +243,30 @@ class PaymentManager
                         'session_id' => $sessionId,
                         'event_id' => $eventId,
                         'transfer_id' => $transferId,
+                        'amount' => $amountTotal,
+                    ]
+                );
+            }
+        } elseif ($typeStr === 'succession_claim') {
+            $claimId = (int) ($metadata['claim_id'] ?? 0);
+            $claim = ($claimId > 0 && $this->successionClaimRepository !== null)
+                ? $this->successionClaimRepository->find($claimId)
+                : null;
+            if ($claim !== null) {
+                $paymentIntent = isset($session['payment_intent']) && \is_string($session['payment_intent'])
+                    ? $session['payment_intent']
+                    : $sessionId;
+                $this->successionClaimWorkflow?->onOpeningFeePaid($claim, $amountTotal, $paymentIntent);
+
+                $this->activityLogger?->log(
+                    $user,
+                    UserActivityAction::PAYMENT_COMPLETED,
+                    sprintf('Taxa d\'obertura d\'expedient successori %s completada (%s)', $claim->getClaimReference(), $amountFormatted),
+                    [
+                        'session_id' => $sessionId,
+                        'event_id' => $eventId,
+                        'claim_id' => $claimId,
+                        'claim_reference' => $claim->getClaimReference(),
                         'amount' => $amountTotal,
                     ]
                 );

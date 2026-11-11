@@ -6,11 +6,15 @@ namespace App\Tests\Service;
 
 use App\Audit\Enum\UserActivityAction;
 use App\Audit\Service\UserActivityLogger;
+use App\Entity\Certificate;
 use App\Entity\Item;
+use App\Entity\LegacyContact;
 use App\Entity\PaymentTransaction;
 use App\Entity\Plan;
+use App\Entity\SuccessionClaim;
 use App\Entity\User;
 use App\Enum\CertificateMode;
+use App\Enum\CertificateScope;
 use App\Enum\PaymentStatus;
 use App\Enum\PaymentType;
 use App\Repository\CertificateRepository;
@@ -18,8 +22,10 @@ use App\Repository\ItemRepository;
 use App\Repository\ItemTransferRepository;
 use App\Repository\PaymentTransactionRepository;
 use App\Repository\PlanRepository;
+use App\Repository\SuccessionClaimRepository;
 use App\Repository\UserRepository;
 use App\Service\Certificate\CertificateIssuerService;
+use App\Service\Legacy\SuccessionClaimWorkflowService;
 use App\Service\Payment\PaymentManager;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
@@ -164,5 +170,85 @@ class PaymentManagerTest extends TestCase
 
         $result = $manager->processWebhook($event);
         $this->assertTrue($result);
+    }
+
+    public function testCheckoutCompletedActivatesSuccessionClaim72HourWindow(): void
+    {
+        $owner = (new User())->setEmail('anna@registrals.cat')->setFirstName('Anna')->setLastName('Puig');
+        $contact = new LegacyContact($owner, 'Maria Soler', 'maria@exemple.cat');
+        $cert = new Certificate(
+            item: null,
+            issuedBy: $owner,
+            certificateNumber: 'CERT-2026-000999',
+            mode: CertificateMode::OFFICIAL,
+            pdfFilePath: 'certificates/2026/LEGAT.pdf',
+            pdfSha256: str_repeat('a', 64),
+            itemFingerprintAtIssue: str_repeat('b', 64),
+            scope: CertificateScope::LEGACY_INVENTORY,
+            legacyContact: $contact,
+        );
+        $claim = new SuccessionClaim(
+            'LEG-2026-000500',
+            $cert,
+            $owner,
+            'Maria Soler',
+            'maria@exemple.cat',
+            '12345678Z',
+            new \DateTimeImmutable(),
+            'legacy/claims/LEG-2026-000500/def.pdf',
+            str_repeat('1', 64),
+            'legacy/claims/LEG-2026-000500/tit.pdf',
+            str_repeat('2', 64),
+        );
+
+        $transaction = new PaymentTransaction($owner, PaymentType::SUCCESSION_CLAIM, 1900);
+        $transactionRepo = $this->createMock(PaymentTransactionRepository::class);
+        $transactionRepo->method('findByStripeEventId')->willReturn(null);
+        $transactionRepo->method('findByStripeSessionId')->with('cs_claim_500')->willReturn($transaction);
+
+        $userRepo = $this->createMock(UserRepository::class);
+        $userRepo->method('find')->with(10)->willReturn($owner);
+
+        $claimRepo = $this->createMock(SuccessionClaimRepository::class);
+        $claimRepo->method('find')->with(77)->willReturn($claim);
+
+        $workflow = $this->createMock(SuccessionClaimWorkflowService::class);
+        $workflow->expects($this->once())->method('onOpeningFeePaid')->with($claim, 1900, 'pi_claim_500');
+
+        $manager = new PaymentManager(
+            $transactionRepo,
+            $userRepo,
+            $this->createMock(PlanRepository::class),
+            $this->createMock(ItemRepository::class),
+            $this->createMock(ItemTransferRepository::class),
+            $this->createMock(CertificateIssuerService::class),
+            $this->createMock(CertificateRepository::class),
+            $this->createMock(\Doctrine\ORM\EntityManagerInterface::class),
+            $this->createMock(\Psr\Log\LoggerInterface::class),
+            null,
+            null,
+            $claimRepo,
+            $workflow,
+        );
+
+        $result = $manager->processWebhook([
+            'id' => 'evt_claim_500',
+            'type' => 'checkout.session.completed',
+            'data' => [
+                'object' => [
+                    'id' => 'cs_claim_500',
+                    'amount_total' => 1900,
+                    'payment_intent' => 'pi_claim_500',
+                    'metadata' => [
+                        'type' => 'succession_claim',
+                        'claim_id' => '77',
+                        'user_id' => '10',
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->assertTrue($result);
+        $this->assertSame(PaymentStatus::PAID, $transaction->getStatus());
     }
 }

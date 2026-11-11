@@ -1,0 +1,17 @@
+REGISTRALS — Resolució d'Expedient Successori {{ claim.claimReference }}
+
+Hola {{ claim.claimantName }},
+
+{% if approved %}
+L'expedient {{ claim.claimReference }} ha estat APROVAT després de la revisió documental i del període preventiu de seguretat. S'han transferit {{ claim.executedTransferCount }} bé(ns) al compte {{ claim.claimantEmail }}.
+{% if provisionedNewAccount %}
+Hem activat un compte Pla Free vinculat a {{ claim.claimantEmail }}. Pots establir la teva contrasenya a: {{ forgotUrl }}
+{% else %}
+Accedeix al teu patrimoni a: {{ loginUrl }}
+{% endif %}
+{% else %}
+L'expedient {{ claim.claimReference }} ha estat REBUTJAT motivadament per l'equip de gestió sense realitzar cap transferència.
+{% endif %}
+
+Resolució motivada:
+{{ claim.resolutionNotes }}

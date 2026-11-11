@@ -37,6 +37,9 @@ framework:
                 complete_transfer:
                     from: transfer_pending
                     to: active
+                complete_inheritance:
+                    from: active
+                    to: active
                 archive_transferred:
                     from: transfer_pending
                     to: transferred

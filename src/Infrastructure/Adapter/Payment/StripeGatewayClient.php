@@ -7,6 +7,7 @@ namespace App\Infrastructure\Adapter\Payment;
 use App\Entity\Item;
 use App\Entity\ItemTransfer;
 use App\Entity\Plan;
+use App\Entity\SuccessionClaim;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -199,6 +200,54 @@ class StripeGatewayClient implements PaymentGatewayInterface
                 'transfer_id' => (string) $transfer->getId(),
                 'transfer_token' => $transfer->getToken(),
                 'item_cui' => $transfer->getItem()->getCui(),
+            ],
+        ]);
+
+        return [
+            'sessionId' => $session->id,
+            'url' => $session->url ?? $successUrl,
+        ];
+    }
+
+    public function createSuccessionClaimCheckout(SuccessionClaim $claim, int $amountCents, string $successUrl, string $cancelUrl): array
+    {
+        if (str_contains($this->secretKey, 'mock')) {
+            $sessionId = 'cs_mock_claim_' . bin2hex(random_bytes(10));
+            $separator = str_contains($successUrl, '?') ? '&' : '?';
+
+            return [
+                'sessionId' => $sessionId,
+                'url' => str_replace(['{CHECKOUT_SESSION_ID}', '%7BCHECKOUT_SESSION_ID%7D'], $sessionId, $successUrl) . $separator . 'mock=1',
+            ];
+        }
+
+        $payerId = $claim->getClaimantUser()?->getId() ?? $claim->getDeceasedOwner()->getId();
+
+        $session = $this->getClient()->checkout->sessions->create([
+            'mode' => 'payment',
+            'customer_email' => $claim->getClaimantEmail(),
+            'line_items' => [
+                [
+                    'price_data' => [
+                        'currency' => 'eur',
+                        'unit_amount' => $amountCents,
+                        'product_data' => [
+                            'name' => 'Taxa d\'Obertura d\'Expedient Successori — ' . $claim->getClaimReference(),
+                            'description' => 'Auditoria documental, finestra preventiva anti-frau (72 h) i tramitació de custòdia patrimonial',
+                        ],
+                    ],
+                    'quantity' => 1,
+                ],
+            ],
+            'success_url' => $successUrl,
+            'cancel_url' => $cancelUrl,
+            'client_reference_id' => $claim->getUuid()->toRfc4122(),
+            'metadata' => [
+                'type' => 'succession_claim',
+                'user_id' => (string) $payerId,
+                'claim_id' => (string) $claim->getId(),
+                'claim_uuid' => $claim->getUuid()->toRfc4122(),
+                'claim_reference' => $claim->getClaimReference(),
             ],
         ]);
 

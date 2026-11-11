@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <title>AVÍS URGENT DE SEGURETAT · Expedient {{ claim.claimReference }} — Registrals</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #FAF6F0; font-family: 'Raleway', Helvetica, Arial, sans-serif; color: #1D2F4B;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #FAF6F0; padding: 30px 15px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" style="max-width: 600px; background-color: #FFFFFF; border-radius: 20px; border: 1px solid rgba(185, 28, 28, 0.35); overflow: hidden; box-shadow: 0 10px 25px rgba(29, 47, 75, 0.1);">
+          <tr><td style="height: 6px; background: linear-gradient(90deg, #991B1B 0%, #CAA36C 50%, #1D2F4B 100%);"></td></tr>
+          <tr>
+            <td style="padding: 28px 36px 18px; text-align: center; border-bottom: 1px solid rgba(106, 134, 162, 0.15);">
+              <h1 style="font-family: 'Marcellus', Georgia, serif; font-size: 26px; color: #1D2F4B; margin: 0 0 4px;">REGISTRALS</h1>
+              <p style="font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #991B1B; font-weight: bold; margin: 0;">Alerta Preventiva de Seguretat (Finestra 72 h)</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 32px 36px;">
+              <h2 style="font-family: 'Marcellus', Georgia, serif; font-size: 20px; color: #991B1B; margin: 0 0 14px;">S'ha registrat una sol·licitud d'obertura successòria sobre el teu compte</h2>
+              <p style="font-size: 14px; line-height: 1.6; margin: 0 0 14px;">Hola {{ owner.firstName }},</p>
+              <p style="font-size: 14px; line-height: 1.6; margin: 0 0 18px;">
+                T'informem immediatament que s'ha presentat l'expedient <strong>{{ claim.claimReference }}</strong> vinculat al certificat <strong>{{ claim.sourceCertificate.certificateNumber }}</strong> per part de <strong>{{ claim.claimantName }}</strong> (<code>{{ claim.claimantEmail }}</code>).
+              </p>
+              <div style="border-left: 3.5px solid #991B1B; background-color: rgba(185, 28, 28, 0.06); padding: 14px 16px; border-radius: 0 10px 10px 0; margin-bottom: 22px; font-size: 13px; line-height: 1.55;">
+                <strong>Bloqueig preventiu actiu fins al {{ holdUntil|date('d/m/Y H:i') }} UTC:</strong><br>
+                Cap operador ni procés no pot executar cap canvi de titularitat durant les pròximes <strong>72 hores</strong>. Si segueixes actiu i aquesta petició és fraudulenta o deriva del robatori del PDF, accedeix al teu compte i revoca la designació o contacta amb custòdia immediatament.
+              </div>
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td align="center">
+                    <a href="{{ profileUrl }}" style="display: inline-block; background-color: #1D2F4B; color: #CAA36C; font-size: 13px; font-weight: bold; text-decoration: none; padding: 13px 26px; border-radius: 12px; border: 1px solid #CAA36C; text-transform: uppercase; letter-spacing: 1px;">
+                      Revisar al meu Perfil Ara →
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 18px 36px; background-color: #FAF6F0; border-top: 1px solid rgba(106, 134, 162, 0.15); text-align: center; font-size: 11px; color: #6A86A2;">
+              © {{ 'now'|date('Y') }} Registrals · Protocol anti-frau amb finestres de salvaguarda de 72 hores.
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

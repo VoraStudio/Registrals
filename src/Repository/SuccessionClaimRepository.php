@@ -8,6 +8,7 @@ use App\Entity\SuccessionClaim;
 use App\Enum\SuccessionClaimStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * @extends ServiceEntityRepository<SuccessionClaim>
@@ -50,9 +51,49 @@ class SuccessionClaimRepository extends ServiceEntityRepository
     public function findQueueOrdered(): array
     {
         return $this->createQueryBuilder('sc')
+            ->leftJoin('sc.deceasedOwner', 'o')
+            ->addSelect('o')
+            ->leftJoin('sc.legacyContact', 'lc')
+            ->addSelect('lc')
             ->orderBy('sc.createdAt', 'DESC')
             ->getQuery()
             ->getResult();
+    }
+
+    public function findByUuid(string|Uuid $uuid): ?SuccessionClaim
+    {
+        $uuidObj = is_string($uuid) ? Uuid::fromString($uuid) : $uuid;
+
+        return $this->findOneBy(['uuid' => $uuidObj]);
+    }
+
+    /**
+     * @return list<SuccessionClaim>
+     */
+    public function findFilteredQueue(?string $search = null, ?string $status = null): array
+    {
+        $qb = $this->createQueryBuilder('sc')
+            ->leftJoin('sc.deceasedOwner', 'o')
+            ->addSelect('o')
+            ->leftJoin('sc.legacyContact', 'lc')
+            ->addSelect('lc')
+            ->orderBy('sc.createdAt', 'DESC');
+
+        if ($search !== null && trim($search) !== '') {
+            $term = '%' . trim($search) . '%';
+            $qb->andWhere(
+                'sc.claimReference LIKE :term OR sc.claimantName LIKE :term OR sc.claimantEmail LIKE :term OR o.email LIKE :term OR o.firstName LIKE :term OR o.lastName LIKE :term'
+            )->setParameter('term', $term);
+        }
+
+        if ($status !== null && trim($status) !== '' && $status !== 'all') {
+            $enumStatus = SuccessionClaimStatus::tryFrom(trim($status));
+            if ($enumStatus !== null) {
+                $qb->andWhere('sc.status = :status')->setParameter('status', $enumStatus);
+            }
+        }
+
+        return $qb->getQuery()->getResult();
     }
 }
 

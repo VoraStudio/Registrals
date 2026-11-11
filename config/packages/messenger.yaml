@@ -29,4 +29,5 @@ framework:
 
         routing:
             'App\Message\AnalyzeItemMediaMessage': async_ai
+            'App\Message\AnalyzeSuccessionClaimMessage': async_ai
             'App\Message\AnchorBlockchainMessage': async_chain

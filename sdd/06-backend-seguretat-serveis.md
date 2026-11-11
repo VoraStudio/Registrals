@@ -120,7 +120,7 @@ Totes les rutes de l'àrea privada requereixen autenticació (ROLE_USER o ROLE_A
 
 - `POST /app/certificats/llegat/emetre`: Emissió del Certificat d'Inventari Global de Llegat consolidat amb doble QR i segell eIDAS (`UserCertificateController` + `LegacyCertificateIssuerService`).
 
-- `GET /herencia/reclamar/{token}`: Punt d'entrada públic vinculat al QR d'obertura successòria per comprovar vigència i iniciar el canal post-mortem (`LegacyClaimController`).
+- `GET /herencia/reclamar/{token}`, `POST /herencia/reclamar/{token}/enviar-otp`, `POST /herencia/reclamar/{token}/verificar-otp`, `POST /herencia/reclamar/{token}/pujar-documents`, `POST /herencia/reclamar/{token}/pagar`, `GET /herencia/reclamar/{token}/retorn`: Flux públic complet d'obertura successòria post-mortem per QR (OTP 6 dígits, càrrega segura a Flysystem, Checkout Stripe de taxa d'obertura i activació de finestra preventiva de 72 hores amb avís urgent al titular) (`LegacyClaimController` + `SuccessionClaimWorkflowService`).
 - 
 
 ### 2.4. Traspàs de Titularitat (C2C)
@@ -144,7 +144,7 @@ Totes les rutes de l'àrea privada requereixen autenticació (ROLE_USER o ROLE_A
 - `GET /admin/serveis`: Salut tècnica dels nodes (MySQL, `registrals_audit`, SGLang, Mailer, GeoIP amb mirall GeoLite2 i modals confirmatoris sense `confirm()` natius).
 - `GET /admin/configuracio`: Interruptors globals de sistema.
 - **Telemetria Sense Galetes (`VisitTelemetrySubscriber`):** Listener a `KernelEvents::TERMINATE` que resol codis de país via `CF-IPCountry` o `GeoLocationService` (IPv4/IPv6 segur) i persisteix a `site_visits` ignorant bots i peticions d'error (`>= 400`).
-- *(Planificat — Iteració 10 / `09-herencia-digital.md`)* `GET/POST /admin/gestions/herencies*`: Safata d'expedients successoris acotada per a **`ROLE_GESTOR`** i `ROLE_ADMIN`.
+- `GET /admin/gestions/herencies`, `GET /admin/gestions/herencies/{uuid}`, `GET /admin/gestions/herencies/{uuid}/document/{kind}`, `POST /admin/gestions/herencies/{uuid}/ai-retriatge`, `POST /admin/gestions/herencies/{uuid}/aprovar`, `POST /admin/gestions/herencies/{uuid}/rebutjar`: Cua d'expedients successoris acotada per a **`ROLE_GESTOR`** i `ROLE_ADMIN` dins de `GESTIÓ & CUSTÒDIA` amb visors segurs Flysystem via `StreamedResponse`, suport Qwen-VL i bloqueig preventiu de 72 hores (`AdminSuccessionClaimController`).
 - 
 
 ## 3. Seguretat, Voters i Control d'Accés

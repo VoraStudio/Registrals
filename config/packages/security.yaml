@@ -51,6 +51,7 @@ security:
         - { path: ^/verify, roles: PUBLIC_ACCESS }
         - { path: ^/transfer, roles: PUBLIC_ACCESS }
         - { path: ^/llegat, roles: PUBLIC_ACCESS }
+        - { path: ^/herencia, roles: PUBLIC_ACCESS }
         - { path: ^/webhook, roles: PUBLIC_ACCESS }
         - { path: ^/guia-destils, roles: PUBLIC_ACCESS }
         - { path: ^/admin/gestions, roles: ROLE_GESTOR }

@@ -67,7 +67,9 @@ class SglangVisionClient implements AiVisionAnalyzerInterface
                         ],
                         [
                             'role' => 'user',
-                            'content' => "A continuació tens el text extret del document o factura:\n\n" . $extractedText . "\n\nAnalitza aquestes dades i respon amb el JSON especificat.",
+                            'content' => ($promptType === 'legacy_claim'
+                                ? "A continuació tens el text extret del document acreditatiu successori (certificat de defunció o títol):\n\n"
+                                : "A continuació tens el text extret del document o factura:\n\n") . $extractedText . "\n\nAnalitza aquestes dades i respon amb el JSON especificat.",
                         ],
                     ],
                     'temperature' => 0.1,
@@ -123,9 +125,11 @@ class SglangVisionClient implements AiVisionAnalyzerInterface
                         'content' => [
                             [
                                 'type' => 'text',
-                                'text' => $promptType === 'invoice'
-                                    ? 'Analitza aquest tiquet, factura o document de compra i extreu les dades en format JSON.'
-                                    : 'Analitza aquesta fotografia del bé de valor i extreu les especificacions en format JSON.',
+                                'text' => match ($promptType) {
+                                    'invoice' => 'Analitza aquest tiquet, factura o document de compra i extreu les dades en format JSON.',
+                                    'legacy_claim' => 'Analitza aquest document oficial (certificat de defunció o títol successori) i extreu les dades estructurades per a revisió humana en format JSON.',
+                                    default => 'Analitza aquesta fotografia del bé de valor i extreu les especificacions en format JSON.',
+                                },
                             ],
                             [
                                 'type' => 'image_url',
@@ -186,7 +190,7 @@ class SglangVisionClient implements AiVisionAnalyzerInterface
             // Si el contingut principal ha quedat buit o el JSON s'ha inserit al buffer de raonament intern
             if ((!$rawContent || trim($rawContent) === '') && !empty($responseData['choices'][0]['message']['reasoning_content'])) {
                 $reasoning = $responseData['choices'][0]['message']['reasoning_content'];
-                if (preg_match('/\{[\s\S]*"name"[\s\S]*\}/', $reasoning, $matches)) {
+                if (preg_match('/\{[\s\S]*(?:"name"|"deceased_full_name")[\s\S]*\}/', $reasoning, $matches)) {
                     $rawContent = $matches[0];
                 }
             }
@@ -216,7 +220,7 @@ class SglangVisionClient implements AiVisionAnalyzerInterface
 
             $this->logger->info('Anàlisi SGLang completada amb èxit', ['extracted' => $decoded]);
 
-            return AiVisionExtractionDto::fromArray($decoded, $responseData);
+            return AiVisionExtractionDto::fromArray($decoded, $responseData + ['_parsed' => $decoded]);
 
         } catch (\Throwable $e) {
             $this->logger->error('Error de comunicació amb el node SGLang', [
@@ -233,6 +237,25 @@ class SglangVisionClient implements AiVisionAnalyzerInterface
 
     private function getSystemPrompt(string $promptType): string
     {
+        if ($promptType === 'legacy_claim') {
+            return <<<PROMPT
+Ets un assistent tècnic d'extracció documental (OCR/visió) en infraestructura privada local encarregat d'analitzar documents aportats en un expedient successori post-mortem (certificats oficials de defunció, certificats d'actes d'última voluntat, testaments o declaracions d'hereus).
+Mai no prenguis decisions d'aprovació ni rebuig: limita't a extreure les dades objectives perquè un gestor humà les comprovi.
+Respon EXCLUSIVAMENT amb un objecte JSON amb les següents claus:
+- "document_kind": ("death_certificate" | "succession_title" | "unknown") Tipus de document detectat.
+- "deceased_full_name": (string o null) Nom i cognoms complets de la persona difunta o causant.
+- "death_date": (string o null) Data de defunció detectada en format "YYYY-MM-DD" si consta.
+- "beneficiary_or_heir_names": (array de strings) Llista de noms complets d'hereus, marmessors o legataris esmentats al document.
+- "issuing_authority": (string o null) Registre Civil, jutjat, fedatari o organisme emissor identificat.
+- "document_date": (string o null) Data d'emissió o atorgament del document ("YYYY-MM-DD").
+- "legibility_ok": (boolean) True si el document és nítid, complet i llegible sense talls crítics; false si hi ha parts borroses, il·legibles o retallades.
+- "anomalies": (array de strings) Possibles inconsistències, mancances de segells o incongruències visuals detectades (llista buida si no n'hi ha).
+- "confidence": (float) Nivell de certesa d'extracció entre 0.0 i 1.0.
+- "notes": (string o null) Resum descriptiu neutre de suport per al revisor humà.
+No afegeixis text explicatiu fora del JSON.
+PROMPT;
+        }
+
         if ($promptType === 'invoice') {
             return <<<PROMPT
 Ets un assistent notarial d'alta precisió encarregat d'analitzar factures, tiquets de compra i documents de garantia de béns mobles.
