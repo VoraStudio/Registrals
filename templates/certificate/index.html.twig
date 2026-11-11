@@ -151,30 +151,17 @@
 
     {# Galeria / Llistat de Certificats #}
     {% if certificates is empty %}
-      <div class="bg-white rounded-2xl border border-steel/20 p-8 sm:p-12 text-center shadow-xs">
-        <div class="w-16 h-16 rounded-2xl bg-cream text-gold flex items-center justify-center mx-auto mb-4 border border-gold/30">
-          <svg class="w-8 h-8 text-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-        </div>
-        <h2 class="font-marcellus text-xl text-ink font-bold mb-2">Sense certificats registrats</h2>
-        <p class="text-xs sm:text-sm text-ink/70 font-raleway max-w-md mx-auto mb-6 leading-relaxed">
-          {% if currentSearch or currentMode != 'all' or currentStatus != 'all' %}
-            No s'ha trobat cap certificat que coincideixi amb els filtres aplicats.
-          {% else %}
-            Encara no has emès cap certificat de propietat. Pots emetre esborranys o certificats oficials eIDAS des de la fitxa de qualsevol bé del teu patrimoni.
-          {% endif %}
-        </p>
-
-        {% if currentSearch or currentMode != 'all' or currentStatus != 'all' %}
-          <a href="{{ path('app_certificates_index') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-cream text-ink text-xs font-semibold border border-steel/20 hover:bg-cream/80 transition-colors">
-            <span>Restablir filtres</span>
-          </a>
-        {% else %}
-          <a href="{{ path('app_dashboard') }}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-ink text-gold border border-gold/40 text-xs font-bold shadow-xs hover:bg-ink/90 transition-colors">
-            <span>Explorar El meu Patrimoni</span>
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-          </a>
-        {% endif %}
-      </div>
+      {% set isFiltered = currentSearch or currentMode != 'all' or currentStatus != 'all' %}
+      {% include 'partials/_empty_state_card.html.twig' with {
+        icon: isFiltered ? 'search' : 'document',
+        title: isFiltered ? 'Cap certificat coincideix amb la cerca' : 'Sense certificats registrats',
+        description: isFiltered
+          ? 'No s\'ha trobat cap certificat que coincideixi amb els filtres aplicats.'
+          : 'Encara no has emès cap certificat de propietat. Pots emetre esborranys o certificats oficials eIDAS des de la fitxa de qualsevol bé del teu patrimoni.',
+        cta_url: isFiltered ? path('app_certificates_index') : path('app_dashboard'),
+        cta_label: isFiltered ? 'Restablir filtres' : 'Explorar El meu Patrimoni',
+        cta_icon: isFiltered ? 'reset' : 'arrow'
+      } only %}
     {% else %}
       <div class="grid grid-cols-3 sm:flex sm:flex-wrap justify-center sm:justify-start gap-2 sm:gap-6 lg:gap-8 justify-items-center">
         {% for cert in certificates %}
