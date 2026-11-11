@@ -27,7 +27,9 @@ class PasswordResetService
         private readonly MailerInterface $mailer,
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly ?UserActivityLogger $activityLogger = null,
-        private readonly ?LoggerInterface $logger = null
+        private readonly ?LoggerInterface $logger = null,
+        private readonly string $mailerFromAddress = 'info@registrals.com',
+        private readonly string $mailerFromName = 'Registrals'
     ) {
     }
 
@@ -115,7 +117,7 @@ class PasswordResetService
     {
         try {
             $email = (new TemplatedEmail())
-                ->from(new Address('no-reply@registrals.cat', 'Registrals'))
+                ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
                 ->to(new Address($user->getEmail(), $user->getFullName()))
                 ->subject($isOAuthOnly
                     ? 'Accés al teu compte — Registrals'
@@ -152,3 +154,4 @@ class PasswordResetService
         }
     }
 }
+

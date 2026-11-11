@@ -41,7 +41,9 @@ class TransferController extends AbstractController
         private readonly \App\Service\Transfer\TransferExpirationService $transferExpirationService,
         private readonly \App\Service\Plan\PlanDowngradeService $planDowngradeService,
         private readonly ?UserActivityLogger $activityLogger = null,
-        private readonly ?LoggerInterface $logger = null
+        private readonly ?LoggerInterface $logger = null,
+        private readonly string $mailerFromAddress = 'info@registrals.com',
+        private readonly string $mailerFromName = 'Registrals'
     ) {
     }
 
@@ -144,7 +146,7 @@ class TransferController extends AbstractController
             );
 
             $email = (new TemplatedEmail())
-                ->from(new Address('certificacio@registrals.cat', 'Certificació Digital Registrals'))
+                ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
                 ->to(new Address($recipientEmail))
                 ->subject(sprintf('Invitació de Traspàs Certificat: %s (%s)', $item->getName(), $item->getCui()))
                 ->htmlTemplate('emails/transfer_invitation.html.twig')
@@ -276,7 +278,7 @@ class TransferController extends AbstractController
             $expiresAt = (new \DateTimeImmutable())->modify('+72 hours');
 
             $email = (new TemplatedEmail())
-                ->from(new Address('certificacio@registrals.cat', 'Certificació Digital Registrals'))
+                ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
                 ->to(new Address($recipientEmail))
                 ->subject(sprintf('Invitació de Traspàs Certificat per Lot: %d béns', count($transferredItems)))
                 ->htmlTemplate('emails/batch_transfer_invitation.html.twig')
@@ -619,7 +621,7 @@ class TransferController extends AbstractController
         try {
             $itemUrl = $this->generateUrl('app_item_show', ['cui' => $transfer->getItem()->getCui()], UrlGeneratorInterface::ABSOLUTE_URL);
             $email = (new TemplatedEmail())
-                ->from(new Address('no-reply@registrals.cat', 'Registrals'))
+                ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
                 ->to(new Address($transfer->getSender()->getEmail(), $transfer->getSender()->getFullName()))
                 ->subject('Sol·licitud de traspàs declinada pel destinatari — Registrals')
                 ->htmlTemplate('emails/transfer_rejected.html.twig')

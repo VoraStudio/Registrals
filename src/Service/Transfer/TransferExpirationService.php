@@ -31,7 +31,9 @@ class TransferExpirationService
         private readonly MailerInterface $mailer,
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly ?UserActivityLogger $activityLogger = null,
-        private readonly ?LoggerInterface $logger = null
+        private readonly ?LoggerInterface $logger = null,
+        private readonly string $mailerFromAddress = 'info@registrals.com',
+        private readonly string $mailerFromName = 'Registrals'
     ) {
     }
 
@@ -86,7 +88,7 @@ class TransferExpirationService
             );
 
             $email = (new TemplatedEmail())
-                ->from(new Address('no-reply@registrals.cat', 'Registrals'))
+                ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
                 ->to(new Address($sender->getEmail(), $sender->getFullName()))
                 ->subject(sprintf('Caducitat de Traspàs: %s (%s)', $item->getName(), $item->getCui()))
                 ->htmlTemplate('emails/transfer_expired.html.twig')

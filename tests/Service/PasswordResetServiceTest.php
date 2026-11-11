@@ -114,6 +114,9 @@ class PasswordResetServiceTest extends TestCase
             ->method('send')
             ->with($this->callback(function (TemplatedEmail $email): bool {
                 $context = $email->getContext();
+                $from = $email->getFrom();
+                $this->assertCount(1, $from);
+                $this->assertSame('info@registrals.com', $from[0]->getAddress());
                 $this->assertFalse($context['isOAuthOnly']);
                 $this->assertSame('https://www.registrals.com/reset-password/rawtoken', $context['actionUrl']);
                 $this->assertSame('emails/reset_password.html.twig', $email->getHtmlTemplate());
@@ -259,3 +262,4 @@ class PasswordResetServiceTest extends TestCase
         $this->assertFalse($user->isResetPasswordTokenValid());
     }
 }
+

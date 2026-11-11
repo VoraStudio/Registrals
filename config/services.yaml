@@ -8,6 +8,8 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     env(AI_ASSISTANCE_ENABLED): 'true'
+    env(MAILER_FROM_ADDRESS): 'info@registrals.com'
+    env(MAILER_FROM_NAME): 'Registrals'
     app.ai_assistance_enabled: '%env(bool:AI_ASSISTANCE_ENABLED)%'
 
 services:
@@ -15,6 +17,9 @@ services:
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        bind:
+            string $mailerFromAddress: '%env(string:MAILER_FROM_ADDRESS)%'
+            string $mailerFromName: '%env(string:MAILER_FROM_NAME)%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
