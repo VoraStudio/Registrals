@@ -40,6 +40,19 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->getSingleScalarResult();
     }
 
+    /**
+     * Compta els usuaris registrats excloent comptes administradors.
+     */
+    public function countNonAdmin(): int
+    {
+        $table = $this->getClassMetadata()->getTableName();
+
+        return (int) $this->getEntityManager()->getConnection()->fetchOne(
+            sprintf('SELECT COUNT(id) FROM %s WHERE roles IS NULL OR NOT JSON_CONTAINS(roles, :adminRole)', $table),
+            ['adminRole' => '"ROLE_ADMIN"']
+        );
+    }
+
     public function countActive(): int
     {
         return (int) $this->createQueryBuilder('u')

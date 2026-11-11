@@ -286,8 +286,10 @@ const sectionReveals = {
   s2: {
     build: (tl) => {
       tl.from("#s2 [data-reveal=description]", { opacity: 0, y: 40, duration: 0.8, ease: "power2.out" }, "-=0.4");
-      // "<": les píldores arranquen alhora que la descripció
-      tl.from("#s2 [data-reveal=pill]", { opacity: 0, y: 40, duration: 0.8, ease: "power2.out", stagger: 0.15 }, "<");
+      // "<": les píldores arranquen alhora que la descripció (si superen el llindar de visibilitat)
+      if (document.querySelector("#s2 [data-reveal=pill]")) {
+        tl.from("#s2 [data-reveal=pill]", { opacity: 0, y: 40, duration: 0.8, ease: "power2.out", stagger: 0.15 }, "<");
+      }
     },
   },
   s4: {

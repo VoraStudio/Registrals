@@ -142,6 +142,23 @@ class ItemRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
+    /**
+     * Compta tots els béns custodiats (actius i en custòdia en fred).
+     */
+    public function countCustodiedTotal(): int
+    {
+        return (int) $this->createQueryBuilder('i')
+            ->select('COUNT(i.id)')
+            ->andWhere('i.status IN (:statuses)')
+            ->setParameter('statuses', [
+                \App\Enum\ItemStatus::ACTIVE,
+                \App\Enum\ItemStatus::FROZEN,
+                \App\Enum\ItemStatus::ARCHIVED,
+            ])
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
     public function sumTotalDeclaredValue(): int
     {
         return (int) $this->createQueryBuilder('i')

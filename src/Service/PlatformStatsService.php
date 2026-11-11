@@ -13,10 +13,14 @@ use App\Repository\UserRepository;
  */
 final class PlatformStatsService
 {
+    // Temporalment a 0 per validar les mètriques abans d'activar el llindar de 1000.
+    public const DEFAULT_MIN_THRESHOLD = 0;
+
     public function __construct(
         private readonly UserRepository $userRepository,
         private readonly ItemRepository $itemRepository,
         private readonly CertificateRepository $certificateRepository,
+        private readonly int $minThreshold = self::DEFAULT_MIN_THRESHOLD,
     ) {
     }
 
@@ -25,28 +29,22 @@ final class PlatformStatsService
      *
      * @return array{
      *     registeredUsers: int,
-     *     certifiedItems: int,
-     *     totalDeclaredValueCents: int,
-     *     totalDeclaredValueEuros: float,
-     *     totalDeclaredValueFormatted: string
+     *     custodiedItems: int,
+     *     issuedCertificates: int,
+     *     showStats: bool
      * }
      */
     public function getHomeStats(): array
     {
-        $registeredUsers = $this->userRepository->countTotal();
-        $certifiedItems = $this->itemRepository->countActiveTotal();
-        $totalDeclaredValueCents = $this->itemRepository->sumTotalDeclaredValue();
-        $totalDeclaredValueEuros = $totalDeclaredValueCents / 100.0;
-
-        // Format as e.g. "3.334€"
-        $totalDeclaredValueFormatted = number_format($totalDeclaredValueEuros, 0, ',', '.') . '€';
+        $registeredUsers = $this->userRepository->countNonAdmin();
+        $custodiedItems = $this->itemRepository->countCustodiedTotal();
+        $issuedCertificates = $this->certificateRepository->countValid();
 
         return [
             'registeredUsers' => $registeredUsers,
-            'certifiedItems' => $certifiedItems,
-            'totalDeclaredValueCents' => $totalDeclaredValueCents,
-            'totalDeclaredValueEuros' => $totalDeclaredValueEuros,
-            'totalDeclaredValueFormatted' => $totalDeclaredValueFormatted,
+            'custodiedItems' => $custodiedItems,
+            'issuedCertificates' => $issuedCertificates,
+            'showStats' => $this->minThreshold <= 0 || $registeredUsers >= $this->minThreshold,
         ];
     }
 }

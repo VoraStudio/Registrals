@@ -16,47 +16,71 @@ class PlatformStatsServiceTest extends TestCase
     {
         $userRepo = $this->createMock(UserRepository::class);
         $userRepo->expects($this->once())
-            ->method('countTotal')
+            ->method('countNonAdmin')
             ->willReturn(9);
 
         $itemRepo = $this->createMock(ItemRepository::class);
         $itemRepo->expects($this->once())
-            ->method('countActiveTotal')
-            ->willReturn(14);
-        $itemRepo->expects($this->once())
-            ->method('sumTotalDeclaredValue')
-            ->willReturn(333400);
+            ->method('countCustodiedTotal')
+            ->willReturn(21);
 
         $certRepo = $this->createMock(CertificateRepository::class);
+        $certRepo->expects($this->once())
+            ->method('countValid')
+            ->willReturn(5);
 
-        $service = new PlatformStatsService($userRepo, $itemRepo, $certRepo);
+        $service = new PlatformStatsService($userRepo, $itemRepo, $certRepo, 0);
         $stats = $service->getHomeStats();
 
         $this->assertSame(9, $stats['registeredUsers']);
-        $this->assertSame(14, $stats['certifiedItems']);
-        $this->assertSame(333400, $stats['totalDeclaredValueCents']);
-        $this->assertSame(3334.0, $stats['totalDeclaredValueEuros']);
-        $this->assertSame('3.334€', $stats['totalDeclaredValueFormatted']);
+        $this->assertSame(21, $stats['custodiedItems']);
+        $this->assertSame(5, $stats['issuedCertificates']);
+        $this->assertTrue($stats['showStats']);
+    }
+
+    public function testGetHomeStatsHidesStatsBelowThresholdAndShowsAtThreshold(): void
+    {
+        $userRepoBelow = $this->createMock(UserRepository::class);
+        $userRepoBelow->method('countNonAdmin')->willReturn(999);
+
+        $itemRepoBelow = $this->createMock(ItemRepository::class);
+        $itemRepoBelow->method('countCustodiedTotal')->willReturn(1500);
+
+        $certRepoBelow = $this->createMock(CertificateRepository::class);
+        $certRepoBelow->method('countValid')->willReturn(400);
+
+        $serviceBelow = new PlatformStatsService($userRepoBelow, $itemRepoBelow, $certRepoBelow, 1000);
+        $statsBelow = $serviceBelow->getHomeStats();
+
+        $this->assertSame(999, $statsBelow['registeredUsers']);
+        $this->assertFalse($statsBelow['showStats']);
+
+        $userRepoAt = $this->createMock(UserRepository::class);
+        $userRepoAt->method('countNonAdmin')->willReturn(1000);
+
+        $serviceAt = new PlatformStatsService($userRepoAt, $itemRepoBelow, $certRepoBelow, 1000);
+        $statsAt = $serviceAt->getHomeStats();
+
+        $this->assertTrue($statsAt['showStats']);
     }
 
     public function testGetHomeStatsHandlesZeroValues(): void
     {
         $userRepo = $this->createMock(UserRepository::class);
-        $userRepo->method('countTotal')->willReturn(0);
+        $userRepo->method('countNonAdmin')->willReturn(0);
 
         $itemRepo = $this->createMock(ItemRepository::class);
-        $itemRepo->method('countActiveTotal')->willReturn(0);
-        $itemRepo->method('sumTotalDeclaredValue')->willReturn(0);
+        $itemRepo->method('countCustodiedTotal')->willReturn(0);
 
         $certRepo = $this->createMock(CertificateRepository::class);
+        $certRepo->method('countValid')->willReturn(0);
 
-        $service = new PlatformStatsService($userRepo, $itemRepo, $certRepo);
+        $service = new PlatformStatsService($userRepo, $itemRepo, $certRepo, 0);
         $stats = $service->getHomeStats();
 
         $this->assertSame(0, $stats['registeredUsers']);
-        $this->assertSame(0, $stats['certifiedItems']);
-        $this->assertSame(0, $stats['totalDeclaredValueCents']);
-        $this->assertSame(0.0, $stats['totalDeclaredValueEuros']);
-        $this->assertSame('0€', $stats['totalDeclaredValueFormatted']);
+        $this->assertSame(0, $stats['custodiedItems']);
+        $this->assertSame(0, $stats['issuedCertificates']);
+        $this->assertTrue($stats['showStats']);
     }
 }

@@ -31,13 +31,13 @@ class PageControllerTest extends TestCase
             ->willReturn([$planFree, $planPlus]);
 
         $userRepo = $this->createMock(\App\Repository\UserRepository::class);
-        $userRepo->method('countTotal')->willReturn(10);
+        $userRepo->method('countNonAdmin')->willReturn(10);
 
         $itemRepo = $this->createMock(\App\Repository\ItemRepository::class);
-        $itemRepo->method('countActiveTotal')->willReturn(150);
-        $itemRepo->method('sumTotalDeclaredValue')->willReturn(500000);
+        $itemRepo->method('countCustodiedTotal')->willReturn(150);
 
         $certRepo = $this->createMock(\App\Repository\CertificateRepository::class);
+        $certRepo->method('countValid')->willReturn(25);
 
         $statsService = new PlatformStatsService($userRepo, $itemRepo, $certRepo);
 
