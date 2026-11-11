@@ -33,6 +33,9 @@ final class Version20261111170000 extends AbstractMigration
         $this->addSql('CREATE INDEX IDX_8D26FB5F4150D3FE ON certificates (legacy_contact_id)');
 
         $this->addSql('ALTER TABLE plans ADD allow_legacy_designation TINYINT DEFAULT 0 NOT NULL, ADD max_legacy_contacts INT DEFAULT 0 NOT NULL, ADD legacy_claim_opening_fee_cents INT DEFAULT 1900 NOT NULL');
+        $this->addSql("UPDATE plans SET allow_legacy_designation = 0, max_legacy_contacts = 0, legacy_claim_opening_fee_cents = 1900 WHERE code = 'free'");
+        $this->addSql("UPDATE plans SET allow_legacy_designation = 1, max_legacy_contacts = 1, legacy_claim_opening_fee_cents = 1900 WHERE code = 'plus'");
+        $this->addSql("UPDATE plans SET allow_legacy_designation = 1, max_legacy_contacts = 5, legacy_claim_opening_fee_cents = 1900 WHERE code = 'unlimited'");
     }
 
     public function down(Schema $schema): void
