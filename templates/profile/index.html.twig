@@ -146,6 +146,40 @@
                 </button>
               </div>
             {{ form_end(passwordForm) }}
+
+            {# Verificació en Dos Passos Opcional (2FA per Correu Electrònic) #}
+            <div class="mt-4 pt-4 border-t border-steel/15">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="space-y-1">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <h3 class="font-marcellus text-xs sm:text-sm text-ink">Autenticació en Dos Passos (2FA per Correu)</h3>
+                    {% if user.twoFactorEnabled %}
+                      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[10px] font-mono font-bold border border-emerald-200">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Activat
+                      </span>
+                    {% else %}
+                      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-cream/60 text-steel text-[10px] font-mono font-bold border border-steel/25">
+                        Desactivat (per defecte)
+                      </span>
+                    {% endif %}
+                  </div>
+                  <p class="text-[11px] text-ink/70 leading-snug font-raleway">
+                    {% if user.twoFactorEnabled %}
+                      En cada inici de sessió amb contrasenya t'enviarem un codi temporal de 6 dígits a <code>{{ user.email }}</code>.
+                    {% else %}
+                      Opcionalment, activa el doble factor per rebre un codi numèric de 6 dígits al teu correu cada vegada que entris.
+                    {% endif %}
+                  </p>
+                </div>
+
+                <form method="post" action="{{ path('app_profile_toggle_2fa') }}" class="shrink-0">
+                  <input type="hidden" name="_token" value="{{ csrf_token('profile_toggle_2fa') }}">
+                  <button type="submit" class="w-full sm:w-auto px-4 py-2 sm:py-1.5 rounded-lg font-raleway font-bold text-xs uppercase tracking-wider shadow-2xs transition-all cursor-pointer min-h-[44px] sm:min-h-0 flex items-center justify-center {{ user.twoFactorEnabled ? 'bg-white border border-red-200 text-red-700 hover:bg-red-50' : 'bg-ink text-gold border border-gold/40 hover:bg-ink/90' }}">
+                    {{ user.twoFactorEnabled ? 'Desactivar 2FA' : 'Activar 2FA per Correu' }}
+                  </button>
+                </form>
+              </div>
+            </div>
           {% endif %}
         </div>
 
@@ -190,6 +224,24 @@
               <a href="{{ path('app_plan') }}" class="text-[10px] font-bold text-gold hover:underline font-raleway uppercase tracking-wider">
                 Pla & Facturació →
               </a>
+            </div>
+
+            <div class="pt-2 border-t border-steel/10 flex items-center justify-between">
+              <div>
+                <span class="text-[10px] uppercase font-mono tracking-wider text-ink/50 block">Correu Electrònic</span>
+                {% if user.emailVerified %}
+                  <span class="font-bold text-emerald-800 text-xs flex items-center gap-1">
+                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                    <span>Verificat</span>
+                    <span class="text-[10px] font-mono text-steel font-normal">{{ user.emailVerifiedAt|date('d/m/Y') }}</span>
+                  </span>
+                {% else %}
+                  <span class="font-bold text-amber-700 text-xs flex items-center gap-1">
+                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                    <span>Pendent de verificar</span>
+                  </span>
+                {% endif %}
+              </div>
             </div>
 
             <div class="pt-2 border-t border-steel/10 flex items-center justify-between">

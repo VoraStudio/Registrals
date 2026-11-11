@@ -10,8 +10,13 @@ enum UserActivityAction: string
     case LOGIN_FAILED = 'login_failed';
     case LOGOUT = 'logout';
     case REGISTER = 'register';
+    case EMAIL_VERIFIED = 'email_verified';
     case PASSWORD_CHANGED = 'password_changed';
     case PASSWORD_RESET_REQUESTED = 'password_reset_requested';
+    case TWO_FACTOR_CHALLENGE_SENT = 'two_factor_challenge_sent';
+    case TWO_FACTOR_VERIFIED = 'two_factor_verified';
+    case TWO_FACTOR_FAILED = 'two_factor_failed';
+    case TWO_FACTOR_TOGGLED = 'two_factor_toggled';
     case ITEM_CREATED = 'item_created';
     case ITEM_UPDATED = 'item_updated';
     case ITEM_DELETED = 'item_deleted';
@@ -40,8 +45,13 @@ enum UserActivityAction: string
             self::LOGIN_FAILED => 'Intent fallit d\'accés',
             self::LOGOUT => 'Tancament de sessió',
             self::REGISTER => 'Registre de compte',
+            self::EMAIL_VERIFIED => 'Correu electrònic verificat',
             self::PASSWORD_CHANGED => 'Canvi de contrasenya',
             self::PASSWORD_RESET_REQUESTED => 'Sol·licitud de recuperació de contrasenya',
+            self::TWO_FACTOR_CHALLENGE_SENT => 'Codi 2FA enviat per correu',
+            self::TWO_FACTOR_VERIFIED => 'Accés 2FA verificat',
+            self::TWO_FACTOR_FAILED => 'Verificació 2FA fallida',
+            self::TWO_FACTOR_TOGGLED => 'Configuració 2FA actualitzada',
             self::ITEM_CREATED => 'Creació de bé',
             self::ITEM_UPDATED => 'Modificació de bé',
             self::ITEM_DELETED => 'Eliminació de bé',
@@ -72,8 +82,13 @@ enum UserActivityAction: string
             self::LOGIN_FAILED => 'bg-rose-100 text-rose-900 border-rose-300 font-bold',
             self::LOGOUT => 'bg-slate-100 text-slate-700 border-slate-300',
             self::REGISTER => 'bg-indigo-50 text-indigo-800 border-indigo-300',
+            self::EMAIL_VERIFIED,
+            self::TWO_FACTOR_VERIFIED => 'bg-emerald-50 text-emerald-800 border-emerald-300',
+            self::TWO_FACTOR_CHALLENGE_SENT,
+            self::TWO_FACTOR_TOGGLED,
             self::PASSWORD_CHANGED,
             self::PASSWORD_RESET_REQUESTED => 'bg-amber-50 text-amber-800 border-amber-300',
+            self::TWO_FACTOR_FAILED => 'bg-rose-100 text-rose-900 border-rose-300 font-bold',
             self::LEGAL_TERMS_ACCEPTED => 'bg-blue-50 text-blue-800 border-blue-300 font-medium',
             self::KYC_INITIATED => 'bg-amber-50 text-amber-800 border-amber-300',
             self::KYC_APPROVED => 'bg-emerald-50 text-emerald-800 border-emerald-300 font-bold',
@@ -99,8 +114,13 @@ enum UserActivityAction: string
             self::LOGIN_FAILED,
             self::LOGOUT,
             self::REGISTER,
+            self::EMAIL_VERIFIED,
             self::PASSWORD_CHANGED,
             self::PASSWORD_RESET_REQUESTED,
+            self::TWO_FACTOR_CHALLENGE_SENT,
+            self::TWO_FACTOR_VERIFIED,
+            self::TWO_FACTOR_FAILED,
+            self::TWO_FACTOR_TOGGLED,
             self::STATUS_CHANGED,
             self::LEGAL_TERMS_ACCEPTED,
             self::KYC_INITIATED,
@@ -141,8 +161,13 @@ enum UserActivityAction: string
                 self::LOGIN_FAILED,
                 self::LOGOUT,
                 self::REGISTER,
+                self::EMAIL_VERIFIED,
                 self::PASSWORD_CHANGED,
                 self::PASSWORD_RESET_REQUESTED,
+                self::TWO_FACTOR_CHALLENGE_SENT,
+                self::TWO_FACTOR_VERIFIED,
+                self::TWO_FACTOR_FAILED,
+                self::TWO_FACTOR_TOGGLED,
                 self::STATUS_CHANGED,
                 self::LEGAL_TERMS_ACCEPTED,
                 self::KYC_INITIATED,

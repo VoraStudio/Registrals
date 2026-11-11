@@ -24,6 +24,7 @@ security:
                 check_path: app_login
                 enable_csrf: true
                 default_target_path: app_dashboard
+                failure_handler: App\Security\LoginAuthenticationFailureHandler
             custom_authenticators:
                 - App\Security\GoogleAuthenticator
             remember_me:

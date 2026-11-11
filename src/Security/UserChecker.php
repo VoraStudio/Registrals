@@ -27,6 +27,14 @@ class UserChecker implements UserCheckerInterface
 
     public function checkPostAuth(UserInterface $user): void
     {
-        // No checks needed post-auth
+        if (!$user instanceof User) {
+            return;
+        }
+
+        if ($user->getAuthProvider() === 'local' && !$user->isEmailVerified()) {
+            throw new CustomUserMessageAccountStatusException(
+                'Cal verificar la teva adreça de correu electrònic amb el codi de 6 dígits abans d\'accedir.'
+            );
+        }
     }
 }

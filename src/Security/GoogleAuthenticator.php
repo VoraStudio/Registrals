@@ -81,8 +81,13 @@ class GoogleAuthenticator extends AbstractAuthenticator implements Authenticatio
 
                 if ($existingUser) {
                     if ($existingUser->getAuthProvider() === 'local' && !$existingUser->getAuthProviderId()) {
+                        if (!$existingUser->isEmailVerified()) {
+                            $existingUser->setPassword(null);
+                        }
                         $existingUser->setAuthProvider('google');
                         $existingUser->setAuthProviderId($googleUser->getId());
+                        $existingUser->markEmailVerified();
+                        $existingUser->clearEmailOtp();
                         $this->entityManager->flush();
                     }
                     return $existingUser;
@@ -99,6 +104,7 @@ class GoogleAuthenticator extends AbstractAuthenticator implements Authenticatio
                 $user->setLastName($googleUser->getLastName() ?? 'Google');
                 $user->setAuthProvider('google');
                 $user->setAuthProviderId($googleUser->getId());
+                $user->markEmailVerified();
                 $user->setPlan($freePlan);
 
                 $this->entityManager->persist($user);

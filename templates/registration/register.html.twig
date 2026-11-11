@@ -110,7 +110,7 @@
         {# Nota segons el Pla triat (Guia d'Estils) #}
         {% if plan == 'plus' %}
           <div class="guide-note mb-4 text-left">
-            <strong>Pla Plus seleccionat:</strong> Gaudiràs de custòdia de fins a <code>100 béns</code> actius, 5 fotografies i 5 comprovants per bé, certificats oficials eIDAS, identificació de titular (Namirial) i traspassos C2C. En completar aquest formulari passaràs directament a l'activació del pla.
+            <strong>Pla Plus seleccionat:</strong> Gaudiràs de custòdia de fins a <code>100 béns</code> actius, 5 fotografies i 5 comprovants per bé, certificats oficials eIDAS, identificació de titular (Namirial) i traspassos C2C. Un cop validat el correu passaràs a acceptar les clàusules i activar el pla.
           </div>
         {% else %}
           <div class="guide-note mb-4 text-left">
@@ -184,6 +184,9 @@
                 </span>
               </label>
               {{ form_errors(registrationForm.agreeTerms, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
+              <p class="text-[11px] text-ink/60 mt-1.5 leading-snug">
+                Tot seguit validarem el teu correu amb un codi de 6 dígits i revisaràs les clàusules de custòdia i certificació.
+              </p>
             </div>
 
             <button type="submit" class="w-full mt-2 py-3 px-6 bg-ink text-cream font-semibold rounded-xl shadow-lg hover:bg-ink/90 active:scale-[0.99] transition-all flex items-center justify-center gap-2 text-sm sm:text-base uppercase tracking-wider font-raleway cursor-pointer">

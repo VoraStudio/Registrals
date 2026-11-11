@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Audit\Enum\UserActivityAction;
+use App\Audit\Service\UserActivityLogger;
 use App\Entity\User;
+use App\Enum\EmailOtpPurpose;
 use App\Form\RegistrationFormType;
 use App\Repository\PlanRepository;
+use App\Service\Security\AuthChallengeStorage;
+use App\Service\Security\EmailOtpService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,7 +27,9 @@ class RegistrationController extends AbstractController
         UserPasswordHasherInterface $userPasswordHasher,
         EntityManagerInterface $entityManager,
         PlanRepository $planRepository,
-        \Symfony\Bundle\SecurityBundle\Security $security
+        EmailOtpService $emailOtpService,
+        AuthChallengeStorage $challengeStorage,
+        ?UserActivityLogger $activityLogger = null
     ): Response {
         if ($this->getUser()) {
             return $this->redirectToRoute('app_dashboard');
@@ -53,30 +60,42 @@ class RegistrationController extends AbstractController
                 throw new \RuntimeException('El pla Free per defecte no està configurat a la base de dades.');
             }
 
+            $user->setEmail(mb_strtolower(trim($user->getEmail())));
             $user->setPlan($freePlan);
 
             /** @var string $plainPassword */
             $plainPassword = $form->get('plainPassword')->getData();
             $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
-
-            // Registre del consentiment de condicions legals v1.0
-            $user->setLegalTermsAcceptedAt(new \DateTimeImmutable());
-            $user->setLegalTermsVersion('v1.0');
             $user->setRegistrationIp($request->getClientIp());
 
             $entityManager->persist($user);
             $entityManager->flush();
 
-            // Inici de sessió automàtic i encaminament segons el pla triat
-            $security->login($user, 'form_login', 'main');
+            $activityLogger?->log(
+                user: $user,
+                action: UserActivityAction::REGISTER,
+                description: sprintf('Alta inicial de compte pendent de verificació per correu (%s)', $user->getEmail()),
+                details: ['plan_intended' => $planCode, 'ip' => $request->getClientIp()]
+            );
 
-            if ($planCode === 'plus') {
-                $request->getSession()->remove('intended_plan');
-                $this->addFlash('info', 'Compte creat amb èxit! Completa ara l\'activació del teu Pla Plus.');
-                return $this->redirectToRoute('app_plan');
+            $otpResult = $emailOtpService->issueOtp($user, EmailOtpPurpose::REGISTRATION_VERIFY);
+            $userId = $user->getId();
+            if ($userId !== null && $request->hasSession()) {
+                $challengeStorage->store($request->getSession(), $userId, EmailOtpPurpose::REGISTRATION_VERIFY, false);
+                if ($planCode === 'plus') {
+                    $request->getSession()->set('intended_plan', 'plus');
+                } else {
+                    $request->getSession()->remove('intended_plan');
+                }
             }
 
-            return $this->redirectToRoute('app_onboarding_welcome');
+            if ($otpResult['error'] !== null) {
+                $this->addFlash('error', $otpResult['error']);
+            } else {
+                $this->addFlash('info', 'T\'hem enviat un codi de 6 dígits al teu correu per validar el registre.');
+            }
+
+            return $this->redirectToRoute('app_register_verify_email');
         }
 
         return $this->render('registration/register.html.twig', [

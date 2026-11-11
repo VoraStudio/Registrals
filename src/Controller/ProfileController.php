@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Audit\Enum\UserActivityAction;
+use App\Audit\Service\UserActivityLogger;
 use App\Entity\User;
 use App\Form\ChangePasswordFormType;
 use App\Form\ProfileFormType;
@@ -66,5 +68,49 @@ class ProfileController extends AbstractController
             'passwordForm' => $passwordForm?->createView(),
             'isOAuthUser' => $isOAuthUser,
         ]);
+    }
+
+    #[Route('/app/perfil/seguretat/2fa', name: 'app_profile_toggle_2fa', methods: ['POST'])]
+    public function toggleTwoFactor(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        ?UserActivityLogger $activityLogger = null
+    ): Response {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if ($user->getAuthProvider() !== 'local') {
+            $this->addFlash('error', 'Els comptes vinculats a Google gestionen la verificació en dos passos directament amb Google.');
+            return $this->redirectToRoute('app_profile');
+        }
+
+        $token = (string) $request->request->get('_token', '');
+        if (!$this->isCsrfTokenValid('profile_toggle_2fa', $token)) {
+            $this->addFlash('error', 'El testimoni de seguretat no és vàlid. Torna-ho a provar.');
+            return $this->redirectToRoute('app_profile');
+        }
+
+        $newState = !$user->isTwoFactorEnabled();
+        $user->setTwoFactorEnabled($newState);
+        $user->setUpdatedAt(new \DateTimeImmutable());
+        $entityManager->flush();
+
+        $activityLogger?->log(
+            user: $user,
+            action: UserActivityAction::TWO_FACTOR_TOGGLED,
+            description: $newState
+                ? 'Activació de verificació en dos passos (2FA) per correu electrònic al perfil'
+                : 'Desactivació de verificació en dos passos (2FA) per correu electrònic al perfil',
+            details: ['two_factor_enabled' => $newState]
+        );
+
+        $this->addFlash(
+            'success',
+            $newState
+                ? 'Doble factor (2FA) activat! En iniciar sessió rebràs un codi de 6 dígits al teu correu.'
+                : 'Doble factor (2FA) desactivat per a l\'inici de sessió.'
+        );
+
+        return $this->redirectToRoute('app_profile');
     }
 }

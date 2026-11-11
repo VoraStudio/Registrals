@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Enum\EmailOtpPurpose;
 use App\Enum\KycStatus;
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -134,6 +135,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $resetPasswordExpiresAt = null;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $emailVerifiedAt = null;
+
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $twoFactorEnabled = false;
+
+    #[ORM\Column(type: 'string', length: 64, nullable: true)]
+    private ?string $emailOtpHash = null;
+
+    #[ORM\Column(type: 'string', length: 30, enumType: EmailOtpPurpose::class, nullable: true)]
+    private ?EmailOtpPurpose $emailOtpPurpose = null;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $emailOtpExpiresAt = null;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $emailOtpSentAt = null;
+
+    #[ORM\Column(type: 'integer', options: ['default' => 0])]
+    private int $emailOtpAttempts = 0;
 
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
@@ -664,6 +686,121 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->resetPasswordTokenHash = null;
         $this->resetPasswordExpiresAt = null;
+        return $this;
+    }
+
+    public function getEmailVerifiedAt(): ?\DateTimeImmutable
+    {
+        return $this->emailVerifiedAt;
+    }
+
+    public function setEmailVerifiedAt(?\DateTimeImmutable $emailVerifiedAt): static
+    {
+        $this->emailVerifiedAt = $emailVerifiedAt;
+        return $this;
+    }
+
+    public function isEmailVerified(): bool
+    {
+        return $this->emailVerifiedAt !== null;
+    }
+
+    public function markEmailVerified(?\DateTimeImmutable $verifiedAt = null): static
+    {
+        if ($this->emailVerifiedAt === null) {
+            $this->emailVerifiedAt = $verifiedAt ?? new \DateTimeImmutable();
+        }
+
+        return $this;
+    }
+
+    public function isTwoFactorEnabled(): bool
+    {
+        return $this->twoFactorEnabled;
+    }
+
+    public function setTwoFactorEnabled(bool $twoFactorEnabled): static
+    {
+        $this->twoFactorEnabled = $twoFactorEnabled;
+        return $this;
+    }
+
+    public function requiresLoginTwoFactor(): bool
+    {
+        return $this->authProvider === 'local' && $this->twoFactorEnabled;
+    }
+
+    public function getEmailOtpHash(): ?string
+    {
+        return $this->emailOtpHash;
+    }
+
+    public function setEmailOtpHash(?string $emailOtpHash): static
+    {
+        $this->emailOtpHash = $emailOtpHash;
+        return $this;
+    }
+
+    public function getEmailOtpPurpose(): ?EmailOtpPurpose
+    {
+        return $this->emailOtpPurpose;
+    }
+
+    public function setEmailOtpPurpose(?EmailOtpPurpose $emailOtpPurpose): static
+    {
+        $this->emailOtpPurpose = $emailOtpPurpose;
+        return $this;
+    }
+
+    public function getEmailOtpExpiresAt(): ?\DateTimeImmutable
+    {
+        return $this->emailOtpExpiresAt;
+    }
+
+    public function setEmailOtpExpiresAt(?\DateTimeImmutable $emailOtpExpiresAt): static
+    {
+        $this->emailOtpExpiresAt = $emailOtpExpiresAt;
+        return $this;
+    }
+
+    public function getEmailOtpSentAt(): ?\DateTimeImmutable
+    {
+        return $this->emailOtpSentAt;
+    }
+
+    public function setEmailOtpSentAt(?\DateTimeImmutable $emailOtpSentAt): static
+    {
+        $this->emailOtpSentAt = $emailOtpSentAt;
+        return $this;
+    }
+
+    public function getEmailOtpAttempts(): int
+    {
+        return $this->emailOtpAttempts;
+    }
+
+    public function setEmailOtpAttempts(int $emailOtpAttempts): static
+    {
+        $this->emailOtpAttempts = max(0, $emailOtpAttempts);
+        return $this;
+    }
+
+    public function hasActiveEmailOtp(EmailOtpPurpose $purpose): bool
+    {
+        return $this->emailOtpHash !== null
+            && $this->emailOtpPurpose === $purpose
+            && $this->emailOtpExpiresAt !== null
+            && $this->emailOtpExpiresAt > new \DateTimeImmutable();
+    }
+
+    public function clearEmailOtp(): static
+    {
+        $this->emailOtpHash = null;
+        $this->emailOtpPurpose = null;
+        $this->emailOtpExpiresAt = null;
+        $this->emailOtpSentAt = null;
+        $this->emailOtpAttempts = 0;
+
         return $this;
     }
 }

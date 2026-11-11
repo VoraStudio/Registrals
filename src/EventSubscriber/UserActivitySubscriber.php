@@ -7,6 +7,8 @@ namespace App\EventSubscriber;
 use App\Audit\Enum\UserActivityAction;
 use App\Audit\Service\UserActivityLogger;
 use App\Entity\User;
+use App\Security\Exception\PendingEmailVerificationException;
+use App\Security\Exception\PendingTwoFactorAuthenticationException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Event\LoginFailureEvent;
@@ -47,6 +49,11 @@ class UserActivitySubscriber implements EventSubscriberInterface
 
     public function onLoginFailure(LoginFailureEvent $event): void
     {
+        $exception = $event->getException();
+        if ($exception instanceof PendingEmailVerificationException || $exception instanceof PendingTwoFactorAuthenticationException) {
+            return;
+        }
+
         $passport = $event->getPassport();
         $identifier = 'desconegut';
         if ($passport && $passport->hasBadge(UserBadge::class)) {

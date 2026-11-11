@@ -106,6 +106,8 @@ class PasswordResetService
 
         $user->setPassword($hashed)
             ->clearResetPasswordToken()
+            ->clearEmailOtp()
+            ->markEmailVerified()
             ->setUpdatedAt(new \DateTimeImmutable());
 
         $this->entityManager->flush();
