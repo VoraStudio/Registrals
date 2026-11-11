@@ -13,7 +13,7 @@
 
   <main class="max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 py-3.5 sm:py-5 w-full flex-1 pb-20 md:pb-5">
 
-    {# Capçalera Notarial Canònica de Subpàgina #}
+    {# Capçalera Institucional de Subpàgina #}
     {% include 'partials/_subpage_header.html.twig' with {
       breadcrumbs: [
         { label: 'Inici', url: path('app_dashboard') },
@@ -24,8 +24,7 @@
       subtitle: 'Custòdia certificada d\'actes de pagament, gestió fiscal i descàrrega de factures amb IVA.',
       nav_prev_url: path('app_plan'),
       nav_prev_label: 'El meu Pla',
-      nav_next_url: path('app_profile_install_app'),
-      nav_next_label: 'App Mòbil'
+      nav_next_url: null
     } %}
 
     {# Secció 1: Resum de Subscripció i Estat Fiscal #}

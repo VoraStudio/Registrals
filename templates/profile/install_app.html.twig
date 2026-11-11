@@ -13,18 +13,14 @@
 
   <main class="max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 py-3.5 sm:py-5 w-full flex-1 pb-20 md:pb-5">
 
-    {# Capçalera Notarial Canònica de Subpàgina #}
+    {# Capçalera Institucional de Subpàgina #}
     {% include 'partials/_subpage_header.html.twig' with {
       breadcrumbs: [
         { label: 'Inici', url: path('app_dashboard') },
-        { label: 'Perfil', url: path('app_profile') },
         { label: 'App Mòbil' }
       ],
       title: 'Com Instal·lar l\'App Mòbil (PWA)',
       subtitle: 'Guia pas a pas per gaudir d\'una experiència nativa a iOS, Android o ordinador.',
-      nav_prev_url: path('app_plan_billing'),
-      nav_prev_label: 'Facturació',
-      nav_next_url: null,
       action_raw_html: '<div class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-gold/30 text-xs text-ink/80 shadow-2xs font-raleway"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span><span>PWA Nativa</span></div>'
     } %}
 
