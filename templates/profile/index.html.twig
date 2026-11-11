@@ -27,17 +27,7 @@
       nav_next_label: 'El meu Pla'
     } %}
 
-    {# Missatges Flash Compactes #}
-    {% for label, messages in app.flashes %}
-      {% for message in messages %}
-        <div class="mb-3 p-3 rounded-xl border border-gold/40 bg-white shadow-2xs flex items-center gap-2.5 animate-in fade-in">
-          <div class="w-6 h-6 rounded-full bg-gold/20 flex items-center justify-center text-ink shrink-0">
-            <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-          </div>
-          <div class="text-xs text-ink font-semibold">{{ message }}</div>
-        </div>
-      {% endfor %}
-    {% endfor %}
+    {% include 'partials/_persistent_flashes.html.twig' with { margin_class: 'mb-3' } %}
 
     {# Graella Principal Compacta (8 cols / 4 cols) #}
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-4 items-start">

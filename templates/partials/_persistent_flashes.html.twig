@@ -1,0 +1,35 @@
+{# Alertes persistents per a errors i avisos crítics; èxits i informació passen a RegistralsToast #}
+{% for label, messages in app.flashes(['error', 'warning']) %}
+  {% set is_warning = label == 'warning' %}
+  {% for message in messages %}
+    <div
+      role="alert"
+      data-persistent-flash
+      class="{{ margin_class|default('mb-6') }} p-4 rounded-xl text-xs sm:text-sm font-semibold flex items-start sm:items-center justify-between gap-3 shadow-xs {{ is_warning ? 'bg-amber-50 text-amber-900 border border-amber-200' : 'bg-red-50 text-red-900 border border-red-200' }}"
+    >
+      <div class="flex items-start sm:items-center gap-2.5 min-w-0">
+        {% if is_warning %}
+          <svg class="w-5 h-5 text-amber-600 shrink-0 mt-0.5 sm:mt-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+        {% else %}
+          <svg class="w-5 h-5 text-red-600 shrink-0 mt-0.5 sm:mt-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        {% endif %}
+        <span class="break-words">{{ message }}</span>
+      </div>
+      <button
+        type="button"
+        onclick="this.closest('[data-persistent-flash]').remove()"
+        class="p-1 rounded-lg transition-colors shrink-0 cursor-pointer {{ is_warning ? 'text-amber-700 hover:bg-amber-100' : 'text-red-700 hover:bg-red-100' }}"
+        aria-label="Tancar avís"
+        title="Tancar"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+  {% endfor %}
+{% endfor %}

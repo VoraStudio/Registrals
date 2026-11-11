@@ -83,12 +83,14 @@
       toast.innerHTML = `
         ${iconHtml}
         <div class="flex-1 pr-1 text-xs">
-          <div class="font-bold ${titleColor} text-[13px] tracking-wide mb-0.5">${title}</div>
-          <div class="text-cream/80 text-[11px] leading-snug">${description}</div>
+          <div data-toast-title class="font-bold ${titleColor} text-[13px] tracking-wide mb-0.5"></div>
+          <div data-toast-description class="text-cream/80 text-[11px] leading-snug"></div>
         </div>
         <button type="button" class="text-cream/50 hover:text-cream text-base leading-none p-1 shrink-0 cursor-pointer" aria-label="Tancar">&times;</button>
         <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent ${barGradient} to-transparent opacity-80"></div>
       `;
+      toast.querySelector('[data-toast-title]').textContent = title ?? '';
+      toast.querySelector('[data-toast-description]').textContent = description ?? '';
 
       container.appendChild(toast);
 
@@ -113,14 +115,20 @@
 {% for label, messages in app.flashes %}
   {% for message in messages %}
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        if (window.RegistralsToast) {
-          const rawLabel = '{{ label }}';
+      (function() {
+        const dispatchFlashToast = function() {
+          if (!window.RegistralsToast) return;
+          const rawLabel = '{{ label|e('js') }}';
           const type = rawLabel === 'error' ? 'error' : (rawLabel === 'warning' ? 'warning' : (rawLabel === 'success' ? 'success' : 'info'));
-          const title = rawLabel === 'error' ? 'Avís de Seguretat' : (rawLabel === 'warning' ? 'Atenció' : (rawLabel === 'success' ? 'Operació Completada' : 'Patrimoni Actualitzat'));
+          const title = rawLabel === 'error' ? 'Avís de Seguretat' : (rawLabel === 'warning' ? 'Atenció' : (rawLabel === 'success' ? 'Operació Completada' : 'Informació'));
           window.RegistralsToast.show(title, '{{ message|e('js') }}', type, 5000);
+        };
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', dispatchFlashToast);
+        } else {
+          dispatchFlashToast();
         }
-      });
+      })();
     </script>
   {% endfor %}
 {% endfor %}
