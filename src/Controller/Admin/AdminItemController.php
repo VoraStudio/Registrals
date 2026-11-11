@@ -52,7 +52,7 @@ class AdminItemController extends AbstractController
     }
 
     /**
-     * Fitxa d'Inspecció Notarial i Auditoria d'un Bé Custodiat (Backoffice)
+     * Fitxa d'Inspecció i Auditoria d'un Bé Custodiat (Backoffice)
      */
     #[Route('/{cui}', name: 'app_admin_item_show', methods: ['GET'])]
     public function show(string $cui, ItemRepository $itemRepository): Response
@@ -60,7 +60,7 @@ class AdminItemController extends AbstractController
         $item = $itemRepository->findOneByCui($cui);
 
         if (!$item) {
-            throw $this->createNotFoundException(sprintf('El bé amb codi notarial %s no s\'ha trobat al registre.', $cui));
+            throw $this->createNotFoundException(sprintf('El bé amb codi CUI %s no s\'ha trobat al registre.', $cui));
         }
 
         return $this->render('admin/item/show.html.twig', [
@@ -70,7 +70,7 @@ class AdminItemController extends AbstractController
     }
 
     /**
-     * Canvi d'estat notarial d'un bé des del Backoffice (Auditoria / Bloqueig per frau)
+     * Canvi d'estat d'un bé des del Backoffice (Auditoria / Bloqueig per frau)
      */
     #[Route('/{cui}/estat', name: 'app_admin_item_update_status', methods: ['POST'])]
     public function updateStatus(

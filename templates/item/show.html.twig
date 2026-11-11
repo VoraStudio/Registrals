@@ -1047,7 +1047,8 @@
                     <input type="hidden" name="_token" value="{{ csrf_token('checkout_cert_' ~ item.cui) }}">
                     <button type="submit" class="w-full py-2 px-3 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer">
                       <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-                      <span>Comprar Oficial (5,90 €)</span>
+                      {% set extraCertPriceCents = app.user.plan ? app.user.plan.extraCertificatePriceCents : 590 %}
+                      <span>Comprar Oficial ({{ (extraCertPriceCents / 100)|number_format(2, ',', '.') }} €)</span>
                     </button>
                   </form>
                   <div class="mt-1 text-center">

@@ -40,8 +40,17 @@ class Plan
     #[ORM\Column(type: 'integer', options: ['default' => 0])]
     private int $monthlyCertificatesQuota = 0;
 
+    #[ORM\Column(type: 'integer', options: ['default' => 590])]
+    private int $extraCertificatePriceCents = 590;
+
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private bool $allowOfficialCertificates = false;
+
+    #[ORM\Column(type: 'integer', options: ['default' => 0])]
+    private int $kycIncluded = 0;
+
+    #[ORM\Column(type: 'integer', options: ['default' => 350])]
+    private int $kycPriceCents = 350;
 
     #[ORM\Column(type: 'integer', options: ['default' => 0])]
     private int $aiAssistanceQuota = 0;
@@ -171,6 +180,17 @@ class Plan
         return $this;
     }
 
+    public function getExtraCertificatePriceCents(): int
+    {
+        return $this->extraCertificatePriceCents;
+    }
+
+    public function setExtraCertificatePriceCents(int $extraCertificatePriceCents): static
+    {
+        $this->extraCertificatePriceCents = $extraCertificatePriceCents;
+        return $this;
+    }
+
     public function isAllowOfficialCertificates(): bool
     {
         return $this->allowOfficialCertificates;
@@ -179,6 +199,28 @@ class Plan
     public function setAllowOfficialCertificates(bool $allowOfficialCertificates): static
     {
         $this->allowOfficialCertificates = $allowOfficialCertificates;
+        return $this;
+    }
+
+    public function getKycIncluded(): int
+    {
+        return $this->kycIncluded;
+    }
+
+    public function setKycIncluded(int $kycIncluded): static
+    {
+        $this->kycIncluded = $kycIncluded;
+        return $this;
+    }
+
+    public function getKycPriceCents(): int
+    {
+        return $this->kycPriceCents;
+    }
+
+    public function setKycPriceCents(int $kycPriceCents): static
+    {
+        $this->kycPriceCents = $kycPriceCents;
         return $this;
     }
 

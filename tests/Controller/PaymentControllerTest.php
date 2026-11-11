@@ -433,4 +433,124 @@ class PaymentControllerTest extends TestCase
         $this->assertSame('/app/perfil/facturacio', $response->getTargetUrl());
         $this->assertNotEmpty($session->getFlashBag()->get('success'));
     }
+
+    public function testCheckoutCertificateUsesPlanExtraCertificatePrice(): void
+    {
+        $freePlan = new Plan('free', 'Pla Free', 0);
+        $freePlan->setExtraCertificatePriceCents(650);
+
+        $user = $this->createUser();
+        $user->setPlan($freePlan);
+        $refUser = new \ReflectionProperty(User::class, 'id');
+        $refUser->setValue($user, 10);
+
+        $category = new \App\Entity\Category('joies', 'Joies');
+        $item = new Item($user, 'REG-2026-CERT01', 'Anell Or', $category);
+        $refItem = new \ReflectionProperty(Item::class, 'id');
+        $refItem->setValue($item, 42);
+
+        $session = new Session(new MockArraySessionStorage());
+        $router = $this->createMock(UrlGeneratorInterface::class);
+        $router->method('generate')->willReturn('https://registrals.com/app/return');
+
+        $paymentGateway = $this->createMock(PaymentGatewayInterface::class);
+        $paymentGateway->expects($this->once())
+            ->method('createCertificateCheckout')
+            ->with($user, $item, 650, $this->anything(), $this->anything())
+            ->willReturn([
+                'sessionId' => 'cs_cert_650',
+                'url' => 'https://checkout.stripe.com/pay/cs_cert_650',
+            ]);
+
+        $paymentManager = $this->createMock(PaymentManager::class);
+        $paymentManager->expects($this->once())
+            ->method('createPendingTransaction')
+            ->with($user, PaymentType::CERTIFICATE, 650, 'cs_cert_650', $this->anything());
+
+        $itemRepo = $this->createMock(ItemRepository::class);
+        $itemRepo->method('findOneByCui')->with('REG-2026-CERT01')->willReturn($item);
+
+        $controller = new PaymentController(
+            $paymentGateway,
+            $paymentManager,
+            $this->createMock(PaymentTransactionRepository::class),
+            $this->createMock(PlanRepository::class),
+            $itemRepo,
+            $this->createMock(ItemTransferRepository::class)
+        );
+
+        $controller->setContainer($this->createContainerWithServices(
+            $user,
+            router: $router,
+            session: $session,
+            csrfValid: true
+        ));
+
+        $request = new Request([], ['_token' => 'valid_csrf']);
+        $request->setSession($session);
+
+        $response = $controller->checkoutCertificate('REG-2026-CERT01', $request);
+
+        $this->assertInstanceOf(RedirectResponse::class, $response);
+        $this->assertSame('https://checkout.stripe.com/pay/cs_cert_650', $response->getTargetUrl());
+    }
+
+    public function testCheckoutTransferUsesTransferFeeCentsInsteadOfHardcodedAmount(): void
+    {
+        $sender = $this->createUser();
+        $recipient = $this->createUser();
+        $refRecipient = new \ReflectionProperty(User::class, 'id');
+        $refRecipient->setValue($recipient, 22);
+
+        $category = new \App\Entity\Category('rellotges', 'Rellotges');
+        $item = new Item($sender, 'REG-2026-TXF001', 'Omega Speedmaster', $category);
+        $transfer = new \App\Entity\ItemTransfer($item, $sender, 'buyer@example.com', 340);
+        $refTransfer = new \ReflectionProperty(\App\Entity\ItemTransfer::class, 'id');
+        $refTransfer->setValue($transfer, 77);
+
+        $session = new Session(new MockArraySessionStorage());
+        $router = $this->createMock(UrlGeneratorInterface::class);
+        $router->method('generate')->willReturn('https://registrals.com/app/return');
+
+        $paymentGateway = $this->createMock(PaymentGatewayInterface::class);
+        $paymentGateway->expects($this->once())
+            ->method('createTransferCheckout')
+            ->with($recipient, $transfer, 340, $this->anything(), $this->anything())
+            ->willReturn([
+                'sessionId' => 'cs_txf_340',
+                'url' => 'https://checkout.stripe.com/pay/cs_txf_340',
+            ]);
+
+        $paymentManager = $this->createMock(PaymentManager::class);
+        $paymentManager->expects($this->once())
+            ->method('createPendingTransaction')
+            ->with($recipient, PaymentType::TRANSFER, 340, 'cs_txf_340', $this->anything());
+
+        $transferRepo = $this->createMock(ItemTransferRepository::class);
+        $transferRepo->method('findByToken')->with('tok_custom_340')->willReturn($transfer);
+
+        $controller = new PaymentController(
+            $paymentGateway,
+            $paymentManager,
+            $this->createMock(PaymentTransactionRepository::class),
+            $this->createMock(PlanRepository::class),
+            $this->createMock(ItemRepository::class),
+            $transferRepo
+        );
+
+        $controller->setContainer($this->createContainerWithServices(
+            $recipient,
+            router: $router,
+            session: $session,
+            csrfValid: true
+        ));
+
+        $request = new Request([], ['_token' => 'valid_csrf']);
+        $request->setSession($session);
+
+        $response = $controller->checkoutTransfer('tok_custom_340', $request);
+
+        $this->assertInstanceOf(RedirectResponse::class, $response);
+        $this->assertSame('https://checkout.stripe.com/pay/cs_txf_340', $response->getTargetUrl());
+    }
 }

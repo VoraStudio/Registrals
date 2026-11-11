@@ -77,8 +77,23 @@ class AdminDashboardController extends AbstractController
         $rateFreeToPlus = $totalUsers > 0 ? round(($plusUsers / $totalUsers) * 100, 1) : 0.0;
         $ratePlusToUnlimited = ($plusUsers + $unlimitedUsers) > 0 ? round(($unlimitedUsers / ($plusUsers + $unlimitedUsers)) * 100, 1) : 0.0;
 
-        // 4. Estimacions Econòmiques (ARR i Marge)
-        $estimatedArr = ($plusUsers * 22) + ($unlimitedUsers * 59);
+        $plans = $planRepository->findAll();
+        $plansByCode = PlanRepository::indexByCode($plans);
+
+        // 4. Estimacions Econòmiques (ARR i Marge) a partir dels preus configurats a la BDD
+        $estimatedArr = 0.0;
+        foreach (['plus' => $plusUsers, 'unlimited' => $unlimitedUsers] as $planCode => $subscriberCount) {
+            $planEntity = $plansByCode[$planCode] ?? null;
+            if ($planEntity === null || $subscriberCount <= 0) {
+                continue;
+            }
+            $periodFactor = match ($planEntity->getBillingPeriod()) {
+                'monthly' => 12,
+                'yearly' => 1,
+                default => 0,
+            };
+            $estimatedArr += $subscriberCount * ($planEntity->getPriceCents() / 100) * $periodFactor;
+        }
         $estimatedMarginPercent = 88;
 
         // 5. Canals d'Accés & Registre (Email vs Google OAuth)
@@ -143,7 +158,6 @@ class AdminDashboardController extends AbstractController
 
         $recentUsers = $userRepository->findRecent(6);
         $recentItems = $itemRepository->findRecent(6);
-        $plans = $planRepository->findAll();
 
         return $this->render('admin/dashboard.html.twig', [
             'totalUsers' => $totalUsers,
@@ -168,6 +182,7 @@ class AdminDashboardController extends AbstractController
             'recentUsers' => $recentUsers,
             'recentItems' => $recentItems,
             'plans' => $plans,
+            'plansByCode' => $plansByCode,
             'googleUsers' => $googleUsers,
             'emailUsers' => $emailUsers,
             'percentGoogle' => $percentGoogle,

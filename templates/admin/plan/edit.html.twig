@@ -125,11 +125,32 @@
             {{ form_errors(form.maxEvidencesPerItem) }}
           </div>
 
-          <div class="col-span-2">
+          <div class="col-span-2 sm:col-span-1">
             {{ form_label(form.monthlyCertificatesQuota, null, {'label_attr': {'class': 'block text-xs font-bold text-ink mb-1.5 font-raleway'}}) }}
             {{ form_widget(form.monthlyCertificatesQuota, {'attr': {'class': 'w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3 py-2 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white font-mono'}}) }}
-            <span class="text-[10px] text-ink/60 mt-1 block font-raleway">Certificats oficials eIDAS/Blockchain gratuïts inclosos al període.</span>
+            <span class="text-[10px] text-ink/60 mt-1 block font-raleway">Certificats oficials eIDAS/Blockchain gratuïts inclosos al mes.</span>
             {{ form_errors(form.monthlyCertificatesQuota) }}
+          </div>
+
+          <div class="col-span-2 sm:col-span-1">
+            {{ form_label(form.extraCertificatePriceCents, null, {'label_attr': {'class': 'block text-xs font-bold text-ink mb-1.5 font-raleway'}}) }}
+            {{ form_widget(form.extraCertificatePriceCents, {'attr': {'class': 'w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3 py-2 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white font-mono'}}) }}
+            {{ form_help(form.extraCertificatePriceCents, {'help_attr': {'class': 'text-[10px] text-ink/60 mt-1 block font-raleway'}}) }}
+            {{ form_errors(form.extraCertificatePriceCents) }}
+          </div>
+
+          <div class="col-span-2 sm:col-span-1">
+            {{ form_label(form.kycIncluded, null, {'label_attr': {'class': 'block text-xs font-bold text-ink mb-1.5 font-raleway'}}) }}
+            {{ form_widget(form.kycIncluded, {'attr': {'class': 'w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3 py-2 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white font-mono'}}) }}
+            {{ form_help(form.kycIncluded, {'help_attr': {'class': 'text-[10px] text-ink/60 mt-1 block font-raleway'}}) }}
+            {{ form_errors(form.kycIncluded) }}
+          </div>
+
+          <div class="col-span-2 sm:col-span-1">
+            {{ form_label(form.kycPriceCents, null, {'label_attr': {'class': 'block text-xs font-bold text-ink mb-1.5 font-raleway'}}) }}
+            {{ form_widget(form.kycPriceCents, {'attr': {'class': 'w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3 py-2 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white font-mono'}}) }}
+            {{ form_help(form.kycPriceCents, {'help_attr': {'class': 'text-[10px] text-ink/60 mt-1 block font-raleway'}}) }}
+            {{ form_errors(form.kycPriceCents) }}
           </div>
 
           <div class="col-span-2 sm:col-span-1">

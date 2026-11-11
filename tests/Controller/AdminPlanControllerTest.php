@@ -72,9 +72,12 @@ class AdminPlanControllerTest extends TestCase
             ->method('render')
             ->with('admin/plan/index.html.twig', $this->callback(function (array $params) use ($planFree, $planPlus): bool {
                 $this->assertArrayHasKey('plans', $params);
+                $this->assertArrayHasKey('plansByCode', $params);
                 $this->assertCount(2, $params['plans']);
                 $this->assertSame($planFree, $params['plans'][0]);
                 $this->assertSame($planPlus, $params['plans'][1]);
+                $this->assertSame($planFree, $params['plansByCode']['free']);
+                $this->assertSame($planPlus, $params['plansByCode']['plus']);
                 return true;
             }))
             ->willReturn('<html>Plans</html>');

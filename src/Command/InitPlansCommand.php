@@ -40,7 +40,10 @@ class InitPlansCommand extends Command
                 'maxYearlyRegistrations' => 20,
                 'maxLifetimeItems' => 50,
                 'monthlyCertificatesQuota' => 0,
+                'extraCertificatePriceCents' => 590,
                 'allowOfficialCertificates' => false,
+                'kycIncluded' => 0,
+                'kycPriceCents' => 350,
                 'aiAssistanceQuota' => 20,
                 'transfersIncluded' => 0,
                 'extraTransferPriceCents' => 290,
@@ -57,7 +60,10 @@ class InitPlansCommand extends Command
                 'maxYearlyRegistrations' => 120,
                 'maxLifetimeItems' => 500,
                 'monthlyCertificatesQuota' => 10,
+                'extraCertificatePriceCents' => 590,
                 'allowOfficialCertificates' => true,
+                'kycIncluded' => 1,
+                'kycPriceCents' => 350,
                 'aiAssistanceQuota' => 100,
                 'transfersIncluded' => 5,
                 'extraTransferPriceCents' => 0,
@@ -74,7 +80,10 @@ class InitPlansCommand extends Command
                 'maxYearlyRegistrations' => 9999,
                 'maxLifetimeItems' => 9999,
                 'monthlyCertificatesQuota' => 9999,
+                'extraCertificatePriceCents' => 0,
                 'allowOfficialCertificates' => true,
+                'kycIncluded' => 9999,
+                'kycPriceCents' => 0,
                 'aiAssistanceQuota' => 9999,
                 'transfersIncluded' => 9999,
                 'extraTransferPriceCents' => 0,
@@ -102,7 +111,10 @@ class InitPlansCommand extends Command
                 ->setMaxYearlyRegistrations($data['maxYearlyRegistrations'])
                 ->setMaxLifetimeItems($data['maxLifetimeItems'])
                 ->setMonthlyCertificatesQuota($data['monthlyCertificatesQuota'])
+                ->setExtraCertificatePriceCents($data['extraCertificatePriceCents'])
                 ->setAllowOfficialCertificates($data['allowOfficialCertificates'])
+                ->setKycIncluded($data['kycIncluded'])
+                ->setKycPriceCents($data['kycPriceCents'])
                 ->setAiAssistanceQuota($data['aiAssistanceQuota'])
                 ->setTransfersIncluded($data['transfersIncluded'])
                 ->setExtraTransferPriceCents($data['extraTransferPriceCents'])

@@ -86,6 +86,27 @@ class PlanType extends AbstractType
                     'class' => 'w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3.5 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white font-mono',
                 ],
             ])
+            ->add('extraCertificatePriceCents', IntegerType::class, [
+                'label' => 'Preu Certificat Oficial Puntual en Cèntims (ex: 590 = 5,90 €)',
+                'attr' => [
+                    'class' => 'w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3.5 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white font-mono',
+                ],
+                'help' => 'Preu puntual quan el pla no inclou certificats oficials o se supera la quota.',
+            ])
+            ->add('kycIncluded', IntegerType::class, [
+                'label' => 'Verificacions eIDV (KYC) Incloses',
+                'attr' => [
+                    'class' => 'w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3.5 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white font-mono',
+                ],
+                'help' => 'Free: 0, Plus: 1, Unlimited: 9999 o -1.',
+            ])
+            ->add('kycPriceCents', IntegerType::class, [
+                'label' => 'Preu Verificació eIDV (KYC) en Cèntims (ex: 350 = 3,50 €)',
+                'attr' => [
+                    'class' => 'w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3.5 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white font-mono',
+                ],
+                'help' => 'Preu per tràmit de validació biomètrica fora de quota inclosa.',
+            ])
             ->add('transfersIncluded', IntegerType::class, [
                 'label' => 'Traspassos C2C Inclosos al Període',
                 'attr' => [

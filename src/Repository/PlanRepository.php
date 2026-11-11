@@ -27,4 +27,20 @@ class PlanRepository extends ServiceEntityRepository
     {
         return $this->findOneBy(['code' => $code, 'isActive' => true]);
     }
+
+    /**
+     * Indexa una col·lecció de plans pel seu codi (`free`, `plus`, `unlimited`).
+     *
+     * @param iterable<Plan> $plans
+     * @return array<string, Plan>
+     */
+    public static function indexByCode(iterable $plans): array
+    {
+        $indexed = [];
+        foreach ($plans as $plan) {
+            $indexed[$plan->getCode()] = $plan;
+        }
+
+        return $indexed;
+    }
 }

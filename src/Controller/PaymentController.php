@@ -125,7 +125,8 @@ class PaymentController extends AbstractController
             return $this->redirectToRoute('app_item_show', ['cui' => $cui]);
         }
 
-        $amountCents = 590; // 5,90 €
+        $amountCents = $user->getPlan()?->getExtraCertificatePriceCents()
+            ?? ($this->planRepository->findDefaultFreePlan()?->getExtraCertificatePriceCents() ?? 590);
         $successUrl = $this->generateUrl('app_payment_success', [
             'type' => 'certificate',
             'cui' => $cui,
@@ -187,7 +188,9 @@ class PaymentController extends AbstractController
             throw $this->createNotFoundException('Traspàs no trobat.');
         }
 
-        $amountCents = 290; // 2,90 €
+        $amountCents = $transfer->getTransferFeeCents() > 0
+            ? $transfer->getTransferFeeCents()
+            : ($this->planRepository->findDefaultFreePlan()?->getExtraTransferPriceCents() ?? 290);
         $successUrl = $this->generateUrl('app_payment_success', [
             'type' => 'transfer',
             'token' => $token,

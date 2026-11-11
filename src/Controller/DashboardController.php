@@ -64,6 +64,7 @@ class DashboardController extends AbstractController
             'graceDaysLeft' => $user->getDowngradeGraceDaysLeft(),
             'maxFreeItems' => $maxFreeItems,
             'maxPlusItems' => $maxPlusItems,
+            'freePlan' => $freePlan,
             'plusPlan' => $plusPlan,
         ]);
     }

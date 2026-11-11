@@ -1,0 +1,55 @@
+{% macro period_short(plan) %}
+  {%- if plan -%}
+    {{- plan.billingPeriod == 'monthly' ? 'mes' : (plan.billingPeriod == 'lifetime' ? 'únic' : 'any') -}}
+  {%- else -%}
+    any
+  {%- endif -%}
+{% endmacro %}
+
+{% macro euros_cents(cents) %}
+  {{- ((cents|default(0)) / 100)|number_format(2, ',', '.') }} €
+{% endmacro %}
+
+{% macro certificates_summary(plan, show_period = true) %}
+  {%- if plan and plan.allowOfficialCertificates -%}
+    {%- if plan.monthlyCertificatesQuota == -1 or plan.monthlyCertificatesQuota >= 9999 -%}
+      Il·limitats
+    {%- else -%}
+      {{- plan.monthlyCertificatesQuota }} inclosos{{ show_period ? ' / mes' : '' -}}
+    {%- endif -%}
+  {%- else -%}
+    No inclòs
+  {%- endif -%}
+{% endmacro %}
+
+{% macro transfers_summary(plan, show_cycle = true) %}
+  {%- if plan -%}
+    {%- if plan.transfersIncluded == -1 or plan.transfersIncluded >= 9999 -%}
+      Il·limitats
+    {%- elseif plan.transfersIncluded > 0 -%}
+      {{- plan.transfersIncluded }} inclosos{{ show_cycle ? ' / cicle' : '' -}}
+    {%- else -%}
+      {{- ((plan.extraTransferPriceCents|default(0)) / 100)|number_format(2, ',', '.') }} €/u.
+    {%- endif -%}
+  {%- else -%}
+    —
+  {%- endif -%}
+{% endmacro %}
+
+{% macro kyc_summary(plan, long_label = true) %}
+  {%- if plan -%}
+    {%- if plan.kycIncluded == -1 or plan.kycIncluded >= 9999 -%}
+      Inclosa (∞)
+    {%- elseif plan.kycIncluded > 0 -%}
+      {%- if long_label -%}
+        {{- plan.kycIncluded }} {{ plan.kycIncluded == 1 ? 'verificació inclosa' : 'verificacions incloses' -}}
+      {%- else -%}
+        {{- plan.kycIncluded }} {{ plan.kycIncluded == 1 ? 'inclosa' : 'incloses' -}}
+      {%- endif -%}
+    {%- else -%}
+      {{- ((plan.kycPriceCents|default(0)) / 100)|number_format(2, ',', '.') }} € / tràmit
+    {%- endif -%}
+  {%- else -%}
+    —
+  {%- endif -%}
+{% endmacro %}

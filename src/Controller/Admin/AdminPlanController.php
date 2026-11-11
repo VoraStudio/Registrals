@@ -27,6 +27,7 @@ class AdminPlanController extends AbstractController
 
         return $this->render('admin/plan/index.html.twig', [
             'plans' => $plans,
+            'plansByCode' => PlanRepository::indexByCode($plans),
         ]);
     }
 

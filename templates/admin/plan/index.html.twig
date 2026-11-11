@@ -1,8 +1,12 @@
 {% extends 'admin/layout.html.twig' %}
+{% import 'partials/_plan_macros.html.twig' as planMacros %}
 
 {% block title %}Plans, Tarifes & Costos — Administració Registrals{% endblock %}
 
 {% block admin_content %}
+{% set planFree = plansByCode['free']|default(null) %}
+{% set planPlus = plansByCode['plus']|default(null) %}
+{% set planUnlimited = plansByCode['unlimited']|default(null) %}
 <div class="space-y-8">
 
   {# Fil d'Ariadna de Ruta Canònic #}
@@ -29,12 +33,12 @@
     </div>
   </div>
 
-  {# Avís Notarial Canònic #}
+  {# Avís Canònic #}
   <div class="border-l-[3.5px] border-gold bg-gold/10 p-4 rounded-r-xl font-raleway text-xs text-ink/80 leading-relaxed shadow-2xs">
     <strong>Regla d'Arquitectura Backoffice:</strong> Cap quota o límit de pla està "hardcodejat" al codi font. Les modificacions que desis aquí s'apliquen instantàniament a les noves altes i validacions de quotes d'usuaris sense necessitat de reiniciar el servidor.
   </div>
 
-  {# Graella de Plans (3 Targetes Notarials) #}
+  {# Graella de Plans (3 Targetes) #}
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     {% for plan in plans %}
       <div class="bg-white rounded-2xl border {{ plan.code == 'plus' ? 'border-ink shadow-md' : (plan.code == 'unlimited' ? 'border-gold shadow-md' : 'border-steel/25 shadow-xs') }} overflow-hidden flex flex-col justify-between">
@@ -59,7 +63,7 @@
               <span class="font-marcellus text-3xl font-bold {{ plan.code == 'plus' ? 'text-gold' : 'text-ink' }}">
                 {{ (plan.priceCents / 100)|number_format(2, ',', '.') }} €
               </span>
-              <span class="text-xs opacity-75">/ {{ plan.billingPeriod }}</span>
+              <span class="text-xs opacity-75">/ {{ planMacros.period_short(plan) }}</span>
             </div>
           </div>
 
@@ -104,14 +108,25 @@
             <div class="flex items-center justify-between pb-2 border-b border-steel/10">
               <span class="text-ink/65">Certificats oficials eIDAS:</span>
               <span class="font-bold {{ plan.allowOfficialCertificates ? 'text-emerald-700' : 'text-steel' }}">
-                {{ plan.allowOfficialCertificates ? 'Permesos (' ~ (plan.monthlyCertificatesQuota >= 9999 or plan.monthlyCertificatesQuota == -1 ? '∞' : plan.monthlyCertificatesQuota) ~ '/mes)' : 'No inclosos (Draft)' }}
+                {% if plan.allowOfficialCertificates %}
+                  Permesos ({{ plan.monthlyCertificatesQuota >= 9999 or plan.monthlyCertificatesQuota == -1 ? '∞' : plan.monthlyCertificatesQuota }}/mes)
+                {% else %}
+                  No inclosos ({{ planMacros.euros_cents(plan.extraCertificatePriceCents)|trim }}/u.)
+                {% endif %}
               </span>
             </div>
 
             <div class="flex items-center justify-between pb-2 border-b border-steel/10">
               <span class="text-ink/65">Traspassos C2C:</span>
               <span class="font-bold font-mono text-ink">
-                {{ plan.transfersIncluded == -1 or plan.transfersIncluded >= 9999 ? 'Il·limitats' : (plan.transfersIncluded > 0 ? plan.transfersIncluded ~ ' inclosos' : (plan.extraTransferPriceCents / 100)|number_format(2, ',', '.') ~ ' €/u.') }}
+                {{ planMacros.transfers_summary(plan, false) }}
+              </span>
+            </div>
+
+            <div class="flex items-center justify-between pb-2 border-b border-steel/10">
+              <span class="text-ink/65">Verificació eIDV (KYC):</span>
+              <span class="font-bold font-mono {{ plan.kycIncluded != 0 ? 'text-emerald-700' : 'text-ink' }}">
+                {{ planMacros.kyc_summary(plan, false) }}
               </span>
             </div>
 
@@ -166,8 +181,12 @@
           <tr class="bg-cream-50/80 border-b border-steel/20 text-ink/75 font-semibold text-[11px] uppercase tracking-wider">
             <th class="py-3 px-4 sm:px-6">Servei / Operació de Certificació</th>
             <th class="py-3 px-4">Pla FREE (Pay-per-Use)</th>
-            <th class="py-3 px-4">Pla PLUS (22 €/any)</th>
-            <th class="py-3 px-4">Pla UNLIMITED (59 €/any)</th>
+            <th class="py-3 px-4">
+              Pla PLUS ({{ planPlus ? (planMacros.euros_cents(planPlus.priceCents)|trim ~ '/' ~ planMacros.period_short(planPlus)) : '—' }})
+            </th>
+            <th class="py-3 px-4">
+              Pla UNLIMITED ({{ planUnlimited ? (planMacros.euros_cents(planUnlimited.priceCents)|trim ~ '/' ~ planMacros.period_short(planUnlimited)) : '—' }})
+            </th>
             <th class="py-3 px-4">Tipus de Tràmit</th>
           </tr>
         </thead>
@@ -177,19 +196,31 @@
               Certificat Oficial eIDAS (Signaturit / Namirial)
               <span class="text-[11px] text-ink/65 font-normal block">Segellat de temps qualificat legal davant tribunals i asseguradores</span>
             </td>
-            <td class="py-3.5 px-4 font-mono font-bold text-ink">6,00 € <span class="font-normal text-ink/60">/ u.</span></td>
-            <td class="py-3.5 px-4 font-semibold text-emerald-700">10 inclosos / any</td>
-            <td class="py-3.5 px-4 font-bold text-emerald-700">Il·limitats</td>
+            <td class="py-3.5 px-4 font-mono font-bold text-ink">
+              {{ planMacros.euros_cents(planFree ? planFree.extraCertificatePriceCents : 590) }} <span class="font-normal text-ink/60">/ u.</span>
+            </td>
+            <td class="py-3.5 px-4 font-semibold {{ planPlus and planPlus.allowOfficialCertificates ? 'text-emerald-700' : 'text-steel' }}">
+              {{ planMacros.certificates_summary(planPlus) }}
+            </td>
+            <td class="py-3.5 px-4 font-bold {{ planUnlimited and planUnlimited.allowOfficialCertificates ? 'text-emerald-700' : 'text-steel' }}">
+              {{ planMacros.certificates_summary(planUnlimited) }}
+            </td>
             <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-50 text-amber-800 border border-amber-200">Legal eIDAS</span></td>
           </tr>
           <tr class="hover:bg-cream/20 transition-colors">
             <td class="py-3.5 px-4 sm:px-6 font-bold text-ink">
-              Traspàs de Titularitat C2C Notaritzat
+              Traspàs de Titularitat C2C Certificat
               <span class="text-[11px] text-ink/65 font-normal block">Cessió segura entre particulars amb canvi d'ancoratge</span>
             </td>
-            <td class="py-3.5 px-4 font-mono font-bold text-ink">2,90 € <span class="font-normal text-ink/60">/ u.</span></td>
-            <td class="py-3.5 px-4 font-semibold text-emerald-700">5 inclosos / any</td>
-            <td class="py-3.5 px-4 font-bold text-emerald-700">Il·limitats</td>
+            <td class="py-3.5 px-4 font-mono font-bold text-ink">
+              {{ planMacros.transfers_summary(planFree) }}
+            </td>
+            <td class="py-3.5 px-4 font-semibold text-emerald-700">
+              {{ planMacros.transfers_summary(planPlus) }}
+            </td>
+            <td class="py-3.5 px-4 font-bold text-emerald-700">
+              {{ planMacros.transfers_summary(planUnlimited) }}
+            </td>
             <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded text-[10px] font-mono bg-blue-50 text-blue-800 border border-blue-200">Traspàs C2C</span></td>
           </tr>
           <tr class="hover:bg-cream/20 transition-colors">
@@ -197,9 +228,15 @@
               Verificació d'Identitat eIDV (KYC)
               <span class="text-[11px] text-ink/65 font-normal block">Validació oficial de DNI/NIE i biometria facial via Signaturit (Grup Namirial)</span>
             </td>
-            <td class="py-3.5 px-4 font-mono font-bold text-ink">3,50 € <span class="font-normal text-ink/60">/ tràmit</span></td>
-            <td class="py-3.5 px-4 font-semibold text-emerald-700">1 verificació inclosa</td>
-            <td class="py-3.5 px-4 font-bold text-emerald-700">Inclosa</td>
+            <td class="py-3.5 px-4 font-mono font-bold {{ planFree and planFree.kycIncluded != 0 ? 'text-emerald-700' : 'text-ink' }}">
+              {{ planMacros.kyc_summary(planFree) }}
+            </td>
+            <td class="py-3.5 px-4 font-semibold text-emerald-700">
+              {{ planMacros.kyc_summary(planPlus) }}
+            </td>
+            <td class="py-3.5 px-4 font-bold text-emerald-700">
+              {{ planMacros.kyc_summary(planUnlimited) }}
+            </td>
             <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded text-[10px] font-mono bg-purple-50 text-purple-800 border border-purple-200">Identitat eIDV</span></td>
           </tr>
           <tr class="hover:bg-cream/20 transition-colors">
@@ -243,8 +280,10 @@
         <p class="text-[11px] text-ink/70 mt-1 leading-relaxed">
           Segellat de temps qualificat per l'autoritat de certificació europea (TSP).
         </p>
+        {% set unitCertEuros = (planFree ? planFree.extraCertificatePriceCents : 590) / 100 %}
+        {% set unitCertMargin = unitCertEuros > 0 ? (((unitCertEuros - 0.10) / unitCertEuros) * 100)|number_format(1, ',', '.') : '0,0' %}
         <div class="mt-3 pt-2 border-t border-steel/10 text-[10px] text-emerald-700 font-bold">
-          Preu cobrat: 6,00 € (Marge: 98,3%)
+          Preu cobrat: {{ unitCertEuros|number_format(2, ',', '.') }} € (Marge: {{ unitCertMargin }}%)
         </div>
       </div>
 
