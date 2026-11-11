@@ -54,6 +54,12 @@ class VerifyCertificateController extends AbstractController
         }
 
         $item = $certificate->getItem();
+        if ($item === null) {
+            return $this->render('verify/not_found.html.twig', [
+                'identifier' => $uuid,
+                'reason' => 'Aquest certificat correspon a un Inventari Global de Llegat i disposa del seu canal dedicat de verificació successòria.',
+            ], new Response('', Response::HTTP_NOT_FOUND));
+        }
 
         // 3. Comprovació de vigència i integritat del bé respecte al certificat
         $currentFingerprint = $this->fingerprintCalculator->calculateForItem($item);

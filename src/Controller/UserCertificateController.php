@@ -100,7 +100,7 @@ class UserCertificateController extends AbstractController
         $isAdmin = in_array('ROLE_ADMIN', $currentUser->getRoles(), true);
 
         $isIssuer = $certificate->getIssuedBy()->getId() === $currentUser->getId();
-        $isOwner = $certificate->getItem()->getOwner()->getId() === $currentUser->getId();
+        $isOwner = $certificate->getItem()?->getOwner()->getId() === $currentUser->getId();
 
         if (!$isAdmin && !$isIssuer && !$isOwner) {
             throw $this->createAccessDeniedException(
@@ -109,7 +109,7 @@ class UserCertificateController extends AbstractController
         }
 
         // Si és un esborrany, regenerem el PDF per reflectir millores de plantilla i fotografia
-        if ($certificate->getMode()->isDraft()) {
+        if ($certificate->getMode()->isDraft() && !$certificate->isLegacyInventory()) {
             try {
                 $this->certificateIssuer->regeneratePdf($certificate);
             } catch (\Throwable) {
@@ -123,7 +123,8 @@ class UserCertificateController extends AbstractController
         }
 
         $pdfBinary = $this->itemDocumentStorage->read($storagePath);
-        $filename = sprintf('%s_%s.pdf', $certificate->getItem()->getCui(), $certificate->getCertificateNumber());
+        $filenamePrefix = $certificate->getItem()?->getCui() ?? 'LEGAT';
+        $filename = sprintf('%s_%s.pdf', $filenamePrefix, $certificate->getCertificateNumber());
 
         return new Response($pdfBinary, Response::HTTP_OK, [
             'Content-Type' => 'application/pdf',

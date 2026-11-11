@@ -72,7 +72,7 @@ class CertificateRepository extends ServiceEntityRepository
         ?string $status = null
     ): array {
         $qb = $this->createQueryBuilder('c')
-            ->join('c.item', 'i')
+            ->leftJoin('c.item', 'i')
             ->addSelect('i')
             ->andWhere('c.issuedBy = :user OR i.owner = :user')
             ->setParameter('user', $user)
@@ -105,7 +105,7 @@ class CertificateRepository extends ServiceEntityRepository
     public function countMetricsForUser(User $user): array
     {
         $rows = $this->createQueryBuilder('c')
-            ->join('c.item', 'i')
+            ->leftJoin('c.item', 'i')
             ->select('c.mode, c.status, COUNT(c.id) as cnt')
             ->andWhere('c.issuedBy = :user OR i.owner = :user')
             ->setParameter('user', $user)
@@ -173,6 +173,7 @@ class CertificateRepository extends ServiceEntityRepository
     {
         return (int) $this->createQueryBuilder('c')
             ->select('COUNT(DISTINCT c.item)')
+            ->andWhere('c.item IS NOT NULL')
             ->andWhere('c.status = :status')
             ->setParameter('status', \App\Enum\CertificateStatus::VALID)
             ->getQuery()

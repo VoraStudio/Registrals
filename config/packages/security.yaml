@@ -36,6 +36,10 @@ security:
                 path: app_logout
                 target: app_home
 
+    role_hierarchy:
+        ROLE_GESTOR: ROLE_USER
+        ROLE_ADMIN: [ROLE_GESTOR, ROLE_USER]
+
     # Note: Only the *first* matching rule is applied
     access_control:
         - { path: ^/login, roles: PUBLIC_ACCESS }
@@ -48,6 +52,7 @@ security:
         - { path: ^/transfer, roles: PUBLIC_ACCESS }
         - { path: ^/webhook, roles: PUBLIC_ACCESS }
         - { path: ^/guia-destils, roles: PUBLIC_ACCESS }
+        - { path: ^/admin/gestions, roles: ROLE_GESTOR }
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/app, roles: ROLE_USER }
 

@@ -117,12 +117,31 @@ class PlanType extends AbstractType
             ->add('extraTransferPriceCents', IntegerType::class, [
                 'label' => 'Preu Traspàs Extra en Cèntims d\'Euro (ex: 290 = 2,90 €)',
                 'attr' => [
-                    'class' => 'w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3.5 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white font-mono',
+                    'class' => 'w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3.5 py-2 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white font-mono',
                 ],
                 'help' => '0 per a traspassos gratuïts.',
             ])
+            ->add('maxLegacyContacts', IntegerType::class, [
+                'label' => 'Persones de Confiança (Herència Digital)',
+                'attr' => [
+                    'class' => 'w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3.5 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white font-mono',
+                ],
+                'help' => 'Free: 0, Plus: 1, Unlimited: 5 o -1.',
+            ])
+            ->add('legacyClaimOpeningFeeCents', IntegerType::class, [
+                'label' => 'Taxa Obertura Expedient Llegat en Cèntims (ex: 1900 = 19,00 €)',
+                'attr' => [
+                    'class' => 'w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3.5 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white font-mono',
+                ],
+                'help' => 'Taxa Pay-per-Value per cobrir validació documental humana i traspàs per lot.',
+            ])
             ->add('allowOfficialCertificates', CheckboxType::class, [
                 'label' => 'Permetre Emissió de Certificats Oficials eIDAS / Blockchain',
+                'required' => false,
+                'attr' => ['class' => 'w-4 h-4 text-ink rounded border-steel/30 focus:ring-gold'],
+            ])
+            ->add('allowLegacyDesignation', CheckboxType::class, [
+                'label' => 'Habilitar Herència Digital & Persona de Confiança',
                 'required' => false,
                 'attr' => ['class' => 'w-4 h-4 text-ink rounded border-steel/30 focus:ring-gold'],
             ])

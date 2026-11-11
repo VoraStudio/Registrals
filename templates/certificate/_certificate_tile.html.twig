@@ -10,9 +10,11 @@
 {% set uid = 'c' ~ cert.id %}
 {% set isDraft = cert.mode.isDraft %}
 {% set status = cert.status.value %}
-{% set itemName = cert.item.name|length > 18 ? cert.item.name|slice(0, 17) ~ '…' : cert.item.name %}
+{% set hasItem = cert.item is not null %}
+{% set displayTitle = hasItem ? cert.item.name : 'Inventari Global Llegat' %}
+{% set itemName = displayTitle|length > 18 ? displayTitle|slice(0, 17) ~ '…' : displayTitle %}
 
-<div class="cert-tile relative group flex flex-col items-center w-full max-w-[115px] sm:max-w-none sm:w-[170px] lg:w-[190px] focus:outline-none" tabindex="0" title="{{ cert.certificateNumber }} · {{ cert.item.name }}">
+<div class="cert-tile relative group flex flex-col items-center w-full max-w-[115px] sm:max-w-none sm:w-[170px] lg:w-[190px] focus:outline-none" tabindex="0" title="{{ cert.certificateNumber }} · {{ displayTitle }}">
 
   {# Document clickable: obre directament el PDF al visor natiu #}
   <a href="{{ path('app_certificate_direct_download', { uuid: cert.uuid }) }}" target="_blank" rel="noopener noreferrer"
@@ -20,7 +22,7 @@
      title="Obrir certificat PDF {{ cert.certificateNumber }}">
 
     <svg viewBox="0 0 200 208" class="w-full h-auto max-w-[115px] sm:max-w-none sm:w-[170px] sm:h-[177px] lg:w-[190px] lg:h-[198px] block" role="img"
-         aria-label="Certificat {{ cert.certificateNumber }} — {{ cert.item.name }}">
+         aria-label="Certificat {{ cert.certificateNumber }} — {{ displayTitle }}">
       <defs>
         <linearGradient id="{{ uid }}-paper" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stop-color="#FFFFFF"/>
@@ -43,7 +45,7 @@
         </clipPath>
       </defs>
 
-      {# Upright document (0deg) for solemn notarial presentation and pixel-crisp rendering #}
+      {# Upright document (0deg) for solemn presentation and pixel-crisp rendering #}
       <g>
         {# Paper with folded top-right corner #}
         <path d="M34 18 L152 18 L170 36 L170 194 Q170 198 166 198 L34 198 Q30 198 30 194 L30 22 Q30 18 34 18 Z"
@@ -66,7 +68,7 @@
         {# Identity block: photo + name + CUI #}
         <rect x="44" y="60" width="30" height="30" rx="3" fill="#FAF1E2"/>
         <path d="M51 82 L57 74 L62 80 L65 77 L69 82 Z" fill="#CAA36C" opacity="0.55"/>
-        {% if cert.item.mainPhoto %}
+        {% if hasItem and cert.item.mainPhoto %}
           <image href="{{ path('app_media_document', { uuid: cert.item.mainPhoto.uuid }) }}"
                  x="44" y="60" width="30" height="30"
                  preserveAspectRatio="xMidYMid slice" clip-path="url(#{{ uid }}-photo)"/>
@@ -76,7 +78,7 @@
         <text x="80" y="68" font-family="'Raleway', 'Helvetica Neue', Arial, sans-serif"
               font-size="7" font-weight="700" fill="#1D2F4B">{{ itemName }}</text>
         <text x="80" y="78" font-family="'SFMono-Regular', Consolas, monospace"
-              font-size="6.4" font-weight="700" fill="#9E7841">{{ cert.item.cui }}</text>
+              font-size="6.4" font-weight="700" fill="#9E7841">{{ hasItem ? cert.item.cui : cert.certificateNumber }}</text>
         <rect x="80" y="83" width="62" height="2.4" rx="1.2" fill="#1D2F4B"/>
         <rect x="80" y="88" width="44" height="2" rx="1" fill="#1D2F4B" opacity="0.55"/>
 
@@ -167,12 +169,14 @@
          title="Descarregar PDF" aria-label="Descarregar PDF {{ cert.certificateNumber }}">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3" d="M12 4v12m0 0l-5-5m5 5l5-5M5 20h14"/></svg>
       </a>
-      <span class="w-px h-4 bg-steel/20"></span>
-      <a href="{{ path('app_item_show', { cui: cert.item.cui }) }}"
-         class="cert-tile__btn w-8 h-8 rounded-full flex items-center justify-center text-ink hover:text-gold hover:bg-ink transition-all duration-150 cursor-pointer"
-         title="Veure bé" aria-label="Veure bé {{ cert.item.name }}">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-      </a>
+      {% if hasItem %}
+        <span class="w-px h-4 bg-steel/20"></span>
+        <a href="{{ path('app_item_show', { cui: cert.item.cui }) }}"
+           class="cert-tile__btn w-8 h-8 rounded-full flex items-center justify-center text-ink hover:text-gold hover:bg-ink transition-all duration-150 cursor-pointer"
+           title="Veure bé" aria-label="Veure bé {{ cert.item.name }}">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+        </a>
+      {% endif %}
       <span class="w-px h-4 bg-steel/20"></span>
       <a href="{{ path('app_verify_certificate', { uuid: cert.uuid.toRfc4122 }) }}" target="_blank"
          class="cert-tile__btn w-8 h-8 rounded-full flex items-center justify-center text-ink hover:text-gold hover:bg-ink transition-all duration-150 cursor-pointer"

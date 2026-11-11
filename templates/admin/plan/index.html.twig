@@ -130,6 +130,17 @@
               </span>
             </div>
 
+            <div class="flex items-center justify-between pb-2 border-b border-steel/10">
+              <span class="text-ink/65">Herència Digital (Llegat):</span>
+              <span class="font-bold font-mono {{ plan.allowLegacyDesignation ? 'text-emerald-700' : 'text-steel' }}">
+                {% if plan.allowLegacyDesignation %}
+                  {{ plan.maxLegacyContacts == -1 or plan.maxLegacyContacts >= 9999 ? '∞ contactes' : plan.maxLegacyContacts ~ (plan.maxLegacyContacts == 1 ? ' contacte' : ' contactes') }}
+                {% else %}
+                  No inclòs
+                {% endif %}
+              </span>
+            </div>
+
             {# Interruptor Ràpid d'IA per Pla #}
             <div class="pt-2 flex items-center justify-between bg-cream-50 p-3 rounded-xl border border-steel/15">
               <div>
@@ -248,6 +259,22 @@
             <td class="py-3.5 px-4 font-bold text-emerald-700">Re-segellats lliures</td>
             <td class="py-3.5 px-4 font-bold text-emerald-700">Re-segellats lliures</td>
             <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-50 text-emerald-800 border border-emerald-200">Polygon L2</span></td>
+          </tr>
+          <tr class="hover:bg-cream/20 transition-colors">
+            <td class="py-3.5 px-4 sm:px-6 font-bold text-ink">
+              Expedient d'Herència Digital (Tramitació Post-Mortem)
+              <span class="text-[11px] text-ink/65 font-normal block">Designació de persona de confiança (Art. 96 LOPDGDD) i taxa d'obertura d'expedient</span>
+            </td>
+            <td class="py-3.5 px-4 font-mono text-steel">
+              No inclòs ({{ planMacros.euros_cents(planFree ? planFree.legacyClaimOpeningFeeCents : 1900)|trim }} obertura)
+            </td>
+            <td class="py-3.5 px-4 font-mono font-semibold text-ink">
+              {{ planPlus and planPlus.allowLegacyDesignation ? (planPlus.maxLegacyContacts ~ ' inclòs · Taxa ' ~ planMacros.euros_cents(planPlus.legacyClaimOpeningFeeCents)|trim) : 'No inclòs' }}
+            </td>
+            <td class="py-3.5 px-4 font-mono font-bold text-ink">
+              {{ planUnlimited and planUnlimited.allowLegacyDesignation ? (planUnlimited.maxLegacyContacts ~ ' inclosos · Taxa ' ~ planMacros.euros_cents(planUnlimited.legacyClaimOpeningFeeCents)|trim) : 'No inclòs' }}
+            </td>
+            <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded text-[10px] font-mono bg-gold/20 text-ink border border-gold/40">Custòdia Llegat</span></td>
           </tr>
         </tbody>
       </table>

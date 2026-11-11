@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Enum\CertificateMode;
+use App\Enum\CertificateScope;
 use App\Enum\CertificateStatus;
 use App\Repository\CertificateRepository;
 use Doctrine\ORM\Mapping as ORM;
+use InvalidArgumentException;
+use LogicException;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
 
@@ -17,6 +20,7 @@ use Symfony\Component\Uid\Uuid;
 #[ORM\Index(columns: ['certificate_number'], name: 'idx_cert_number')]
 #[ORM\Index(columns: ['item_id', 'status'], name: 'idx_cert_item_status')]
 #[ORM\Index(columns: ['pdf_sha256'], name: 'idx_cert_pdf_sha256')]
+#[ORM\Index(columns: ['issued_by_user_id', 'scope', 'status'], name: 'idx_cert_issued_scope')]
 class Certificate
 {
     #[ORM\Id]
@@ -31,8 +35,26 @@ class Certificate
     private Uuid $uuid;
 
     #[ORM\ManyToOne(targetEntity: Item::class, inversedBy: 'certificates')]
-    #[ORM\JoinColumn(name: 'item_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
-    private Item $item;
+    #[ORM\JoinColumn(name: 'item_id', referencedColumnName: 'id', nullable: true, onDelete: 'CASCADE')]
+    private ?Item $item = null;
+
+    #[ORM\Column(type: 'string', length: 30, enumType: CertificateScope::class, options: ['default' => 'item'])]
+    private CertificateScope $scope = CertificateScope::ITEM;
+
+    #[ORM\ManyToOne(targetEntity: LegacyContact::class)]
+    #[ORM\JoinColumn(name: 'legacy_contact_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    private ?LegacyContact $legacyContact = null;
+
+    /**
+     * Fotografia immutable dels béns inclosos en un certificat d'Inventari Global de Llegat.
+     *
+     * @var list<array<string, mixed>>|null
+     */
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $includedItemCuisSnapshot = null;
+
+    #[ORM\Column(type: 'string', length: 64, unique: true, nullable: true)]
+    private ?string $claimTokenHash = null;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'issued_by_user_id', referencedColumnName: 'id', nullable: false, onDelete: 'RESTRICT')]
@@ -83,8 +105,11 @@ class Certificate
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $revokedAt = null;
 
+    /**
+     * @param list<array<string, mixed>>|null $includedItemCuisSnapshot
+     */
     public function __construct(
-        Item $item,
+        ?Item $item,
         User $issuedBy,
         string $certificateNumber,
         CertificateMode $mode,
@@ -92,8 +117,24 @@ class Certificate
         string $pdfSha256,
         string $itemFingerprintAtIssue,
         CertificateStatus $status = CertificateStatus::VALID,
-        ?Uuid $uuid = null
+        ?Uuid $uuid = null,
+        CertificateScope $scope = CertificateScope::ITEM,
+        ?LegacyContact $legacyContact = null,
+        ?array $includedItemCuisSnapshot = null,
+        ?string $claimTokenHash = null,
     ) {
+        if ($scope === CertificateScope::ITEM && $item === null) {
+            throw new InvalidArgumentException('Un certificat d\'inventari individual requereix un bé associat.');
+        }
+        if ($scope === CertificateScope::LEGACY_INVENTORY) {
+            if ($item !== null) {
+                throw new InvalidArgumentException('Un certificat d\'inventari global de llegat no pot quedar vinculat a un únic bé.');
+            }
+            if ($legacyContact === null) {
+                throw new InvalidArgumentException('Un certificat d\'inventari global de llegat requereix una persona de confiança designada.');
+            }
+        }
+
         $this->uuid = $uuid ?? Uuid::v7();
         $this->item = $item;
         $this->issuedBy = $issuedBy;
@@ -103,6 +144,10 @@ class Certificate
         $this->pdfSha256 = $pdfSha256;
         $this->itemFingerprintAtIssue = $itemFingerprintAtIssue;
         $this->status = $status;
+        $this->scope = $scope;
+        $this->legacyContact = $legacyContact;
+        $this->includedItemCuisSnapshot = $includedItemCuisSnapshot;
+        $this->claimTokenHash = $claimTokenHash;
         $this->createdAt = new \DateTimeImmutable();
     }
 
@@ -116,14 +161,79 @@ class Certificate
         return $this->uuid;
     }
 
-    public function getItem(): Item
+    public function getItem(): ?Item
     {
         return $this->item;
     }
 
-    public function setItem(Item $item): static
+    public function requireItem(): Item
     {
+        if ($this->item === null) {
+            throw new LogicException(sprintf('El certificat %s és d\'àmbit global de llegat i no té un únic bé associat.', $this->certificateNumber));
+        }
+
+        return $this->item;
+    }
+
+    public function setItem(?Item $item): static
+    {
+        if ($this->scope === CertificateScope::ITEM && $item === null) {
+            throw new InvalidArgumentException('No es pot desvincular el bé d\'un certificat d\'inventari individual.');
+        }
+
         $this->item = $item;
+
+        return $this;
+    }
+
+    public function getScope(): CertificateScope
+    {
+        return $this->scope;
+    }
+
+    public function isLegacyInventory(): bool
+    {
+        return $this->scope->isLegacyInventory();
+    }
+
+    public function getLegacyContact(): ?LegacyContact
+    {
+        return $this->legacyContact;
+    }
+
+    public function setLegacyContact(?LegacyContact $legacyContact): static
+    {
+        $this->legacyContact = $legacyContact;
+
+        return $this;
+    }
+
+    /**
+     * @return list<array<string, mixed>>|null
+     */
+    public function getIncludedItemCuisSnapshot(): ?array
+    {
+        return $this->includedItemCuisSnapshot;
+    }
+
+    /**
+     * @param list<array<string, mixed>>|null $includedItemCuisSnapshot
+     */
+    public function setIncludedItemCuisSnapshot(?array $includedItemCuisSnapshot): static
+    {
+        $this->includedItemCuisSnapshot = $includedItemCuisSnapshot;
+
+        return $this;
+    }
+
+    public function getClaimTokenHash(): ?string
+    {
+        return $this->claimTokenHash;
+    }
+
+    public function setClaimTokenHash(?string $claimTokenHash): static
+    {
+        $this->claimTokenHash = $claimTokenHash;
 
         return $this;
     }

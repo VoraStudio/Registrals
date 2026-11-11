@@ -231,10 +231,10 @@ A la barra lateral d'administració ([`templates/admin/layout.html.twig`](../tem
 
 Seguim estrictament la regla d'or SDD (4 passos per subiteració: Model -> Domini -> UI -> Validació HITL):
 
-- [ ] **Subiteració 10.1 — Model de Dades, Rols i Parametrització Base**
+- [x] **Subiteració 10.1 — Model de Dades, Rols i Parametrització Base** *(Completada)*
   - Enums (`LegacyContactStatus`, `CertificateScope`, `SuccessionClaimStatus`) i ampliació de `UserActivityAction`.
-  - Entitats `LegacyContact`, `SuccessionClaim`, evolució de `Certificate::$item` (nullable) i camps a `Plan`.
-  - Migració Doctrine provada a MySQL 8.4 + rol `ROLE_GESTOR` a `security.yaml` i editor de paràmetres a `/admin/plans`.
+  - Entitats `LegacyContact`, `SuccessionClaim`, evolució de `Certificate::$item` (nullable + protecció d'invariants i consultes `leftJoin`) i camps a `Plan`.
+  - Migració Doctrine `Version20261111170000` executada i validada a MySQL 8.4 + rol `ROLE_GESTOR` a `security.yaml` + editor de paràmetres a `/admin/plans`.
 - [ ] **Subiteració 10.2 — Designació a `/app/perfil`, Consentiment i Bucle Pla Free**
   - Targeta a `/app/perfil` (només Pla Plus + nom real informat) i acció de revocació.
   - Flux `/llegat/acceptar/{token}` amb avís Art. 14 RGPD (sense detall de béns) i alta directa al Pla Free (OTP 6 dígits + Legal Gate) per a no registrats.
@@ -247,3 +247,4 @@ Seguim estrictament la regla d'or SDD (4 passos per subiteració: Model -> Domin
   - Consola `/admin/gestions/herencies` dins de `GESTIÓ & CUSTÒDIA` i execució atòmica del traspàs successori en aprovar.
 - [ ] **Subiteració 10.5 — Proves Automatitzades PHPUnit i Validació HITL**
   - Cobertura unitària i funcional completa + revisió jurídica i visual en navegador.
+

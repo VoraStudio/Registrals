@@ -180,7 +180,7 @@ class CertificateIssuerService
      */
     public function regeneratePdf(Certificate $certificate): void
     {
-        $item = $certificate->getItem();
+        $item = $certificate->requireItem();
         $verificationUrl = rtrim($this->defaultBaseUrl, '/') . '/verify/' . $certificate->getUuid()->toRfc4122();
         $qrDataUri = $this->qrGenerator->generateDataUri($verificationUrl);
 

@@ -166,6 +166,20 @@
             {{ form_help(form.extraTransferPriceCents, {'help_attr': {'class': 'text-[10px] text-ink/60 mt-1 block font-raleway'}}) }}
             {{ form_errors(form.extraTransferPriceCents) }}
           </div>
+
+          <div class="col-span-2 sm:col-span-1">
+            {{ form_label(form.maxLegacyContacts, null, {'label_attr': {'class': 'block text-xs font-bold text-ink mb-1.5 font-raleway'}}) }}
+            {{ form_widget(form.maxLegacyContacts, {'attr': {'class': 'w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3 py-2 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white font-mono'}}) }}
+            {{ form_help(form.maxLegacyContacts, {'help_attr': {'class': 'text-[10px] text-ink/60 mt-1 block font-raleway'}}) }}
+            {{ form_errors(form.maxLegacyContacts) }}
+          </div>
+
+          <div class="col-span-2 sm:col-span-1">
+            {{ form_label(form.legacyClaimOpeningFeeCents, null, {'label_attr': {'class': 'block text-xs font-bold text-ink mb-1.5 font-raleway'}}) }}
+            {{ form_widget(form.legacyClaimOpeningFeeCents, {'attr': {'class': 'w-full bg-cream-50/60 border border-steel/30 rounded-xl px-3 py-2 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-gold focus:bg-white font-mono'}}) }}
+            {{ form_help(form.legacyClaimOpeningFeeCents, {'help_attr': {'class': 'text-[10px] text-ink/60 mt-1 block font-raleway'}}) }}
+            {{ form_errors(form.legacyClaimOpeningFeeCents) }}
+          </div>
         </div>
       </div>
 
@@ -199,6 +213,14 @@
             <div>
               <span class="text-xs font-bold text-ink block font-raleway">Certificats Oficials eIDAS</span>
               <span class="text-[11px] text-ink/65 leading-tight block mt-0.5">Segellat de temps qualificat eIDAS (Signaturit / Namirial) i Polygon L2.</span>
+            </div>
+          </label>
+
+          <label class="flex items-start gap-3 p-3 rounded-xl bg-cream-50/70 border border-steel/20 hover:border-gold/50 transition-colors cursor-pointer">
+            {{ form_widget(form.allowLegacyDesignation, {'attr': {'class': 'mt-0.5 w-4 h-4 text-ink rounded border-steel/30 focus:ring-gold'}}) }}
+            <div>
+              <span class="text-xs font-bold text-ink block font-raleway">Herència Digital & Persona de Confiança</span>
+              <span class="text-[11px] text-ink/65 leading-tight block mt-0.5">Permet designar persona de confiança (Art. 96 LOPDGDD) i emetre Inventari Global de Llegat.</span>
             </div>
           </label>
 

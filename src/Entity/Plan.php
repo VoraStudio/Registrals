@@ -73,6 +73,15 @@ class Plan
     #[ORM\Column(type: 'integer', options: ['default' => 1])]
     private int $maxEvidencesPerItem = 1;
 
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $allowLegacyDesignation = false;
+
+    #[ORM\Column(type: 'integer', options: ['default' => 0])]
+    private int $maxLegacyContacts = 0;
+
+    #[ORM\Column(type: 'integer', options: ['default' => 1900])]
+    private int $legacyClaimOpeningFeeCents = 1900;
+
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
     private bool $isActive = true;
 
@@ -298,6 +307,39 @@ class Plan
     public function setMaxEvidencesPerItem(int $maxEvidencesPerItem): static
     {
         $this->maxEvidencesPerItem = $maxEvidencesPerItem;
+        return $this;
+    }
+
+    public function isAllowLegacyDesignation(): bool
+    {
+        return $this->allowLegacyDesignation;
+    }
+
+    public function setAllowLegacyDesignation(bool $allowLegacyDesignation): static
+    {
+        $this->allowLegacyDesignation = $allowLegacyDesignation;
+        return $this;
+    }
+
+    public function getMaxLegacyContacts(): int
+    {
+        return $this->maxLegacyContacts;
+    }
+
+    public function setMaxLegacyContacts(int $maxLegacyContacts): static
+    {
+        $this->maxLegacyContacts = $maxLegacyContacts;
+        return $this;
+    }
+
+    public function getLegacyClaimOpeningFeeCents(): int
+    {
+        return $this->legacyClaimOpeningFeeCents;
+    }
+
+    public function setLegacyClaimOpeningFeeCents(int $legacyClaimOpeningFeeCents): static
+    {
+        $this->legacyClaimOpeningFeeCents = $legacyClaimOpeningFeeCents;
         return $this;
     }
 

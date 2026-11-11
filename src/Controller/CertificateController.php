@@ -97,7 +97,7 @@ class CertificateController extends AbstractController
         $this->denyAccessUnlessGranted('ITEM_VIEW', $item);
 
         $certificate = $this->certificateRepository->find($certId);
-        if (!$certificate instanceof Certificate || $certificate->getItem()->getId() !== $item->getId()) {
+        if (!$certificate instanceof Certificate || $certificate->getItem()?->getId() !== $item->getId()) {
             throw $this->createNotFoundException('El certificat sol·licitat no existeix o no pertany a aquest bé.');
         }
 

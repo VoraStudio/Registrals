@@ -50,6 +50,9 @@ class InitPlansCommand extends Command
                 'maxDocumentsPerItem' => 2,
                 'maxPhotosPerItem' => 1,
                 'maxEvidencesPerItem' => 1,
+                'allowLegacyDesignation' => false,
+                'maxLegacyContacts' => 0,
+                'legacyClaimOpeningFeeCents' => 1900,
             ],
             [
                 'code' => 'plus',
@@ -70,6 +73,9 @@ class InitPlansCommand extends Command
                 'maxDocumentsPerItem' => 10,
                 'maxPhotosPerItem' => 5,
                 'maxEvidencesPerItem' => 5,
+                'allowLegacyDesignation' => true,
+                'maxLegacyContacts' => 1,
+                'legacyClaimOpeningFeeCents' => 1900,
             ],
             [
                 'code' => 'unlimited',
@@ -90,6 +96,9 @@ class InitPlansCommand extends Command
                 'maxDocumentsPerItem' => 9999,
                 'maxPhotosPerItem' => 9999,
                 'maxEvidencesPerItem' => 9999,
+                'allowLegacyDesignation' => true,
+                'maxLegacyContacts' => 5,
+                'legacyClaimOpeningFeeCents' => 1900,
                 'isActive' => false,
             ],
         ];
@@ -121,6 +130,9 @@ class InitPlansCommand extends Command
                 ->setMaxDocumentsPerItem($data['maxDocumentsPerItem'])
                 ->setMaxPhotosPerItem($data['maxPhotosPerItem'])
                 ->setMaxEvidencesPerItem($data['maxEvidencesPerItem'])
+                ->setAllowLegacyDesignation($data['allowLegacyDesignation'])
+                ->setMaxLegacyContacts($data['maxLegacyContacts'])
+                ->setLegacyClaimOpeningFeeCents($data['legacyClaimOpeningFeeCents'])
                 ->setIsActive($data['isActive'] ?? true);
         }
 
