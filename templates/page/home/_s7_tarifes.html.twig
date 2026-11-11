@@ -9,8 +9,7 @@
   {% set planUnlimited = plans['unlimited']|default(null) %}
 
   {% macro format_price(priceCents) %}
-    {%- set euros = priceCents / 100 -%}
-    {{- (priceCents % 100 == 0) ? euros|number_format(0, ',', '.') ~ '€' : euros|number_format(2, ',', '.') ~ '€' -}}
+    {{- (priceCents / 100)|number_format(2, ',', '.') ~ ' €' -}}
   {% endmacro %}
 
   {% macro render_features(plan, defaultActive, defaultYearly, defaultPhotos, defaultEvidences, defaultAi, allowOfficialDefault, defaultCerts, defaultTransfersIncluded, defaultTransferPriceCents) %}

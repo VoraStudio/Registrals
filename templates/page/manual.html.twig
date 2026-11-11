@@ -33,7 +33,7 @@
   {% set plusPhotos = plusPlan ? plusPlan.maxPhotosPerItem : 5 %}
   {% set plusEvidences = plusPlan ? plusPlan.maxEvidencesPerItem : 5 %}
   {% set plusAi = plusPlan ? plusPlan.aiAssistanceQuota : 100 %}
-  {% set plusPrice = plusPlan ? (plusPlan.priceCents / 100)|number_format(0, ',', '.') : '22' %}
+  {% set plusPrice = plusPlan ? (plusPlan.priceCents / 100)|number_format(2, ',', '.') : '22,00' %}
 
   <main id="main" class="max-w-[1680px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-3.5 sm:py-5 flex-1 {{ app.user ? 'pb-20 md:pb-8' : 'pb-12' }}">
     {% include 'partials/_subpage_header.html.twig' with {
