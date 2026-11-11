@@ -7,12 +7,14 @@ namespace App\Service\Legacy;
 use App\Audit\Enum\UserActivityAction;
 use App\Audit\Service\UserActivityLogger;
 use App\Entity\Certificate;
+use App\Entity\LegacyContact;
 use App\Entity\SuccessionClaim;
 use App\Entity\User;
 use App\Enum\CertificateStatus;
 use App\Enum\SuccessionClaimStatus;
 use App\Infrastructure\Adapter\Ai\AiVisionAnalyzerInterface;
 use App\Message\AnalyzeSuccessionClaimMessage;
+use App\Repository\CertificateRepository;
 use App\Repository\ItemRepository;
 use App\Repository\PlanRepository;
 use App\Repository\SuccessionClaimRepository;
@@ -69,6 +71,7 @@ class SuccessionClaimWorkflowService
         private readonly string $mailerFromAddress = 'info@registrals.com',
         private readonly string $mailerFromName = 'Registrals',
         private readonly ?LoggerInterface $logger = null,
+        private readonly ?CertificateRepository $certificateRepository = null,
     ) {
     }
 
@@ -86,12 +89,130 @@ class SuccessionClaimWorkflowService
             throw new DomainException('Només es poden obrir expedients sobre un Certificat d\'Inventari Global de Llegat vigent.');
         }
 
+        $cleanEmail = mb_strtolower(trim($claimantEmail));
+        $existingClaimantUser = $this->userRepository->findOneBy(['email' => $cleanEmail]);
+
+        return $this->persistClaimWithDocuments(
+            sourceCertificate: $sourceCertificate,
+            deceasedOwner: $sourceCertificate->getIssuedBy(),
+            legacyContact: $sourceCertificate->getLegacyContact(),
+            claimantUser: $existingClaimantUser,
+            claimantName: $claimantName,
+            claimantEmail: $cleanEmail,
+            claimantTaxId: $claimantTaxId,
+            otpVerifiedAt: $otpVerifiedAt,
+            deathCertificateFile: $deathCertificateFile,
+            successionTitleFile: $successionTitleFile,
+            channel: 'qr_portal',
+            clientIp: $clientIp,
+        );
+    }
+
+    /**
+     * Obre un expedient successori autenticat directament des del compte d'una Persona de Confiança
+     * acceptada (Art. 96 LOPDGDD), sense requerir el PDF físic del titular. Si existeix un certificat
+     * d'Inventari Global vigent vinculat, s'associa silenciosament en segon pla.
+     */
+    public function submitBeneficiaryDirectClaim(
+        LegacyContact $contact,
+        User $actor,
+        string $claimantTaxId,
+        UploadedFile $deathCertificateFile,
+        UploadedFile $successionTitleFile,
+        ?string $clientIp = null,
+    ): SuccessionClaim {
+        if (!$contact->isDesignatedUser($actor)) {
+            throw new DomainException('No tens permisos per obrir un expedient sobre aquesta designació.');
+        }
+
+        if ($actor->getId() !== null && $actor->getId() === $contact->getOwner()->getId()) {
+            throw new DomainException('No pots iniciar un expedient successori sobre el teu propi patrimoni.');
+        }
+
+        if (!$contact->getStatus()->isAccepted()) {
+            throw new DomainException('Només les designacions en estat acceptat i actiu poden iniciar un expedient successori.');
+        }
+
+        $openClaim = $this->claimRepository->findLatestOpenByLegacyContact($contact);
+        if ($openClaim instanceof SuccessionClaim) {
+            throw new DomainException(sprintf(
+                'Ja existeix l\'expedient %s en curs per a aquesta designació.',
+                $openClaim->getClaimReference()
+            ));
+        }
+
+        $linkedCertificate = $this->certificateRepository?->findLatestValidLegacyByOwnerAndContact(
+            $contact->getOwner(),
+            $contact
+        );
+
+        $claimantName = trim($actor->getFullName()) !== '' ? $actor->getFullName() : $contact->getFullName();
+
+        return $this->persistClaimWithDocuments(
+            sourceCertificate: $linkedCertificate,
+            deceasedOwner: $contact->getOwner(),
+            legacyContact: $contact,
+            claimantUser: $actor,
+            claimantName: $claimantName,
+            claimantEmail: $actor->getEmail(),
+            claimantTaxId: $claimantTaxId,
+            otpVerifiedAt: $actor->getEmailVerifiedAt() ?? new \DateTimeImmutable(),
+            deathCertificateFile: $deathCertificateFile,
+            successionTitleFile: $successionTitleFile,
+            channel: 'beneficiary_profile',
+            clientIp: $clientIp,
+        );
+    }
+
+    public function cancelPendingDraft(SuccessionClaim $claim, User $actor): void
+    {
+        if ($claim->getStatus() !== SuccessionClaimStatus::PENDING_PAYMENT) {
+            throw new DomainException('Només es poden cancel·lar esborranys pendents de pagament.');
+        }
+
+        $isOwnerOfDraft = $claim->getClaimantUser()?->getId() !== null
+            && $actor->getId() !== null
+            && $claim->getClaimantUser()->getId() === $actor->getId();
+        $isContact = $claim->getLegacyContact()?->isDesignatedUser($actor) ?? false;
+
+        if (!$isOwnerOfDraft && !$isContact) {
+            throw new DomainException('No tens permisos per cancel·lar aquest esborrany d\'expedient.');
+        }
+
+        foreach ([$claim->getDeathCertificateStorageKey(), $claim->getSuccessionTitleStorageKey()] as $key) {
+            try {
+                if ($this->itemDocumentStorage->fileExists($key)) {
+                    $this->itemDocumentStorage->delete($key);
+                }
+            } catch (\Throwable) {
+                // La neteja de fitxers temporals d'esborrany no bloqueja el reinici del tràmit
+            }
+        }
+
+        $this->entityManager->remove($claim);
+        $this->entityManager->flush();
+    }
+
+    private function persistClaimWithDocuments(
+        ?Certificate $sourceCertificate,
+        User $deceasedOwner,
+        ?LegacyContact $legacyContact,
+        ?User $claimantUser,
+        string $claimantName,
+        string $claimantEmail,
+        string $claimantTaxId,
+        \DateTimeImmutable $otpVerifiedAt,
+        UploadedFile $deathCertificateFile,
+        UploadedFile $successionTitleFile,
+        string $channel,
+        ?string $clientIp = null,
+    ): SuccessionClaim {
         $cleanName = trim($claimantName);
         $cleanEmail = mb_strtolower(trim($claimantEmail));
         $cleanTaxId = strtoupper(trim($claimantTaxId));
 
         if ($cleanName === '' || !filter_var($cleanEmail, FILTER_VALIDATE_EMAIL) || mb_strlen($cleanTaxId) < 5) {
-            throw new DomainException('Cal indicar el nom complet, un correu electrònic vàlid i el document d\'identitat del sol·licitant.');
+            throw new DomainException('Cal indicar el nom complet, un correu electrònic vàlid i el document d\'identitat del sol·licitant (mínim 5 caràcters).');
         }
 
         $claimReference = $this->claimRepository->getNextClaimReference();
@@ -99,12 +220,10 @@ class SuccessionClaimWorkflowService
         [$deathKey, $deathSha256] = $this->storePrivateSuccessionDocument($claimReference, 'defuncio', $deathCertificateFile);
         [$titleKey, $titleSha256] = $this->storePrivateSuccessionDocument($claimReference, 'titol', $successionTitleFile);
 
-        $existingClaimantUser = $this->userRepository->findOneBy(['email' => $cleanEmail]);
-
         $claim = new SuccessionClaim(
             claimReference: $claimReference,
             sourceCertificate: $sourceCertificate,
-            deceasedOwner: $sourceCertificate->getIssuedBy(),
+            deceasedOwner: $deceasedOwner,
             claimantName: $cleanName,
             claimantEmail: $cleanEmail,
             claimantTaxId: $cleanTaxId,
@@ -113,21 +232,22 @@ class SuccessionClaimWorkflowService
             deathCertificateSha256: $deathSha256,
             successionTitleStorageKey: $titleKey,
             successionTitleSha256: $titleSha256,
-            legacyContact: $sourceCertificate->getLegacyContact(),
-            claimantUser: $existingClaimantUser,
+            legacyContact: $legacyContact,
+            claimantUser: $claimantUser,
         );
 
         $this->entityManager->persist($claim);
         $this->entityManager->flush();
 
         $this->recordAudit(
-            $claim->getDeceasedOwner(),
+            $deceasedOwner,
             UserActivityAction::SUCCESSION_CLAIM_SUBMITTED,
             sprintf('Registre documental d\'expedient successori %s per %s (%s)', $claimReference, $cleanName, $cleanEmail),
             [
                 'claim_uuid' => $claim->getUuid()->toRfc4122(),
                 'claim_reference' => $claimReference,
-                'source_certificate' => $sourceCertificate->getCertificateNumber(),
+                'source_certificate' => $sourceCertificate?->getCertificateNumber(),
+                'channel' => $channel,
                 'claimant_email' => $cleanEmail,
                 'death_cert_sha256' => $deathSha256,
                 'succession_title_sha256' => $titleSha256,
@@ -287,7 +407,7 @@ class SuccessionClaimWorkflowService
         }
 
         $claim->approve($reviewer, $transferredCount, $cleanNotes);
-        $claim->getSourceCertificate()->setStatus(CertificateStatus::SUPERSEDED);
+        $claim->getSourceCertificate()?->setStatus(CertificateStatus::SUPERSEDED);
 
         $this->entityManager->flush();
         $this->planDowngradeService->checkAndEnforceQuota($heirUser);
@@ -510,9 +630,10 @@ class SuccessionClaimWorkflowService
     private function sendOwnerPreventiveAlertEmail(SuccessionClaim $claim, \DateTimeImmutable $holdUntil): void
     {
         $owner = $claim->getDeceasedOwner();
-        $profileUrl = $this->urlGenerator->generate('app_profile', [], UrlGeneratorInterface::ABSOLUTE_URL) . '#herencia-digital';
 
         try {
+            $profileUrl = $this->urlGenerator->generate('app_profile', [], UrlGeneratorInterface::ABSOLUTE_URL) . '#herencia-digital';
+
             $email = (new TemplatedEmail())
                 ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
                 ->to(new Address($owner->getEmail(), $owner->getFullName()))
@@ -536,10 +657,10 @@ class SuccessionClaimWorkflowService
 
     private function sendClaimantResolutionEmail(SuccessionClaim $claim, bool $approved, bool $provisionedNewAccount): void
     {
-        $loginUrl = $this->urlGenerator->generate('app_login', [], UrlGeneratorInterface::ABSOLUTE_URL);
-        $forgotUrl = $this->urlGenerator->generate('app_forgot_password_request', [], UrlGeneratorInterface::ABSOLUTE_URL);
-
         try {
+            $loginUrl = $this->urlGenerator->generate('app_login', [], UrlGeneratorInterface::ABSOLUTE_URL);
+            $forgotUrl = $this->urlGenerator->generate('app_forgot_password', [], UrlGeneratorInterface::ABSOLUTE_URL);
+
             $email = (new TemplatedEmail())
                 ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
                 ->to(new Address($claim->getClaimantEmail(), $claim->getClaimantName()))
@@ -580,3 +701,4 @@ class SuccessionClaimWorkflowService
         }
     }
 }
+

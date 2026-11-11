@@ -1,0 +1,140 @@
+{# Bloc de designacions rebudes com a Persona de Confiança (Art. 96 LOPDGDD / Art. 14 RGPD). #}
+<div class="{{ isPrimarySection|default(false) ? 'space-y-3' : 'mt-5 pt-4 border-t border-steel/15 space-y-3' }}">
+  <div class="flex flex-wrap items-center justify-between gap-2">
+    <div>
+      <h3 class="font-marcellus text-base text-ink">Designacions rebudes com a Persona de Confiança</h3>
+      <p class="font-raleway text-[11px] text-steel">Titulars que t'han designat per custodiar la seva continuïtat patrimonial (Art. 96 LOPDGDD).</p>
+    </div>
+    <span class="px-2 py-0.5 rounded-full bg-cream border border-gold/40 text-ink font-mono text-[10px] font-semibold">
+      {{ incomingLegacyContacts|length }} {{ incomingLegacyContacts|length == 1 ? 'designació' : 'designacions' }}
+    </span>
+  </div>
+
+  <div class="border-l-[3.5px] border-gold bg-gold/10 p-3 rounded-r-lg text-xs text-ink/85 font-raleway leading-relaxed">
+    <strong>Privadesa patrimonial (Art. 14 RGPD):</strong> Aquesta secció confirma exclusivament la teva condició de persona designada. No mostra ni dóna accés als béns, valors ni certificats del titular mentre el compte romangui actiu.
+  </div>
+
+  <div class="space-y-2.5">
+    {% for incoming in incomingLegacyContacts %}
+      {% set incomingUuid = incoming.uuid.toRfc4122 %}
+      {% set ownerPlan = incoming.owner.plan %}
+      {% set openingFeeCents = (ownerPlan and ownerPlan.legacyClaimOpeningFeeCents is not null) ? ownerPlan.legacyClaimOpeningFeeCents : 1900 %}
+      {% set openingFeeText = (openingFeeCents / 100)|number_format(2, ',', '.') ~ ' €' %}
+      {% set incomingClaim = (incomingClaimsByContactUuid is defined and incomingClaimsByContactUuid[incomingUuid] is defined) ? incomingClaimsByContactUuid[incomingUuid] : null %}
+
+      <div class="rounded-xl border border-steel/20 bg-cream-50/70 p-3.5 space-y-2.5">
+        <div class="flex flex-wrap items-start justify-between gap-2">
+          <div>
+            <div class="font-marcellus text-sm text-ink">{{ incoming.owner.fullName }}</div>
+            <div class="font-raleway text-[11px] text-steel">
+              {% if incoming.relationship %}
+                Vinculació indicada: <span class="text-ink font-medium">{{ incoming.relationship }}</span>
+              {% else %}
+                Persona de Confiança designada
+              {% endif %}
+            </div>
+          </div>
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full border text-[10px] font-semibold font-raleway {{ incoming.status.badgeClasses }}">
+            {{ incoming.status.label }}
+          </span>
+        </div>
+
+        <div class="font-raleway text-[11px] text-steel flex flex-wrap items-center gap-x-3 gap-y-1">
+          {% if incoming.status.isPending %}
+            <span>Invitació rebuda el {{ incoming.createdAt|date('d/m/Y') }}</span>
+            {% if incoming.invitationExpiresAt %}
+              <span>· Vàlida fins al {{ incoming.invitationExpiresAt|date('d/m/Y H:i') }}</span>
+            {% endif %}
+          {% elseif incoming.status.isAccepted %}
+            <span>Consentiment confirmat el {{ (incoming.contactConsentedAt ?? incoming.createdAt)|date('d/m/Y H:i') }}</span>
+          {% endif %}
+        </div>
+
+        {% if incoming.status.isAccepted %}
+          {% if incomingClaim is not null %}
+            <div class="rounded-lg border border-gold/40 bg-white p-3 text-xs space-y-1.5">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <span class="font-mono text-[10px] uppercase tracking-wider text-steel block">Expedient Successori</span>
+                  <span class="font-marcellus text-sm text-ink">{{ incomingClaim.claimReference }}</span>
+                </div>
+                <span class="px-2.5 py-0.5 rounded-full border text-[10px] font-bold {{ incomingClaim.status.badgeClasses }}">
+                  {{ incomingClaim.status.label }}
+                </span>
+              </div>
+              {% if incomingClaim.status.value == 'approved' %}
+                <p class="text-[11px] text-emerald-900">
+                  Traspàs completat de <strong>{{ incomingClaim.executedTransferCount }}</strong> bé(ns) al teu compte.
+                </p>
+              {% elseif incomingClaim.securityHoldUntil and incomingClaim.isSecurityHoldActive %}
+                <p class="text-[11px] text-ink/75">
+                  Finestra preventiva de 72 h activa fins al <strong>{{ incomingClaim.securityHoldUntil|date('d/m/Y H:i') }} UTC</strong>.
+                </p>
+              {% endif %}
+            </div>
+          {% else %}
+            <div class="border-l-[3.5px] border-gold bg-white/85 p-3 rounded-r-lg text-[11px] text-ink/85 font-raleway leading-relaxed space-y-1">
+              <div class="font-bold text-ink">Com funciona a partir d'ara?</div>
+              <p>
+                • <strong>Sense cost ni accions en vida (0 €):</strong> El teu rol queda actiu al Pla Free sense quota ni subscripció; mentre el titular visqui no has de fer res ni tens accés al seu inventari.
+              </p>
+              <p>
+                • <strong>En cas de defunció:</strong> Pots iniciar l'expedient <strong>directament des d'aquesta targeta</strong> (o mitjançant el QR del Certificat d'Inventari Global si en disposes) aportant Certificat Oficial de Defunció, Títol Successori i l'única taxa d'obertura documental (<code class="px-1 py-0.5 rounded bg-gold/20 font-mono text-[10px] text-ink">{{ openingFeeText }}</code>), sota finestra preventiva de 72 h i validació humana.
+              </p>
+            </div>
+          {% endif %}
+        {% elseif incoming.status.isPending %}
+          <p class="font-raleway text-[11px] text-ink/75">
+            Acceptar aquesta designació és <strong>gratuït (0 €, Pla Free)</strong> i confirma únicament la teva disponibilitat sense exposar el patrimoni en vida.
+          </p>
+        {% endif %}
+
+        <div class="flex flex-wrap items-center justify-end gap-2 pt-1.5 border-t border-steel/10">
+          {% if incoming.status.isPending %}
+            <form method="post" action="{{ path('app_profile_legacy_incoming_decline', {uuid: incomingUuid}) }}">
+              <input type="hidden" name="_token" value="{{ csrf_token('legacy_incoming_decline_' ~ incomingUuid) }}">
+              <button type="submit" class="px-3 py-1.5 rounded-lg border border-steel/30 bg-white hover:bg-cream-50 text-ink font-raleway font-semibold text-xs transition-all cursor-pointer min-h-[40px] sm:min-h-0">
+                Refusar
+              </button>
+            </form>
+            <form method="post" action="{{ path('app_profile_legacy_incoming_accept', {uuid: incomingUuid}) }}">
+              <input type="hidden" name="_token" value="{{ csrf_token('legacy_incoming_accept_' ~ incomingUuid) }}">
+              <button type="submit" class="px-3.5 py-1.5 rounded-lg bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-raleway font-bold text-xs transition-all cursor-pointer min-h-[40px] sm:min-h-0">
+                Acceptar Designació →
+              </button>
+            </form>
+          {% elseif incoming.status.isAccepted %}
+            <button
+              type="button"
+              onclick="openLegacyRenounceModal('{{ path('app_profile_legacy_incoming_renounce', {uuid: incomingUuid}) }}', '{{ csrf_token('legacy_incoming_renounce_' ~ incomingUuid) }}', '{{ incoming.owner.fullName|e('js') }}')"
+              class="px-3 py-1.5 rounded-lg border border-red-200 bg-white hover:bg-red-50 text-red-700 font-raleway font-semibold text-xs transition-all cursor-pointer min-h-[40px] sm:min-h-0"
+            >
+              Renunciar al rol (Art. 7.3 RGPD)
+            </button>
+            {% if incomingClaim is not null %}
+              <a href="{{ path('app_profile_legacy_claim_portal', { uuid: incomingUuid }) }}"
+                 class="px-3.5 py-1.5 rounded-lg bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-raleway font-bold text-xs transition-all min-h-[40px] sm:min-h-0 inline-flex items-center">
+                {% if incomingClaim.status.value == 'pending_payment' %}
+                  Completar Pagament →
+                {% elseif incomingClaim.status.value == 'rejected' %}
+                  Veure Resolució / Reintentar →
+                {% else %}
+                  Veure Estat de l'Expedient →
+                {% endif %}
+              </a>
+            {% else %}
+              <button
+                type="button"
+                onclick="openLegacyStartClaimModal('{{ path('app_profile_legacy_claim_portal', { uuid: incomingUuid }) }}', '{{ incoming.owner.fullName|e('js') }}', '{{ openingFeeText|e('js') }}')"
+                class="px-3.5 py-1.5 rounded-lg bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-raleway font-bold text-xs transition-all cursor-pointer min-h-[40px] sm:min-h-0"
+              >
+                Comunicar defunció i obrir expedient →
+              </button>
+            {% endif %}
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+

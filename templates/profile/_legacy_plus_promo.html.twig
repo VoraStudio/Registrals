@@ -1,0 +1,22 @@
+{# Nota informativa d'actualització a Pla Plus per protegir el patrimoni propi del titular. #}
+{% if compact|default(false) %}
+  <div class="mt-4 pt-3.5 border-t border-steel/15 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-[11px] text-ink/75 font-raleway">
+    <div>
+      <strong class="text-ink">Vols designar també una persona de confiança per als teus propis béns?</strong>
+      Rebre una designació és gratuït al Pla Free; protegir i certificar el teu propi llegat patrimonial forma part del Pla Plus.
+    </div>
+    <a href="{{ path('app_plan') }}" class="px-3 py-1.5 rounded-lg bg-white border border-steel/30 text-ink hover:border-gold hover:text-gold font-bold text-[11px] uppercase tracking-wider shrink-0 text-center transition-colors">
+      Veure Pla Plus →
+    </a>
+  </div>
+{% else %}
+  <div class="border-l-[3.5px] border-gold bg-gold/10 p-3.5 rounded-r-xl text-xs text-ink/85 leading-relaxed flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div>
+      <strong>Continuïtat Patrimonial del Pla Plus:</strong> Designa una persona de confiança amb consentiment confirmat perquè pugui sol·licitar el traspàs successori acreditat dels teus béns custodiats.
+    </div>
+    <a href="{{ path('app_plan') }}" class="px-3.5 py-2 rounded-lg bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-[11px] uppercase tracking-wider shrink-0 text-center">
+      Passar al Pla Plus →
+    </a>
+  </div>
+{% endif %}
+

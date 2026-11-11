@@ -21,6 +21,7 @@ use App\Enum\CertificateStatus;
 use App\Enum\SuccessionClaimStatus;
 use App\Infrastructure\Adapter\Ai\AiVisionAnalyzerInterface;
 use App\Message\AnalyzeSuccessionClaimMessage;
+use App\Repository\CertificateRepository;
 use App\Repository\ItemRepository;
 use App\Repository\PlanRepository;
 use App\Repository\SuccessionClaimRepository;
@@ -110,10 +111,18 @@ class SuccessionClaimWorkflowServiceTest extends TestCase
         ?MessageBusInterface $bus = null,
         ?UserActivityLogger $auditLogger = null,
         ?PlanDowngradeService $downgradeService = null,
+        ?CertificateRepository $certificateRepo = null,
     ): SuccessionClaimWorkflowService {
         $em ??= $this->createMock(EntityManagerInterface::class);
         $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
-        $urlGenerator->method('generate')->willReturn('https://registrals.cat/mock');
+        $urlGenerator->method('generate')->willReturnCallback(static function (string $route): string {
+            return match ($route) {
+                'app_login' => 'https://registrals.cat/login',
+                'app_forgot_password' => 'https://registrals.cat/forgot-password',
+                'app_profile' => 'https://registrals.cat/app/perfil',
+                default => throw new \InvalidArgumentException(sprintf('Unexpected route name: %s', $route)),
+            };
+        });
 
         $hasher = $this->createMock(UserPasswordHasherInterface::class);
         $hasher->method('hashPassword')->willReturn('$2y$10$mockhashedpassword');
@@ -133,6 +142,7 @@ class SuccessionClaimWorkflowServiceTest extends TestCase
             planDowngradeService: $downgradeService ?? $this->createMock(PlanDowngradeService::class),
             messageBus: $bus,
             activityLogger: $auditLogger,
+            certificateRepository: $certificateRepo,
         );
     }
 
@@ -370,4 +380,167 @@ class SuccessionClaimWorkflowServiceTest extends TestCase
         $this->assertSame(SuccessionClaimStatus::REJECTED, $claim->getStatus());
         $this->assertSame(0, $claim->getExecutedTransferCount());
     }
+
+    public function testSubmitBeneficiaryDirectClaimWorksWithoutPdfCertAndLinksSilentCertWhenPresent(): void
+    {
+        $owner = $this->createUser('anna@registrals.cat', 'Anna', 'Puig', 1);
+        $heir = $this->createUser('albert@exemple.cat', 'Albert', 'Soler', 25);
+        $contact = (new LegacyContact($owner, 'Albert Soler', 'albert@exemple.cat'))
+            ->accept($heir, '127.0.0.1');
+        $cert = $this->createLegacySourceCert($owner, $contact);
+
+        $tmpPdf1 = tempnam(sys_get_temp_dir(), 'd_') . '.pdf';
+        $tmpPdf2 = tempnam(sys_get_temp_dir(), 't_') . '.pdf';
+        file_put_contents($tmpPdf1, "%PDF-1.4\n%%EOF\n");
+        file_put_contents($tmpPdf2, "%PDF-1.4\n%%EOF\n");
+
+        try {
+            $upload1 = new UploadedFile($tmpPdf1, 'def.pdf', 'application/pdf', null, true);
+            $upload2 = new UploadedFile($tmpPdf2, 'tit.pdf', 'application/pdf', null, true);
+
+            $claimRepo = $this->createMock(SuccessionClaimRepository::class);
+            $claimRepo->method('getNextClaimReference')->willReturn('LEG-2026-000020');
+            $claimRepo->method('findLatestOpenByLegacyContact')->willReturn(null);
+
+            $certRepo = $this->createMock(CertificateRepository::class);
+            $certRepo->method('findLatestValidLegacyByOwnerAndContact')->willReturn(null);
+
+            $storage = $this->createMock(FilesystemOperator::class);
+            $storage->expects($this->exactly(2))->method('writeStream');
+
+            $em = $this->createMock(EntityManagerInterface::class);
+            $em->expects($this->once())->method('persist');
+            $em->expects($this->once())->method('flush');
+
+            $serviceNoCert = $this->createService(claimRepo: $claimRepo, em: $em, storage: $storage, certificateRepo: $certRepo);
+            $claimWithoutPdf = $serviceNoCert->submitBeneficiaryDirectClaim(
+                contact: $contact,
+                actor: $heir,
+                claimantTaxId: '12345678z',
+                deathCertificateFile: $upload1,
+                successionTitleFile: $upload2,
+                clientIp: '127.0.0.1',
+            );
+
+            $this->assertNull($claimWithoutPdf->getSourceCertificate());
+            $this->assertSame($heir, $claimWithoutPdf->getClaimantUser());
+            $this->assertSame($contact, $claimWithoutPdf->getLegacyContact());
+
+            $certRepoPresent = $this->createMock(CertificateRepository::class);
+            $certRepoPresent->method('findLatestValidLegacyByOwnerAndContact')->willReturn($cert);
+            $upload1b = new UploadedFile($tmpPdf1, 'def.pdf', 'application/pdf', null, true);
+            $upload2b = new UploadedFile($tmpPdf2, 'tit.pdf', 'application/pdf', null, true);
+
+            $serviceWithSilentCert = $this->createService(claimRepo: $claimRepo, certificateRepo: $certRepoPresent);
+            $claimWithSilentCert = $serviceWithSilentCert->submitBeneficiaryDirectClaim(
+                contact: $contact,
+                actor: $heir,
+                claimantTaxId: '12345678z',
+                deathCertificateFile: $upload1b,
+                successionTitleFile: $upload2b,
+            );
+
+            $this->assertSame($cert, $claimWithSilentCert->getSourceCertificate());
+        } finally {
+            @unlink($tmpPdf1);
+            @unlink($tmpPdf2);
+        }
+    }
+
+    public function testSubmitBeneficiaryDirectClaimBlocksUnauthorizedPendingOrDuplicateOpenClaim(): void
+    {
+        $owner = $this->createUser('anna@registrals.cat', 'Anna', 'Puig', 1);
+        $heir = $this->createUser('albert@exemple.cat', 'Albert', 'Soler', 25);
+        $pendingContact = new LegacyContact($owner, 'Albert Soler', 'albert@exemple.cat');
+
+        $tmpPdf1 = tempnam(sys_get_temp_dir(), 'd_') . '.pdf';
+        $tmpPdf2 = tempnam(sys_get_temp_dir(), 't_') . '.pdf';
+        file_put_contents($tmpPdf1, "%PDF-1.4\n%%EOF\n");
+        file_put_contents($tmpPdf2, "%PDF-1.4\n%%EOF\n");
+
+        try {
+            $service = $this->createService();
+            $upload1 = new UploadedFile($tmpPdf1, 'def.pdf', 'application/pdf', null, true);
+            $upload2 = new UploadedFile($tmpPdf2, 'tit.pdf', 'application/pdf', null, true);
+
+            try {
+                $service->submitBeneficiaryDirectClaim($pendingContact, $heir, '12345678Z', $upload1, $upload2);
+                $this->fail('Should reject non-accepted contact');
+            } catch (DomainException $e) {
+                $this->assertStringContainsString('acceptat i actiu', $e->getMessage());
+            }
+
+            $acceptedContact = (new LegacyContact($owner, 'Albert Soler', 'albert@exemple.cat'))
+                ->accept($heir, '127.0.0.1');
+            $existingOpen = new SuccessionClaim(
+                'LEG-2026-000030',
+                null,
+                $owner,
+                'Albert Soler',
+                'albert@exemple.cat',
+                '12345678Z',
+                new \DateTimeImmutable(),
+                'legacy/claims/LEG-2026-000030/d.pdf',
+                str_repeat('1', 64),
+                'legacy/claims/LEG-2026-000030/t.pdf',
+                str_repeat('2', 64),
+                $acceptedContact,
+                $heir,
+            );
+
+            $claimRepo = $this->createMock(SuccessionClaimRepository::class);
+            $claimRepo->method('findLatestOpenByLegacyContact')->willReturn($existingOpen);
+
+            $serviceDup = $this->createService(claimRepo: $claimRepo);
+            $this->expectException(DomainException::class);
+            $this->expectExceptionMessage('LEG-2026-000030');
+            $serviceDup->submitBeneficiaryDirectClaim($acceptedContact, $heir, '12345678Z', $upload1, $upload2);
+        } finally {
+            @unlink($tmpPdf1);
+            @unlink($tmpPdf2);
+        }
+    }
+
+    public function testApproveClaimWorksCleanlyWithoutSourceCertificateAndTransfersItems(): void
+    {
+        $owner = $this->createUser('anna@registrals.cat', 'Anna', 'Puig', 1);
+        $heir = $this->createUser('albert@exemple.cat', 'Albert', 'Soler', 25);
+        $reviewer = $this->createUser('gestor@registrals.cat', 'Gestor', 'Custòdia', 99);
+        $contact = (new LegacyContact($owner, 'Albert Soler', 'albert@exemple.cat'))
+            ->accept($heir, '127.0.0.1');
+
+        $claim = new SuccessionClaim(
+            'LEG-2026-000031',
+            null,
+            $owner,
+            'Albert Soler',
+            'albert@exemple.cat',
+            '12345678Z',
+            new \DateTimeImmutable(),
+            'legacy/claims/LEG-2026-000031/d.pdf',
+            str_repeat('1', 64),
+            'legacy/claims/LEG-2026-000031/t.pdf',
+            str_repeat('2', 64),
+            $contact,
+            $heir,
+        );
+        $claim->activateOwnerNoticeWindow(1900, 'pi_direct', new \DateTimeImmutable('-2 hours'));
+        $claim->setStatus(SuccessionClaimStatus::UNDER_HUMAN_REVIEW);
+
+        $item = new Item($owner, 'REG-2026-DIRECT1', 'Càmera Leica', new Category('Càmeres', 'cameres'));
+        $itemRepo = $this->createMock(ItemRepository::class);
+        $itemRepo->method('findActiveForLegacyInventory')->willReturn([$item]);
+
+        $userRepo = $this->createMock(UserRepository::class);
+        $userRepo->method('findOneBy')->willReturn($heir);
+
+        $service = $this->createService(userRepo: $userRepo, itemRepo: $itemRepo);
+        $count = $service->approveClaim($claim, $reviewer, 'Expedient directe sense PDF verificat correctament.');
+
+        $this->assertSame(1, $count);
+        $this->assertNull($claim->getSourceCertificate());
+        $this->assertSame(SuccessionClaimStatus::APPROVED, $claim->getStatus());
+        $this->assertSame($heir, $item->getOwner());
+    }
 }
+

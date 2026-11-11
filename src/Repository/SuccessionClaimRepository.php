@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\Entity\LegacyContact;
 use App\Entity\SuccessionClaim;
 use App\Enum\SuccessionClaimStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -94,6 +95,71 @@ class SuccessionClaimRepository extends ServiceEntityRepository
         }
 
         return $qb->getQuery()->getResult();
+    }
+
+    public function findLatestByLegacyContact(LegacyContact $contact): ?SuccessionClaim
+    {
+        return $this->createQueryBuilder('sc')
+            ->andWhere('sc.legacyContact = :contact')
+            ->setParameter('contact', $contact)
+            ->orderBy('sc.createdAt', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    public function findLatestOpenByLegacyContact(LegacyContact $contact): ?SuccessionClaim
+    {
+        return $this->createQueryBuilder('sc')
+            ->andWhere('sc.legacyContact = :contact')
+            ->andWhere('sc.status NOT IN (:resolved)')
+            ->setParameter('contact', $contact)
+            ->setParameter('resolved', [SuccessionClaimStatus::APPROVED, SuccessionClaimStatus::REJECTED])
+            ->orderBy('sc.createdAt', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    /**
+     * Retorna l'últim expedient successori per cada contacte (indexat pel UUID RFC-4122 del LegacyContact).
+     *
+     * @param list<LegacyContact> $contacts
+     *
+     * @return array<string, SuccessionClaim>
+     */
+    public function findLatestByLegacyContacts(array $contacts): array
+    {
+        $persistedContacts = array_values(array_filter(
+            $contacts,
+            static fn (LegacyContact $c): bool => $c->getId() !== null
+        ));
+
+        if ($persistedContacts === []) {
+            return [];
+        }
+
+        /** @var list<SuccessionClaim> $claims */
+        $claims = $this->createQueryBuilder('sc')
+            ->andWhere('sc.legacyContact IN (:contacts)')
+            ->setParameter('contacts', $persistedContacts)
+            ->orderBy('sc.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        $byContactUuid = [];
+        foreach ($claims as $claim) {
+            $contact = $claim->getLegacyContact();
+            if ($contact === null) {
+                continue;
+            }
+            $uuid = $contact->getUuid()->toRfc4122();
+            if (!isset($byContactUuid[$uuid])) {
+                $byContactUuid[$uuid] = $claim;
+            }
+        }
+
+        return $byContactUuid;
     }
 }
 

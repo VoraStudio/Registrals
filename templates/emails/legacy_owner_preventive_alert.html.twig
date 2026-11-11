@@ -21,7 +21,13 @@
               <h2 style="font-family: 'Marcellus', Georgia, serif; font-size: 20px; color: #991B1B; margin: 0 0 14px;">S'ha registrat una sol·licitud d'obertura successòria sobre el teu compte</h2>
               <p style="font-size: 14px; line-height: 1.6; margin: 0 0 14px;">Hola {{ owner.firstName }},</p>
               <p style="font-size: 14px; line-height: 1.6; margin: 0 0 18px;">
-                T'informem immediatament que s'ha presentat l'expedient <strong>{{ claim.claimReference }}</strong> vinculat al certificat <strong>{{ claim.sourceCertificate.certificateNumber }}</strong> per part de <strong>{{ claim.claimantName }}</strong> (<code>{{ claim.claimantEmail }}</code>).
+                T'informem immediatament que s'ha presentat l'expedient <strong>{{ claim.claimReference }}</strong>
+                {% if claim.sourceCertificate %}
+                  vinculat al certificat <strong>{{ claim.sourceCertificate.certificateNumber }}</strong>
+                {% else %}
+                  a través del portal autenticat de la Persona de Confiança
+                {% endif %}
+                per part de <strong>{{ claim.claimantName }}</strong> (<code>{{ claim.claimantEmail }}</code>).
               </p>
               <div style="border-left: 3.5px solid #991B1B; background-color: rgba(185, 28, 28, 0.06); padding: 14px 16px; border-radius: 0 10px 10px 0; margin-bottom: 22px; font-size: 13px; line-height: 1.55;">
                 <strong>Bloqueig preventiu actiu fins al {{ holdUntil|date('d/m/Y H:i') }} UTC:</strong><br>
@@ -49,3 +55,4 @@
   </table>
 </body>
 </html>
+

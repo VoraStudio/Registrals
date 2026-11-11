@@ -11,6 +11,7 @@ use App\Form\ChangePasswordFormType;
 use App\Form\LegacyDesignationFormType;
 use App\Form\ProfileFormType;
 use App\Repository\LegacyContactRepository;
+use App\Repository\SuccessionClaimRepository;
 use App\Service\Legacy\LegacyCertificateIssuerService;
 use App\Service\Legacy\LegacyDesignationService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -32,7 +33,8 @@ class ProfileController extends AbstractController
         UserPasswordHasherInterface $passwordHasher,
         ?LegacyContactRepository $legacyContactRepository = null,
         ?LegacyDesignationService $legacyDesignationService = null,
-        ?LegacyCertificateIssuerService $legacyCertificateIssuer = null
+        ?LegacyCertificateIssuerService $legacyCertificateIssuer = null,
+        ?SuccessionClaimRepository $successionClaimRepository = null,
     ): Response {
         /** @var User $user */
         $user = $this->getUser();
@@ -71,6 +73,7 @@ class ProfileController extends AbstractController
 
         $legacyContacts = $legacyContactRepository?->findByOwnerOrdered($user) ?? [];
         $incomingLegacyContacts = $legacyDesignationService?->getIncomingDesignations($user) ?? [];
+        $incomingClaimsByContactUuid = $successionClaimRepository?->findLatestByLegacyContacts($incomingLegacyContacts) ?? [];
         $legacyEligibility = $legacyDesignationService?->evaluateDesignationEligibility($user) ?? [
             'allowed' => false,
             'reason' => 'plan_not_allowed',
@@ -91,6 +94,7 @@ class ProfileController extends AbstractController
             'isOAuthUser' => $isOAuthUser,
             'legacyContacts' => $legacyContacts,
             'incomingLegacyContacts' => $incomingLegacyContacts,
+            'incomingClaimsByContactUuid' => $incomingClaimsByContactUuid,
             'legacyEligibility' => $legacyEligibility,
             'legacyCertEligibility' => $legacyCertificateIssuer?->evaluateEmissionEligibility($user),
             'legacyForm' => $legacyForm,

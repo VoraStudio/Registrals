@@ -31,7 +31,11 @@
         {% endif %}
       </div>
       <p class="text-xs text-steel font-raleway mt-1">
-        Certificat font: <strong class="font-mono text-ink">{{ claim.sourceCertificate.certificateNumber }}</strong>
+        {% if claim.sourceCertificate %}
+          Certificat font: <strong class="font-mono text-ink">{{ claim.sourceCertificate.certificateNumber }}</strong>
+        {% else %}
+          Canal: <strong class="text-ink">Obertura directa des del perfil de Persona de Confiança</strong>
+        {% endif %}
         · Obertura: {{ claim.createdAt|date('d/m/Y H:i') }} UTC
         · Taxa abonada: <strong class="font-mono text-ink">{{ (claim.openingFeePaidCents / 100)|number_format(2, ',', '.') }} €</strong>
       </p>
@@ -299,3 +303,4 @@
   });
 </script>
 {% endblock %}
+

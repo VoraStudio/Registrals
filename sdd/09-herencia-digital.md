@@ -123,7 +123,7 @@ Per integrar nativament el Certificat d'Inventari Global de Llegat dins la safat
 | `id` | `integer` (PK) | Identificador intern. |
 | `uuid` | `uuid` (unique) | Identificador públic UUID v7 de l'expedient. |
 | `claimReference` | `string(32)` (unique) | Referència humana llegible (ex. `LEG-2026-000142`). |
-| `sourceCertificate` | `ManyToOne Certificate` | Certificat d'Inventari Global des d'on s'ha escanejat el QR. |
+| `sourceCertificate` | `ManyToOne Certificate` (nullable) | Certificat d'Inventari Global associat (via QR o en segon pla en obrir des del perfil; `null` si el titular va morir sense emetre PDF previ). |
 | `deceasedOwner` | `ManyToOne User` | Titular originari del patrimoni reclamat. |
 | `legacyContact` | `ManyToOne LegacyContact` (nullable) | Persona de confiança designada associada al certificat. |
 | `claimantUser` | `ManyToOne User` (nullable) | Usuari Registrals receptor (si ja té compte o el crea). |
@@ -202,11 +202,13 @@ A la barra lateral d'administració ([`templates/admin/layout.html.twig`](../tem
      2. **QR dedicat d'obertura successòria** (`/herencia/reclamar/{claimToken}`), clarament identificat al peu del document amb instruccions per a familiars/hereus.
 3. El certificat apareix llistat a `/app/certificats` junt amb els certificats individuals, identificable amb la insígnia institucional **`Inventari Global de Llegat`**.
 
-### Flux C — Reclamació Post-Mortem via QR, OTP, Pagament i Finestra de 72 hores
-1. Un familiar, marmessor o la persona de confiança escaneja el QR dedicat i accedeix a `/herencia/reclamar/{token}`.
-   - Si el certificat està `REVOKED` o `SUPERSEDED`, s'informa immediatament de la invalidesa del document i no s'obre cap tràmit.
-2. **Pas 1 — Identificació i Verificació OTP del Sol·licitant:**
-   - Introdueix nom complet, NIF/NIE/passaport i correu electrònic, i valida el correu amb un **codi OTP de 6 dígits** abans de poder pujar documentació sensible.
+### Flux C — Reclamació Post-Mortem (Doble Porta: QR del PDF o Portal Autenticat de Persona de Confiança)
+1. **Dues vies complementàries d'obertura (mateixa seguretat documental i jurídica):**
+   - **Porta 1 — QR dedicat del PDF (`/herencia/reclamar/{token}`):** un familiar, marmessor o la persona de confiança escaneja el QR del document físic o digital. Si el certificat està `REVOKED` o `SUPERSEDED`, s'informa immediatament de la invalidesa del document i no s'obre cap tràmit.
+   - **Porta 2 — Portal autenticat del receptor designat (`/app/perfil/herencia/{uuid}/expedient`):** si el titular mor sense haver pogut lliurar el PDF, la Persona de Confiança en estat `ACCEPTED` pot iniciar i seguir l'expedient directament des de `/app/perfil#herencia-digital` (passant per modal institucional d'advertència), sense revelar mai béns ni certificats en vida (Art. 14 RGPD) i associant silenciosament el darrer Certificat d'Inventari vigent si existeix (`source_certificate_id` nullable via migració `Version20261111220000`).
+2. **Pas 1 — Identificació del Sol·licitant:**
+   - Al QR públic: nom complet, NIF/NIE/passaport i validació del correu amb un **codi OTP de 6 dígits** abans de poder pujar documentació sensible.
+   - Al portal autenticat: l'usuari ja té sessió i identitat verificada; confirma la declaració responsable d'obertura per defunció i informa el seu NIF/NIE/passaport.
 3. **Pas 2 — Aportació Documental Custodiada a Flysystem:**
    - Càrrega obligatòria del **Certificat Oficial de Defunció** (PDF o imatge) i del **Títol Legitimador** (certificat d'actes d'última voluntat / testament / declaració d'hereus).
    - Emmagatzematge xifrat fora de l'arrel web amb càlcul immediat de hashes SHA-256.
@@ -247,8 +249,8 @@ Seguim estrictament la regla d'or SDD (4 passos per subiteració: Model -> Domin
   - Servei [`LegacyCertificateIssuerService`](../src/Service/Legacy/LegacyCertificateIssuerService.php) i plantilla multipàgina A4 [`legacy_pdf_template.html.twig`](../templates/certificate/legacy_pdf_template.html.twig) amb taula consolidada de béns actius, parts pseudonimitzades (`PrivacyMasker`), segell eIDAS, supersessió idempotent d'exemplars previs i doble codi QR (`/verify/{uuid}` + `/herencia/reclamar/{token}`).
   - Integració nativa a la safata global `/app/certificats` (`POST /app/certificats/llegat/emetre`, targeta SVG específica a `_certificate_tile.html.twig`) i acció contextual a `/app/perfil#herencia-digital`.
   - Verificació pública pseudonimitzada a `/verify/{uuid}` sense divulgació d'objectes i punt d'entrada públic [`LegacyClaimController`](../src/Controller/LegacyClaimController.php) (`/herencia/reclamar/{token}`).
-- [x] **Subiteració 10.4 — Expedient Post-Mortem QR, IA Qwen-VL i Cua `ROLE_GESTOR`** *(Completada)*
-  - Controlador públic `/herencia/reclamar/{token}` ([`LegacyClaimController`](../src/Controller/LegacyClaimController.php)) amb verificació d'identitat per OTP de 6 dígits, càrrega custodiada a Flysystem amb càlcul SHA-256, Checkout Stripe (`PaymentType::SUCCESSION_CLAIM` amb suport Sandbox `mock=1`), alerta preventiva urgent de 72 hores al titular (`legacy_owner_preventive_alert`) i bloqueig dur anti-frau ([`SuccessionClaimWorkflowService`](../src/Service/Legacy/SuccessionClaimWorkflowService.php)).
+- [x] **Subiteració 10.4 — Expedient Post-Mortem Dual (QR + Portal Autenticat Receptor), IA Qwen-VL i Cua `ROLE_GESTOR`** *(Completada)*
+  - Controlador públic `/herencia/reclamar/{token}` ([`LegacyClaimController`](../src/Controller/LegacyClaimController.php)) i portal autenticat `/app/perfil/herencia/{uuid}/expedient` ([`LegacyBeneficiaryClaimController`](../src/Controller/LegacyBeneficiaryClaimController.php)) amb migració `Version20261111220000` (`source_certificate_id` nullable), càrrega custodiada a Flysystem amb càlcul SHA-256, Checkout Stripe compartit ([`SuccessionClaimCheckoutService`](../src/Service/Legacy/SuccessionClaimCheckoutService.php), `PaymentType::SUCCESSION_CLAIM` amb suport Sandbox `mock=1`), alerta preventiva urgent de 72 hores al titular (`legacy_owner_preventive_alert`), seguiment directe dins `/app/perfil#herencia-digital` sense divulgació patrimonial en vida (Art. 14 RGPD) i bloqueig dur anti-frau ([`SuccessionClaimWorkflowService`](../src/Service/Legacy/SuccessionClaimWorkflowService.php)).
   - Prompt `'legacy_claim'` a [`SglangVisionClient`](../src/Infrastructure/Adapter/Ai/SglangVisionClient.php) + missatge i handler asíncron [`AnalyzeSuccessionClaimMessage`](../src/Message/AnalyzeSuccessionClaimMessage.php) / [`AnalyzeSuccessionClaimMessageHandler`](../src/MessageHandler/AnalyzeSuccessionClaimMessageHandler.php) a `async_ai`.
   - Consola acotada `/admin/gestions/herencies` ([`AdminSuccessionClaimController`](../src/Controller/Admin/AdminSuccessionClaimController.php)) sota `GESTIÓ & CUSTÒDIA` per a `ROLE_GESTOR` i `ROLE_ADMIN`, visors privats Flysystem via `StreamedResponse`, resolució motivada per modal i execució atòmica per lot mitjançant [`ItemLifecycleService::completeInheritanceTransfer`](../src/Service/Item/ItemLifecycleService.php) (`AcquisitionType::INHERITANCE`, Polygon L2 i verificació de quotes).
 - [ ] **Subiteració 10.5 — Proves Automatitzades PHPUnit i Validació HITL**

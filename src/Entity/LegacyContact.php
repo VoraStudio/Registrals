@@ -164,6 +164,17 @@ class LegacyContact
         return $this;
     }
 
+    public function isDesignatedUser(User $user): bool
+    {
+        if ($this->beneficiaryUser?->getId() !== null && $user->getId() !== null) {
+            if ($this->beneficiaryUser->getId() === $user->getId()) {
+                return true;
+            }
+        }
+
+        return mb_strtolower(trim($user->getEmail())) === $this->email;
+    }
+
     public function getStatus(): LegacyContactStatus
     {
         return $this->status;

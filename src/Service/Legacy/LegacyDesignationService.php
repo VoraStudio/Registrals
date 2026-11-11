@@ -445,13 +445,7 @@ class LegacyDesignationService
 
     private function isRecipientActor(LegacyContact $contact, User $actor): bool
     {
-        if ($contact->getBeneficiaryUser()?->getId() !== null && $actor->getId() !== null) {
-            if ($contact->getBeneficiaryUser()->getId() === $actor->getId()) {
-                return true;
-            }
-        }
-
-        return mb_strtolower(trim($actor->getEmail())) === $contact->getEmail();
+        return $contact->isDesignatedUser($actor);
     }
 
     private function sendOwnerResponseEmail(LegacyContact $contact, bool $accepted, bool $renounced = false): void

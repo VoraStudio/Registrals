@@ -1,0 +1,246 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Expedient Successori — Registrals{% endblock %}
+{% block meta_robots %}noindex, nofollow{% endblock %}
+
+{% block body_class %}bg-cream-50 text-ink min-h-screen flex flex-col justify-between selection:bg-gold selection:text-ink font-raleway{% endblock %}
+
+{% block body %}
+{% set openingFeeText = (openingFeeCents / 100)|number_format(2, ',', '.') ~ ' €' %}
+<div class="min-h-screen flex flex-col justify-between bg-cream-50">
+
+  {% include 'partials/_private_header.html.twig' %}
+
+  <main class="max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 py-3.5 sm:py-5 w-full flex-1 pb-20 md:pb-6">
+
+    {% include 'partials/_subpage_header.html.twig' with {
+      breadcrumbs: [
+        { label: 'Inici', url: path('app_dashboard') },
+        { label: 'Perfil', url: path('app_profile') ~ '#herencia-digital' },
+        { label: 'Expedient Successori' }
+      ],
+      title: 'Tramitació Successòria (Art. 96 LOPDGDD)',
+      subtitle: 'Obertura acreditada com a Persona de Confiança acceptada per a ' ~ contact.owner.fullName ~ '.',
+      badge: '<span class="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-white border border-gold/40 text-ink shadow-2xs">Custòdia Successòria</span>',
+      nav_prev_url: path('app_profile') ~ '#herencia-digital',
+      nav_prev_label: 'Tornar al Perfil'
+    } %}
+
+    {% include 'partials/_persistent_flashes.html.twig' with { margin_class: 'mb-4' } %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+
+      {# Columna Principal (8/12): Flux Documental, Pagament i Estat #}
+      <div class="lg:col-span-8 space-y-4">
+        <div class="bg-white rounded-2xl border border-gold/35 shadow-xs overflow-hidden">
+          <div class="h-1 bg-gradient-to-r from-ink via-gold to-ink"></div>
+
+          <div class="p-4 sm:p-6 border-b border-steel/15 bg-cream-50/40 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <div class="text-[10px] font-mono uppercase tracking-wider text-steel font-bold">
+                Titular Designant{% if contact.relationship %} · {{ contact.relationship }}{% endif %}
+              </div>
+              <h2 class="font-marcellus text-lg sm:text-xl text-ink mt-0.5">{{ contact.owner.fullName }}</h2>
+            </div>
+
+            {% if latestClaim %}
+              <span class="px-3 py-1 rounded-full border text-xs font-bold {{ latestClaim.status.badgeClasses }}">
+                {{ latestClaim.status.label }}
+              </span>
+            {% else %}
+              <span class="px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold">
+                Designació {{ contact.status.label }}
+              </span>
+            {% endif %}
+          </div>
+
+          <div class="p-4 sm:p-6 space-y-5">
+            {% if latestClaim %}
+              <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-steel/15">
+                <div>
+                  <div class="text-[10px] font-mono uppercase text-steel">Referència d'Expedient</div>
+                  <div class="font-marcellus text-xl text-ink">{{ latestClaim.claimReference }}</div>
+                </div>
+                <div class="text-right font-mono text-[11px] text-steel">
+                  Obert el {{ latestClaim.createdAt|date('d/m/Y H:i') }} UTC
+                </div>
+              </div>
+
+              {% if latestClaim.status.value == 'pending_payment' %}
+                <p class="text-xs sm:text-sm text-ink/85 leading-relaxed">
+                  Els documents acreditatius han quedat custodiats sota xifratge privat (SHA-256). Completa ara la taxa d'obertura i auditoria documental per iniciar l'alerta preventiva al titular i activar la finestra de seguretat de <strong>72 hores</strong>.
+                </p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px] font-mono bg-cream-50/60 p-3.5 rounded-xl border border-steel/15">
+                  <div>
+                    <span class="block text-steel uppercase text-[10px]">SHA-256 Cert. Defunció</span>
+                    <span class="text-ink break-all">{{ latestClaim.deathCertificateSha256|slice(0, 28) }}…</span>
+                  </div>
+                  <div>
+                    <span class="block text-steel uppercase text-[10px]">SHA-256 Títol Successori</span>
+                    <span class="text-ink break-all">{{ latestClaim.successionTitleSha256|slice(0, 28) }}…</span>
+                  </div>
+                </div>
+
+                <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+                  <form method="post" action="{{ path('app_profile_legacy_claim_cancel', { uuid: contactUuid }) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('legacy_beneficiary_claim_cancel_' ~ contactUuid) }}">
+                    <button type="submit" class="px-3.5 py-2 rounded-xl border border-steel/30 bg-white hover:bg-cream-50 text-xs font-semibold text-steel cursor-pointer">
+                      Cancel·lar i tornar a pujar documents
+                    </button>
+                  </form>
+
+                  <form method="post" action="{{ path('app_profile_legacy_claim_checkout', { uuid: contactUuid }) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('legacy_beneficiary_claim_pay_' ~ contactUuid) }}">
+                    <input type="hidden" name="claim_uuid" value="{{ latestClaim.uuid.toRfc4122 }}">
+                    <button type="submit" class="px-5 py-3 rounded-xl bg-ink text-gold border border-gold/50 hover:bg-ink/90 font-bold text-xs sm:text-sm uppercase tracking-wider shadow-md transition-all cursor-pointer">
+                      Abonar {{ openingFeeText }} i Activar Revisió →
+                    </button>
+                  </form>
+                </div>
+
+              {% elseif latestClaim.status.value == 'approved' %}
+                <div class="border-l-[3.5px] border-emerald-600 bg-emerald-50/70 p-4 rounded-r-xl text-xs sm:text-sm text-emerald-950 space-y-2">
+                  <div class="font-bold">Expedient aprovat i patrimoni assignat</div>
+                  <p>
+                    S'han traspassat <strong>{{ latestClaim.executedTransferCount }}</strong> bé(ns) custodiats al teu compte vinculat (<code>{{ latestClaim.claimantEmail }}</code>).
+                  </p>
+                  {% if latestClaim.resolutionNotes %}
+                    <p class="text-xs text-emerald-900/90 pt-1 border-t border-emerald-200/80">
+                      <strong>Notes de resolució:</strong> {{ latestClaim.resolutionNotes }}
+                    </p>
+                  {% endif %}
+                </div>
+
+                <div class="flex justify-end">
+                  <a href="{{ path('app_dashboard') }}" class="px-5 py-2.5 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-xs uppercase tracking-wider shadow-sm">
+                    Veure el meu Patrimoni →
+                  </a>
+                </div>
+
+              {% elseif latestClaim.status.value == 'rejected' %}
+                <div class="border-l-[3.5px] border-red-600 bg-red-50/70 p-4 rounded-r-xl text-xs sm:text-sm text-red-950 space-y-2">
+                  <div class="font-bold">Expedient denegat per l'equip de gestió</div>
+                  {% if latestClaim.resolutionNotes %}
+                    <p><strong>Motiu comunicat:</strong> {{ latestClaim.resolutionNotes }}</p>
+                  {% endif %}
+                </div>
+
+                {% if contact.status.isAccepted %}
+                  <div class="flex justify-end">
+                    <a href="{{ path('app_profile_legacy_claim_portal', { uuid: contactUuid, nou: 1 }) }}"
+                       class="px-4 py-2.5 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-xs uppercase tracking-wider">
+                      Iniciar nova sol·licitud amb documentació corregida →
+                    </a>
+                  </div>
+                {% endif %}
+
+              {% else %}
+                <div class="border-l-[3.5px] border-gold bg-gold/10 p-4 rounded-r-xl text-xs sm:text-sm text-ink/85 leading-relaxed space-y-1.5">
+                  <div>
+                    <strong>Taxa d'obertura abonada:</strong> {{ (latestClaim.openingFeePaidCents / 100)|number_format(2, ',', '.') }} €.
+                  </div>
+                  {% if latestClaim.securityHoldUntil %}
+                    {% if latestClaim.isSecurityHoldActive %}
+                      <div>
+                        <strong>Finestra preventiva de 72 hores activa fins al {{ latestClaim.securityHoldUntil|date('d/m/Y H:i') }} UTC.</strong>
+                        Durant aquest termini el titular rep alerta de seguretat i cap traspàs no es pot aprovar.
+                      </div>
+                    {% else %}
+                      <div>
+                        <strong>Finestra preventiva de 72 hores completada:</strong> l'expedient resta pendent de resolució humana per part de gestió de custòdia.
+                      </div>
+                    {% endif %}
+                  {% endif %}
+                  <div>T'informarem a <strong>{{ latestClaim.claimantEmail }}</strong> així que quedi resolt.</div>
+                </div>
+              {% endif %}
+
+            {% else %}
+              {% if rejectedHistoryClaim %}
+                <div class="border-l-[3.5px] border-amber-500 bg-amber-50/70 p-3 rounded-r-xl text-xs text-amber-950">
+                  Sol·licitud anterior (<strong>{{ rejectedHistoryClaim.claimReference }}</strong>) rebutjada. Pots aportar nova documentació oficial tot seguit.
+                </div>
+              {% endif %}
+
+              <div class="border-l-[3.5px] border-gold bg-gold/10 p-3.5 rounded-r-xl text-xs text-ink/85 leading-relaxed">
+                <strong>Custòdia privada (Flysystem + SHA-256):</strong> Aporta el <strong>Certificat Oficial de Defunció</strong> i el <strong>Títol Successori</strong> (darreres voluntats, testament o declaració d'hereus) en format <code>PDF</code>, <code>JPG</code>, <code>PNG</code> o <code>WebP</code> (màx. 15 MB per fitxer).
+              </div>
+
+              <form method="post" action="{{ path('app_profile_legacy_claim_upload', { uuid: contactUuid }) }}" enctype="multipart/form-data" class="space-y-4">
+                <input type="hidden" name="_token" value="{{ csrf_token('legacy_beneficiary_claim_upload_' ~ contactUuid) }}">
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div>
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-ink/70 mb-1">Sol·licitant Verificat</label>
+                    <input type="text" readonly value="{{ user.fullName|default(contact.fullName) }} ({{ user.email }})"
+                           class="w-full rounded-xl border border-steel/20 bg-cream-50/70 px-3.5 py-2.5 text-xs text-ink/80">
+                  </div>
+
+                  <div>
+                    <label for="claimant_tax_id" class="block text-[11px] font-bold uppercase tracking-wider text-ink mb-1">NIF / NIE / Passaport del Sol·licitant *</label>
+                    <input type="text" id="claimant_tax_id" name="claimant_tax_id" required minlength="5" maxlength="30"
+                           value="{{ prefillTaxId }}" placeholder="Ex. 12345678Z"
+                           class="w-full rounded-xl border border-steel/30 bg-white px-3.5 py-2.5 text-sm text-ink uppercase font-mono focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold">
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div>
+                    <label for="death_certificate" class="block text-xs font-bold uppercase tracking-wider text-ink mb-1.5">
+                      1. Certificat Oficial de Defunció *
+                    </label>
+                    <input type="file" id="death_certificate" name="death_certificate" required accept=".pdf,image/jpeg,image/png,image/webp"
+                           class="w-full rounded-xl border border-steel/30 bg-cream-50/50 px-3 py-2.5 text-xs text-ink file:mr-2.5 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-ink file:text-gold file:font-bold file:text-xs cursor-pointer">
+                  </div>
+
+                  <div>
+                    <label for="succession_title" class="block text-xs font-bold uppercase tracking-wider text-ink mb-1.5">
+                      2. Títol Successori Acreditatiu *
+                    </label>
+                    <input type="file" id="succession_title" name="succession_title" required accept=".pdf,image/jpeg,image/png,image/webp"
+                           class="w-full rounded-xl border border-steel/30 bg-cream-50/50 px-3 py-2.5 text-xs text-ink file:mr-2.5 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-ink file:text-gold file:font-bold file:text-xs cursor-pointer">
+                  </div>
+                </div>
+
+                <label class="flex items-start gap-2.5 p-3 rounded-xl bg-cream-50/75 border border-steel/20 cursor-pointer text-xs text-ink/85 leading-snug">
+                  <input type="checkbox" name="confirm_death_declaration" value="1" required
+                         class="mt-0.5 w-4 h-4 rounded border-steel/30 text-ink focus:ring-gold shrink-0">
+                  <span>
+                    Declaro sota la meva responsabilitat que s'ha produït la defunció del titular i entenc que, en completar la taxa d'obertura (<code class="px-1 py-0.5 rounded bg-gold/20 font-mono text-[10px]">{{ openingFeeText }}</code>), s'enviarà una alerta preventiva immediata al titular amb un bloqueig de <strong>72 hores</strong> abans de la resolució humana.
+                  </span>
+                </label>
+
+                <div class="pt-1 flex justify-end">
+                  <button type="submit" class="w-full sm:w-auto px-5 py-3 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-xs uppercase tracking-wider shadow-md transition-all cursor-pointer">
+                    Pujar Documents i Continuar al Pagament ({{ openingFeeText }}) →
+                  </button>
+                </div>
+              </form>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      {# Columna Lateral (4/12): Garanties Art. 14 / 22 RGPD i Procediment #}
+      <div class="lg:col-span-4 space-y-3.5">
+        <div class="bg-ink text-cream border border-gold/40 rounded-2xl p-4 sm:p-5 shadow-md space-y-3 relative overflow-hidden">
+          <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-gold to-transparent opacity-80"></div>
+          <h3 class="font-marcellus text-sm sm:text-base text-white border-b border-gold/20 pb-2">Salvaguardes del Tràmit</h3>
+          <ul class="space-y-2 text-xs text-cream/85 font-raleway leading-relaxed">
+            <li>• <strong>Privadesa Art. 14 RGPD:</strong> No es mostra cap inventari ni nombre de béns abans de l'aprovació definitiva.</li>
+            <li>• <strong>Finestra preventiva de 72 h:</strong> Alerta urgent automàtica al titular per evitar usos indeguts o prematurs.</li>
+            <li>• <strong>Revisió humana (Art. 22 RGPD):</strong> L'equip autoritzat verifica la defunció i el títol successori abans del traspàs.</li>
+            <li>• <strong>Taxa d'obertura única:</strong> {{ openingFeeText }} en liquidar els documents.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  {% include 'partials/_pwa_bottom_nav.html.twig' with {'active_tab': 'profile'} %}
+
+</div>
+{% endblock %}
+

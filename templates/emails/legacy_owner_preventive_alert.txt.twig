@@ -4,9 +4,10 @@ Hola {{ owner.firstName }},
 
 S'ha registrat una sol·licitud d'obertura d'expedient successori sobre el teu compte Registrals:
 - Referència: {{ claim.claimReference }}
-- Certificat vinculat: {{ claim.sourceCertificate.certificateNumber }}
+- Origen de sol·licitud: {{ claim.sourceCertificate ? 'Certificat ' ~ claim.sourceCertificate.certificateNumber : 'Portal autenticat de Persona de Confiança' }}
 - Sol·licitant: {{ claim.claimantName }} ({{ claim.claimantEmail }})
 - Bloqueig preventiu obligatori actiu fins al {{ holdUntil|date('d/m/Y H:i') }} UTC.
 
 Cap operador no pot executar cap traspàs durant aquest període de 72 hores. Si aquesta sol·licitud no és legítima, entra de seguida al teu perfil per revocar la designació i notificar el servei de custòdia:
 {{ profileUrl }}
+

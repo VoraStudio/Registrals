@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\SuccessionClaim;
-use App\Enum\PaymentType;
 use App\Infrastructure\Adapter\Payment\PaymentGatewayInterface;
 use App\Repository\SuccessionClaimRepository;
 use App\Service\Legacy\LegacyCertificateIssuerService;
+use App\Service\Legacy\SuccessionClaimCheckoutService;
 use App\Service\Legacy\SuccessionClaimWorkflowService;
 use App\Service\Payment\PaymentManager;
 use App\Service\Security\PrivacyMasker;
@@ -41,6 +41,7 @@ class LegacyClaimController extends AbstractController
         private readonly ?MailerInterface $mailer = null,
         private readonly string $mailerFromAddress = 'info@registrals.com',
         private readonly string $mailerFromName = 'Registrals',
+        private readonly ?SuccessionClaimCheckoutService $claimCheckoutService = null,
     ) {
     }
 
@@ -83,7 +84,7 @@ class LegacyClaimController extends AbstractController
             $claimUuid = $session->get('legacy_claim_uuid_' . $sessionKeyPrefix);
             if (is_string($claimUuid) && $claimUuid !== '' && $this->claimRepository !== null) {
                 $loadedClaim = $this->claimRepository->findByUuid($claimUuid);
-                if ($loadedClaim instanceof SuccessionClaim && $loadedClaim->getSourceCertificate()->getId() === $certificate->getId()) {
+                if ($loadedClaim instanceof SuccessionClaim && $loadedClaim->getSourceCertificate()?->getId() === $certificate->getId()) {
                     $activeClaim = $loadedClaim;
                 }
             }
@@ -335,7 +336,7 @@ class LegacyClaimController extends AbstractController
             ? $this->claimRepository->findByUuid($claimUuid)
             : null;
 
-        if (!$claim instanceof SuccessionClaim || $claim->getSourceCertificate()->getId() !== $certificate->getId()) {
+        if (!$claim instanceof SuccessionClaim || $claim->getSourceCertificate()?->getId() !== $certificate->getId()) {
             $this->addFlash('error', 'No s\'ha localitzat l\'expedient documental per abonar.');
 
             return $this->redirectToRoute('app_legacy_claim_entry', ['token' => $token]);
@@ -345,13 +346,17 @@ class LegacyClaimController extends AbstractController
             return $this->redirectToRoute('app_legacy_claim_entry', ['token' => $token]);
         }
 
-        if ($this->paymentGateway === null || $this->paymentManager === null) {
+        $checkoutService = $this->claimCheckoutService;
+        if ($checkoutService === null && $this->paymentGateway !== null && $this->paymentManager !== null) {
+            $checkoutService = new SuccessionClaimCheckoutService($this->paymentGateway, $this->paymentManager);
+        }
+
+        if ($checkoutService === null) {
             $this->addFlash('error', 'La passarel·la de pagament no es troba disponible.');
 
             return $this->redirectToRoute('app_legacy_claim_entry', ['token' => $token]);
         }
 
-        $amountCents = $claim->getDeceasedOwner()->getPlan()?->getLegacyClaimOpeningFeeCents() ?? 1900;
         $successUrl = $this->generateUrl('app_legacy_claim_payment_return', [
             'token' => $token,
             'claim' => $claim->getUuid()->toRfc4122(),
@@ -360,43 +365,9 @@ class LegacyClaimController extends AbstractController
         $cancelUrl = $this->generateUrl('app_legacy_claim_entry', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_URL);
 
         try {
-            $checkout = $this->paymentGateway->createSuccessionClaimCheckout($claim, $amountCents, $successUrl, $cancelUrl);
-            $payerUser = $claim->getClaimantUser() ?? $claim->getDeceasedOwner();
+            $checkoutUrl = $checkoutService->startOpeningFeeCheckout($claim, $successUrl, $cancelUrl);
 
-            $this->paymentManager->createPendingTransaction(
-                $payerUser,
-                PaymentType::SUCCESSION_CLAIM,
-                $amountCents,
-                $checkout['sessionId'],
-                [
-                    'type' => 'succession_claim',
-                    'claim_id' => $claim->getId(),
-                    'claim_uuid' => $claim->getUuid()->toRfc4122(),
-                    'claimant_email' => $claim->getClaimantEmail(),
-                ]
-            );
-
-            if (str_contains($checkout['url'], 'mock=1')) {
-                $this->paymentManager->processWebhook([
-                    'id' => 'evt_mock_claim_' . bin2hex(random_bytes(8)),
-                    'type' => 'checkout.session.completed',
-                    'data' => [
-                        'object' => [
-                            'id' => $checkout['sessionId'],
-                            'client_reference_id' => $claim->getUuid()->toRfc4122(),
-                            'amount_total' => $amountCents,
-                            'payment_intent' => 'pi_mock_' . bin2hex(random_bytes(8)),
-                            'metadata' => [
-                                'type' => 'succession_claim',
-                                'user_id' => (string) $payerUser->getId(),
-                                'claim_id' => (string) $claim->getId(),
-                            ],
-                        ],
-                    ],
-                ]);
-            }
-
-            return $this->redirect($checkout['url']);
+            return $this->redirect($checkoutUrl);
         } catch (\Throwable $e) {
             $this->addFlash('error', 'Error en iniciar el pagament de la taxa d\'obertura: ' . $e->getMessage());
 

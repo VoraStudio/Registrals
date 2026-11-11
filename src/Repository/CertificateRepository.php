@@ -6,6 +6,7 @@ namespace App\Repository;
 
 use App\Entity\Certificate;
 use App\Entity\Item;
+use App\Entity\LegacyContact;
 use App\Entity\User;
 use App\Enum\CertificateMode;
 use App\Enum\CertificateScope;
@@ -213,5 +214,22 @@ class CertificateRepository extends ServiceEntityRepository
     public function findByClaimTokenHash(string $claimTokenHash): ?Certificate
     {
         return $this->findOneBy(['claimTokenHash' => $claimTokenHash]);
+    }
+
+    public function findLatestValidLegacyByOwnerAndContact(User $owner, LegacyContact $contact): ?Certificate
+    {
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.issuedBy = :owner')
+            ->andWhere('c.legacyContact = :contact')
+            ->andWhere('c.scope = :scope')
+            ->andWhere('c.status = :status')
+            ->setParameter('owner', $owner)
+            ->setParameter('contact', $contact)
+            ->setParameter('scope', CertificateScope::LEGACY_INVENTORY)
+            ->setParameter('status', CertificateStatus::VALID)
+            ->orderBy('c.createdAt', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 }

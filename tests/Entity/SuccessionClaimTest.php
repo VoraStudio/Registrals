@@ -111,4 +111,54 @@ class SuccessionClaimTest extends TestCase
         $this->assertSame(3, $claim->getExecutedTransferCount());
         $this->assertSame($gestor->getEmail(), $claim->getReviewedByEmail());
     }
+
+    public function testClaimAllowsNullSourceCertificateWhenLinkedToLegacyContact(): void
+    {
+        $owner = (new User())->setEmail('titular@registrals.cat')->setFirstName('Anna')->setLastName('Puig');
+        $heir = (new User())->setEmail('maria@exemple.cat')->setFirstName('Maria')->setLastName('Puig');
+        $contact = (new LegacyContact($owner, 'Maria Puig', 'maria@exemple.cat'))
+            ->accept($heir, '127.0.0.1');
+
+        $claim = new SuccessionClaim(
+            claimReference: 'LEG-2026-000003',
+            sourceCertificate: null,
+            deceasedOwner: $owner,
+            claimantName: 'Maria Puig',
+            claimantEmail: 'maria@exemple.cat',
+            claimantTaxId: '12345678Z',
+            claimantEmailOtpVerifiedAt: new \DateTimeImmutable(),
+            deathCertificateStorageKey: 'legacy/death.pdf',
+            deathCertificateSha256: hash('sha256', 'death'),
+            successionTitleStorageKey: 'legacy/title.pdf',
+            successionTitleSha256: hash('sha256', 'title'),
+            legacyContact: $contact,
+            claimantUser: $heir,
+        );
+
+        $this->assertNull($claim->getSourceCertificate());
+        $this->assertSame($contact, $claim->getLegacyContact());
+        $this->assertSame($heir, $claim->getClaimantUser());
+    }
+
+    public function testClaimRejectsBothNullCertificateAndNullContact(): void
+    {
+        $owner = (new User())->setEmail('titular@registrals.cat')->setFirstName('Anna')->setLastName('Puig');
+
+        $this->expectException(InvalidArgumentException::class);
+
+        new SuccessionClaim(
+            claimReference: 'LEG-2026-000004',
+            sourceCertificate: null,
+            deceasedOwner: $owner,
+            claimantName: 'Maria Puig',
+            claimantEmail: 'maria@exemple.cat',
+            claimantTaxId: '12345678Z',
+            claimantEmailOtpVerifiedAt: new \DateTimeImmutable(),
+            deathCertificateStorageKey: 'legacy/death.pdf',
+            deathCertificateSha256: hash('sha256', 'death'),
+            successionTitleStorageKey: 'legacy/title.pdf',
+            successionTitleSha256: hash('sha256', 'title'),
+            legacyContact: null,
+        );
+    }
 }

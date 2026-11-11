@@ -30,8 +30,8 @@ class SuccessionClaim
     private string $claimReference;
 
     #[ORM\ManyToOne(targetEntity: Certificate::class)]
-    #[ORM\JoinColumn(name: 'source_certificate_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
-    private Certificate $sourceCertificate;
+    #[ORM\JoinColumn(name: 'source_certificate_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    private ?Certificate $sourceCertificate = null;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'deceased_owner_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
@@ -117,7 +117,7 @@ class SuccessionClaim
 
     public function __construct(
         string $claimReference,
-        Certificate $sourceCertificate,
+        ?Certificate $sourceCertificate,
         User $deceasedOwner,
         string $claimantName,
         string $claimantEmail,
@@ -131,8 +131,13 @@ class SuccessionClaim
         ?User $claimantUser = null,
         ?Uuid $uuid = null
     ) {
-        if (!$sourceCertificate->isLegacyInventory()) {
+        if ($sourceCertificate !== null && !$sourceCertificate->isLegacyInventory()) {
             throw new InvalidArgumentException('Un expedient successori només es pot obrir sobre un certificat d\'Inventari Global de Llegat.');
+        }
+
+        $resolvedContact = $legacyContact ?? $sourceCertificate?->getLegacyContact();
+        if ($sourceCertificate === null && $resolvedContact === null) {
+            throw new InvalidArgumentException('Cal vincular l\'expedient a un Certificat d\'Inventari Global o a una designació de Persona de Confiança.');
         }
 
         $now = new \DateTimeImmutable();
@@ -140,7 +145,7 @@ class SuccessionClaim
         $this->claimReference = $claimReference;
         $this->sourceCertificate = $sourceCertificate;
         $this->deceasedOwner = $deceasedOwner;
-        $this->legacyContact = $legacyContact ?? $sourceCertificate->getLegacyContact();
+        $this->legacyContact = $resolvedContact;
         $this->claimantUser = $claimantUser;
         $this->claimantName = trim($claimantName);
         $this->claimantEmail = mb_strtolower(trim($claimantEmail));
@@ -169,7 +174,7 @@ class SuccessionClaim
         return $this->claimReference;
     }
 
-    public function getSourceCertificate(): Certificate
+    public function getSourceCertificate(): ?Certificate
     {
         return $this->sourceCertificate;
     }
