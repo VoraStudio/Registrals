@@ -1,0 +1,216 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Designació de Persona de Confiança — Registrals{% endblock %}
+{% block meta_description %}Acceptació o rebuig consentit com a Persona de Confiança dins l'ecosistema privat de Registrals (Art. 96 LOPDGDD / Art. 14 RGPD).{% endblock %}
+
+{% block body_class %}bg-cream-50 text-ink min-h-screen flex flex-col justify-between selection:bg-gold selection:text-ink font-raleway{% endblock %}
+
+{% block body %}
+<div class="min-h-screen flex flex-col justify-between bg-cream-50">
+
+  {# Capçalera Pública Institucional #}
+  <header class="bg-white sticky top-0 z-50 border-b border-steel/20 shadow-2xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <a href="{{ path('app_home') }}" class="flex items-center gap-2.5">
+        <span class="font-marcellus text-xl tracking-wider text-ink font-bold">REGISTRALS</span>
+        <span class="text-[9px] uppercase tracking-widest text-gold font-bold bg-cream px-2 py-0.5 rounded-full border border-gold/30">Herència Digital</span>
+      </a>
+      <div>
+        {% if currentUser %}
+          <a href="{{ path('app_dashboard') }}" class="px-3.5 py-1.5 rounded-xl font-bold text-xs uppercase tracking-wider bg-ink text-gold border border-gold/40 hover:bg-ink/90 transition-all shadow-2xs">
+            El meu Patrimoni
+          </a>
+        {% else %}
+          <a href="{{ path('app_login') }}" class="px-3.5 py-1.5 rounded-xl font-bold text-xs uppercase tracking-wider bg-white border border-steel/30 text-ink hover:text-gold hover:border-gold/50 transition-all shadow-2xs">
+            Accés Usuaris
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 w-full flex-1 flex flex-col justify-center">
+    {% include 'partials/_persistent_flashes.html.twig' with { margin_class: 'mb-5' } %}
+
+    <div class="bg-white/95 rounded-3xl border border-gold/40 shadow-2xl shadow-ink/10 overflow-hidden relative">
+      <div class="h-1.5 bg-gradient-to-r from-ink via-gold to-ink"></div>
+
+      <div class="p-6 sm:p-9 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3 pb-4 border-b border-steel/15">
+          <div>
+            <span class="text-[11px] font-mono uppercase tracking-widest text-gold font-bold block mb-1">
+              Consentiment de Continuïtat Patrimonial · Art. 96 LOPDGDD
+            </span>
+            <h1 class="font-marcellus text-2xl sm:text-3xl text-ink">
+              Designació com a Persona de Confiança
+            </h1>
+          </div>
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-300 text-amber-900 text-xs font-mono font-bold shrink-0">
+            Vigent fins {{ contact.invitationExpiresAt|date('d/m/Y') }}
+          </span>
+        </div>
+
+        <div class="text-sm text-ink/90 leading-relaxed space-y-3">
+          <p>
+            Hola <strong>{{ contact.fullName }}</strong>,
+          </p>
+          <p>
+            El titular <strong>{{ owner.fullName }}</strong>
+            {% if contact.relationship %} (<em>{{ contact.relationship }}</em>){% endif %}
+            sol·licita la teva conformitat per figurar com a <strong>Persona de Confiança</strong> associada al seu espai de custòdia a <strong>Registrals</strong>.
+          </p>
+        </div>
+
+        {# Nota de Transparència RGPD Art. 14 #}
+        <div class="border-l-[3.5px] border-gold bg-gold/10 p-4 rounded-r-xl text-xs text-ink/85 leading-relaxed space-y-1.5">
+          <strong>Clàusula de Transparència (Art. 14 RGPD) i Límits Legals:</strong>
+          <ul class="list-disc pl-4 space-y-1">
+            <li><strong>Zero exposició del patrimoni:</strong> En aquesta fase no es mostra cap llista de béns, imports econòmics ni documents custodiats.</li>
+            <li><strong>No equival a testament:</strong> Registrals no substitueix cap disposició testamentària ni dirimeix drets hereditaris; únicament acredita el rol perquè eventualment puguis tramitar l'expedient documental post-mortem.</li>
+            <li><strong>Revocació i lliure decisió:</strong> Pots acceptar o declinar aquesta designació lliurement i revocar-la en qualsevol moment.</li>
+          </ul>
+        </div>
+
+        {% if currentUser %}
+          {% if isEmailMatch %}
+            <div class="p-5 rounded-2xl bg-cream-50 border border-gold/30 space-y-4">
+              <div class="text-xs text-ink/80">
+                Sessió verificada com a <strong class="font-mono text-ink">{{ currentUser.email }}</strong> ({{ currentUser.fullName }}).
+              </div>
+
+              <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                <form method="post" action="{{ path('app_legacy_invitation_decline', {token: token}) }}">
+                  <input type="hidden" name="_token" value="{{ csrf_token('legacy_decline_' ~ token) }}">
+                  <button type="submit" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-white border border-steel/30 text-ink hover:border-red-300 hover:text-red-700 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer">
+                    Refusar Designació
+                  </button>
+                </form>
+
+                <form method="post" action="{{ path('app_legacy_invitation_accept', {token: token}) }}">
+                  <input type="hidden" name="_token" value="{{ csrf_token('legacy_accept_' ~ token) }}">
+                  <button type="submit" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 text-xs font-bold uppercase tracking-wider shadow-md transition-all cursor-pointer">
+                    Confirmar i Acceptar Designació →
+                  </button>
+                </form>
+              </div>
+            </div>
+          {% else %}
+            <div class="p-4 rounded-2xl bg-amber-50 border border-amber-300 text-xs text-amber-900 space-y-3">
+              <p>
+                Has iniciat sessió amb <strong class="font-mono">{{ currentUser.email }}</strong>, però aquesta designació està dirigida exclusivament a <strong class="font-mono">{{ contact.email }}</strong>.
+              </p>
+              <div class="flex flex-wrap items-center gap-3">
+                <a href="{{ path('app_logout') }}" class="px-4 py-2 rounded-xl bg-ink text-gold text-xs font-bold uppercase tracking-wider">
+                  Tancar Sessió i Canviar Compte
+                </a>
+                <form method="post" action="{{ path('app_legacy_invitation_decline', {token: token}) }}">
+                  <input type="hidden" name="_token" value="{{ csrf_token('legacy_decline_' ~ token) }}">
+                  <button type="submit" class="px-4 py-2 rounded-xl bg-white border border-red-200 text-red-700 text-xs font-bold uppercase tracking-wider cursor-pointer">
+                    Refusar Designació
+                  </button>
+                </form>
+              </div>
+            </div>
+          {% endif %}
+        {% elseif accountExistsForContact %}
+          <div class="p-5 rounded-2xl bg-cream-50 border border-steel/20 space-y-4">
+            <p class="text-xs sm:text-sm text-ink/85">
+              Aquesta adreça (<strong class="font-mono">{{ contact.email }}</strong>) ja té un compte registrat a Registrals. Inicia sessió per validar la teva identitat i confirmar la designació.
+            </p>
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              <form method="post" action="{{ path('app_legacy_invitation_decline', {token: token}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('legacy_decline_' ~ token) }}">
+                <button type="submit" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-white border border-steel/30 text-ink hover:border-red-300 hover:text-red-700 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer">
+                  Refusar sense Iniciar Sessió
+                </button>
+              </form>
+
+              <a href="{{ path('app_legacy_invitation_login', {token: token}) }}" class="px-6 py-3 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 text-xs font-bold uppercase tracking-wider shadow-md text-center transition-all">
+                Iniciar Sessió i Acceptar →
+              </a>
+            </div>
+          </div>
+        {% elseif signupForm is not null %}
+          <div class="p-5 sm:p-6 rounded-2xl bg-cream-50/70 border border-gold/30 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-steel/15">
+              <div>
+                <h2 class="font-marcellus text-lg text-ink">Crea el teu Compte Gratuït (Pla Free) per Acceptar</h2>
+                <p class="text-xs text-ink/70">Sense cap cost: tindràs el teu propi espai de custòdia i rebràs un codi OTP de 6 dígits al correu <strong class="font-mono">{{ contact.email }}</strong>.</p>
+              </div>
+              <span class="px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] font-mono font-bold shrink-0">
+                0,00 € · Pla Free
+              </span>
+            </div>
+
+            {{ form_start(signupForm, { attr: { class: 'space-y-4' } }) }}
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div>
+                  {{ form_label(signupForm.firstName, null, {'label_attr': {'class': 'block text-[11px] font-semibold uppercase tracking-wider text-ink/80 mb-1'}}) }}
+                  {{ form_widget(signupForm.firstName, {'attr': {'class': 'w-full px-3.5 py-2.5 bg-white border border-steel/30 rounded-xl text-ink text-sm focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/30'}}) }}
+                  {{ form_errors(signupForm.firstName, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
+                </div>
+                <div>
+                  {{ form_label(signupForm.lastName, null, {'label_attr': {'class': 'block text-[11px] font-semibold uppercase tracking-wider text-ink/80 mb-1'}}) }}
+                  {{ form_widget(signupForm.lastName, {'attr': {'class': 'w-full px-3.5 py-2.5 bg-white border border-steel/30 rounded-xl text-ink text-sm focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/30'}}) }}
+                  {{ form_errors(signupForm.lastName, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
+                </div>
+              </div>
+
+              <div class="text-xs">
+                <span class="block text-[11px] font-semibold uppercase tracking-wider text-ink/80 mb-1">Correu Electrònic Associat (fixat per la invitació)</span>
+                <div class="w-full px-3.5 py-2.5 bg-cream/50 border border-steel/25 rounded-xl text-ink/80 font-mono text-sm">
+                  {{ contact.email }}
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div>
+                  {{ form_label(signupForm.plainPassword.first, null, {'label_attr': {'class': 'block text-[11px] font-semibold uppercase tracking-wider text-ink/80 mb-1'}}) }}
+                  <div class="relative">
+                    {{ form_widget(signupForm.plainPassword.first, {'attr': {'class': 'w-full px-3.5 pr-10 py-2.5 bg-white border border-steel/30 rounded-xl text-ink text-sm focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/30'}}) }}
+                    {% include 'partials/_password_toggle_button.html.twig' with { target_id: signupForm.plainPassword.first.vars.id, icon_class: 'w-4 h-4', btn_class: 'pr-3' } %}
+                  </div>
+                  {{ form_errors(signupForm.plainPassword.first, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
+                </div>
+                <div>
+                  {{ form_label(signupForm.plainPassword.second, null, {'label_attr': {'class': 'block text-[11px] font-semibold uppercase tracking-wider text-ink/80 mb-1'}}) }}
+                  <div class="relative">
+                    {{ form_widget(signupForm.plainPassword.second, {'attr': {'class': 'w-full px-3.5 pr-10 py-2.5 bg-white border border-steel/30 rounded-xl text-ink text-sm focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/30'}}) }}
+                    {% include 'partials/_password_toggle_button.html.twig' with { target_id: signupForm.plainPassword.second.vars.id, icon_class: 'w-4 h-4', btn_class: 'pr-3' } %}
+                  </div>
+                  {{ form_errors(signupForm.plainPassword.second, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
+                </div>
+              </div>
+
+              <label class="flex items-start gap-2.5 p-3 rounded-xl bg-white border border-steel/20 cursor-pointer text-xs text-ink/85 leading-snug">
+                {{ form_widget(signupForm.agreeConsent, {'attr': {'class': 'mt-0.5 w-4 h-4 rounded border-steel/30 text-ink focus:ring-gold shrink-0'}}) }}
+                <span>{{ signupForm.agreeConsent.vars.label }}</span>
+              </label>
+              {{ form_errors(signupForm.agreeConsent, {'attr': {'class': 'text-red-600 text-xs'}}) }}
+
+              <div class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2">
+                <button type="submit" form="decline-no-account-form" class="px-4 py-2.5 rounded-xl bg-white border border-steel/30 text-ink hover:border-red-300 hover:text-red-700 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer">
+                  Refusar sense Crear Compte
+                </button>
+                <button type="submit" class="px-6 py-3 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 text-xs font-bold uppercase tracking-wider shadow-md transition-all cursor-pointer">
+                  Crear Compte Pla Free i Continuar →
+                </button>
+              </div>
+            {{ form_end(signupForm) }}
+
+            <form id="decline-no-account-form" method="post" action="{{ path('app_legacy_invitation_decline', {token: token}) }}" class="hidden">
+              <input type="hidden" name="_token" value="{{ csrf_token('legacy_decline_' ~ token) }}">
+            </form>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </main>
+
+  <footer class="py-5 text-center text-xs text-steel font-raleway">
+    &copy; {{ "now"|date("Y") }} Registrals · Custòdia i certificació digital de propietat.
+  </footer>
+</div>
+
+{% include 'partials/_password_toggle_script.html.twig' %}
+{% endblock %}

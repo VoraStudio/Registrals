@@ -235,9 +235,9 @@ Seguim estrictament la regla d'or SDD (4 passos per subiteració: Model -> Domin
   - Enums (`LegacyContactStatus`, `CertificateScope`, `SuccessionClaimStatus`) i ampliació de `UserActivityAction`.
   - Entitats `LegacyContact`, `SuccessionClaim`, evolució de `Certificate::$item` (nullable + protecció d'invariants i consultes `leftJoin`) i camps a `Plan`.
   - Migració Doctrine `Version20261111170000` executada i validada a MySQL 8.4 + rol `ROLE_GESTOR` a `security.yaml` + editor de paràmetres a `/admin/plans`.
-- [ ] **Subiteració 10.2 — Designació a `/app/perfil`, Consentiment i Bucle Pla Free**
-  - Targeta a `/app/perfil` (només Pla Plus + nom real informat) i acció de revocació.
-  - Flux `/llegat/acceptar/{token}` amb avís Art. 14 RGPD (sense detall de béns) i alta directa al Pla Free (OTP 6 dígits + Legal Gate) per a no registrats.
+- [x] **Subiteració 10.2 — Designació a `/app/perfil`, Consentiment i Bucle Pla Free** *(Completada)*
+  - Targeta a `/app/perfil` (`LegacyProfileController` — només Pla Plus amb nom i cognoms informats) + revocació amb modal institucional `#modal-legacy-revoke` i invalidació automàtica de certificats vinculats (`LegacyDesignationService`).
+  - Flux `/llegat/acceptar/{token}` (`LegacyInvitationController`) amb avís Art. 14 RGPD (sense detall de béns) i alta directa al Pla Free (OTP 6 dígits + Legal Gate).
 - [ ] **Subiteració 10.3 — Certificat d'Inventari Global de Llegat i QR Successori**
   - Plantilla PDF consolidada amb taula de béns actius, esment de persona de confiança i doble codi QR.
   - Integració nativa a la safata global `/app/certificats` i invalidació automàtica en revocar o canviar persona de confiança.

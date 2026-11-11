@@ -59,10 +59,18 @@ class LegalTermsGateController extends AbstractController
 
             $this->addFlash('success', 'Condicions de custòdia i certificació digital acceptades correctament. Benvingut/da al teu espai privat.');
 
-            if ($request->getSession()->get('intended_plan') === 'plus') {
-                $request->getSession()->remove('intended_plan');
-                $this->addFlash('info', 'Compte creat amb èxit! Completa ara l\'activació del teu Pla Plus.');
-                return $this->redirectToRoute('app_plan');
+            if ($request->hasSession()) {
+                $pendingLegacyToken = $request->getSession()->get('pending_legacy_accept_token');
+                if (is_string($pendingLegacyToken) && strlen($pendingLegacyToken) === 64 && ctype_xdigit($pendingLegacyToken)) {
+                    $request->getSession()->remove('pending_legacy_accept_token');
+                    return $this->redirectToRoute('app_legacy_invitation_show', ['token' => $pendingLegacyToken]);
+                }
+
+                if ($request->getSession()->get('intended_plan') === 'plus') {
+                    $request->getSession()->remove('intended_plan');
+                    $this->addFlash('info', 'Compte creat amb èxit! Completa ara l\'activació del teu Pla Plus.');
+                    return $this->redirectToRoute('app_plan');
+                }
             }
 
             return $this->redirectToRoute('app_dashboard');

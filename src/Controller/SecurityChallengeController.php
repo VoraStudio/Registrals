@@ -120,6 +120,9 @@ class SecurityChallengeController extends AbstractController
 
                 if ($purpose === EmailOtpPurpose::REGISTRATION_VERIFY) {
                     $this->addFlash('success', 'Correu electrònic verificat correctament! Revisa i accepta les clàusules de custòdia per accedir-hi.');
+                    if ($request->hasSession() && $request->getSession()->has('pending_legacy_accept_token')) {
+                        return $this->redirectToRoute('app_legal_accept_terms');
+                    }
                     if ($request->getSession()->get('intended_plan') === 'plus') {
                         return $this->redirectToRoute('app_plan');
                     }
@@ -241,3 +244,4 @@ class SecurityChallengeController extends AbstractController
         ];
     }
 }
+

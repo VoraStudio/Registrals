@@ -8,7 +8,10 @@ use App\Audit\Enum\UserActivityAction;
 use App\Audit\Service\UserActivityLogger;
 use App\Entity\User;
 use App\Form\ChangePasswordFormType;
+use App\Form\LegacyDesignationFormType;
 use App\Form\ProfileFormType;
+use App\Repository\LegacyContactRepository;
+use App\Service\Legacy\LegacyDesignationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,7 +28,9 @@ class ProfileController extends AbstractController
     public function index(
         Request $request,
         EntityManagerInterface $entityManager,
-        UserPasswordHasherInterface $passwordHasher
+        UserPasswordHasherInterface $passwordHasher,
+        ?LegacyContactRepository $legacyContactRepository = null,
+        ?LegacyDesignationService $legacyDesignationService = null
     ): Response {
         /** @var User $user */
         $user = $this->getUser();
@@ -62,11 +67,28 @@ class ProfileController extends AbstractController
             }
         }
 
+        $legacyContacts = $legacyContactRepository?->findByOwnerOrdered($user) ?? [];
+        $legacyEligibility = $legacyDesignationService?->evaluateDesignationEligibility($user) ?? [
+            'allowed' => false,
+            'reason' => 'plan_not_allowed',
+            'maxSlots' => 0,
+            'usedSlots' => 0,
+        ];
+        $legacyForm = null;
+        if ($legacyDesignationService !== null && $legacyEligibility['allowed']) {
+            $legacyForm = $this->createForm(LegacyDesignationFormType::class, null, [
+                'action' => $this->generateUrl('app_profile_legacy_designate'),
+            ])->createView();
+        }
+
         return $this->render('profile/index.html.twig', [
             'user' => $user,
             'profileForm' => $profileForm->createView(),
             'passwordForm' => $passwordForm?->createView(),
             'isOAuthUser' => $isOAuthUser,
+            'legacyContacts' => $legacyContacts,
+            'legacyEligibility' => $legacyEligibility,
+            'legacyForm' => $legacyForm,
         ]);
     }
 

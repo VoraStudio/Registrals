@@ -41,7 +41,7 @@ class LegalTermsGateControllerTest extends TestCase
                 'twig' => $twig,
                 'request_stack' => $requestStack,
                 'router' => new class {
-                    public function generate(string $route): string {
+                    public function generate(string $route, array $params = []): string {
                         return '/' . $route;
                     }
                 },
@@ -144,6 +144,32 @@ class LegalTermsGateControllerTest extends TestCase
         self::assertSame('192.168.1.100', $user->getRegistrationIp());
     }
 
+    public function testAcceptsTermsRedirectsBackToPendingLegacyInvitation(): void
+    {
+        $user = (new User())->setEmail('maria@example.com')->setFirstName('Maria')->setLastName('Puig');
+        $csrf = $this->createMock(CsrfTokenManagerInterface::class);
+        $csrf->method('isTokenValid')->willReturn(true);
+
+        $rawToken = str_repeat('e', 64);
+        $request = Request::create('/app/legal/acceptar-condicions', 'POST', ['_token' => 'valid_token']);
+        $session = new \Symfony\Component\HttpFoundation\Session\Session(new \Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage());
+        $session->set('pending_legacy_accept_token', $rawToken);
+        $request->setSession($session);
+
+        $requestStack = new \Symfony\Component\HttpFoundation\RequestStack();
+        $requestStack->push($request);
+
+        $controller = $this->createControllerWithUser($user, csrf: $csrf, requestStack: $requestStack);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $logger = $this->createMock(UserActivityLogger::class);
+
+        $response = $controller->acceptTerms($request, $em, $logger);
+
+        self::assertInstanceOf(RedirectResponse::class, $response);
+        self::assertSame('/app_legacy_invitation_show', $response->getTargetUrl());
+        self::assertFalse($session->has('pending_legacy_accept_token'));
+    }
+
     public function testViewClausesRendersReadOnlyWhenAlreadyAccepted(): void
     {
         $user = new User();
@@ -158,13 +184,13 @@ class LegalTermsGateControllerTest extends TestCase
                     && $params['user'] === $user
                     && ($params['readOnly'] ?? false) === true;
             }))
-            ->willReturn('<html>clauses readonly</html>');
+            ->willReturn('<html>read only clauses</html>');
 
         $controller = $this->createControllerWithUser($user, twig: $twig);
         $response = $controller->viewClauses();
 
         self::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        self::assertSame('<html>clauses readonly</html>', $response->getContent());
+        self::assertSame('<html>read only clauses</html>', $response->getContent());
     }
 
     public function testViewClausesRedirectsToGateWhenNotYetAccepted(): void

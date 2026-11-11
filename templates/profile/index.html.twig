@@ -183,6 +183,131 @@
           {% endif %}
         </div>
 
+        {# Targeta 3: Herència Digital & Persona de Confiança #}
+        <div id="herencia-digital" class="bg-white rounded-xl border border-gold/35 shadow-2xs p-4 sm:p-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-2.5 mb-3 border-b border-steel/15 gap-2">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-lg bg-cream flex items-center justify-center text-gold shrink-0">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              </div>
+              <div>
+                <h2 class="font-marcellus text-sm sm:text-base text-ink">Herència Digital &amp; Persona de Confiança</h2>
+                <p class="text-[11px] text-ink/65 font-raleway">Designació consentida conforme a l'Art. 96 LOPDGDD (no substitueix un testament civil).</p>
+              </div>
+            </div>
+
+            {% if user.plan and user.plan.allowLegacyDesignation %}
+              <span class="px-2 py-0.5 rounded-full bg-cream border border-gold/40 text-[10px] font-mono font-bold text-ink shrink-0">
+                {{ legacyEligibility.usedSlots|default(0) }} / {{ legacyEligibility.maxSlots|default(1) >= 9999 or legacyEligibility.maxSlots|default(1) == -1 ? '∞' : legacyEligibility.maxSlots|default(1) }} places
+              </span>
+            {% else %}
+              <span class="px-2 py-0.5 rounded-full bg-cream/70 border border-steel/25 text-[10px] font-mono font-bold text-steel shrink-0">
+                Funció Pla Plus
+              </span>
+            {% endif %}
+          </div>
+
+          {% if not (user.plan and user.plan.allowLegacyDesignation) %}
+            <div class="border-l-[3.5px] border-gold bg-gold/10 p-3.5 rounded-r-xl text-xs text-ink/85 leading-relaxed flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <strong>Continuïtat Patrimonial del Pla Plus:</strong> Designa una persona de confiança amb consentiment confirmat perquè pugui sol·licitar el traspàs successori acreditat dels teus béns custodiats.
+              </div>
+              <a href="{{ path('app_plan') }}" class="px-3.5 py-2 rounded-lg bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-[11px] uppercase tracking-wider shrink-0 text-center">
+                Passar al Pla Plus →
+              </a>
+            </div>
+          {% else %}
+            <div class="border-l-[3.5px] border-gold bg-gold/10 p-3 rounded-r-xl text-[11px] text-ink/80 leading-relaxed mb-3.5">
+              <strong>Privadesa per Disseny (Art. 14 RGPD):</strong> La persona designada rebrà un correu de confirmació amb la identitat del titular i l'enllaç d'acceptació o rebuig, però <strong>mai no es divulga cap bé, fotografia ni valor econòmic</strong> abans d'un expedient validat.
+            </div>
+
+            {% if legacyContacts is defined and legacyContacts is not empty %}
+              <div class="space-y-2.5 mb-4">
+                {% for lc in legacyContacts %}
+                  <div class="p-3 rounded-xl border {{ lc.status.isAccepted ? 'border-emerald-300 bg-emerald-50/40' : (lc.status.isPending ? 'border-amber-300 bg-amber-50/30' : 'border-steel/20 bg-cream-50/50') }} flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
+                    <div class="min-w-0">
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <span class="font-bold text-ink truncate">{{ lc.fullName }}</span>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold border {{ lc.status.badgeClasses }}">
+                          {{ lc.status.label }}
+                        </span>
+                      </div>
+                      <div class="text-[11px] text-ink/70 font-mono mt-0.5 break-all">
+                        {{ lc.email }}{% if lc.relationship %} · <span class="font-raleway">{{ lc.relationship }}</span>{% endif %}
+                      </div>
+                      <div class="text-[10px] text-steel mt-0.5">
+                        Designació: {{ lc.ownerConsentAt|date('d/m/Y H:i') }}
+                        {% if lc.contactConsentedAt %} · Resposta: {{ lc.contactConsentedAt|date('d/m/Y H:i') }}{% endif %}
+                      </div>
+                    </div>
+
+                    {% if not lc.status.isTerminated %}
+                      <div class="flex items-center gap-2 shrink-0">
+                        {% if lc.status.isPending %}
+                          <form method="post" action="{{ path('app_profile_legacy_resend', {uuid: lc.uuid.toRfc4122}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('legacy_resend_' ~ lc.uuid.toRfc4122) }}">
+                            <button type="submit" class="px-2.5 py-1.5 rounded-lg bg-white border border-steel/30 text-ink hover:border-gold hover:text-gold text-[11px] font-bold uppercase tracking-wider transition-colors cursor-pointer">
+                              Reenviar
+                            </button>
+                          </form>
+                        {% endif %}
+                        <button type="button"
+                                onclick="openLegacyRevokeModal('{{ path('app_profile_legacy_revoke', {uuid: lc.uuid.toRfc4122}) }}', '{{ csrf_token('legacy_revoke_' ~ lc.uuid.toRfc4122) }}', '{{ lc.fullName|e('js') }}')"
+                                class="px-2.5 py-1.5 rounded-lg bg-white border border-red-200 text-red-700 hover:bg-red-50 text-[11px] font-bold uppercase tracking-wider transition-colors cursor-pointer">
+                          Revocar
+                        </button>
+                      </div>
+                    {% endif %}
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            {% if legacyEligibility is defined and not legacyEligibility.allowed %}
+              {% if legacyEligibility.reason == 'missing_full_name' %}
+                <div class="p-3 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-900">
+                  <strong>Nom real obligatori:</strong> Desa el teu <strong>Nom</strong> i <strong>Cognoms</strong> al bloc superior de Dades Personals abans de designar una persona de confiança.
+                </div>
+              {% elseif legacyEligibility.reason == 'quota_reached' %}
+                <p class="text-[11px] text-steel">
+                  Tens totes les places de persona de confiança assignades. Per designar una persona diferent, revoca primer la designació actual.
+                </p>
+              {% endif %}
+            {% elseif legacyForm is defined and legacyForm is not null %}
+              {{ form_start(legacyForm) }}
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 text-xs">
+                  <div>
+                    {{ form_label(legacyForm.fullName, null, {'label_attr': {'class': 'block text-[11px] font-semibold text-ink/80 mb-0.5'}}) }}
+                    {{ form_widget(legacyForm.fullName) }}
+                    {{ form_errors(legacyForm.fullName, {'attr': {'class': 'text-[10px] text-red-600 mt-0.5'}}) }}
+                  </div>
+                  <div>
+                    {{ form_label(legacyForm.email, null, {'label_attr': {'class': 'block text-[11px] font-semibold text-ink/80 mb-0.5'}}) }}
+                    {{ form_widget(legacyForm.email) }}
+                    {{ form_errors(legacyForm.email, {'attr': {'class': 'text-[10px] text-red-600 mt-0.5'}}) }}
+                  </div>
+                  <div>
+                    {{ form_label(legacyForm.relationship, null, {'label_attr': {'class': 'block text-[11px] font-semibold text-ink/80 mb-0.5'}}) }}
+                    {{ form_widget(legacyForm.relationship) }}
+                    {{ form_errors(legacyForm.relationship, {'attr': {'class': 'text-[10px] text-red-600 mt-0.5'}}) }}
+                  </div>
+                </div>
+
+                <label class="mt-3 flex items-start gap-2.5 p-2.5 rounded-lg bg-cream-50/70 border border-steel/15 cursor-pointer text-[11px] text-ink/85 leading-snug">
+                  {{ form_widget(legacyForm.ownerConsent, {'attr': {'class': 'mt-0.5 w-4 h-4 rounded border-steel/30 text-ink focus:ring-gold shrink-0'}}) }}
+                  <span>{{ legacyForm.ownerConsent.vars.label }}</span>
+                </label>
+
+                <div class="pt-3 flex justify-end">
+                  <button type="submit" class="w-full sm:w-auto px-4 py-2 sm:py-1.5 rounded-lg bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-raleway font-bold text-xs uppercase tracking-wider shadow-2xs transition-all cursor-pointer min-h-[44px] sm:min-h-0 flex items-center justify-center">
+                    Designar &amp; Enviar Invitació →
+                  </button>
+                </div>
+              {{ form_end(legacyForm) }}
+            {% endif %}
+          {% endif %}
+        </div>
+
       </div>
 
       {# Columna Dreta: Credencial Notarial i Garantia (4 de 12) #}
@@ -315,4 +440,62 @@
   {% include 'partials/_pwa_bottom_nav.html.twig' with {'active_tab': 'profile'} %}
 
 </div>
+
+{# Modal Institucional PWA Dual per Revocar Persona de Confiança #}
+<div id="modal-legacy-revoke" class="hidden fixed inset-0 z-50 bg-ink/75 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 transition-all duration-200" onclick="if (event.target === this) closeLegacyRevokeModal();">
+  <div class="bg-white rounded-t-3xl sm:rounded-2xl border-t sm:border border-gold/40 shadow-2xl max-w-md w-full max-h-[90vh] sm:max-h-[92vh] overflow-hidden relative flex flex-col">
+    <div class="sm:hidden w-10 h-1 bg-steel/30 rounded-full mx-auto mt-2 -mb-1 shrink-0"></div>
+    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+
+    <div class="p-4 sm:p-5 border-b border-steel/15 flex items-center justify-between gap-3">
+      <h3 class="font-marcellus text-lg text-ink flex items-center gap-2">
+        <span class="w-6 h-6 rounded-full bg-red-50 text-red-700 flex items-center justify-center text-xs font-bold">!</span>
+        <span>Revocar Persona de Confiança</span>
+      </h3>
+      <button type="button" onclick="closeLegacyRevokeModal()" class="text-steel hover:text-ink p-1 rounded-lg transition-colors cursor-pointer" aria-label="Tancar">✕</button>
+    </div>
+
+    <div class="p-4 sm:p-5 font-raleway text-xs sm:text-sm text-ink/85 leading-relaxed overflow-y-auto space-y-3">
+      <p>
+        Estàs a punt de revocar la designació de <strong id="legacy-revoke-contact-name" class="text-ink"></strong>.
+      </p>
+      <div class="border-l-[3.5px] border-gold bg-gold/10 p-3 rounded-r-lg text-xs text-ink/85">
+        <strong>Efecte immediat:</strong> Aquesta persona perdrà l'enllaç o el consentiment vigent i qualsevol Certificat d'Inventari Global de Llegat vinculat quedarà revocat automàticament.
+      </div>
+    </div>
+
+    <form id="legacy-revoke-form" method="post" action="" class="p-4 bg-cream-50/60 border-t border-steel/15 flex items-center justify-end gap-2.5">
+      <input type="hidden" name="_token" id="legacy-revoke-csrf" value="">
+      <button type="button" onclick="closeLegacyRevokeModal()" class="bg-cream hover:bg-cream/80 text-ink text-xs font-semibold px-4 py-2 rounded-xl transition-all cursor-pointer">
+        Cancel·lar
+      </button>
+      <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold text-xs px-4 py-2 rounded-xl shadow-xs transition-all cursor-pointer">
+        Confirmar Revocació
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  function openLegacyRevokeModal(actionUrl, csrfToken, contactName) {
+    const modal = document.getElementById('modal-legacy-revoke');
+    document.getElementById('legacy-revoke-form').action = actionUrl;
+    document.getElementById('legacy-revoke-csrf').value = csrfToken;
+    document.getElementById('legacy-revoke-contact-name').textContent = contactName;
+    modal.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+  }
+  function closeLegacyRevokeModal() {
+    const modal = document.getElementById('modal-legacy-revoke');
+    if (modal && !modal.classList.contains('hidden')) {
+      modal.classList.add('hidden');
+      document.body.classList.remove('overflow-hidden');
+    }
+  }
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      closeLegacyRevokeModal();
+    }
+  });
+</script>
 {% endblock %}

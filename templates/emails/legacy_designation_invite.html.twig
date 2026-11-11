@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <title>Designació de Persona de Confiança — Registrals</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #FAF6F0; font-family: 'Raleway', Helvetica, Arial, sans-serif; color: #1D2F4B;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #FAF6F0; padding: 30px 15px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" style="max-width: 600px; background-color: #FFFFFF; border-radius: 20px; border: 1px solid rgba(202, 163, 108, 0.4); overflow: hidden; box-shadow: 0 10px 25px rgba(29, 47, 75, 0.08);">
+          <tr>
+            <td style="height: 6px; background: linear-gradient(90deg, #1D2F4B 0%, #CAA36C 50%, #1D2F4B 100%);"></td>
+          </tr>
+
+          <tr>
+            <td style="padding: 30px 40px 20px; text-align: center; border-bottom: 1px solid rgba(106, 134, 162, 0.15);">
+              <h1 style="font-family: 'Marcellus', Georgia, serif; font-size: 26px; color: #1D2F4B; margin: 0 0 5px; letter-spacing: 1px;">REGISTRALS</h1>
+              <p style="font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #CAA36C; font-weight: bold; margin: 0;">Continuïtat Patrimonial &amp; Herència Digital</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding: 35px 40px;">
+              <h2 style="font-family: 'Marcellus', Georgia, serif; font-size: 20px; color: #1D2F4B; margin: 0 0 15px;">
+                Designació com a Persona de Confiança
+              </h2>
+
+              <p style="font-size: 14px; line-height: 1.6; color: #1D2F4B; margin: 0 0 14px;">
+                Hola {{ contact.fullName }},
+              </p>
+
+              <p style="font-size: 14px; line-height: 1.6; color: #1D2F4B; margin: 0 0 18px;">
+                <strong>{{ owner.fullName }}</strong>{% if contact.relationship %} (<em>{{ contact.relationship }}</em>){% endif %} t'ha designat a <strong>Registrals</strong> com a <strong>Persona de Confiança</strong> dins el marc de l'<strong>Art. 96 de la LOPDGDD</strong> (dret al testament digital).
+              </p>
+
+              <div style="border-left: 3.5px solid #CAA36C; background-color: rgba(202, 163, 108, 0.10); padding: 14px 16px; border-radius: 0 10px 10px 0; margin-bottom: 22px; font-size: 12.5px; color: #1D2F4B; line-height: 1.55;">
+                <strong>Transparència RGPD (Art. 14):</strong><br>
+                &bull; <strong>Privadesa absoluta del patrimoni:</strong> Aquesta notificació <strong>no conté ni revela cap dada</strong> sobre els béns, valors ni imatges del titular.<br>
+                &bull; <strong>Finalitat exclusiva:</strong> Registrar si acceptes o declines figurar com a contacte habilitat al seu futur Certificat d'Inventari Global de Llegat.<br>
+                &bull; <strong>Sense cost ni compromís:</strong> Si encara no tens compte a Registrals i acceptes, podràs crear un compte gratuït (Pla Free) en un sol pas. També pots refusar-ho directament sense crear cap compte.
+              </div>
+
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom: 25px;">
+                <tr>
+                  <td align="center">
+                    <a href="{{ inviteUrl }}" style="display: inline-block; background-color: #1D2F4B; color: #CAA36C; font-size: 13px; font-weight: bold; text-decoration: none; padding: 14px 28px; border-radius: 12px; border: 1px solid rgba(202, 163, 108, 0.5); text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 10px rgba(29, 47, 75, 0.15);">
+                      Revisar i Respondre Designació &rarr;
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="font-size: 12px; color: #6A86A2; margin: 0 0 12px;">
+                Aquesta invitació és vàlida fins al <strong>{{ expiresAt|date('d/m/Y \\a \\l\\e\\s H:i') }}</strong>.
+              </p>
+
+              <p style="font-size: 11px; color: #6A86A2; word-break: break-all; margin: 0;">
+                Si el botó no funciona, copia aquest enllaç al teu navegador:<br>
+                <a href="{{ inviteUrl }}" style="color: #1D2F4B;">{{ inviteUrl }}</a>
+              </p>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding: 18px 40px; background-color: #FAF6F0; border-top: 1px solid rgba(106, 134, 162, 0.15); text-align: center; font-size: 11px; color: #6A86A2;">
+              &copy; {{ "now"|date("Y") }} Registrals &middot; Custòdia contractual i certificació digital de propietat.
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

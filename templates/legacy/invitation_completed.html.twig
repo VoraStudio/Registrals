@@ -1,0 +1,56 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ outcome == 'accepted' ? 'Designació Confirmada' : 'Designació Declinada' }} — Registrals{% endblock %}
+{% block body_class %}bg-cream-50 text-ink min-h-screen flex flex-col justify-between font-raleway{% endblock %}
+
+{% block body %}
+<div class="min-h-screen flex flex-col justify-between bg-cream-50">
+  <header class="bg-white border-b border-steel/20 shadow-2xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <a href="{{ path('app_home') }}" class="font-marcellus text-xl tracking-wider text-ink font-bold">REGISTRALS</a>
+      {% if isLoggedIn %}
+        <a href="{{ path('app_dashboard') }}" class="px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-ink text-gold border border-gold/40">El meu Patrimoni</a>
+      {% endif %}
+    </div>
+  </header>
+
+  <main class="max-w-xl mx-auto px-4 py-12 w-full flex-1 flex items-center justify-center">
+    <div class="bg-white rounded-3xl border border-gold/40 shadow-xl overflow-hidden w-full">
+      <div class="h-1.5 bg-gradient-to-r {{ outcome == 'accepted' ? 'from-emerald-600 via-gold to-emerald-600' : 'from-ink via-steel to-ink' }}"></div>
+      <div class="p-8 text-center space-y-4">
+        {% if outcome == 'accepted' %}
+          <div class="w-14 h-14 mx-auto rounded-full bg-emerald-50 border border-emerald-300 flex items-center justify-center text-emerald-700 font-bold text-2xl">
+            ✓
+          </div>
+          <h1 class="font-marcellus text-2xl text-ink">Consentiment Activat Correctament</h1>
+          <p class="text-sm text-ink/80 leading-relaxed">
+            Has acceptat figurar com a <strong>Persona de Confiança</strong> de <strong>{{ owner.fullName }}</strong> dins l'àmbit de l'Art. 96 de la LOPDGDD. Hem notificat la confirmació al titular.
+          </p>
+        {% else %}
+          <div class="w-14 h-14 mx-auto rounded-full bg-cream border border-steel/30 flex items-center justify-center text-steel font-bold text-xl">
+            ✕
+          </div>
+          <h1 class="font-marcellus text-2xl text-ink">Designació Declinada</h1>
+          <p class="text-sm text-ink/80 leading-relaxed">
+            Hem registrat la teva decisió de no assumir aquesta designació i n'hem informat a <strong>{{ owner.fullName }}</strong>. No es conservarà cap vinculació activa al teu compte.
+          </p>
+        {% endif %}
+
+        <div class="pt-3 flex flex-wrap justify-center gap-3">
+          {% if isLoggedIn %}
+            <a href="{{ path('app_dashboard') }}" class="px-6 py-2.5 rounded-xl bg-ink text-gold text-xs font-bold uppercase tracking-wider border border-gold/40">
+              Anar al meu Patrimoni →
+            </a>
+          {% else %}
+            <a href="{{ path('app_home') }}" class="px-6 py-2.5 rounded-xl bg-ink text-gold text-xs font-bold uppercase tracking-wider border border-gold/40">
+              Tornar a l'Inici
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="py-5 text-center text-xs text-steel">&copy; {{ "now"|date("Y") }} Registrals</footer>
+</div>
+{% endblock %}

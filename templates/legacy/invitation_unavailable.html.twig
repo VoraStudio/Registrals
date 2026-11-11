@@ -1,0 +1,56 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Invitació no disponible — Registrals{% endblock %}
+{% block body_class %}bg-cream-50 text-ink min-h-screen flex flex-col justify-between font-raleway{% endblock %}
+
+{% block body %}
+<div class="min-h-screen flex flex-col justify-between bg-cream-50">
+  <header class="bg-white border-b border-steel/20 shadow-2xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <a href="{{ path('app_home') }}" class="font-marcellus text-xl tracking-wider text-ink font-bold">REGISTRALS</a>
+      <a href="{{ path('app_login') }}" class="px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-ink text-gold border border-gold/40">Accés Usuaris</a>
+    </div>
+  </header>
+
+  <main class="max-w-xl mx-auto px-4 py-12 w-full flex-1 flex items-center justify-center">
+    <div class="bg-white rounded-3xl border border-gold/40 shadow-xl p-8 text-center space-y-4 w-full">
+      <div class="w-14 h-14 mx-auto rounded-full bg-cream border border-gold/40 flex items-center justify-center text-gold font-marcellus text-2xl">
+        !
+      </div>
+      <h1 class="font-marcellus text-2xl text-ink">
+        {% if reason == 'expired' %}
+          Invitació Caducada
+        {% elseif reason == 'revoked' %}
+          Designació Revocada
+        {% elseif reason == 'accepted' %}
+          Designació Ja Acceptada
+        {% elseif reason == 'declined' %}
+          Designació Ja Declinada
+        {% else %}
+          Enllaç d'Invitació No Vàlid
+        {% endif %}
+      </h1>
+      <p class="text-sm text-ink/75 leading-relaxed">
+        {% if reason == 'expired' %}
+          Aquest enllaç ha superat el termini de validesa de 14 dies. Si correspon, el titular pot tornar-te a enviar una invitació actualitzada des del seu perfil.
+        {% elseif reason == 'revoked' %}
+          El titular ha revocat aquesta designació i l'enllaç ha deixat d'estar actiu.
+        {% elseif reason == 'accepted' %}
+          Aquesta designació ja va ser confirmada anteriorment.
+        {% elseif reason == 'declined' %}
+          Ja vas refusar aquesta designació anteriorment.
+        {% else %}
+          No hem trobat cap designació pendent associada a aquest testimoni de seguretat, o bé l'enllaç ja ha estat utilitzat.
+        {% endif %}
+      </p>
+      <div class="pt-3">
+        <a href="{{ path('app_home') }}" class="inline-block px-6 py-2.5 rounded-xl bg-ink text-gold text-xs font-bold uppercase tracking-wider border border-gold/40">
+          Tornar a l'Inici
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="py-5 text-center text-xs text-steel">&copy; {{ "now"|date("Y") }} Registrals</footer>
+</div>
+{% endblock %}

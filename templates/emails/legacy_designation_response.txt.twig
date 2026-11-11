@@ -1,0 +1,15 @@
+REGISTRALS — {{ accepted ? 'Designació de Persona de Confiança Acceptada' : 'Designació de Persona de Confiança Declinada' }}
+
+Hola {{ owner.firstName }},
+
+{% if accepted %}
+{{ contact.fullName }} ({{ contact.email }}) ha acceptat formalment figurar com la teva Persona de Confiança dins el marc de l'Art. 96 de la LOPDGDD.
+
+Ja pots revisar l'estat actiu al teu perfil o revocar-lo en qualsevol moment:
+{% else %}
+{{ contact.fullName }} ({{ contact.email }}) ha declinat la designació com a Persona de Confiança. Pots designar una altra persona des del teu perfil:
+{% endif %}
+{{ profileUrl }}
+
+---
+Registrals · Custòdia i certificació digital de propietat
