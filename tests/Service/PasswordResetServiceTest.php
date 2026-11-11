@@ -120,6 +120,7 @@ class PasswordResetServiceTest extends TestCase
                 $this->assertFalse($context['isOAuthOnly']);
                 $this->assertSame('https://www.registrals.com/reset-password/rawtoken', $context['actionUrl']);
                 $this->assertSame('emails/reset_password.html.twig', $email->getHtmlTemplate());
+                $this->assertSame('emails/reset_password.txt.twig', $email->getTextTemplate());
                 return true;
             }));
 
@@ -144,9 +145,10 @@ class PasswordResetServiceTest extends TestCase
         $this->assertTrue($user->isResetPasswordTokenValid());
     }
 
-    public function testRequestResetForGoogleOnlyUserSendsOAuthNoticeWithoutGeneratingToken(): void
+    public function testRequestResetForGoogleLinkedUserWithLegacyPasswordStillSendsOAuthNotice(): void
     {
         $user = $this->createUser('oauth@registrals.cat', 'google');
+        $user->setPassword('legacy_local_hash');
 
         $userRepo = $this->createMock(UserRepository::class);
         $userRepo->method('findOneBy')->willReturn($user);
@@ -167,6 +169,7 @@ class PasswordResetServiceTest extends TestCase
                 $context = $email->getContext();
                 $this->assertTrue($context['isOAuthOnly']);
                 $this->assertSame('https://www.registrals.com/login', $context['actionUrl']);
+                $this->assertSame('emails/reset_password.txt.twig', $email->getTextTemplate());
                 return true;
             }));
 
@@ -221,6 +224,10 @@ class PasswordResetServiceTest extends TestCase
         $this->assertNull($service->findValidUserByRawToken($expiredToken));
         $this->assertSame($validUser, $service->findValidUserByRawToken($rawToken));
 
+        $validUser->setAuthProvider('google');
+        $this->assertNull($service->findValidUserByRawToken($rawToken));
+
+        $validUser->setAuthProvider('local');
         $validUser->setIsActive(false);
         $this->assertNull($service->findValidUserByRawToken($rawToken));
     }

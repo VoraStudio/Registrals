@@ -49,8 +49,13 @@ class PasswordResetService
             return;
         }
 
-        // Si el compte és exclusivament Google OAuth sense contrasenya local, enviem avís d'accés Google
-        if ($user->getAuthProvider() !== 'local' && $user->getPassword() === null) {
+        // Els comptes vinculats amb proveïdors externs (Google OAuth) no gestionen contrasenya local
+        if ($user->getAuthProvider() !== 'local') {
+            if ($user->getResetPasswordTokenHash() !== null || $user->getResetPasswordExpiresAt() !== null) {
+                $user->clearResetPasswordToken();
+                $this->entityManager->flush();
+            }
+
             $loginUrl = $this->urlGenerator->generate('app_login', [], UrlGeneratorInterface::ABSOLUTE_URL);
             $this->sendResetEmail($user, $loginUrl, isOAuthOnly: true);
             $this->recordAudit($user, UserActivityAction::PASSWORD_RESET_REQUESTED, 'Sol·licitud de recuperació en compte vinculat a Google OAuth', ['oauth_only' => true]);
@@ -88,7 +93,7 @@ class PasswordResetService
         }
 
         $user = $this->userRepository->findOneByResetTokenHash(hash('sha256', $rawToken));
-        if (!$user instanceof User || !$user->isActive() || !$user->isResetPasswordTokenValid()) {
+        if (!$user instanceof User || !$user->isActive() || $user->getAuthProvider() !== 'local' || !$user->isResetPasswordTokenValid()) {
             return null;
         }
 
@@ -123,6 +128,7 @@ class PasswordResetService
                     ? 'Accés al teu compte — Registrals'
                     : 'Restableix la teva contrasenya — Registrals')
                 ->htmlTemplate('emails/reset_password.html.twig')
+                ->textTemplate('emails/reset_password.txt.twig')
                 ->context([
                     'user' => $user,
                     'actionUrl' => $actionUrl,
