@@ -267,6 +267,19 @@ class Invoice
         return $this->issuedAt;
     }
 
+    public function isWithinWithdrawalPeriod(int $days = 14): bool
+    {
+        $limit = $this->issuedAt->modify(sprintf('+%d days', $days));
+        return new \DateTimeImmutable('now') <= $limit;
+    }
+
+    public function getDaysSinceIssued(): int
+    {
+        $now = new \DateTimeImmutable('now');
+        $diff = $now->diff($this->issuedAt);
+        return (int) $diff->days;
+    }
+
     public function setIssuedAt(\DateTimeImmutable $issuedAt): static
     {
         $this->issuedAt = $issuedAt;

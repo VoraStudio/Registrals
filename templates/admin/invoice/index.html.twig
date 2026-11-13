@@ -179,11 +179,12 @@
                     </a>
 
                     {% if inv.status.value == 'paid' and inv.invoiceType.value != 'R1' and inv.paymentTransaction is not null and inv.paymentTransaction.type.value == 'subscription' %}
+                      {% set isWithin14 = inv.isWithinWithdrawalPeriod(14) %}
                       <button type="button" 
-                              onclick="openRefundModal('{{ inv.id }}', '{{ inv.invoiceNumber }}', '{{ inv.totalFormatted }}', '{{ inv.customerSnapshot['legal_name']|default('Client')|e('js') }}')"
-                              class="inline-flex items-center justify-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 text-xs font-semibold transition-all shadow-2xs cursor-pointer"
-                              title="Reemborsar subscripció (14 dies de desistiment)">
-                        <svg class="w-3.5 h-3.5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a5 5 0 015 5v2M3 10l6 6m-6-6l6-6"/></svg>
+                              onclick="openRefundModal('{{ inv.id }}', '{{ inv.invoiceNumber }}', '{{ inv.totalFormatted }}', '{{ inv.customerSnapshot['legal_name']|default('Client')|e('js') }}', {{ isWithin14 ? 'true' : 'false' }})"
+                              class="inline-flex items-center justify-center gap-1.5 px-2.5 py-1 rounded-lg {{ isWithin14 ? 'bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200' : 'bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-300' }} text-xs font-semibold transition-all shadow-2xs cursor-pointer"
+                              title="{{ isWithin14 ? 'Abonar subscripció (Dret legal de desistiment — 14 dies)' : 'Abonar subscripció (> 14 dies, concessió comercial extraordinària)' }}">
+                        <svg class="w-3.5 h-3.5 {{ isWithin14 ? 'text-rose-600' : 'text-slate-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a5 5 0 015 5v2M3 10l6 6m-6-6l6-6"/></svg>
                         <span>Abonar</span>
                       </button>
 
@@ -276,8 +277,11 @@
           Estàs a punt d'executar un reemborsament a través de l'API de Stripe per un import de <strong class="text-rose-700 font-mono text-sm" id="modal-invoice-amount">0,00 €</strong> a favor de <strong id="modal-customer-name">Client</strong>.
         </p>
 
+        {# Avís dinàmic de període de desistiment #}
+        <div id="modal-period-alert"></div>
+
         <div class="p-3.5 rounded-xl bg-gold/10 border-l-[3.5px] border-gold text-ink text-xs font-raleway space-y-1">
-          <strong>Efectes Automàtics del Reemborsament:</strong>
+          <strong>Efectes Automàtics de l'Abonament:</strong>
           <ul class="list-disc pl-4 space-y-0.5 text-ink/80 text-[11px] pt-1">
             <li>Retorn immediat dels diners a la targeta del titular via Stripe.</li>
             <li>Cancel·lació de la subscripció recurrent a Stripe si correspon a un Pla Plus.</li>
@@ -299,9 +303,9 @@
         <button type="button" onclick="closeRefundModal()" class="w-full sm:w-auto px-4 py-2 rounded-xl border border-steel/30 bg-white text-ink/80 hover:text-ink text-xs font-semibold text-center transition-all cursor-pointer">
           Cancel·lar
         </button>
-        <button type="button" onclick="confirmRefund()" class="w-full sm:w-auto px-5 py-2 rounded-xl bg-rose-700 hover:bg-rose-800 text-white font-bold text-xs uppercase tracking-wider text-center transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer">
+        <button type="button" onclick="confirmRefund()" id="modal-confirm-btn" class="w-full sm:w-auto px-5 py-2 rounded-xl bg-rose-700 hover:bg-rose-800 text-white font-bold text-xs uppercase tracking-wider text-center transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer">
           <svg class="w-4 h-4 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 13l4 4L19 7"/></svg>
-          <span>Confirmar i Executar a Stripe</span>
+          <span id="modal-confirm-btn-label">Confirmar i Executar a Stripe</span>
         </button>
       </div>
     </div>
@@ -312,11 +316,29 @@
 <script>
   let activeRefundInvoiceId = null;
 
-  function openRefundModal(id, invoiceNumber, amount, customerName) {
+  function openRefundModal(id, invoiceNumber, amount, customerName, isWithin14) {
     activeRefundInvoiceId = id;
     document.getElementById('modal-invoice-ref').textContent = 'Factura ' + invoiceNumber;
     document.getElementById('modal-invoice-amount').textContent = amount;
     document.getElementById('modal-customer-name').textContent = customerName;
+
+    const alertBox = document.getElementById('modal-period-alert');
+    const reasonInput = document.getElementById('modal-refund-reason');
+    const confirmBtn = document.getElementById('modal-confirm-btn');
+    const confirmLabel = document.getElementById('modal-confirm-btn-label');
+
+    if (isWithin14) {
+      alertBox.innerHTML = '<div class="p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2 font-raleway"><svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg><span><strong>Dins de termini:</strong> Aquesta factura està dins dels 14 dies de dret legal de desistiment (Art. 102 TRLGDCU).</span></div>';
+      reasonInput.value = 'Dret de desistiment (14 dies) sol·licitat pel titular';
+      confirmBtn.className = 'w-full sm:w-auto px-5 py-2 rounded-xl bg-rose-700 hover:bg-rose-800 text-white font-bold text-xs uppercase tracking-wider text-center transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer';
+      confirmLabel.textContent = 'Confirmar i Executar a Stripe';
+    } else {
+      alertBox.innerHTML = '<div class="p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start gap-2 font-raleway"><svg class="w-4 h-4 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg><span><strong>Fora de termini (&gt; 14 dies):</strong> El titular ja no disposa del dret legal de desistiment. Aquest abonament s\'executarà com a concessió comercial extraordinària de l\'administració.</span></div>';
+      reasonInput.value = 'Abonament comercial extraordinari autoritzat per administració';
+      confirmBtn.className = 'w-full sm:w-auto px-5 py-2 rounded-xl bg-slate-700 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider text-center transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer';
+      confirmLabel.textContent = 'Confirmar Abonament Extraordinari';
+    }
+
     const modal = document.getElementById('refund-modal');
     modal.classList.remove('hidden');
     modal.classList.add('flex');
