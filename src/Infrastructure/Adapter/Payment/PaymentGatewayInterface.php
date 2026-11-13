@@ -48,6 +48,13 @@ interface PaymentGatewayInterface
     public function cancelSubscription(User $user): bool;
 
     /**
+     * Executa un reemborsament a través de Stripe API.
+     *
+     * @return array<string, mixed> Resposta del reemborsament de Stripe
+     */
+    public function refundPayment(string $paymentIntentId, ?int $amountCents = null, string $reason = 'requested_by_customer'): array;
+
+    /**
      * Recupera els detalls d'una Checkout Session directament de l'API de Stripe per a sincronització activa.
      *
      * @return array<string, mixed>|null

@@ -171,11 +171,28 @@
                   {% endif %}
                 </td>
                 <td class="py-3 px-4 text-right whitespace-nowrap">
-                  <a href="{{ path('app_admin_invoice_pdf', {uuid: inv.uuid}) }}" target="_blank"
-                     class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-cream/50 hover:bg-gold hover:text-ink text-ink border border-gold/40 text-xs font-semibold transition-all shadow-2xs">
-                    <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-                    <span>PDF</span>
-                  </a>
+                  <div class="flex items-center justify-end gap-1.5">
+                    <a href="{{ path('app_admin_invoice_pdf', {uuid: inv.uuid}) }}" target="_blank"
+                       class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-cream/50 hover:bg-gold hover:text-ink text-ink border border-gold/40 text-xs font-semibold transition-all shadow-2xs">
+                      <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                      <span>PDF</span>
+                    </a>
+
+                    {% if inv.status.value == 'paid' and inv.invoiceType.value != 'R1' and inv.paymentTransaction is not null %}
+                      <button type="button" 
+                              onclick="openRefundModal('{{ inv.id }}', '{{ inv.invoiceNumber }}', '{{ inv.totalFormatted }}', '{{ inv.customerSnapshot['legal_name']|default('Client')|e('js') }}')"
+                              class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 text-xs font-semibold transition-all shadow-2xs cursor-pointer"
+                              title="Reemborsar a Stripe">
+                        <svg class="w-3.5 h-3.5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a5 5 0 015 5v2M3 10l6 6m-6-6l6-6"/></svg>
+                        <span>Reemborsar</span>
+                      </button>
+
+                      <form id="refund-form-{{ inv.id }}" method="post" action="{{ path('app_admin_invoice_refund', {uuid: inv.uuid}) }}" class="hidden">
+                        <input type="hidden" name="_token" value="{{ csrf_token('refund_invoice_' ~ inv.uuid.toRfc4122) }}">
+                        <input type="hidden" name="reason" id="refund-reason-{{ inv.id }}" value="">
+                      </form>
+                    {% endif %}
+                  </div>
                 </td>
               </tr>
             {% endfor %}
@@ -229,6 +246,105 @@
     {% endif %}
   </div>
 
+  {# Modal Canònic de Confirmació de Reemborsament #}
+  <div id="refund-modal" class="hidden fixed inset-0 z-50 bg-ink/75 backdrop-blur-xs items-end sm:items-center justify-center p-0 sm:p-4 transition-all duration-200" onclick="if(event.target === this) closeRefundModal();">
+    <div class="bg-white rounded-t-3xl sm:rounded-2xl border-t sm:border border-gold/40 shadow-2xl max-w-lg w-full max-h-[90vh] sm:max-h-[92vh] overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150">
+      {# Nansa tàctil mòbil #}
+      <div class="sm:hidden w-10 h-1 bg-steel/30 rounded-full mx-auto mt-2 -mb-1 shrink-0"></div>
+
+      {# Capçalera Solemne #}
+      <div class="p-4 sm:p-5 border-b border-steel/15 flex items-center justify-between bg-cream/30">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 flex items-center justify-center shrink-0">
+            <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a5 5 0 015 5v2M3 10l6 6m-6-6l6-6"/></svg>
+          </div>
+          <div>
+            <h3 class="font-marcellus text-base sm:text-lg text-ink font-bold leading-tight">
+              Reemborsament Oficial Stripe
+            </h3>
+            <p class="text-[11px] font-mono text-steel" id="modal-invoice-ref">Factura ---</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeRefundModal()" class="w-8 h-8 rounded-lg bg-white border border-steel/20 text-steel hover:text-ink flex items-center justify-center text-sm font-bold cursor-pointer">
+          ✕
+        </button>
+      </div>
+
+      {# Cos del Modal #}
+      <div class="p-4 sm:p-5 overflow-y-auto space-y-3 font-raleway text-xs sm:text-sm text-ink/80 leading-relaxed">
+        <p>
+          Estàs a punt d'executar un reemborsament a través de l'API de Stripe per un import de <strong class="text-rose-700 font-mono text-sm" id="modal-invoice-amount">0,00 €</strong> a favor de <strong id="modal-customer-name">Client</strong>.
+        </p>
+
+        <div class="p-3.5 rounded-xl bg-gold/10 border-l-[3.5px] border-gold text-ink text-xs font-raleway space-y-1">
+          <strong>Efectes Automàtics del Reemborsament:</strong>
+          <ul class="list-disc pl-4 space-y-0.5 text-ink/80 text-[11px] pt-1">
+            <li>Retorn immediat dels diners a la targeta del titular via Stripe.</li>
+            <li>Cancel·lació de la subscripció recurrent a Stripe si correspon a un Pla Plus.</li>
+            <li>Retorn del compte d'usuari al <strong>Pla Free</strong> (amb 7 dies de gràcia si té >20 béns).</li>
+            <li>Emissió automàtica d'una <strong>Factura Rectificativa R1</strong> encadenada a VeriFactu.</li>
+          </ul>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-ink/80 mb-1">Motiu del Reemborsament / Abonament</label>
+          <input type="text" id="modal-refund-reason" 
+                 value="Dret de desistiment (14 dies) sol·licitat pel titular" 
+                 class="w-full px-3 py-2 rounded-lg border border-steel/30 text-xs font-raleway text-ink focus:outline-none focus:border-gold" />
+        </div>
+      </div>
+
+      {# Peu d'accions #}
+      <div class="p-4 bg-cream-50/50 border-t border-steel/15 flex flex-col sm:flex-row items-center justify-end gap-2.5">
+        <button type="button" onclick="closeRefundModal()" class="w-full sm:w-auto px-4 py-2 rounded-xl border border-steel/30 bg-white text-ink/80 hover:text-ink text-xs font-semibold text-center transition-all cursor-pointer">
+          Cancel·lar
+        </button>
+        <button type="button" onclick="confirmRefund()" class="w-full sm:w-auto px-5 py-2 rounded-xl bg-rose-700 hover:bg-rose-800 text-white font-bold text-xs uppercase tracking-wider text-center transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer">
+          <svg class="w-4 h-4 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 13l4 4L19 7"/></svg>
+          <span>Confirmar i Executar a Stripe</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
 </div>
+
+<script>
+  let activeRefundInvoiceId = null;
+
+  function openRefundModal(id, invoiceNumber, amount, customerName) {
+    activeRefundInvoiceId = id;
+    document.getElementById('modal-invoice-ref').textContent = 'Factura ' + invoiceNumber;
+    document.getElementById('modal-invoice-amount').textContent = amount;
+    document.getElementById('modal-customer-name').textContent = customerName;
+    const modal = document.getElementById('refund-modal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.classList.add('overflow-hidden');
+  }
+
+  function closeRefundModal() {
+    activeRefundInvoiceId = null;
+    const modal = document.getElementById('refund-modal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.body.classList.remove('overflow-hidden');
+  }
+
+  function confirmRefund() {
+    if (!activeRefundInvoiceId) return;
+    const reasonInput = document.getElementById('modal-refund-reason');
+    const targetReason = document.getElementById('refund-reason-' + activeRefundInvoiceId);
+    const targetForm = document.getElementById('refund-form-' + activeRefundInvoiceId);
+    if (targetReason && targetForm) {
+      targetReason.value = reasonInput.value.trim() || 'Sol·licitat pel titular';
+      targetForm.submit();
+    }
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeRefundModal();
+  });
+</script>
 {% endblock %}
 

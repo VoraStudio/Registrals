@@ -131,6 +131,11 @@ class PaymentTransaction
         return $this->amountCents;
     }
 
+    public function getAmount(): int
+    {
+        return $this->amountCents;
+    }
+
     public function setAmountCents(int $amountCents): static
     {
         $this->amountCents = $amountCents;

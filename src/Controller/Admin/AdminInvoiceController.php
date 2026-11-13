@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use App\Entity\Invoice;
+use App\Infrastructure\Adapter\Payment\PaymentGatewayInterface;
 use App\Repository\InvoiceRepository;
 use App\Service\Invoice\InvoiceService;
+use App\Service\Payment\PaymentManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -167,6 +169,58 @@ class AdminInvoiceController extends AbstractController
             'Content-Length' => strlen($pdfBinary),
             'Cache-Control' => 'private, no-cache, no-store, must-revalidate',
         ]);
+    }
+
+    /**
+     * Executa el reemborsament administratiu directe via API de Stripe i emet la Factura Rectificativa R1.
+     */
+    #[Route('/{uuid}/reemborsar', name: 'app_admin_invoice_refund', methods: ['POST'])]
+    public function refund(
+        string $uuid,
+        Request $request,
+        InvoiceRepository $invoiceRepository,
+        PaymentManager $paymentManager,
+        PaymentGatewayInterface $paymentGateway
+    ): Response {
+        $invoice = $invoiceRepository->findOneBy(['uuid' => $uuid]);
+        if ($invoice === null) {
+            throw new NotFoundHttpException('Factura no trobada.');
+        }
+
+        $submittedToken = (string) $request->request->get('_token', '');
+        if (!$this->isCsrfTokenValid('refund_invoice_' . $invoice->getUuid()->toRfc4122(), $submittedToken)) {
+            $this->addFlash('error', 'Token de seguretat invàlid. Torna-ho a provar.');
+            return $this->redirectToRoute('app_admin_invoices');
+        }
+
+        $transaction = $invoice->getPaymentTransaction();
+        if ($transaction === null) {
+            $this->addFlash('error', 'Aquesta factura no té cap transacció de pagament vinculada per poder tramitar la devolució.');
+            return $this->redirectToRoute('app_admin_invoices');
+        }
+
+        $reason = trim((string) $request->request->get('reason', 'Sol·licitat pel titular'));
+
+        try {
+            /** @var \App\Entity\User $adminUser */
+            $adminUser = $this->getUser();
+            $rectification = $paymentManager->refundTransaction(
+                $transaction,
+                $reason,
+                $paymentGateway,
+                $adminUser
+            );
+
+            $this->addFlash('success', sprintf(
+                'Reemborsament de %s executat correctament. S\'ha emès la Factura Rectificativa %s.',
+                $invoice->getTotalFormatted(),
+                $rectification->getInvoiceNumber()
+            ));
+        } catch (\Throwable $e) {
+            $this->addFlash('error', 'Error en processar el reemborsament: ' . $e->getMessage());
+        }
+
+        return $this->redirectToRoute('app_admin_invoices');
     }
 }
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service\Payment;
 
 use App\Entity\Certificate;
+use App\Entity\Invoice;
 use App\Entity\Item;
 use App\Entity\ItemTransfer;
 use App\Entity\PaymentTransaction;
@@ -511,6 +512,23 @@ class PaymentManager
                 $this->entityManager->persist($transaction);
                 $this->entityManager->flush();
 
+                $refundUser = $transaction->getUser();
+
+                // Si era una subscripció, degrada al Pla Free amb període de gràcia
+                if ($transaction->getType() === PaymentType::SUBSCRIPTION && $refundUser !== null) {
+                    if ($this->planDowngradeService !== null) {
+                        $this->planDowngradeService->downgradeUserToFree($refundUser);
+                    } else {
+                        $freePlan = $this->planRepository->findByCode('free');
+                        if ($freePlan !== null) {
+                            $refundUser->setPlan($freePlan);
+                        }
+                        $refundUser->setSubscriptionStatus('canceled');
+                        $this->entityManager->persist($refundUser);
+                        $this->entityManager->flush();
+                    }
+                }
+
                 if ($this->invoiceService !== null && $this->invoiceRepository !== null) {
                     $originalInvoice = $this->invoiceRepository->findByPaymentTransaction($transaction);
                     if ($originalInvoice !== null) {
@@ -522,7 +540,6 @@ class PaymentManager
                     }
                 }
 
-                $refundUser = $transaction->getUser();
                 if ($refundUser !== null) {
                     $amountRefunded = (int) ($charge['amount_refunded'] ?? $transaction->getAmount());
                     $amountRefundedFormatted = number_format($amountRefunded / 100, 2, ',', '.') . ' €';
@@ -541,6 +558,96 @@ class PaymentManager
         }
 
         return true;
+    }
+
+    /**
+     * Executa un reemborsament administratiu directe via API de Stripe i domini de Registrals (Opció B).
+     */
+    public function refundTransaction(
+        PaymentTransaction $transaction,
+        string $reason,
+        PaymentGatewayInterface $gateway,
+        ?User $adminUser = null
+    ): Invoice {
+        if ($transaction->getStatus() === PaymentStatus::REFUNDED) {
+            throw new \DomainException('Aquesta transacció ja ha estat reemborsada prèviament.');
+        }
+
+        if (!$transaction->getStatus()->isSuccess()) {
+            throw new \DomainException('Només es poden reemborsar transaccions completades i cobrades amb èxit.');
+        }
+
+        $piId = $transaction->getStripePaymentIntentId();
+        if ($piId === null || $piId === '') {
+            // Si és mode mock i no té PaymentIntent ID, genera un identificador simulat
+            $piId = 'pi_mock_' . bin2hex(random_bytes(8));
+        }
+
+        // 1. Executa la devolució a l'API de Stripe
+        $stripeReason = 'requested_by_customer';
+        $refundData = $gateway->refundPayment($piId, $transaction->getAmount(), $stripeReason);
+
+        // 2. Canvi d'estat de la transacció local a REFUNDED
+        $transaction->setStatus(PaymentStatus::REFUNDED);
+        $this->entityManager->persist($transaction);
+        $this->entityManager->flush();
+
+        // 3. Si era una subscripció, cancel·la la recurrència a Stripe i degrada al Pla Free
+        $refundUser = $transaction->getUser();
+        if ($transaction->getType() === PaymentType::SUBSCRIPTION && $refundUser !== null) {
+            try {
+                $gateway->cancelSubscription($refundUser);
+            } catch (\Throwable $e) {
+                $this->logger->warning(sprintf('Error en cancel·lar subscripció Stripe durant refund: %s', $e->getMessage()));
+            }
+
+            if ($this->planDowngradeService !== null) {
+                $this->planDowngradeService->downgradeUserToFree($refundUser);
+            } else {
+                $freePlan = $this->planRepository->findByCode('free');
+                if ($freePlan !== null) {
+                    $refundUser->setPlan($freePlan);
+                }
+                $refundUser->setSubscriptionStatus('canceled');
+                $this->entityManager->persist($refundUser);
+                $this->entityManager->flush();
+            }
+        }
+
+        // 4. Emissió de la Factura Rectificativa R1
+        $rectification = null;
+        if ($this->invoiceService !== null && $this->invoiceRepository !== null) {
+            $originalInvoice = $this->invoiceRepository->findByPaymentTransaction($transaction);
+            if ($originalInvoice !== null) {
+                $rectification = $this->invoiceService->createRectificationInvoice(
+                    $originalInvoice,
+                    $reason !== '' ? $reason : 'Devolució administrativa sol·licitada pel titular'
+                );
+            }
+        }
+
+        if ($rectification === null) {
+            throw new \RuntimeException('No s\'ha trobat la factura original associada per emetre la factura rectificativa d\'abonament.');
+        }
+
+        // 5. Registre forense d'activitat i auditoria
+        if ($refundUser !== null) {
+            $amountFormatted = number_format($transaction->getAmount() / 100, 2, ',', '.') . ' €';
+            $this->activityLogger?->log(
+                $refundUser,
+                UserActivityAction::REFUND_PROCESSED,
+                sprintf('Reemborsament de %s tramitat per l\'administració (%s).', $amountFormatted, $reason),
+                [
+                    'payment_intent_id' => $piId,
+                    'transaction_id' => $transaction->getId(),
+                    'refund_id' => (string) ($refundData['id'] ?? ''),
+                    'admin_id' => $adminUser?->getId(),
+                    'rectification_invoice' => $rectification->getInvoiceNumber(),
+                ]
+            );
+        }
+
+        return $rectification;
     }
 
     /**

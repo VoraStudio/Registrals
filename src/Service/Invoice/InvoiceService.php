@@ -202,6 +202,10 @@ class InvoiceService
         $rectification->setPaidAt(new \DateTimeImmutable());
         $rectification->setNotes($reason);
 
+        // Marca la factura original com a abonada / reemborsada
+        $originalInvoice->setStatus(InvoiceStatus::REFUNDED);
+        $this->entityManager->persist($originalInvoice);
+
         $this->entityManager->persist($rectification);
         $this->entityManager->flush();
 

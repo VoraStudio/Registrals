@@ -306,4 +306,121 @@ class PaymentManagerTest extends TestCase
         $this->assertSame(1, $user->getKycPaidCredits());
         $this->assertSame(PaymentStatus::PAID, $transaction->getStatus());
     }
+
+    public function testHandleChargeRefundedDowngradesSubscriptionAndEmitsRectification(): void
+    {
+        $user = (new User())->setEmail('refunded@registrals.cat')->setFirstName('Maria');
+        $plan = new Plan('Plus', 'plus', 100, 5, 5, 100, false);
+        $freePlan = new Plan('Free', 'free', 20, 1, 1, 20, false);
+        $user->setPlan($plan);
+
+        $transaction = new PaymentTransaction($user, PaymentType::SUBSCRIPTION, 2499);
+        $transaction->setStatus(PaymentStatus::PAID);
+        $transaction->setStripePaymentIntentId('pi_refund_test_1');
+
+        $transactionRepo = $this->createMock(PaymentTransactionRepository::class);
+        $transactionRepo->method('findByStripePaymentIntentId')->with('pi_refund_test_1')->willReturn($transaction);
+
+        $planRepo = $this->createMock(PlanRepository::class);
+        $planRepo->method('findByCode')->with('free')->willReturn($freePlan);
+
+        $activityLogger = $this->createMock(UserActivityLogger::class);
+        $activityLogger->expects($this->once())
+            ->method('log')
+            ->with($user, UserActivityAction::REFUND_PROCESSED);
+
+        $manager = new PaymentManager(
+            $transactionRepo,
+            $this->createMock(UserRepository::class),
+            $planRepo,
+            $this->createMock(ItemRepository::class),
+            $this->createMock(ItemTransferRepository::class),
+            $this->createMock(CertificateIssuerService::class),
+            $this->createMock(CertificateRepository::class),
+            $this->createMock(\Doctrine\ORM\EntityManagerInterface::class),
+            $this->createMock(\Psr\Log\LoggerInterface::class),
+            $activityLogger
+        );
+
+        $result = $manager->processWebhook([
+            'id' => 'evt_refund_1',
+            'type' => 'charge.refunded',
+            'data' => [
+                'object' => [
+                    'id' => 'ch_1',
+                    'payment_intent' => 'pi_refund_test_1',
+                    'amount_refunded' => 2499,
+                ],
+            ],
+        ]);
+
+        $this->assertTrue($result);
+        $this->assertSame(PaymentStatus::REFUNDED, $transaction->getStatus());
+        $this->assertSame($freePlan, $user->getPlan());
+    }
+
+    public function testRefundTransactionExecutesViaGatewayAndEmitsRectification(): void
+    {
+        $user = (new User())->setEmail('client@registrals.cat');
+        $admin = (new User())->setEmail('admin@registrals.cat');
+        $plan = new Plan('Plus', 'plus', 100, 5, 5, 100, false);
+        $freePlan = new Plan('Free', 'free', 20, 1, 1, 20, false);
+        $user->setPlan($plan);
+
+        $transaction = new PaymentTransaction($user, PaymentType::SUBSCRIPTION, 2499);
+        $transaction->setStatus(PaymentStatus::PAID);
+        $transaction->setStripePaymentIntentId('pi_admin_refund_1');
+
+        $originalInvoice = $this->createMock(\App\Entity\Invoice::class);
+        $originalInvoice->method('getInvoiceNumber')->willReturn('FS-2026-0001');
+
+        $rectificationInvoice = $this->createMock(\App\Entity\Invoice::class);
+        $rectificationInvoice->method('getInvoiceNumber')->willReturn('R-2026-0001');
+
+        $invoiceRepo = $this->createMock(\App\Repository\InvoiceRepository::class);
+        $invoiceRepo->method('findByPaymentTransaction')->with($transaction)->willReturn($originalInvoice);
+
+        $invoiceService = $this->createMock(\App\Service\Invoice\InvoiceService::class);
+        $invoiceService->expects($this->once())
+            ->method('createRectificationInvoice')
+            ->with($originalInvoice, 'Sol·licitat pel titular')
+            ->willReturn($rectificationInvoice);
+
+        $planRepo = $this->createMock(PlanRepository::class);
+        $planRepo->method('findByCode')->with('free')->willReturn($freePlan);
+
+        $gateway = $this->createMock(\App\Infrastructure\Adapter\Payment\PaymentGatewayInterface::class);
+        $gateway->expects($this->once())
+            ->method('refundPayment')
+            ->with('pi_admin_refund_1', 2499, 'requested_by_customer')
+            ->willReturn(['id' => 're_123', 'status' => 'succeeded']);
+        $gateway->expects($this->once())
+            ->method('cancelSubscription')
+            ->with($user)
+            ->willReturn(true);
+
+        $manager = new PaymentManager(
+            $this->createMock(PaymentTransactionRepository::class),
+            $this->createMock(UserRepository::class),
+            $planRepo,
+            $this->createMock(ItemRepository::class),
+            $this->createMock(ItemTransferRepository::class),
+            $this->createMock(CertificateIssuerService::class),
+            $this->createMock(CertificateRepository::class),
+            $this->createMock(\Doctrine\ORM\EntityManagerInterface::class),
+            $this->createMock(\Psr\Log\LoggerInterface::class),
+            null,
+            null,
+            null,
+            null,
+            $invoiceService,
+            $invoiceRepo
+        );
+
+        $result = $manager->refundTransaction($transaction, 'Sol·licitat pel titular', $gateway, $admin);
+
+        $this->assertSame($rectificationInvoice, $result);
+        $this->assertSame(PaymentStatus::REFUNDED, $transaction->getStatus());
+        $this->assertSame($freePlan, $user->getPlan());
+    }
 }

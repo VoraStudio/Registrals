@@ -366,6 +366,40 @@ class StripeGatewayClient implements PaymentGatewayInterface
         }
     }
 
+    public function refundPayment(string $paymentIntentId, ?int $amountCents = null, string $reason = 'requested_by_customer'): array
+    {
+        if (str_contains($this->secretKey, 'mock') || str_starts_with($paymentIntentId, 'pi_mock_')) {
+            $this->logger?->info(sprintf('[Mock] Reemborsament simulat per a PaymentIntent %s', $paymentIntentId));
+            return [
+                'id' => 're_mock_' . bin2hex(random_bytes(10)),
+                'payment_intent' => $paymentIntentId,
+                'amount' => $amountCents ?? 2499,
+                'status' => 'succeeded',
+                'reason' => $reason,
+            ];
+        }
+
+        try {
+            $params = [
+                'payment_intent' => $paymentIntentId,
+            ];
+            if ($amountCents !== null && $amountCents > 0) {
+                $params['amount'] = $amountCents;
+            }
+            if (in_array($reason, ['requested_by_customer', 'duplicate', 'fraudulent'], true)) {
+                $params['reason'] = $reason;
+            }
+
+            $refund = $this->getClient()->refunds->create($params);
+            $this->logger?->info(sprintf('Reemborsament Stripe %s executat amb èxit per a PaymentIntent %s', $refund->id, $paymentIntentId));
+
+            return $refund->toArray();
+        } catch (\Throwable $e) {
+            $this->logger?->error(sprintf('Error executant reemborsament a Stripe per a %s: %s', $paymentIntentId, $e->getMessage()));
+            throw new \RuntimeException(sprintf('Error de la passarel·la Stripe al processar el reemborsament: %s', $e->getMessage()), 0, $e);
+        }
+    }
+
     public function parseAndVerifyWebhook(string $rawPayload, string $signatureHeader): array
     {
         if (str_contains($this->webhookSecret, 'mock')) {
