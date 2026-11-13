@@ -173,18 +173,18 @@
                 <td class="py-3 px-4 text-right whitespace-nowrap">
                   <div class="flex items-center justify-end gap-1.5">
                     <a href="{{ path('app_admin_invoice_pdf', {uuid: inv.uuid}) }}" target="_blank"
-                       class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-cream/50 hover:bg-gold hover:text-ink text-ink border border-gold/40 text-xs font-semibold transition-all shadow-2xs">
+                       class="inline-flex items-center justify-center gap-1.5 px-2.5 py-1 rounded-lg bg-cream/50 hover:bg-gold hover:text-ink text-ink border border-gold/40 text-xs font-semibold transition-all shadow-2xs">
                       <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
                       <span>PDF</span>
                     </a>
 
-                    {% if inv.status.value == 'paid' and inv.invoiceType.value != 'R1' and inv.paymentTransaction is not null %}
+                    {% if inv.status.value == 'paid' and inv.invoiceType.value != 'R1' and inv.paymentTransaction is not null and inv.paymentTransaction.type.value == 'subscription' %}
                       <button type="button" 
                               onclick="openRefundModal('{{ inv.id }}', '{{ inv.invoiceNumber }}', '{{ inv.totalFormatted }}', '{{ inv.customerSnapshot['legal_name']|default('Client')|e('js') }}')"
-                              class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 text-xs font-semibold transition-all shadow-2xs cursor-pointer"
-                              title="Reemborsar a Stripe">
+                              class="inline-flex items-center justify-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 text-xs font-semibold transition-all shadow-2xs cursor-pointer"
+                              title="Reemborsar subscripció (14 dies de desistiment)">
                         <svg class="w-3.5 h-3.5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a5 5 0 015 5v2M3 10l6 6m-6-6l6-6"/></svg>
-                        <span>Reemborsar</span>
+                        <span>Abonar</span>
                       </button>
 
                       <form id="refund-form-{{ inv.id }}" method="post" action="{{ path('app_admin_invoice_refund', {uuid: inv.uuid}) }}" class="hidden">
