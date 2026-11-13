@@ -171,10 +171,10 @@
                   {% endif %}
                 </td>
                 <td class="py-3 px-4 text-right whitespace-nowrap">
-                  <div class="flex items-center justify-end gap-1.5">
+                  <div class="inline-flex items-center justify-end gap-1.5 min-w-[150px]">
                     <a href="{{ path('app_admin_invoice_pdf', {uuid: inv.uuid}) }}" target="_blank"
-                       class="inline-flex items-center justify-center gap-1.5 px-2.5 py-1 rounded-lg bg-cream/50 hover:bg-gold hover:text-ink text-ink border border-gold/40 text-xs font-semibold transition-all shadow-2xs">
-                      <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                       class="w-16 h-7 inline-flex items-center justify-center gap-1 rounded-lg bg-cream/50 hover:bg-gold hover:text-ink text-ink border border-gold/40 text-xs font-semibold transition-all shadow-2xs">
+                      <svg class="w-3.5 h-3.5 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
                       <span>PDF</span>
                     </a>
 
@@ -182,9 +182,9 @@
                       {% set isWithin14 = inv.isWithinWithdrawalPeriod(14) %}
                       <button type="button" 
                               onclick="openRefundModal('{{ inv.id }}', '{{ inv.invoiceNumber }}', '{{ inv.totalFormatted }}', '{{ inv.customerSnapshot['legal_name']|default('Client')|e('js') }}', {{ isWithin14 ? 'true' : 'false' }})"
-                              class="inline-flex items-center justify-center gap-1.5 px-2.5 py-1 rounded-lg {{ isWithin14 ? 'bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200' : 'bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-300' }} text-xs font-semibold transition-all shadow-2xs cursor-pointer"
+                              class="w-20 h-7 inline-flex items-center justify-center gap-1 rounded-lg {{ isWithin14 ? 'bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200' : 'bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-300' }} text-xs font-semibold transition-all shadow-2xs cursor-pointer"
                               title="{{ isWithin14 ? 'Abonar subscripció (Dret legal de desistiment — 14 dies)' : 'Abonar subscripció (> 14 dies, concessió comercial extraordinària)' }}">
-                        <svg class="w-3.5 h-3.5 {{ isWithin14 ? 'text-rose-600' : 'text-slate-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a5 5 0 015 5v2M3 10l6 6m-6-6l6-6"/></svg>
+                        <svg class="w-3.5 h-3.5 shrink-0 {{ isWithin14 ? 'text-rose-600' : 'text-slate-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a5 5 0 015 5v2M3 10l6 6m-6-6l6-6"/></svg>
                         <span>Abonar</span>
                       </button>
 
@@ -192,6 +192,8 @@
                         <input type="hidden" name="_token" value="{{ csrf_token('refund_invoice_' ~ inv.uuid.toRfc4122) }}">
                         <input type="hidden" name="reason" id="refund-reason-{{ inv.id }}" value="">
                       </form>
+                    {% else %}
+                      <span class="w-20 inline-block" aria-hidden="true"></span>
                     {% endif %}
                   </div>
                 </td>
