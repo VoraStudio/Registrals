@@ -184,14 +184,14 @@
       <h2 class="text-xl sm:text-2xl font-marcellus text-ink mb-1">Comparativa de Plans</h2>
       <p class="text-xs text-ink/65 mb-6">Selecciona el nivell de protecció patrimonial i custòdia documental que millor s'adapti a les teves necessitats.</p>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
 
         {% for plan in allPlans %}
           {% set isCurrent = (plan.code == currentPlan.code) %}
           {% set isPlus = (plan.code == 'plus') %}
           {% set isUnlimited = (plan.code == 'unlimited') %}
 
-          <div class="rounded-2xl {{ isCurrent ? 'bg-white border-gold shadow-md ring-2 ring-gold/20' : (isUnlimited or not plan.isActive ? 'bg-cream-50/70 border-steel/25 shadow-2xs opacity-75 backdrop-blur-[2px]' : 'bg-white border-steel/20 shadow-xs hover:border-gold/50') }} border flex flex-col justify-between p-6 transition-all relative">
+          <div class="rounded-2xl {{ isCurrent ? 'bg-white border-gold shadow-md ring-2 ring-gold/20' : (isUnlimited or not plan.isActive ? 'bg-cream-50/70 border-steel/25 shadow-2xs opacity-75 backdrop-blur-[2px]' : 'bg-white border-steel/20 shadow-xs hover:border-gold/50') }} border flex flex-col justify-between p-6 transition-all relative h-full">
             
             {# Insígnia del Pla Actual o Properament #}
             {% if isCurrent %}
@@ -205,9 +205,9 @@
               </div>
             {% endif %}
 
-            <div>
+            <div class="flex-1 flex flex-col">
               {# Capçalera de la Targeta de Pla #}
-              <div class="mb-4">
+              <div class="mb-4 min-h-[105px] flex flex-col justify-start">
                 <div class="flex items-center justify-between gap-2">
                   <h3 class="font-marcellus text-xl {{ isUnlimited or not plan.isActive ? 'text-ink/75' : 'text-ink' }}">{{ plan.name }}</h3>
                 </div>
@@ -219,13 +219,19 @@
                     {{ plan.priceCents > 0 ? (plan.billingPeriod == 'monthly' ? '/ mes' : (plan.billingPeriod == 'lifetime' ? 'únic' : '/ any')) : 'per sempre' }}
                   </span>
                 </div>
-                {% if isUnlimited or not plan.isActive %}
-                  <p class="mt-1 text-[11px] text-steel italic">En preparació per a grans col·leccions i patrimonis.</p>
-                {% endif %}
+                <p class="mt-1 text-[11px] text-steel italic min-h-[16px] leading-snug">
+                  {% if isUnlimited or not plan.isActive %}
+                    En preparació per a grans col·leccions i patrimonis.
+                  {% elseif plan.code == 'free' %}
+                    Inventari personal i custòdia digital bàsica.
+                  {% else %}
+                    Certificació oficial eIDAS i custòdia ampliada.
+                  {% endif %}
+                </p>
               </div>
 
               {# Llista de Prestacions #}
-              <ul class="space-y-3 py-4 border-t border-steel/15 text-xs {{ isUnlimited or not plan.isActive ? 'text-ink/65' : 'text-ink/80' }}">
+              <ul class="flex-1 space-y-3 py-4 border-t border-steel/15 text-xs {{ isUnlimited or not plan.isActive ? 'text-ink/65' : 'text-ink/80' }}">
                 <li class="flex items-center gap-2.5">
                   <svg class="w-4 h-4 {{ isUnlimited or not plan.isActive ? 'text-steel/70' : 'text-emerald-600' }} shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                   <span>
@@ -294,33 +300,45 @@
             </div>
 
             {# Botó d'Acció de la Targeta #}
-            <div class="pt-4 border-t border-steel/15 mt-4">
+            <div class="pt-4 border-t border-steel/15 mt-auto">
               {% if isCurrent %}
-                <button type="button" disabled class="w-full py-2.5 px-4 rounded-xl bg-cream/70 text-ink/60 border border-steel/20 text-xs font-bold uppercase tracking-wider text-center cursor-default">
+                <button type="button" disabled class="w-full h-11 py-2.5 px-4 rounded-xl bg-cream/70 text-ink/60 border border-steel/20 text-xs font-bold uppercase tracking-wider text-center cursor-default flex items-center justify-center">
                   Pla Contractat
                 </button>
+                <div class="mt-2 text-[11px] text-center text-steel/60 font-raleway h-5 flex items-center justify-center">
+                  <span>Pla actiu en aquest compte</span>
+                </div>
               {% elseif isUnlimited or not plan.isActive %}
-                <button type="button" onclick="if (window.RegistralsToast) { window.RegistralsToast.show('Pla Unlimited', 'Aquest pla estarà disponible properament per a grans col·leccions i patrimonis. Pots activar ara el Pla Plus!', 'info', 4500); }" class="w-full py-2.5 px-4 rounded-xl bg-cream/50 text-steel border border-steel/25 text-xs font-bold uppercase tracking-wider text-center hover:bg-cream/80 transition-all cursor-pointer">
+                <button type="button" onclick="if (window.RegistralsToast) { window.RegistralsToast.show('Pla Unlimited', 'Aquest pla estarà disponible properament per a grans col·leccions i patrimonis. Pots activar ara el Pla Plus!', 'info', 4500); }" class="w-full h-11 py-2.5 px-4 rounded-xl bg-cream/50 text-steel border border-steel/25 text-xs font-bold uppercase tracking-wider text-center hover:bg-cream/80 transition-all cursor-pointer flex items-center justify-center">
                   Properament
                 </button>
+                <div class="mt-2 text-[11px] text-center text-steel/60 font-raleway h-5 flex items-center justify-center">
+                  <span>Accés institucional en preparació</span>
+                </div>
               {% elseif plan.code == 'free' %}
                 {% if currentPlan.code != 'free' %}
-                  <a href="{{ path('app_plan_billing') }}#cancel-subscription" class="w-full block py-2.5 px-4 rounded-xl bg-white hover:bg-rose-50/60 text-slate-700 hover:text-rose-700 border border-steel/30 hover:border-rose-300 text-xs font-bold uppercase tracking-wider text-center transition-all shadow-2xs">
+                  <a href="{{ path('app_plan_billing') }}#cancel-subscription" class="w-full h-11 py-2.5 px-4 rounded-xl bg-white hover:bg-rose-50/60 text-slate-700 hover:text-rose-700 border border-steel/30 hover:border-rose-300 text-xs font-bold uppercase tracking-wider text-center transition-all shadow-2xs flex items-center justify-center">
                     Baixar a Pla Free
                   </a>
+                  <div class="mt-2 text-[11px] text-center text-steel/60 font-raleway h-5 flex items-center justify-center">
+                    <span>Sense quotes de renovació</span>
+                  </div>
                 {% else %}
-                  <button type="button" disabled class="w-full py-2.5 px-4 rounded-xl bg-cream/70 text-ink/60 border border-steel/20 text-xs font-bold uppercase tracking-wider text-center cursor-default">
+                  <button type="button" disabled class="w-full h-11 py-2.5 px-4 rounded-xl bg-cream/70 text-ink/60 border border-steel/20 text-xs font-bold uppercase tracking-wider text-center cursor-default flex items-center justify-center">
                     Pla Gratuït per Defecte
                   </button>
+                  <div class="mt-2 text-[11px] text-center text-steel/60 font-raleway h-5 flex items-center justify-center">
+                    <span>Pla actiu en aquest compte</span>
+                  </div>
                 {% endif %}
               {% else %}
                 <form action="{{ path('app_payment_plan_checkout', {'code': plan.code}) }}" method="POST">
                   <input type="hidden" name="_token" value="{{ csrf_token('checkout_plan_' ~ plan.code) }}">
-                  <button type="submit" class="w-full py-2.5 px-4 rounded-xl {{ isPlus ? 'bg-ink text-gold border border-gold/40 hover:bg-ink/90' : 'bg-white border border-steel/30 text-ink hover:border-gold hover:text-gold' }} text-xs font-bold uppercase tracking-wider text-center shadow-xs transition-all cursor-pointer">
+                  <button type="submit" class="w-full h-11 py-2.5 px-4 rounded-xl {{ isPlus ? 'bg-ink text-gold border border-gold/40 hover:bg-ink/90' : 'bg-white border border-steel/30 text-ink hover:border-gold hover:text-gold' }} text-xs font-bold uppercase tracking-wider text-center shadow-xs transition-all cursor-pointer flex items-center justify-center">
                     Contractar {{ plan.name }}
                   </button>
-                  <p class="mt-2 text-[11px] text-center text-steel flex items-center justify-center gap-1 font-raleway">
-                    <svg class="w-3 h-3 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                  <p class="mt-2 text-[11px] text-center text-steel flex items-center justify-center gap-1 font-raleway h-5">
+                    <svg class="w-3.5 h-3.5 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
                     <span>Garantia de 14 dies de desistiment</span>
                   </p>
                 </form>
