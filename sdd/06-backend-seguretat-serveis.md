@@ -301,6 +301,7 @@ Per garantir sobirania fiscal, traçabilitat auditada per la gestoria i complime
    - `GET /admin/factures`: Llibre de Factures Emeses amb filtres d'exercici fiscal i trimestre, KPIs financers agregats per SQL (recompte, base, IVA, total) i paginació de taula d'alta densitat.
    - `GET /admin/factures/exportar`: Exportació oficial en format CSV delimitat per punt i coma (`;`) amb codificació UTF-8 BOM, directament importable per gestories (A3, Sage, Odoo).
    - `GET /admin/factures/{uuid}/pdf`: Descàrrega administrativa directa del PDF oficial de qualsevol factura emesa.
+   - `POST /admin/factures/{uuid}/reemborsar`: Execució administrativa de reemborsament directe (Opció B) via Stripe API amb degradació a Pla Free si escau, marcatge de factura a `REFUNDED` i generació de Factura Rectificativa R1 amb encadenament VeriFactu.
    - `GET|POST /admin/configuracio-fiscal`: Panell de control fiscal de l'emissor (Albert / Registrals SL), adreces, sèries, comptadors i arxiu d'històric de perfils.
 
 3. **Desacoblament de KYC vs Cobrament:**

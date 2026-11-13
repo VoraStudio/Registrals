@@ -407,16 +407,29 @@ Quan un cobrament de renovació anual falla (per exemple, per targeta caducada o
 >    - **Operacions bloquejades:** No es poden editar camps essencials, no es poden afegir noves fotografies ni factures, no es poden emetre nous certificats ni traspassar la titularitat fins que no torni a estar actiu.
 >    - **Reactivació transparent:** Si el titular torna a contractar el Pla Plus o Unlimited, tots els béns en custòdia en fred es descongelen immediatament recuperant la plena capacitat operativa.
 
-### Gestió de Devolucions (*Refunds*)
-1. Si un administrador autoritza una devolució (des del panell `/admin/payments`), es crida l'API:
-   ```php
-   $refund = $stripeClient->refunds->create([
-       'payment_intent' => $transaction->getStripePaymentIntentId(),
-       'reason' => 'requested_by_customer',
-   ]);
-   ```
-2. Stripe emet el webhook `charge.refunded`.
-3. L'aplicació rep el webhook, marca la transacció com a `REFUNDED` i desactiva el servei adquirit (si era un certificat, es marca com a `REVOKED` a la base de dades i a Polygon).
+### Gestió de Devolucions (*Refunds*) i Factures Rectificatives R1
+
+La plataforma implementa un flux tancat de devolucions que cobreix tant l'origen extern com la tramitació directa des del Backoffice de Registrals, amb estricte compliment fiscal (RD 1619/2012 i Llei Antifrau / VeriFactu) i marc jurídic de consum (Art. 103.m TRLGDCU):
+
+#### Marc Jurídic de Devolució:
+- **Dret de Desistiment de 14 dies (Subscripcions SaaS):** Aplica a la contractació del Pla Plus/Unlimited (servei de continuïtat temporal). Si l'usuari sol·licita la devolució dins dels 14 dies naturals, s'executa el reemborsament complet.
+- **Excepció Legal de Desistiment (Certificats Individuals i Traspassos):** Segons l'article 103.m del TRLGDCU i la Directiva 2011/83/UE, el dret de desistiment **no aplica** a continguts digitals d'execució immediata un cop emesos i ancorats criptogràficament a la blockchain Polygon amb segell de temps eIDAS (ja que la fefaència pública i la petjada són immutables i el servei s'ha prestat plenament). Per tant, el client no disposa de botó directe d'autoreemborsament; qualsevol incidència s'avalua per l'administració.
+
+#### Doble Via Operativa (Opció A i Opció B):
+1. **Opció A — Webhook Asíncron de Stripe (`charge.refunded`):**
+   - Si la devolució s'executa directament des del Dashboard de Stripe (o per retrocessió bancària acordada), Stripe emet l'esdeveniment `charge.refunded`.
+   - `PaymentManager::handleChargeRefunded` localitza la transacció pel seu `payment_intent_id`, canvia el seu estat a `REFUNDED`.
+   - Si la transacció era una subscripció (`PaymentType::SUBSCRIPTION`), es degrada immediatament l'usuari al Pla Free activant el període de gràcia de 7 dies i la custòdia en fred per a l'excedent de béns mobles.
+   - S'emet automàticament la **Factura Rectificativa R1 (`R-YYYY-XXXX`)** d'import negatiu encadenada per hash SHA-256 a la factura original cobrada i a l'últim registre fiscal de VeriFactu.
+2. **Opció B — Reemborsament Directe des de Backoffice (`/admin/factures`):**
+   - L'administrador disposa a la graella de factures d'un botó `[↩ Reemborsar]` per a cada factura cobrada amb transacció Stripe vàlida.
+   - Mitjançant un Modal Certificat PWA Dual amb confirmació expressa i camp de motiu justificatiu, es crida l'acció `POST /admin/factures/{uuid}/reemborsar`.
+   - En una única operació transaccional atòmica:
+     - Es truca a Stripe API (`PaymentGatewayInterface::refundPayment`) via `\Stripe\Refund::create`.
+     - Es cancel·la la recurrència de subscripció a Stripe i es degrada l'usuari al Pla Free via `PlanDowngradeService`.
+     - L'estat de la transacció passa a `REFUNDED` i la factura original passa a `REFUNDED` (mostrant insígnia «● Abonada»).
+     - S'emet i segella la Factura Rectificativa R1 corresponent amb VeriFactu.
+     - S'enregistra l'activitat forense a `UserActivityLogger` (`REFUND_PROCESSED`).
 
 ### Gestió de Disputes (*Chargebacks*)
 Si un usuari sol·licita una retrocessió al seu banc:
