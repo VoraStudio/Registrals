@@ -281,3 +281,31 @@ Per garantir la traçabilitat completa i complir amb el RGPD i l'AI Act sense de
 4. **Consulta i Rendiment a l'Àrea d'Administració:**
    - La fitxa d'usuari (`/admin/usuaris/{id}`) consulta directament els darrers 5 registres (`findRecentByUserUuid`) sense duplicar dades a la base de dades operacional de gestió.
 
+---
+
+## 5. Subsistema de Facturació Fiscal Autònoma & VeriFactu (`InvoiceService`)
+
+Per garantir sobirania fiscal, traçabilitat auditada per la gestoria i compliment estricte de la Llei Antifrau espanyola (VeriFactu / RD 1619/2012), Registrals **no utilitza Stripe Invoicing**. La plataforma s'autoemet les seves pròpies factures mitjançant un motor propi:
+
+1. **Servei d'Emissió (`InvoiceService` — `src/Service/Invoice/InvoiceService.php`):**
+   - **Tipologia automàtica:** Emissió d'una **Factura Completa F1 (`REG-YYYY-XXXX`)** si el titular compta amb perfil fiscal complet (`hasCompleteBillingProfile()`), o **Factura Simplificada F2 (`FS-YYYY-XXXX`)** si no ha aportat domicili fiscal complet.
+   - **Sèrie Rectificativa R1 (`R-YYYY-XXXX`):** Emesa automàticament en cas de reemborsament (`charge.refunded` a Stripe), enllaçada a la factura original mitjançant `original_invoice_id`.
+   - **Desglossament d'IVA & IRPF:** Càlcul de base imposable, quota d'IVA repercutit al tipus general vigent (21%) i previsió de retenció professional IRPF (0% al MVP B2C, extensible a 7% o 15% per a l'etapa d'autònom en B2B).
+   - **Immutabilitat Forense (*Snapshots* Fiscals):** Tota factura desa còpies congelades en JSON de l'emissor (`issuer_snapshot`) i del client (`customer_snapshot`), de manera que canvis futurs a `/admin/configuracio-fiscal` mai alterin factures passades.
+   - **Encadenament VeriFactu SHA-256:** Càlcul d'empremta criptogràfica `current_hash = SHA256(NIF_emissor + num_factura + data + total + previous_invoice_hash)`, garantint la inalterabilitat del registre comptable davant d'inspeccions de l'AEAT.
+   - **Renderitzat Vectorial PDF Chromium:** Plantilla [`templates/invoice/pdf_template.html.twig`](templates/invoice/pdf_template.html.twig) renderitzada mitjançant Chromium headless amb l'isotip vectorial oficial de Registrals ([`1-transparent.svg`](web/img/logos/Isotip/1-transparent.svg)) incrustat com a Data URI en base64.
+
+2. **Endpoints de Facturació i Descàrrega:**
+   - `GET /app/factures/{uuid}/descarregar`: Descàrrega directa del PDF pel client titular, protegida pel voter d'accés.
+   - `GET /app/perfil/facturacio`: Safata privada de moviments de pagament i factures amb paginació (10, 25, 50/pàgina) i enllaç directe al PDF.
+   - `GET /admin/factures`: Llibre de Factures Emeses amb filtres d'exercici fiscal i trimestre, KPIs financers agregats per SQL (recompte, base, IVA, total) i paginació de taula d'alta densitat.
+   - `GET /admin/factures/exportar`: Exportació oficial en format CSV delimitat per punt i coma (`;`) amb codificació UTF-8 BOM, directament importable per gestories (A3, Sage, Odoo).
+   - `GET /admin/factures/{uuid}/pdf`: Descàrrega administrativa directa del PDF oficial de qualsevol factura emesa.
+   - `GET|POST /admin/configuracio-fiscal`: Panell de control fiscal de l'emissor (Albert / Registrals SL), adreces, sèries, comptadors i arxiu d'històric de perfils.
+
+3. **Desacoblament de KYC vs Cobrament:**
+   - El procés de pagament a Stripe **mai no està bloquejat pel KYC** (evitant taxes d'abandonament al funnel d'alta superior al 80%).
+   - Si les dades del client estan incompletes o no verificades, la factura s'emet legítimament com a **Simplificada F2**.
+   - El KYC biomètric (eIDV via Namirial) s'exigeix exclusivament com a condició per a l'emissió del **Certificat Oficial Segellat eIDAS** amb valor probatori davant tribunals.
+
+
