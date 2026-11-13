@@ -186,6 +186,7 @@ class PaymentControllerTest extends TestCase
     public function testCheckoutCertificateWithValidCsrfRedirectsToStripe(): void
     {
         $user = $this->createUser();
+        $user->setKycStatus(\App\Enum\KycStatus::APPROVED);
         $refUser = new \ReflectionProperty(User::class, 'id');
         $refUser->setValue($user, 10);
 
@@ -441,6 +442,7 @@ class PaymentControllerTest extends TestCase
 
         $user = $this->createUser();
         $user->setPlan($freePlan);
+        $user->setKycStatus(\App\Enum\KycStatus::APPROVED);
         $refUser = new \ReflectionProperty(User::class, 'id');
         $refUser->setValue($user, 10);
 
@@ -552,5 +554,129 @@ class PaymentControllerTest extends TestCase
 
         $this->assertInstanceOf(RedirectResponse::class, $response);
         $this->assertSame('https://checkout.stripe.com/pay/cs_txf_340', $response->getTargetUrl());
+    }
+
+    public function testCheckoutCertificateRedirectsUnverifiedUserToProfile(): void
+    {
+        $user = $this->createUser();
+        $category = new \App\Entity\Category('rellotges', 'Rellotges');
+        $item = new Item($user, 'REG-2026-NOKYC', 'Rellotge Sense KYC', $category);
+
+        $session = new Session(new MockArraySessionStorage());
+        $router = $this->createMock(UrlGeneratorInterface::class);
+        $router->method('generate')->willReturn('/app/perfil');
+
+        $paymentGateway = $this->createMock(PaymentGatewayInterface::class);
+        $paymentGateway->expects($this->never())->method('createCertificateCheckout');
+
+        $itemRepo = $this->createMock(ItemRepository::class);
+        $itemRepo->method('findOneByCui')->with('REG-2026-NOKYC')->willReturn($item);
+
+        $controller = new PaymentController(
+            $paymentGateway,
+            $this->createMock(PaymentManager::class),
+            $this->createMock(PaymentTransactionRepository::class),
+            $this->createMock(PlanRepository::class),
+            $itemRepo,
+            $this->createMock(ItemTransferRepository::class)
+        );
+        $controller->setContainer($this->createContainerWithServices($user, router: $router, session: $session, csrfValid: true));
+
+        $request = new Request([], ['_token' => 'valid_csrf']);
+        $request->setSession($session);
+
+        $response = $controller->checkoutCertificate('REG-2026-NOKYC', $request);
+
+        $this->assertInstanceOf(RedirectResponse::class, $response);
+        $this->assertSame('/app/perfil', $response->getTargetUrl());
+        $this->assertNotEmpty($session->getFlashBag()->get('warning'));
+    }
+
+    public function testCheckoutKycCreatesTransactionAndRedirectsToStripe(): void
+    {
+        $freePlan = (new Plan('free', 'Pla Free', 0))->setKycIncluded(0)->setKycPriceCents(350);
+        $user = $this->createUser();
+        $user->setTaxId('12345678Z');
+        $user->setPlan($freePlan);
+        $refUser = new \ReflectionProperty(User::class, 'id');
+        $refUser->setValue($user, 15);
+
+        $session = new Session(new MockArraySessionStorage());
+        $router = $this->createMock(UrlGeneratorInterface::class);
+        $router->method('generate')->willReturn('https://registrals.com/app/payment/success');
+
+        $paymentGateway = $this->createMock(PaymentGatewayInterface::class);
+        $paymentGateway->expects($this->once())
+            ->method('createKycCheckout')
+            ->with($user, 350, $this->anything(), $this->anything())
+            ->willReturn([
+                'sessionId' => 'cs_kyc_350',
+                'url' => 'https://checkout.stripe.com/pay/cs_kyc_350',
+            ]);
+
+        $paymentManager = $this->createMock(PaymentManager::class);
+        $paymentManager->expects($this->once())
+            ->method('createPendingTransaction')
+            ->with($user, PaymentType::KYC, 350, 'cs_kyc_350', $this->anything());
+
+        $controller = new PaymentController(
+            $paymentGateway,
+            $paymentManager,
+            $this->createMock(PaymentTransactionRepository::class),
+            $this->createMock(PlanRepository::class),
+            $this->createMock(ItemRepository::class),
+            $this->createMock(ItemTransferRepository::class)
+        );
+        $controller->setContainer($this->createContainerWithServices($user, router: $router, session: $session, csrfValid: true));
+
+        $request = new Request([], ['_token' => 'valid_csrf']);
+        $request->setSession($session);
+
+        $response = $controller->checkoutKyc($request);
+
+        $this->assertInstanceOf(RedirectResponse::class, $response);
+        $this->assertSame('https://checkout.stripe.com/pay/cs_kyc_350', $response->getTargetUrl());
+    }
+
+    public function testCheckoutKycRedirectsToProfileWhenTaxIdMissing(): void
+    {
+        $freePlan = (new Plan('free', 'Pla Free', 0))->setKycIncluded(0)->setKycPriceCents(350);
+        $user = $this->createUser();
+        $user->setTaxId(null);
+        $user->setPlan($freePlan);
+        $refUser = new \ReflectionProperty(User::class, 'id');
+        $refUser->setValue($user, 15);
+
+        $session = new Session(new MockArraySessionStorage());
+        $router = $this->createMock(UrlGeneratorInterface::class);
+        $router->expects($this->once())
+            ->method('generate')
+            ->with('app_profile')
+            ->willReturn('/app/perfil');
+
+        $paymentGateway = $this->createMock(PaymentGatewayInterface::class);
+        $paymentGateway->expects($this->never())->method('createKycCheckout');
+
+        $paymentManager = $this->createMock(PaymentManager::class);
+        $paymentManager->expects($this->never())->method('createPendingTransaction');
+
+        $controller = new PaymentController(
+            $paymentGateway,
+            $paymentManager,
+            $this->createMock(PaymentTransactionRepository::class),
+            $this->createMock(PlanRepository::class),
+            $this->createMock(ItemRepository::class),
+            $this->createMock(ItemTransferRepository::class)
+        );
+        $controller->setContainer($this->createContainerWithServices($user, router: $router, session: $session, csrfValid: true));
+
+        $request = new Request([], ['_token' => 'valid_csrf']);
+        $request->setSession($session);
+
+        $response = $controller->checkoutKyc($request);
+
+        $this->assertInstanceOf(RedirectResponse::class, $response);
+        $this->assertSame('/app/perfil', $response->getTargetUrl());
+        $this->assertNotEmpty($session->getFlashBag()->get('warning'));
     }
 }

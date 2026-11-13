@@ -7,12 +7,14 @@ namespace App\Controller;
 use App\Entity\Item;
 use App\Entity\ItemTransfer;
 use App\Entity\User;
+use App\Enum\PaymentStatus;
 use App\Enum\PaymentType;
 use App\Infrastructure\Adapter\Payment\PaymentGatewayInterface;
 use App\Repository\ItemRepository;
 use App\Repository\ItemTransferRepository;
 use App\Repository\PaymentTransactionRepository;
 use App\Repository\PlanRepository;
+use App\Service\Identity\KycVerificationService;
 use App\Service\Payment\PaymentManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -31,7 +33,8 @@ class PaymentController extends AbstractController
         private readonly PaymentTransactionRepository $transactionRepository,
         private readonly PlanRepository $planRepository,
         private readonly ItemRepository $itemRepository,
-        private readonly ItemTransferRepository $transferRepository
+        private readonly ItemTransferRepository $transferRepository,
+        private readonly ?KycVerificationService $kycService = null
     ) {
     }
 
@@ -123,6 +126,11 @@ class PaymentController extends AbstractController
         if ($item->getStatus() !== \App\Enum\ItemStatus::ACTIVE) {
             $this->addFlash('warning', 'No es pot emetre ni contractar un certificat per a un bé en traspàs o no actiu.');
             return $this->redirectToRoute('app_item_show', ['cui' => $cui]);
+        }
+
+        if (!in_array('ROLE_ADMIN', $user->getRoles(), true) && !$user->isIdentityVerified()) {
+            $this->addFlash('warning', 'Cal completar prèviament la verificació oficial d\'identitat (Namirial eIDV) al teu perfil abans de contractar un certificat oficial.');
+            return $this->redirectToRoute('app_profile');
         }
 
         $amountCents = $user->getPlan()?->getExtraCertificatePriceCents()
@@ -236,6 +244,82 @@ class PaymentController extends AbstractController
         }
     }
 
+    #[Route('/app/perfil/verificacio/checkout', name: 'app_payment_kyc_checkout', methods: ['POST'])]
+    public function checkoutKyc(Request $request): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if (!$this->isCsrfTokenValid('checkout_kyc', (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'El testimoni de seguretat CSRF no és vàlid.');
+            return $this->redirectToRoute('app_profile');
+        }
+
+        if ($user->isIdentityVerified()) {
+            $this->addFlash('info', 'La teva identitat ja està verificada.');
+            return $this->redirectToRoute('app_profile');
+        }
+
+        if (
+            trim($user->getFirstName()) === ''
+            || trim($user->getLastName()) === ''
+            || trim((string) ($user->getTaxId() ?? '')) === ''
+        ) {
+            $this->addFlash('warning', 'Cal desar el teu nom, cognoms i NIF / NIE / CIF al perfil abans d\'abonar la verificació.');
+            return $this->redirectToRoute('app_profile');
+        }
+
+        if ($this->kycService !== null && $this->kycService->canStartWithoutCheckout($user)) {
+            return $this->redirectToRoute('app_profile');
+        }
+
+        $amountCents = $this->kycService !== null
+            ? $this->kycService->getKycPriceCents($user)
+            : ($user->getPlan()?->getKycPriceCents() ?? ($this->planRepository->findDefaultFreePlan()?->getKycPriceCents() ?? 350));
+
+        $successUrl = $this->generateUrl('app_payment_success', [
+            'type' => 'kyc',
+            'session_id' => '{CHECKOUT_SESSION_ID}',
+        ], UrlGeneratorInterface::ABSOLUTE_URL);
+
+        $cancelUrl = $this->generateUrl('app_profile', [], UrlGeneratorInterface::ABSOLUTE_URL);
+
+        try {
+            $checkout = $this->paymentGateway->createKycCheckout($user, $amountCents, $successUrl, $cancelUrl);
+
+            $this->paymentManager->createPendingTransaction(
+                $user,
+                PaymentType::KYC,
+                $amountCents,
+                $checkout['sessionId'],
+                ['user_id' => $user->getId()]
+            );
+
+            if (str_contains($checkout['url'], 'mock=1')) {
+                $this->paymentManager->processWebhook([
+                    'id' => 'evt_mock_' . bin2hex(random_bytes(8)),
+                    'type' => 'checkout.session.completed',
+                    'data' => [
+                        'object' => [
+                            'id' => $checkout['sessionId'],
+                            'client_reference_id' => (string) $user->getId(),
+                            'amount_total' => $amountCents,
+                            'metadata' => [
+                                'type' => 'kyc',
+                                'user_id' => (string) $user->getId(),
+                            ],
+                        ],
+                    ],
+                ]);
+            }
+
+            return $this->redirect($checkout['url']);
+        } catch (\Throwable $e) {
+            $this->addFlash('error', 'Error en generar el pagament de verificació KYC: ' . $e->getMessage());
+            return $this->redirectToRoute('app_profile');
+        }
+    }
+
     #[Route('/app/payment/portal', name: 'app_payment_portal', methods: ['GET'])]
     public function customerPortal(?Request $request = null): Response
     {
@@ -297,6 +381,7 @@ class PaymentController extends AbstractController
 
         $transaction = null;
         if ($sessionId !== '') {
+            $this->paymentManager->syncSessionIfPaid($sessionId, $this->paymentGateway);
             $transaction = $this->transactionRepository->findByStripeSessionId($sessionId);
         }
 
@@ -313,6 +398,11 @@ class PaymentController extends AbstractController
     public function status(string $sessionId): JsonResponse
     {
         $transaction = $this->transactionRepository->findByStripeSessionId($sessionId);
+        if ($transaction !== null && $transaction->getStatus() === PaymentStatus::PENDING) {
+            $this->paymentManager->syncSessionIfPaid($sessionId, $this->paymentGateway);
+            $transaction = $this->transactionRepository->findByStripeSessionId($sessionId);
+        }
+
         if ($transaction === null) {
             return new JsonResponse(['status' => 'pending', 'paid' => false]);
         }

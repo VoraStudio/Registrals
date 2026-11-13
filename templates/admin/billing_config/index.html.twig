@@ -1,0 +1,312 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Configuració Fiscal de l'Emissor — Administració Registrals{% endblock %}
+
+{% block admin_content %}
+<div class="space-y-6">
+
+  {# Fil d'Ariadna de Ruta Canònic #}
+  <nav class="flex items-center gap-2 text-xs font-semibold font-raleway text-ink/65 flex-wrap">
+    <a href="{{ path('app_admin_dashboard') }}" class="hover:text-ink transition-colors">Inici</a>
+    <span>/</span>
+    <span class="text-ink font-bold">Configuració Fiscal Emissor</span>
+  </nav>
+
+  {# Capçalera de Pàgina Panoràmica 16:9 #}
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="font-marcellus text-2xl sm:text-3xl text-ink tracking-tight font-medium">Configuració Fiscal de l'Emissor</h1>
+      <p class="font-raleway text-xs sm:text-sm text-ink/70 mt-1">
+        Dades legals corporatives, domicili fiscal, tipus d'IVA/IRPF i sèries de facturació F1/F2/R1.
+      </p>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <a href="{{ path('app_admin_invoices') }}" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 text-xs font-bold font-raleway uppercase tracking-wider shadow-2xs transition-all">
+        <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        <span>Veure Llibre de Factures →</span>
+      </a>
+    </div>
+  </div>
+
+  {# Avís Notarial Canònic sobre Immutabilitat dels Snapshots #}
+  <div class="border-l-[3.5px] border-gold bg-gold/10 p-4 rounded-r-xl font-raleway text-xs text-ink/80 leading-relaxed shadow-2xs">
+    <strong>Immutabilitat Forense &amp; Snapshots Històrics:</strong> Les modificacions introduïdes en aquest panell regiran exclusivament per a les <em>noves factures emeses</em> a partir d'aquest moment. Totes les factures emeses amb anterioritat conserven una còpia immutable congelada en el temps (instantània tributària de l'emissor i del client), protegint la plataforma davant d'inspeccions de l'AEAT o canvis de societat (autònom a SL).
+  </div>
+
+  {# Formulari de Paràmetres Fiscals en Graella 16:9 #}
+  <form method="post" action="{{ path('app_admin_billing_config') }}" class="space-y-6">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token('admin_billing_config_update') }}" />
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      
+      {# Columna Esquerra: Dades Identificatives & Domicili (7 de 12) #}
+      <div class="lg:col-span-7 space-y-6">
+        
+        {# Bloc 1: Identificació Jurídica #}
+        <div class="bg-white rounded-2xl border border-steel/20 p-5 sm:p-6 shadow-xs space-y-4">
+          <div class="flex items-center gap-2 pb-3 border-b border-steel/15">
+            <div class="w-8 h-8 rounded-lg bg-cream flex items-center justify-center text-gold shrink-0">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+            </div>
+            <div>
+              <h2 class="font-marcellus text-base sm:text-lg text-ink font-bold">Identitat Legal de l'Emissor</h2>
+              <p class="font-raleway text-xs text-ink/65">Persona física o jurídica titular de la facturació de Registrals.</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-raleway">
+            <div>
+              <label class="block font-semibold text-ink/80 mb-1">Nom o Raó Social Legal</label>
+              <input type="text" name="legal_name" value="{{ config.legalName }}" required
+                     class="w-full px-3 py-2 rounded-xl border border-steel/30 bg-white text-ink text-xs focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-colors font-medium" />
+            </div>
+
+            <div>
+              <label class="block font-semibold text-ink/80 mb-1">NIF / CIF Tributari</label>
+              <input type="text" name="tax_id" value="{{ config.taxId }}" required
+                     class="w-full px-3 py-2 rounded-xl border border-steel/30 bg-white text-ink text-xs font-mono uppercase focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-colors font-bold" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-raleway pt-1">
+            <div>
+              <label class="block font-semibold text-ink/80 mb-1">Correu de Facturació</label>
+              <input type="email" name="billing_email" value="{{ config.billingEmail }}" required
+                     class="w-full px-3 py-2 rounded-xl border border-steel/30 bg-white text-ink text-xs focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-colors" />
+            </div>
+
+            <div>
+              <label class="block font-semibold text-ink/80 mb-1">Dades Registre Mercantil (opcional)</label>
+              <input type="text" name="mercantile_registry" value="{{ config.mercantileRegistry }}" placeholder="ex. Tom 1234, Foli 56, Full B-7890"
+                     class="w-full px-3 py-2 rounded-xl border border-steel/30 bg-white text-ink text-xs focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-colors" />
+            </div>
+          </div>
+        </div>
+
+        {# Bloc 2: Domicili Fiscal #}
+        <div class="bg-white rounded-2xl border border-steel/20 p-5 sm:p-6 shadow-xs space-y-4">
+          <div class="flex items-center gap-2 pb-3 border-b border-steel/15">
+            <div class="w-8 h-8 rounded-lg bg-cream flex items-center justify-center text-gold shrink-0">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            </div>
+            <div>
+              <h2 class="font-marcellus text-base sm:text-lg text-ink font-bold">Domicili Fiscal</h2>
+              <p class="font-raleway text-xs text-ink/65">Adreça oficial requerida pel Reglament de Facturació.</p>
+            </div>
+          </div>
+
+          <div class="text-xs font-raleway">
+            <label class="block font-semibold text-ink/80 mb-1">Carrer, Número i Pis</label>
+            <input type="text" name="address" value="{{ config.address }}" required
+                   class="w-full px-3 py-2 rounded-xl border border-steel/30 bg-white text-ink text-xs focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-colors" />
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs font-raleway pt-1">
+            <div>
+              <label class="block font-semibold text-ink/80 mb-1">Codi Postal</label>
+              <input type="text" name="postal_code" value="{{ config.postalCode }}" required
+                     class="w-full px-3 py-2 rounded-xl border border-steel/30 bg-white text-ink text-xs font-mono focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-colors font-bold" />
+            </div>
+
+            <div>
+              <label class="block font-semibold text-ink/80 mb-1">Població</label>
+              <input type="text" name="city" value="{{ config.city }}" required
+                     class="w-full px-3 py-2 rounded-xl border border-steel/30 bg-white text-ink text-xs focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-colors" />
+            </div>
+
+            <div>
+              <label class="block font-semibold text-ink/80 mb-1">Província</label>
+              <input type="text" name="province" value="{{ config.province }}" required
+                     class="w-full px-3 py-2 rounded-xl border border-steel/30 bg-white text-ink text-xs focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-colors" />
+            </div>
+
+            <div>
+              <label class="block font-semibold text-ink/80 mb-1">País (ISO)</label>
+              <input type="text" name="country_code" value="{{ config.countryCode }}" required maxlength="2"
+                     class="w-full px-3 py-2 rounded-xl border border-steel/30 bg-white text-ink text-xs font-mono uppercase focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-colors font-bold text-center" />
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      {# Columna Dreta: Sèries de Facturació & Impostos (5 de 12) #}
+      <div class="lg:col-span-5 space-y-6">
+        
+        {# Bloc 3: Sèries de Facturació & Comptadors #}
+        <div class="bg-white rounded-2xl border border-steel/20 p-5 sm:p-6 shadow-xs space-y-4">
+          <div class="flex items-center gap-2 pb-3 border-b border-steel/15">
+            <div class="w-8 h-8 rounded-lg bg-cream flex items-center justify-center text-gold shrink-0">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/></svg>
+            </div>
+            <div>
+              <h2 class="font-marcellus text-base sm:text-lg text-ink font-bold">Sèries &amp; Comptadors</h2>
+              <p class="font-raleway text-xs text-ink/65">Prefixos de numeració correlativa anual.</p>
+            </div>
+          </div>
+
+          <div class="space-y-3 text-xs font-raleway">
+            <div class="p-3 rounded-xl bg-cream/30 border border-steel/15 flex items-center justify-between gap-3">
+              <div>
+                <span class="font-bold text-ink block">Factura Completa (F1)</span>
+                <span class="text-[11px] text-ink/60">Per a titulars amb dades fiscals completes</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <input type="text" name="series_complete" value="{{ config.seriesComplete }}" required
+                       class="w-20 px-2.5 py-1.5 rounded-lg border border-steel/30 bg-white text-ink text-xs font-mono font-bold text-center focus:outline-none focus:border-gold" />
+                <span class="font-mono text-xs text-steel font-bold bg-white px-2 py-1.5 rounded border border-steel/20">#{{ config.nextNumberComplete }}</span>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-cream/30 border border-steel/15 flex items-center justify-between gap-3">
+              <div>
+                <span class="font-bold text-ink block">Factura Simplificada (F2)</span>
+                <span class="text-[11px] text-ink/60">Tiquet per a particulars / consumidors finals</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <input type="text" name="series_simplified" value="{{ config.seriesSimplified }}" required
+                       class="w-20 px-2.5 py-1.5 rounded-lg border border-steel/30 bg-white text-ink text-xs font-mono font-bold text-center focus:outline-none focus:border-gold" />
+                <span class="font-mono text-xs text-steel font-bold bg-white px-2 py-1.5 rounded border border-steel/20">#{{ config.nextNumberSimplified }}</span>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-cream/30 border border-steel/15 flex items-center justify-between gap-3">
+              <div>
+                <span class="font-bold text-ink block">Factura Rectificativa (R1)</span>
+                <span class="text-[11px] text-ink/60">Per a reemborsaments i abonaments</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <input type="text" name="series_rectification" value="{{ config.seriesRectification }}" required
+                       class="w-20 px-2.5 py-1.5 rounded-lg border border-steel/30 bg-white text-ink text-xs font-mono font-bold text-center focus:outline-none focus:border-gold" />
+                <span class="font-mono text-xs text-steel font-bold bg-white px-2 py-1.5 rounded border border-steel/20">#{{ config.nextNumberRectification }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {# Bloc 4: Paràmetres Tributaris & Text Legal #}
+        <div class="bg-white rounded-2xl border border-steel/20 p-5 sm:p-6 shadow-xs space-y-4">
+          <div class="flex items-center gap-2 pb-3 border-b border-steel/15">
+            <div class="w-8 h-8 rounded-lg bg-cream flex items-center justify-center text-gold shrink-0">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div>
+              <h2 class="font-marcellus text-base sm:text-lg text-ink font-bold">Impostos &amp; Text Legal</h2>
+              <p class="font-raleway text-xs text-ink/65">Tipus impositiu i clàusula de peu de pàgina.</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 text-xs font-raleway">
+            <div>
+              <label class="block font-semibold text-ink/80 mb-1">Tipus d'IVA General (%)</label>
+              <input type="number" step="0.01" name="default_vat_rate" value="{{ config.defaultVatRate }}" required
+                     class="w-full px-3 py-2 rounded-xl border border-steel/30 bg-white text-ink text-xs font-mono font-bold text-center focus:outline-none focus:border-gold" />
+            </div>
+
+            <div>
+              <label class="block font-semibold text-ink/80 mb-1">Retenció IRPF (%)</label>
+              <input type="number" step="0.01" name="default_irpf_rate" value="{{ config.defaultIrpfRate }}" required
+                     class="w-full px-3 py-2 rounded-xl border border-steel/30 bg-white text-ink text-xs font-mono font-bold text-center focus:outline-none focus:border-gold" />
+              <span class="text-[10px] text-ink/50 mt-0.5 block">0% si empresa / 15% autònom B2B</span>
+            </div>
+          </div>
+
+          <div class="text-xs font-raleway pt-1">
+            <label class="block font-semibold text-ink/80 mb-1">Clàusula de Peu de Factura</label>
+            <textarea name="footer_legal_text" rows="2"
+                      class="w-full px-3 py-2 rounded-xl border border-steel/30 bg-white text-ink text-xs font-raleway focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-colors">{{ config.footerLegalText }}</textarea>
+          </div>
+        </div>
+
+        {# Opció de Nova Versió i Botó de Desament #}
+        <div class="p-3.5 rounded-xl bg-amber-50/60 border border-amber-300 text-xs font-raleway space-y-2">
+          <label class="flex items-start gap-2.5 cursor-pointer">
+            <input type="checkbox" name="create_new_version" value="1" class="mt-0.5 rounded border-steel/40 text-gold focus:ring-gold" />
+            <div>
+              <span class="font-bold text-ink block">Forçar nova versió d'emissor</span>
+              <span class="text-[11px] text-ink/70">Arxiva el perfil vigent (#{{ config.id }}) i crea una nova versió v{{ config.id + 1 }}. (Automàtic si canvies el NIF o la Raó Social).</span>
+            </div>
+          </label>
+        </div>
+
+        {# Botó d'Acció de Desament #}
+        <div class="pt-1">
+          <button type="submit" class="w-full py-3 px-5 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-raleway font-bold text-xs uppercase tracking-wider shadow-sm transition-all cursor-pointer flex items-center justify-center gap-2">
+            <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            <span>Desar Configuració Fiscal</span>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </form>
+
+  {# Secció 2: Històric de Perfils Emissors de la Plataforma #}
+  <div class="bg-white rounded-2xl border border-steel/20 p-5 sm:p-6 shadow-xs space-y-4">
+    <div class="flex items-center justify-between pb-3 border-b border-steel/15">
+      <div>
+        <h2 class="font-marcellus text-base sm:text-lg text-ink font-bold">Històric de Perfils Emissors</h2>
+        <p class="font-raleway text-xs text-ink/65">Tots els perfils tributaris registrats en la història de la plataforma per garantir la traçabilitat forense davant de l'AEAT.</p>
+      </div>
+      <span class="font-mono text-xs text-steel font-bold bg-cream px-2.5 py-1 rounded-lg border border-steel/15">
+        {{ allConfigs|length }} versió{{ allConfigs|length == 1 ? '' : 'ns' }}
+      </span>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs font-raleway">
+        <thead class="bg-cream/40 border-b border-steel/15 text-[10px] uppercase font-mono tracking-wider text-ink/70">
+          <tr>
+            <th class="py-2.5 px-3">Versió</th>
+            <th class="py-2.5 px-3">Nom / Raó Social</th>
+            <th class="py-2.5 px-3">NIF / CIF</th>
+            <th class="py-2.5 px-3">Domicili</th>
+            <th class="py-2.5 px-3 text-center">IVA / IRPF</th>
+            <th class="py-2.5 px-3">Data d'Alta</th>
+            <th class="py-2.5 px-3 text-center">Estat</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-steel/10">
+          {% for cfg in allConfigs %}
+            <tr class="{{ cfg.isActive ? 'bg-gold/5 font-semibold' : 'hover:bg-cream/20' }} transition-colors">
+              <td class="py-2.5 px-3 font-mono">
+                #{{ cfg.id }}
+              </td>
+              <td class="py-2.5 px-3 text-ink font-bold">
+                {{ cfg.legalName }}
+              </td>
+              <td class="py-2.5 px-3 font-mono">
+                {{ cfg.taxId }}
+              </td>
+              <td class="py-2.5 px-3 text-steel">
+                {{ cfg.address }}, {{ cfg.postalCode }} {{ cfg.city }}
+              </td>
+              <td class="py-2.5 px-3 text-center font-mono">
+                {{ cfg.defaultVatRate }}% / {{ cfg.defaultIrpfRate }}%
+              </td>
+              <td class="py-2.5 px-3 font-mono text-steel">
+                {{ cfg.createdAt|date('d/m/Y H:i') }}
+              </td>
+              <td class="py-2.5 px-3 text-center whitespace-nowrap">
+                {% if cfg.isActive %}
+                  <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[10px] font-mono font-bold border border-emerald-200">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Vigent (Actiu)
+                  </span>
+                {% else %}
+                  <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-600 text-[10px] font-mono font-bold border border-gray-300">
+                    Arxivat
+                  </span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+

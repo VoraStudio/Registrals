@@ -126,13 +126,27 @@
           <dd class="font-semibold text-ink uppercase">{{ user.authProvider }}</dd>
         </div>
         <div class="flex items-center justify-between pt-2 border-t border-steel/10">
-          <dt class="text-ink/65">Verificació KYC (eIDAS):</dt>
-          <dd>
-            <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase {{ user.kycStatus.value == 'verified' ? 'bg-emerald-50 text-emerald-800' : 'bg-cream text-steel' }}">
-              {{ user.kycStatus.value }}
+          <dt class="text-ink/65">Verificació KYC (Namirial eIDV):</dt>
+          <dd class="text-right">
+            {% set kycVal = user.kycStatus.value %}
+            <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase {{ kycVal == 'approved' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : (kycVal == 'rejected' ? 'bg-red-50 text-red-700 border border-red-200' : (kycVal == 'pending' ? 'bg-amber-50 text-amber-800 border border-amber-200' : 'bg-cream text-steel')) }}">
+              {{ kycVal }}
             </span>
+            {% if user.identityVerifiedAt %}
+              <div class="text-[10px] font-mono text-steel mt-0.5">{{ user.identityVerifiedAt|date('d/m/Y H:i') }} UTC</div>
+            {% endif %}
           </dd>
         </div>
+        {% if user.signaturitKycId or user.kycLastReason %}
+          <div class="text-[11px] bg-cream/30 border border-steel/15 rounded-lg p-2 space-y-1">
+            {% if user.signaturitKycId %}
+              <div class="font-mono text-[10px] text-steel break-all">Namirial Request ID: <span class="text-ink">{{ user.signaturitKycId }}</span></div>
+            {% endif %}
+            {% if user.kycLastReason %}
+              <div class="text-ink/80">Resolució: {{ user.kycLastReason }}</div>
+            {% endif %}
+          </div>
+        {% endif %}
         <div class="flex items-center justify-between pt-2 border-t border-steel/10">
           <dt class="text-ink/65">Clàusules de Certificació:</dt>
           <dd>

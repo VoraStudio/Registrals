@@ -43,8 +43,14 @@ class StripeGatewayClient implements PaymentGatewayInterface
 
     private function getOrCreateCustomer(User $user): string
     {
-        if ($user->getStripeCustomerId() !== null && !empty($user->getStripeCustomerId())) {
-            return $user->getStripeCustomerId();
+        $existingCustomerId = $user->getStripeCustomerId();
+        if ($existingCustomerId !== null && $existingCustomerId !== '') {
+            // Si teníem un ID simulat de test anterior i ara operem amb Stripe real, descartem el mock i en creem un de real
+            if (!str_contains($this->secretKey, 'mock') && str_starts_with($existingCustomerId, 'cus_mock_')) {
+                $user->setStripeCustomerId(null);
+            } else {
+                return $existingCustomerId;
+            }
         }
 
         // Si és clau de test fictícia i no podem connectar amb Stripe real, retornem ID simulat
@@ -257,6 +263,52 @@ class StripeGatewayClient implements PaymentGatewayInterface
         ];
     }
 
+    public function createKycCheckout(User $user, int $amountCents, string $successUrl, string $cancelUrl): array
+    {
+        $customerId = $this->getOrCreateCustomer($user);
+
+        if (str_contains($this->secretKey, 'mock')) {
+            $sessionId = 'cs_mock_kyc_' . bin2hex(random_bytes(10));
+            $separator = str_contains($successUrl, '?') ? '&' : '?';
+
+            return [
+                'sessionId' => $sessionId,
+                'url' => str_replace(['{CHECKOUT_SESSION_ID}', '%7BCHECKOUT_SESSION_ID%7D'], $sessionId, $successUrl) . $separator . 'mock=1',
+            ];
+        }
+
+        $session = $this->getClient()->checkout->sessions->create([
+            'mode' => 'payment',
+            'customer' => $customerId,
+            'line_items' => [
+                [
+                    'price_data' => [
+                        'currency' => 'eur',
+                        'unit_amount' => $amountCents,
+                        'product_data' => [
+                            'name' => 'Verificació d\'Identitat Oficial Registrals (eIDV / KYC)',
+                            'description' => 'Acreditació documental i biomètrica via Namirial OnBoarding sota eIDAS / ETSI TS 119 461',
+                        ],
+                    ],
+                    'quantity' => 1,
+                ],
+            ],
+            'success_url' => $successUrl,
+            'cancel_url' => $cancelUrl,
+            'client_reference_id' => (string) $user->getId(),
+            'metadata' => [
+                'type' => 'kyc',
+                'user_id' => (string) $user->getId(),
+                'user_uuid' => $user->getUuid()->toRfc4122(),
+            ],
+        ]);
+
+        return [
+            'sessionId' => $session->id,
+            'url' => $session->url ?? $successUrl,
+        ];
+    }
+
     public function createCustomerPortalSession(User $user, string $returnUrl): string
     {
         $customerId = $this->getOrCreateCustomer($user);
@@ -271,6 +323,24 @@ class StripeGatewayClient implements PaymentGatewayInterface
         ]);
 
         return $session->url;
+    }
+
+    public function fetchCheckoutSession(string $sessionId): ?array
+    {
+        if (str_contains($this->secretKey, 'mock') || !str_starts_with($sessionId, 'cs_')) {
+            return null;
+        }
+
+        try {
+            $session = $this->getClient()->checkout->sessions->retrieve($sessionId, [
+                'expand' => ['subscription', 'payment_intent'],
+            ]);
+
+            return $session->toArray();
+        } catch (\Throwable $e) {
+            $this->logger?->warning(sprintf('Error recuperant Checkout Session %s de Stripe: %s', $sessionId, $e->getMessage()));
+            return null;
+        }
     }
 
     public function cancelSubscription(User $user): bool

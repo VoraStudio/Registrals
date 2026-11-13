@@ -17,6 +17,7 @@ use App\Audit\Service\UserActivityLogger;
 use App\Enum\PaymentType;
 use App\Repository\CertificateRepository;
 use App\Repository\ItemRepository;
+use App\Repository\InvoiceRepository;
 use App\Repository\ItemTransferRepository;
 use App\Repository\PaymentTransactionRepository;
 use App\Repository\PlanRepository;
@@ -24,6 +25,7 @@ use App\Repository\UserRepository;
 use App\Infrastructure\Adapter\Payment\PaymentGatewayInterface;
 use App\Repository\SuccessionClaimRepository;
 use App\Service\Certificate\CertificateIssuerService;
+use App\Service\Invoice\InvoiceService;
 use App\Service\Legacy\SuccessionClaimWorkflowService;
 use App\Service\Plan\PlanDowngradeService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -44,7 +46,9 @@ class PaymentManager
         private readonly ?UserActivityLogger $activityLogger = null,
         private readonly ?PlanDowngradeService $planDowngradeService = null,
         private readonly ?SuccessionClaimRepository $successionClaimRepository = null,
-        private readonly ?SuccessionClaimWorkflowService $successionClaimWorkflow = null
+        private readonly ?SuccessionClaimWorkflowService $successionClaimWorkflow = null,
+        private readonly ?InvoiceService $invoiceService = null,
+        private readonly ?InvoiceRepository $invoiceRepository = null
     ) {
     }
 
@@ -67,6 +71,61 @@ class PaymentManager
         $this->entityManager->flush();
 
         return $transaction;
+    }
+
+    /**
+     * Sincronitza de forma activa i resilient una sessió de pagament consultant directament Stripe.
+     * Útil quan el webhook s'endarrereix o en entorns locals/desenvolupament.
+     */
+    public function syncSessionIfPaid(string $sessionId, PaymentGatewayInterface $gateway): bool
+    {
+        $transaction = $this->transactionRepository->findByStripeSessionId($sessionId);
+        if ($transaction !== null && $transaction->getStatus() === PaymentStatus::PAID) {
+            return true;
+        }
+
+        $session = $gateway->fetchCheckoutSession($sessionId);
+        if ($session === null) {
+            return false;
+        }
+
+        $paymentStatus = (string) ($session['payment_status'] ?? '');
+        if ($paymentStatus !== 'paid' && $paymentStatus !== 'no_payment_required') {
+            return false;
+        }
+
+        $eventId = 'sync_' . $sessionId;
+
+        return $this->handleCheckoutSessionCompleted([
+            'id' => $eventId,
+            'type' => 'checkout.session.completed',
+            'data' => [
+                'object' => $session,
+            ],
+        ]);
+    }
+
+    /**
+     * Revisa i reconcilia les transaccions pendents d'un usuari contra l'API de Stripe.
+     */
+    public function syncPendingTransactionsForUser(User $user, PaymentGatewayInterface $gateway): int
+    {
+        $pendingTransactions = $this->transactionRepository->findBy([
+            'user' => $user,
+            'status' => PaymentStatus::PENDING,
+        ]);
+
+        $synced = 0;
+        foreach ($pendingTransactions as $tx) {
+            $sessionId = $tx->getStripeSessionId();
+            if ($sessionId !== null && str_starts_with($sessionId, 'cs_')) {
+                if ($this->syncSessionIfPaid($sessionId, $gateway)) {
+                    ++$synced;
+                }
+            }
+        }
+
+        return $synced;
     }
 
     /**
@@ -271,9 +330,33 @@ class PaymentManager
                     ]
                 );
             }
+        } elseif ($typeStr === 'kyc') {
+            $user->incrementKycPaidCredits();
+            $this->entityManager->persist($user);
+
+            $this->activityLogger?->log(
+                $user,
+                UserActivityAction::PAYMENT_COMPLETED,
+                sprintf('Pagament de verificació d\'identitat eIDV / KYC completat (%s)', $amountFormatted),
+                [
+                    'session_id' => $sessionId,
+                    'event_id' => $eventId,
+                    'kyc_paid_credits' => $user->getKycPaidCredits(),
+                    'amount' => $amountTotal,
+                ]
+            );
         }
 
         $this->entityManager->flush();
+
+        if ($this->invoiceService !== null && $transaction->getStatus() === PaymentStatus::PAID) {
+            try {
+                $this->invoiceService->createInvoiceFromPaymentTransaction($transaction);
+            } catch (\Throwable $e) {
+                $this->logger->error('Error creant factura oficial per a transacció: ' . $e->getMessage());
+            }
+        }
+
         return true;
     }
 
@@ -315,6 +398,14 @@ class PaymentManager
         $this->entityManager->persist($user);
         $this->entityManager->persist($transaction);
         $this->entityManager->flush();
+
+        if ($this->invoiceService !== null) {
+            try {
+                $this->invoiceService->createInvoiceFromPaymentTransaction($transaction);
+            } catch (\Throwable $e) {
+                $this->logger->error('Error creant factura de renovació: ' . $e->getMessage());
+            }
+        }
 
         $this->activityLogger?->log(
             $user,
@@ -419,6 +510,17 @@ class PaymentManager
                 $transaction->setStatus(PaymentStatus::REFUNDED);
                 $this->entityManager->persist($transaction);
                 $this->entityManager->flush();
+
+                if ($this->invoiceService !== null && $this->invoiceRepository !== null) {
+                    $originalInvoice = $this->invoiceRepository->findByPaymentTransaction($transaction);
+                    if ($originalInvoice !== null) {
+                        try {
+                            $this->invoiceService->createRectificationInvoice($originalInvoice, 'Abonament / Reemborsament Stripe');
+                        } catch (\Throwable $e) {
+                            $this->logger->error('Error creant factura rectificativa d\'abonament: ' . $e->getMessage());
+                        }
+                    }
+                }
 
                 $refundUser = $transaction->getUser();
                 if ($refundUser !== null) {

@@ -7,11 +7,13 @@ namespace App\Controller;
 use App\Audit\Enum\UserActivityAction;
 use App\Audit\Service\UserActivityLogger;
 use App\Entity\User;
+use App\Enum\KycStatus;
 use App\Form\ChangePasswordFormType;
 use App\Form\LegacyDesignationFormType;
 use App\Form\ProfileFormType;
 use App\Repository\LegacyContactRepository;
 use App\Repository\SuccessionClaimRepository;
+use App\Service\Identity\KycVerificationService;
 use App\Service\Legacy\LegacyCertificateIssuerService;
 use App\Service\Legacy\LegacyDesignationService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -35,15 +37,24 @@ class ProfileController extends AbstractController
         ?LegacyDesignationService $legacyDesignationService = null,
         ?LegacyCertificateIssuerService $legacyCertificateIssuer = null,
         ?SuccessionClaimRepository $successionClaimRepository = null,
+        ?KycVerificationService $kycService = null,
     ): Response {
         /** @var User $user */
         $user = $this->getUser();
 
+        $isIdentityLocked = in_array($user->getKycStatus(), [KycStatus::PENDING, KycStatus::APPROVED], true);
+        $isTaxIdLocked = $isIdentityLocked && trim((string) ($user->getTaxId() ?? '')) !== '';
+
         // Formulari de dades personals
-        $profileForm = $this->createForm(ProfileFormType::class, $user);
+        $profileForm = $this->createForm(ProfileFormType::class, $user, [
+            'lock_identity_fields' => $isIdentityLocked,
+            'lock_tax_id' => $isTaxIdLocked,
+        ]);
         $profileForm->handleRequest($request);
 
         if ($profileForm->isSubmitted() && $profileForm->isValid()) {
+            $normalizedTaxId = trim((string) ($user->getTaxId() ?? ''));
+            $user->setTaxId($normalizedTaxId !== '' ? strtoupper($normalizedTaxId) : null);
             $user->setUpdatedAt(new \DateTimeImmutable());
             $entityManager->flush();
 
@@ -87,6 +98,20 @@ class ProfileController extends AbstractController
             ])->createView();
         }
 
+        $hasCompleteLegalName = trim($user->getFirstName()) !== '' && trim($user->getLastName()) !== '';
+        $hasCompleteIdentityProfile = $kycService?->hasCompleteIdentityProfile($user)
+            ?? ($hasCompleteLegalName && trim((string) ($user->getTaxId() ?? '')) !== '');
+
+        $kycContext = [
+            'priceCents' => $kycService?->getKycPriceCents($user) ?? ($user->getPlan()?->getKycPriceCents() ?? 350),
+            'isIncludedInPlan' => $kycService?->isIncludedInPlan($user) ?? (in_array('ROLE_ADMIN', $user->getRoles(), true) || ($user->getPlan()?->getKycIncluded() ?? 0) > 0),
+            'canStartDirectly' => $kycService?->canStartWithoutCheckout($user) ?? (in_array('ROLE_ADMIN', $user->getRoles(), true) || ($user->getPlan()?->getKycIncluded() ?? 0) > 0 || $user->getKycPaidCredits() > 0),
+            'hasCompleteLegalName' => $hasCompleteLegalName,
+            'hasCompleteIdentityProfile' => $hasCompleteIdentityProfile,
+            'identityLocked' => $isIdentityLocked,
+            'taxIdLocked' => $isTaxIdLocked,
+        ];
+
         return $this->render('profile/index.html.twig', [
             'user' => $user,
             'profileForm' => $profileForm->createView(),
@@ -98,6 +123,7 @@ class ProfileController extends AbstractController
             'legacyEligibility' => $legacyEligibility,
             'legacyCertEligibility' => $legacyCertificateIssuer?->evaluateEmissionEligibility($user),
             'legacyForm' => $legacyForm,
+            'kycContext' => $kycContext,
         ]);
     }
 

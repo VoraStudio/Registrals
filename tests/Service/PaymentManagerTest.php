@@ -251,4 +251,59 @@ class PaymentManagerTest extends TestCase
         $this->assertTrue($result);
         $this->assertSame(PaymentStatus::PAID, $transaction->getStatus());
     }
+
+    public function testKycCheckoutCompletedIncrementsUserPaidCredits(): void
+    {
+        $user = (new User())->setEmail('free-kyc@registrals.cat')->setFirstName('Anna')->setLastName('Puig');
+        $transaction = new PaymentTransaction($user, PaymentType::KYC, 350);
+
+        $transactionRepo = $this->createMock(PaymentTransactionRepository::class);
+        $transactionRepo->method('findByStripeEventId')->willReturn(null);
+        $transactionRepo->method('findByStripeSessionId')->with('cs_kyc_1')->willReturn($transaction);
+
+        $userRepo = $this->createMock(UserRepository::class);
+        $userRepo->method('find')->with(55)->willReturn($user);
+
+        $activityLogger = $this->createMock(UserActivityLogger::class);
+        $activityLogger->expects($this->once())
+            ->method('log')
+            ->with(
+                $user,
+                UserActivityAction::PAYMENT_COMPLETED,
+                $this->stringContains('verificació d\'identitat'),
+                $this->callback(fn (array $d) => ($d['kyc_paid_credits'] ?? 0) === 1 && ($d['amount'] ?? 0) === 350)
+            );
+
+        $manager = new PaymentManager(
+            $transactionRepo,
+            $userRepo,
+            $this->createMock(PlanRepository::class),
+            $this->createMock(ItemRepository::class),
+            $this->createMock(ItemTransferRepository::class),
+            $this->createMock(CertificateIssuerService::class),
+            $this->createMock(CertificateRepository::class),
+            $this->createMock(\Doctrine\ORM\EntityManagerInterface::class),
+            $this->createMock(\Psr\Log\LoggerInterface::class),
+            $activityLogger
+        );
+
+        $result = $manager->processWebhook([
+            'id' => 'evt_kyc_1',
+            'type' => 'checkout.session.completed',
+            'data' => [
+                'object' => [
+                    'id' => 'cs_kyc_1',
+                    'amount_total' => 350,
+                    'metadata' => [
+                        'type' => 'kyc',
+                        'user_id' => '55',
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->assertTrue($result);
+        $this->assertSame(1, $user->getKycPaidCredits());
+        $this->assertSame(PaymentStatus::PAID, $transaction->getStatus());
+    }
 }

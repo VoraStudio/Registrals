@@ -1032,8 +1032,18 @@
                   <span>Descarregar Oficial ({{ activeCurrentOfficial.certificateNumber }})</span>
                 </a>
               {% else %}
+                {% set isKycVerified = is_granted('ROLE_ADMIN') or app.user.identityVerified %}
                 {% set canIssueOfficial = is_granted('ROLE_ADMIN') or (app.user.plan and app.user.plan.allowOfficialCertificates) %}
-                {% if canIssueOfficial %}
+                {% if not isKycVerified %}
+                  <div class="space-y-2">
+                    <div class="border-l-[3.5px] border-gold bg-gold/10 p-2 rounded-r-lg text-[10px] text-ink/85 leading-snug">
+                      <strong>Verificació KYC requerida:</strong> Cal acreditar la identitat oficial a Namirial OnBoarding un sol cop abans d'emetre certificats oficials.
+                    </div>
+                    <a href="{{ path('app_profile') }}#kyc" class="w-full py-2 px-3 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-1.5">
+                      <span>Verificar Identitat (eIDV) →</span>
+                    </a>
+                  </div>
+                {% elseif canIssueOfficial %}
                   <form action="{{ path('app_item_certificate_issue', {'id': item.id}) }}" method="POST" onsubmit="handleCertSubmit(this)">
                     <input type="hidden" name="_token" value="{{ csrf_token('issue_certificate_' ~ item.id) }}">
                     <input type="hidden" name="mode" value="official">

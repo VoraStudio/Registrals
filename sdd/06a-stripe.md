@@ -349,15 +349,25 @@ Per provar els webhooks a la màquina local sense necessitat de serveis de túne
 
 ---
 
-# 11. Flux D · Portal de Client (Customer Portal de Stripe)
+# 11. Flux D · Portal de Client (Customer Portal de Stripe) vs Facturació Autònoma
 
-Registrals no construeix formularis complexos de canvi de targeta ni sistemes de descàrrega de factures fiscals; delega aquesta responsabilitat al **Stripe Customer Portal**.
+Per garantir la màxima seguretat i evitar gestionar dades de targetes sensibles, Registrals delega la custòdia i actualització de mètodes de pagament al **Stripe Customer Portal**. 
 
-### Què pot fer l'usuari al Customer Portal
+> [!IMPORTANT]
+> **Decisió Arquitectònica de Facturació:** Registrals **NO** emet factures mitjançant Stripe Invoicing. La plataforma emet directament les seves pròpies factures fiscals ordinàries (F1), simplificades (F2) i rectificatives (R1) complint estrictament amb el Reglament de Facturació espanyol (RD 1619/2012) i la Llei Antifrau / VeriFactu (vegeu entitat `Invoice` a [`03-model-dades.md`](03-model-dades.md)).
+> La descàrrega de factures es realitza directament des de la pantalla de Facturació de l'aplicació (`/app/perfil/facturacio`) amb el motor PDF propi (Chromium headless).
+
+### Què pot fer l'usuari al Customer Portal de Stripe
 * Actualitzar la seva targeta de crèdit o mètode de pagament per a la subscripció anual.
-* Consultar tot l'històric de factures anuals de Registrals i descarregar-ne el PDF oficial.
-* Modificar la informació fiscal de facturació (Nom fiscal, NIF/CIF, adreça).
 * Cancel·lar la renovació automàtica de la subscripció (conservant el pla actiu fins a la data de finalització del període pagat).
+* Visualitzar l'històric de cobraments bancaris fets a través de Stripe.
+
+### Què gestiona Registrals de manera nativa (sense Stripe Invoicing)
+* Emissió d'invoices amb sèries `REG-YYYY-XXXX` (F1 completes) o `FS-YYYY-XXXX` (F2 simplificades).
+* Càlcul del desglossament d'IVA (21%) i retenció IRPF (per a B2B autònom).
+* Instantània immutable (`issuer_snapshot` i `customer_snapshot`) en cada factura.
+* Encadenament criptogràfic de hashes VeriFactu (`previous_invoice_hash` -> `current_hash`).
+* Exportació trimestral de llibre d'invoices emeses per a la gestoria (A3 / Sage / Odoo).
 
 ### Com s'invoca des de Symfony
 El controlador `PaymentController::customerPortal` genera una URL de sessió segura:
@@ -493,7 +503,7 @@ La taula resumeix el model de responsabilitats en la gestió de cobraments:
 | **Compliment normatiu PCI** | N'obté el compliment SAQ-A automàtic. | Respon de l'ús legítim de la seva targeta. | Proporciona la infraestructura certificada PCI. |
 | **Cobrament de subscripcions** | Defineix els plans i envia la petició d'alta. | Abona la quota anual recurrent. | Executa els cobraments i gestiona els reintents (*Smart Retries*). |
 | **Lliurament del servei** | Activa el pla, emet certificats i traspassa béns. | Gaudeix de les quotes i funcionalitats. | No intervé en el lliurament del programari. |
-| **Facturació i rebuts** | Configura les dades fiscals emissores. | Descarrega les factures del Customer Portal. | Genera el document PDF oficial de factura. |
+| **Facturació i rebuts** | Configura les dades fiscals emissores (`billing_configs`), emet les factures autònomes (`invoices`) i genera els PDFs vectorials amb VeriFactu. | Descarrega les factures oficials directament des de Registrals (`/app/perfil/facturacio`). | Processa el cobrament bancari i proporciona el comprovant de transacció (*Receipt*). |
 | **Devolucions (*Refunds*)** | L'administrador l'ordena si procedeix. | Sol·licita la devolució si compleix condicions. | Mou els diners de tornada a la targeta del client. |
 | **Disputes (*Chargebacks*)** | Proporciona les proves d'ús del servei. | Gestiona la discrepància amb el seu banc. | Tramita la disputa davant les xarxes de targetes (Visa/Mastercard). |
 

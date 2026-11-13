@@ -1,0 +1,234 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Llibre de Factures Emeses & AEAT — Administració Registrals{% endblock %}
+
+{% block admin_content %}
+<div class="space-y-6">
+
+  {# Fil d'Ariadna de Ruta Canònic #}
+  <nav class="flex items-center gap-2 text-xs font-semibold font-raleway text-ink/65 flex-wrap">
+    <a href="{{ path('app_admin_dashboard') }}" class="hover:text-ink transition-colors">Inici</a>
+    <span>/</span>
+    <span class="text-ink font-bold">Llibre de Factures Emeses</span>
+  </nav>
+
+  {# Capçalera de Pàgina Panoràmica 16:9 #}
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="font-marcellus text-2xl sm:text-3xl text-ink tracking-tight font-medium">Llibre de Factures Emeses &amp; Fiscalitat</h1>
+      <p class="font-raleway text-xs sm:text-sm text-ink/70 mt-1">
+        Registre oficial auditable F1, F2 i R1 amb encadenament VeriFactu i exportació per a gestoria fiscal.
+      </p>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <a href="{{ path('app_admin_invoices_export_csv', {year: selectedYear, quarter: selectedQuarter}) }}" 
+         class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-raleway font-bold text-xs uppercase tracking-wider shadow-2xs transition-all cursor-pointer">
+        <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        <span>Exportar CSV Gestoria (A3/Sage)</span>
+      </a>
+
+      <a href="{{ path('app_admin_billing_config') }}" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-steel/30 text-ink hover:border-gold hover:text-gold text-xs font-semibold font-raleway shadow-2xs transition-all">
+        <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <span>Dades Emissor</span>
+      </a>
+    </div>
+  </div>
+
+  {# 4 Targetes KPI de Mètriques Fiscals #}
+  <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+    <div class="bg-white rounded-2xl border border-steel/20 p-4 shadow-xs">
+      <div class="text-[11px] font-mono uppercase tracking-wider text-ink/60">Factures del Període</div>
+      <div class="font-mono text-xl sm:text-2xl font-bold text-ink mt-1">{{ kpis.count }}</div>
+      <div class="text-[10px] text-steel mt-0.5">Documents comptabilitzats</div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-steel/20 p-4 shadow-xs">
+      <div class="text-[11px] font-mono uppercase tracking-wider text-ink/60">Base Imposable Total</div>
+      <div class="font-mono text-xl sm:text-2xl font-bold text-ink mt-1">{{ kpis.subtotalFormatted }}</div>
+      <div class="text-[10px] text-steel mt-0.5">Ingressos nets d'impostos</div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-steel/20 p-4 shadow-xs">
+      <div class="text-[11px] font-mono uppercase tracking-wider text-ink/60">Quota IVA Repercutit (21%)</div>
+      <div class="font-mono text-xl sm:text-2xl font-bold text-gold mt-1">{{ kpis.vatFormatted }}</div>
+      <div class="text-[10px] text-steel mt-0.5">A liquidar al Model 303 AEAT</div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-steel/20 p-4 shadow-xs">
+      <div class="text-[11px] font-mono uppercase tracking-wider text-ink/60">Total Facturat (Brut)</div>
+      <div class="font-mono text-xl sm:text-2xl font-bold text-emerald-800 mt-1">{{ kpis.totalFormatted }}</div>
+      <div class="text-[10px] text-steel mt-0.5">Cobraments totals processats</div>
+    </div>
+  </div>
+
+  {# Barra de Filtres per Any i Trimestre #}
+  <div class="bg-white rounded-2xl border border-steel/20 p-4 shadow-xs">
+    <form method="get" action="{{ path('app_admin_invoices') }}" class="flex flex-wrap items-center justify-between gap-3">
+      <input type="hidden" name="limit" value="{{ currentLimit }}" />
+      <div class="flex items-center gap-3">
+        <div>
+          <label class="block text-[10px] font-mono uppercase text-ink/60 mb-1">Exercici Fiscal</label>
+          <select name="year" onchange="this.form.submit()" class="px-3 py-1.5 rounded-lg border border-steel/30 bg-white text-xs font-mono font-bold text-ink focus:outline-none focus:border-gold">
+            {% for y in 2026..2028 %}
+              <option value="{{ y }}" {{ selectedYear == y ? 'selected' : '' }}>{{ y }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-mono uppercase text-ink/60 mb-1">Període Trimestral</label>
+          <select name="quarter" onchange="this.form.submit()" class="px-3 py-1.5 rounded-lg border border-steel/30 bg-white text-xs font-mono text-ink focus:outline-none focus:border-gold">
+            <option value="0" {{ selectedQuarter == 0 ? 'selected' : '' }}>Tots els mesos (Any sencer)</option>
+            <option value="1" {{ selectedQuarter == 1 ? 'selected' : '' }}>1r Trimestre (T1: Gen-Mar)</option>
+            <option value="2" {{ selectedQuarter == 2 ? 'selected' : '' }}>2n Trimestre (T2: Abr-Jun)</option>
+            <option value="3" {{ selectedQuarter == 3 ? 'selected' : '' }}>3r Trimestre (T3: Jul-Set)</option>
+            <option value="4" {{ selectedQuarter == 4 ? 'selected' : '' }}>4t Trimestre (T4: Oct-Des)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="text-xs text-steel font-raleway">
+        Filtrat per: <strong>{{ selectedQuarter > 0 ? ('Trimestre ' ~ selectedQuarter ~ ' / ' ~ selectedYear) : ('Tot l\'exercici ' ~ selectedYear) }}</strong>
+      </div>
+    </form>
+  </div>
+
+  {# Taula Notarial d'Alta Densitat #}
+  <div class="bg-white rounded-2xl border border-steel/20 shadow-xs overflow-hidden">
+    {% if invoices is not empty %}
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs font-raleway">
+          <thead class="bg-cream/40 border-b border-steel/15 text-[10px] uppercase font-mono tracking-wider text-ink/70">
+            <tr>
+              <th class="py-3 px-4">Data Emissió</th>
+              <th class="py-3 px-4">Núm. Factura</th>
+              <th class="py-3 px-4">Tipus</th>
+              <th class="py-3 px-4">Client / NIF</th>
+              <th class="py-3 px-4 text-right">Base</th>
+              <th class="py-3 px-4 text-right">IVA (21%)</th>
+              <th class="py-3 px-4 text-right">Total</th>
+              <th class="py-3 px-4 text-center">VeriFactu Hash</th>
+              <th class="py-3 px-4 text-center">Estat</th>
+              <th class="py-3 px-4 text-right">Accions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-steel/10 bg-white">
+            {% for inv in invoices %}
+              <tr class="hover:bg-cream/20 transition-colors">
+                <td class="py-3 px-4 font-mono text-xs text-ink/75 whitespace-nowrap">
+                  {{ inv.issuedAt|date('d/m/Y') }}
+                </td>
+                <td class="py-3 px-4 font-mono font-bold text-xs text-ink whitespace-nowrap">
+                  {{ inv.invoiceNumber }}
+                </td>
+                <td class="py-3 px-4 whitespace-nowrap">
+                  {% if inv.invoiceType.value == 'F1' %}
+                    <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-50 text-blue-800 border border-blue-200">
+                      F1 Completa
+                    </span>
+                  {% elseif inv.invoiceType.value == 'F2' %}
+                    <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-gray-100 text-gray-700 border border-gray-200">
+                      F2 Simplificada
+                    </span>
+                  {% else %}
+                    <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-50 text-rose-800 border border-rose-200">
+                      R1 Rectificativa
+                    </span>
+                  {% endif %}
+                </td>
+                <td class="py-3 px-4 min-w-[200px]">
+                  <div class="font-bold text-ink truncate">{{ inv.customerSnapshot['legal_name']|default('Consumidor Final') }}</div>
+                  <div class="text-[10px] font-mono text-steel mt-0.5">
+                    {{ inv.customerSnapshot['tax_id'] ? ('NIF: ' ~ inv.customerSnapshot['tax_id']) : 'Sense NIF facilitat' }}
+                  </div>
+                </td>
+                <td class="py-3 px-4 text-right font-mono text-ink whitespace-nowrap">
+                  {{ inv.subtotalFormatted }}
+                </td>
+                <td class="py-3 px-4 text-right font-mono text-gold font-semibold whitespace-nowrap">
+                  {{ inv.vatAmountFormatted }}
+                </td>
+                <td class="py-3 px-4 text-right font-mono font-bold text-ink whitespace-nowrap">
+                  {{ inv.totalFormatted }}
+                </td>
+                <td class="py-3 px-4 text-center whitespace-nowrap font-mono text-[9px] text-steel" title="{{ inv.currentHash }}">
+                  {{ inv.currentHash|slice(0, 8) }}...{{ inv.currentHash|slice(-4) }}
+                </td>
+                <td class="py-3 px-4 text-center whitespace-nowrap">
+                  {% if inv.status.value == 'paid' %}
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[10px] font-mono font-bold border border-emerald-200">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Cobrada
+                    </span>
+                  {% elseif inv.status.value == 'refunded' %}
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-50 text-rose-800 text-[10px] font-mono font-bold border border-rose-200">
+                      <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Abonada
+                    </span>
+                  {% else %}
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 text-[10px] font-mono font-bold border border-amber-200">
+                      {{ inv.status.label }}
+                    </span>
+                  {% endif %}
+                </td>
+                <td class="py-3 px-4 text-right whitespace-nowrap">
+                  <a href="{{ path('app_admin_invoice_pdf', {uuid: inv.uuid}) }}" target="_blank"
+                     class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-cream/50 hover:bg-gold hover:text-ink text-ink border border-gold/40 text-xs font-semibold transition-all shadow-2xs">
+                    <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                    <span>PDF</span>
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      {# Paginació #}
+      {% if totalItems > 0 %}
+        <div class="px-4 sm:px-6 py-4 border-t border-steel/15 bg-cream-50/50 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-raleway">
+          <div class="flex items-center gap-3 flex-wrap">
+            <span class="text-ink/65">
+              Mostrant <span class="font-bold text-ink">{{ invoices|length }}</span> de <span class="font-bold text-ink">{{ totalItems }}</span> factures
+              {% if totalPages > 1 %}
+                &middot; Pàgina <span class="font-bold text-ink">{{ currentPage }}</span> de <span class="font-bold text-ink">{{ totalPages }}</span>
+              {% endif %}
+            </span>
+
+            {# Selector de Quantitat per Pàgina #}
+            <div class="flex items-center gap-1.5 pl-3 border-l border-steel/20">
+              <span class="text-ink/50 text-[11px]">Per pàgina:</span>
+              {% for l in [10, 25, 50, 100] %}
+                <a href="{{ path('app_admin_invoices', {page: 1, year: selectedYear, quarter: selectedQuarter, limit: l}) }}" 
+                   class="px-2 py-0.5 rounded-md text-[11px] font-mono font-bold transition-colors {{ currentLimit == l ? 'bg-ink text-gold border border-gold/40 shadow-2xs' : 'bg-white hover:bg-cream border border-steel/25 text-ink/70' }}">
+                  {{ l }}
+                </a>
+              {% endfor %}
+            </div>
+          </div>
+
+          {% if totalPages > 1 %}
+            <div class="flex items-center gap-1.5">
+              {% if currentPage > 1 %}
+                <a href="{{ path('app_admin_invoices', {page: currentPage - 1, year: selectedYear, quarter: selectedQuarter, limit: currentLimit}) }}" class="px-3 py-1.5 rounded-lg border border-steel/25 bg-white text-ink font-semibold hover:bg-cream-50 transition-colors">
+                  &larr; Anterior
+                </a>
+              {% endif %}
+              {% if currentPage < totalPages %}
+                <a href="{{ path('app_admin_invoices', {page: currentPage + 1, year: selectedYear, quarter: selectedQuarter, limit: currentLimit}) }}" class="px-3 py-1.5 rounded-lg border border-steel/25 bg-white text-ink font-semibold hover:bg-cream-50 transition-colors">
+                  Següent &rarr;
+                </a>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+    {% else %}
+      <div class="p-8 text-center text-ink/65 font-raleway text-sm">
+        No hi ha cap factura registrada per a l'exercici i període seleccionats.
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}
+

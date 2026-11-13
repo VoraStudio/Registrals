@@ -9,6 +9,7 @@ use App\Entity\Item;
 use App\Entity\User;
 use App\Enum\CertificateMode;
 use App\Enum\CertificateStatus;
+use App\Enum\KycStatus;
 use App\Infrastructure\Adapter\Signature\SignaturitTimestampInterface;
 use App\Repository\CertificateRepository;
 use App\Service\ItemFingerprintCalculator;
@@ -58,6 +59,12 @@ class CertificateIssuerService
             if (!$isAdmin && $plan !== null && !$plan->isAllowOfficialCertificates()) {
                 throw new RuntimeException(
                     'El teu pla actual no permet l\'emissió de certificats oficials. Passa al Pla Plus o Unlimited o contracta un certificat solt.'
+                );
+            }
+
+            if (!$isAdmin && $issuer->getKycStatus() !== KycStatus::APPROVED) {
+                throw new RuntimeException(
+                    'Cal completar prèviament la verificació oficial d\'identitat (Namirial eIDV / KYC) al teu perfil per emetre certificats oficials.'
                 );
             }
 

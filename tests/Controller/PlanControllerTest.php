@@ -101,9 +101,13 @@ class PlanControllerTest extends TestCase
         });
 
         $transactionRepo = $this->createMock(PaymentTransactionRepository::class);
-        $transactionRepo->expects($this->once())
-            ->method('findByUser')
-            ->with($user, 25)
+        $transactionRepo->method('countByUser')
+            ->with($user)
+            ->willReturn(1);
+        $transactionRepo->method('findPaginatedByUser')
+            ->with($user, 1, 10)
+            ->willReturn([$transaction]);
+        $transactionRepo->method('findByUser')
             ->willReturn([$transaction]);
 
         $twig = $this->createMock(Environment::class);

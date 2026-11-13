@@ -97,6 +97,11 @@ class NamirialOnboardingClient implements IdentityVerificationGatewayInterface
             $parameters['phoneNumber'] = $phone;
         }
 
+        $personalNumber = $this->resolvePersonalNumber($user);
+        if ($personalNumber !== null) {
+            $parameters['personalNumber'] = $personalNumber;
+        }
+
         $payload = [
             'requestTypeId' => $this->requestTypeId,
             'referenceId' => $referenceId,
@@ -156,11 +161,7 @@ class NamirialOnboardingClient implements IdentityVerificationGatewayInterface
         $referenceId = isset($requestData['referenceId']) ? (string) $requestData['referenceId'] : null;
 
         if (in_array($providerStatus, ['EXPIRED', 'FAILED', 'CANCELLED'], true)) {
-            $reason = match ($providerStatus) {
-                'EXPIRED' => 'La sol·licitud de verificació ha caducat abans de completar-se.',
-                'CANCELLED' => 'El procés de verificació s\'ha cancel·lat.',
-                default => 'La verificació documental o biomètrica ha fallat.',
-            };
+            $reason = $this->resolveTerminationReason($providerStatus, $requestData);
 
             return new KycVerdictDto(
                 requestId: $requestId,
@@ -194,6 +195,41 @@ class NamirialOnboardingClient implements IdentityVerificationGatewayInterface
             verdictsData: $verdictsData,
             identificationsData: $identificationsData
         );
+    }
+
+    /**
+     * Tradueix el motiu tècnic de finalització o cancel·lació de Namirial a un missatge intel·ligible.
+     *
+     * @param array<string, mixed> $requestData
+     */
+    private function resolveTerminationReason(string $providerStatus, array $requestData): string
+    {
+        $rawReason = trim((string) ($requestData['terminationReason'] ?? $requestData['reason'] ?? ''));
+        if ($rawReason === '') {
+            return match ($providerStatus) {
+                'EXPIRED' => 'La sol·licitud de verificació ha caducat abans de completar-se.',
+                'CANCELLED' => 'El procés de verificació s\'ha cancel·lat.',
+                default => 'La verificació documental o biomètrica ha fallat.',
+            };
+        }
+
+        $upper = strtoupper($rawReason);
+        $reasonCatalog = [
+            'NO_TEXT_FOUND' => 'No s\'ha pogut llegir el text del document d\'identitat a la fotografia (imatge desenfocada, fosca o sense document visible)',
+            'MISMATCH' => 'Les dades del document d\'identitat no coincideixen amb el nom i cognoms informats al perfil',
+            'LIVENESS' => 'No s\'ha pogut superar la comprovació de presència en viu (liveness)',
+            'FACE' => 'No s\'ha pogut validar la coincidència facial amb el document',
+            'EXPIRED' => 'La sessió de verificació ha caducat abans de completar-se',
+            'DOCUMENT' => 'El document presentat no s\'ha pogut validar correctament',
+        ];
+
+        foreach ($reasonCatalog as $token => $message) {
+            if (str_contains($upper, $token)) {
+                return sprintf('%s (%s).', $message, $rawReason);
+            }
+        }
+
+        return sprintf('El procés de verificació no s\'ha completat favorablement (%s).', $rawReason);
     }
 
     /**
@@ -253,26 +289,47 @@ class NamirialOnboardingClient implements IdentityVerificationGatewayInterface
      */
     private function extractWizardUrl(array $payload): ?string
     {
-        if (isset($payload['wizardUrl']) && \is_string($payload['wizardUrl']) && $payload['wizardUrl'] !== '') {
-            return $payload['wizardUrl'];
-        }
-
-        if (isset($payload['url']) && \is_string($payload['url']) && $payload['url'] !== '') {
-            return $payload['url'];
+        if (($direct = $this->extractUrlFromEntry($payload)) !== null) {
+            return $direct;
         }
 
         $links = $payload['links'] ?? ($payload['content'] ?? null);
         if (\is_array($links)) {
+            $firstAvailable = null;
+
             foreach ($links as $entry) {
-                if (\is_array($entry) && isset($entry['url']) && \is_string($entry['url']) && $entry['url'] !== '') {
-                    return $entry['url'];
+                if (!\is_array($entry) || ($candidate = $this->extractUrlFromEntry($entry)) === null) {
+                    continue;
                 }
+
+                $firstAvailable ??= $candidate;
+                if (strtolower((string) ($entry['actor'] ?? '')) === 'usertoidentify') {
+                    return $candidate;
+                }
+            }
+
+            if ($firstAvailable !== null) {
+                return $firstAvailable;
             }
         }
 
         foreach ($payload as $entry) {
-            if (\is_array($entry) && isset($entry['url']) && \is_string($entry['url']) && $entry['url'] !== '') {
-                return $entry['url'];
+            if (\is_array($entry) && ($candidate = $this->extractUrlFromEntry($entry)) !== null) {
+                return $candidate;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param array<string, mixed> $entry
+     */
+    private function extractUrlFromEntry(array $entry): ?string
+    {
+        foreach (['wizardUrl', 'link', 'url'] as $key) {
+            if (isset($entry[$key]) && \is_string($entry[$key]) && trim($entry[$key]) !== '') {
+                return trim($entry[$key]);
             }
         }
 
@@ -440,6 +497,29 @@ class NamirialOnboardingClient implements IdentityVerificationGatewayInterface
         }
 
         return [$firstName, $lastName, $score];
+    }
+
+    /**
+     * Normalitza i filtra el identificador fiscal per enviar-lo com a `personalNumber` només quan correspon a persona física.
+     */
+    private function resolvePersonalNumber(User $user): ?string
+    {
+        $rawTaxId = trim((string) ($user->getTaxId() ?? ''));
+        if ($rawTaxId === '') {
+            return null;
+        }
+
+        $normalized = strtoupper((string) preg_replace('/[\s\-]+/', '', $rawTaxId));
+        if ($normalized === '') {
+            return null;
+        }
+
+        // Exclou CIFs d'empresa espanyols (persona jurídica) perquè el document eIDV sempre és d'una persona física.
+        if (preg_match('/^[ABCDEFGHJNPQRSUVW]\d{7}[0-9A-J]$/', $normalized) === 1) {
+            return null;
+        }
+
+        return $normalized;
     }
 
     private function buildSimulatedWizardUrl(string $wizardUrlBack, string $requestId, string $referenceId): string

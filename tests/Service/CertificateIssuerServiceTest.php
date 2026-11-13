@@ -124,4 +124,92 @@ class CertificateIssuerServiceTest extends TestCase
 
         $issuerService->issueCertificate($item, $user, CertificateMode::OFFICIAL);
     }
+
+    public function testIssueOfficialCertificateRequiresApprovedKycForNonAdmin(): void
+    {
+        $user = new User();
+        $user->setEmail('plus-unverified@registrals.cat');
+        $plan = (new Plan('plus', 'Pla Plus', 2200))
+            ->setAllowOfficialCertificates(true)
+            ->setMonthlyCertificatesQuota(-1);
+        $user->setPlan($plan);
+
+        $category = new Category('Rellotges', 'rellotges');
+        $item = new Item($user, 'REG-2026-ROLEX', 'Rolex Submariner', $category);
+
+        $issuerService = new CertificateIssuerService(
+            twig: $this->createMock(Environment::class),
+            pdfRenderer: $this->createMock(PdfRendererService::class),
+            qrGenerator: new CertificateQrGeneratorService(),
+            fingerprintCalculator: $this->createMock(ItemFingerprintCalculator::class),
+            certificateRepository: $this->createMock(CertificateRepository::class),
+            entityManager: $this->createMock(EntityManagerInterface::class),
+            itemDocumentStorage: $this->createMock(FilesystemOperator::class),
+            kernel: $this->createMock(KernelInterface::class),
+            defaultBaseUrl: 'https://registrals.cat',
+            logger: new NullLogger()
+        );
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('verificació oficial d\'identitat');
+
+        $issuerService->issueCertificate($item, $user, CertificateMode::OFFICIAL);
+    }
+
+    public function testIssueOfficialCertificateSucceedsWhenKycIsApproved(): void
+    {
+        $user = (new User())
+            ->setEmail('plus-verified@registrals.cat')
+            ->setKycStatus(\App\Enum\KycStatus::APPROVED);
+        $plan = (new Plan('plus', 'Pla Plus', 2200))
+            ->setAllowOfficialCertificates(true)
+            ->setMonthlyCertificatesQuota(-1);
+        $user->setPlan($plan);
+
+        $category = new Category('Rellotges', 'rellotges');
+        $item = new Item($user, 'REG-2026-OMEGA', 'Omega Speedmaster', $category);
+
+        $twig = $this->createMock(Environment::class);
+        $twig->method('render')->willReturn('<html><body>Oficial</body></html>');
+
+        $pdfRenderer = $this->createMock(PdfRendererService::class);
+        $pdfRenderer->method('renderHtmlToPdf')->willReturn('%PDF-1.4 official');
+
+        $calculator = $this->createMock(ItemFingerprintCalculator::class);
+        $calculator->method('calculateForItem')->willReturn(str_repeat('a', 64));
+
+        $certificateRepository = $this->createMock(CertificateRepository::class);
+        $certificateRepository->method('getNextCertificateNumber')->willReturn('CERT-2026-000100');
+
+        $storage = $this->createMock(FilesystemOperator::class);
+        $storage->expects($this->once())->method('write');
+
+        $kernel = $this->createMock(KernelInterface::class);
+        $kernel->method('getProjectDir')->willReturn(__DIR__ . '/../../');
+
+        $signaturit = $this->createMock(\App\Infrastructure\Adapter\Signature\SignaturitTimestampInterface::class);
+        $signaturit->expects($this->once())
+            ->method('timestampHash')
+            ->willReturn(new \App\DTO\SignaturitTimestampDto('eIDAS-SIG-TEST', new \DateTimeImmutable()));
+
+        $issuerService = new CertificateIssuerService(
+            twig: $twig,
+            pdfRenderer: $pdfRenderer,
+            qrGenerator: new CertificateQrGeneratorService(),
+            fingerprintCalculator: $calculator,
+            certificateRepository: $certificateRepository,
+            entityManager: $this->createMock(EntityManagerInterface::class),
+            itemDocumentStorage: $storage,
+            kernel: $kernel,
+            signaturitClient: $signaturit,
+            defaultBaseUrl: 'https://registrals.cat',
+            logger: new NullLogger()
+        );
+
+        $cert = $issuerService->issueCertificate($item, $user, CertificateMode::OFFICIAL);
+
+        $this->assertSame('CERT-2026-000100', $cert->getCertificateNumber());
+        $this->assertSame(CertificateMode::OFFICIAL, $cert->getMode());
+        $this->assertSame(1, $user->getCertificatesIssuedCount());
+    }
 }

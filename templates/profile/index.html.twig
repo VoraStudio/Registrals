@@ -27,8 +27,6 @@
       nav_next_label: 'El meu Pla'
     } %}
 
-    {% include 'partials/_persistent_flashes.html.twig' with { margin_class: 'mb-3' } %}
-
     {# Graella Principal Compacta (8 cols / 4 cols) #}
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-4 items-start">
 
@@ -52,6 +50,19 @@
                 Desar Dades
               </button>
             </div>
+
+            {% if user.kycStatus.value in ['pending', 'approved'] %}
+              {% set hasMissingTaxIdAfterApproval = user.kycStatus.value == 'approved' and (user.taxId|default('')|trim == '') %}
+              <div class="border-l-[3.5px] border-gold bg-gold/10 p-3 rounded-r-lg text-xs text-ink/85 mb-3">
+                {% if user.kycStatus.value == 'pending' %}
+                  <strong>Identitat en verificació (bloqueig temporal):</strong> El teu <code>Nom</code>, <code>Cognoms</code> i <code>NIF</code> estan vinculats a una sessió activa amb Namirial i no es poden modificar fins a obtenir el veredicte.
+                {% elseif hasMissingTaxIdAfterApproval %}
+                  <strong>Identitat verificada eIDAS (pendent d'ancorar NIF):</strong> El teu <code>Nom</code> i <code>Cognoms</code> estan bloquejats. Introdueix i desa el teu <code>NIF / NIE / CIF</code> ara; un cop desat, també quedarà bloquejat permanentment.
+                {% else %}
+                  <strong>Identitat verificada eIDAS (camps bloquejats):</strong> El <code>Nom</code>, <code>Cognoms</code> i <code>NIF</code> acreditats són immutables. Qualsevol modificació requereix contactar amb suport, revocar els certificats vigents i iniciar una nova verificació KYC.
+                {% endif %}
+              </div>
+            {% endif %}
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 text-xs">
               <div>
@@ -85,6 +96,64 @@
                 {{ form_label(profileForm.countryCode, null, {'label_attr': {'class': 'block text-[11px] font-semibold text-ink/80 mb-0.5'}}) }}
                 {{ form_widget(profileForm.countryCode) }}
                 {{ form_errors(profileForm.countryCode, {'attr': {'class': 'text-[10px] text-red-600 mt-0.5'}}) }}
+              </div>
+            </div>
+
+            {# Subsecció: Dades de Facturació & Domicili Fiscal #}
+            <div class="mt-4 pt-3.5 border-t border-steel/15">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-2 mb-2.5 gap-2">
+                <div class="flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                  <h3 class="font-semibold text-xs text-ink uppercase tracking-wider font-mono">Dades de Facturació Oficial</h3>
+                </div>
+                <div>
+                  {% if user.hasCompleteBillingProfile() %}
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[10px] font-mono font-bold border border-emerald-200">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Perfil Fiscal Complet
+                    </span>
+                  {% else %}
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 text-[10px] font-mono font-bold border border-amber-200">
+                      <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Dades de Facturació Pendents
+                    </span>
+                  {% endif %}
+                </div>
+              </div>
+
+              {% if not user.hasCompleteBillingProfile() and user.plan and user.plan.code != 'free' %}
+                <div class="border-l-[3.5px] border-gold bg-gold/10 p-2.5 rounded-r-lg text-xs text-ink/85 mb-3">
+                  <strong>Requerit per a Plans de Pagament:</strong> Com a titular del <strong>{{ user.plan.name }}</strong> o per a l'emissió de factures oficials deduïbles amb IVA, cal indicar l'adreça fiscal completa i el codi postal.
+                </div>
+              {% endif %}
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 text-xs">
+                <div>
+                  {{ form_label(profileForm.billingName, null, {'label_attr': {'class': 'block text-[11px] font-semibold text-ink/80 mb-0.5'}}) }}
+                  {{ form_widget(profileForm.billingName) }}
+                  {{ form_errors(profileForm.billingName, {'attr': {'class': 'text-[10px] text-red-600 mt-0.5'}}) }}
+                </div>
+                <div>
+                  {{ form_label(profileForm.billingAddress, null, {'label_attr': {'class': 'block text-[11px] font-semibold text-ink/80 mb-0.5'}}) }}
+                  {{ form_widget(profileForm.billingAddress) }}
+                  {{ form_errors(profileForm.billingAddress, {'attr': {'class': 'text-[10px] text-red-600 mt-0.5'}}) }}
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 text-xs mt-2.5">
+                <div>
+                  {{ form_label(profileForm.billingPostalCode, null, {'label_attr': {'class': 'block text-[11px] font-semibold text-ink/80 mb-0.5'}}) }}
+                  {{ form_widget(profileForm.billingPostalCode) }}
+                  {{ form_errors(profileForm.billingPostalCode, {'attr': {'class': 'text-[10px] text-red-600 mt-0.5'}}) }}
+                </div>
+                <div>
+                  {{ form_label(profileForm.billingCity, null, {'label_attr': {'class': 'block text-[11px] font-semibold text-ink/80 mb-0.5'}}) }}
+                  {{ form_widget(profileForm.billingCity) }}
+                  {{ form_errors(profileForm.billingCity, {'attr': {'class': 'text-[10px] text-red-600 mt-0.5'}}) }}
+                </div>
+                <div>
+                  {{ form_label(profileForm.billingProvince, null, {'label_attr': {'class': 'block text-[11px] font-semibold text-ink/80 mb-0.5'}}) }}
+                  {{ form_widget(profileForm.billingProvince) }}
+                  {{ form_errors(profileForm.billingProvince, {'attr': {'class': 'text-[10px] text-red-600 mt-0.5'}}) }}
+                </div>
               </div>
             </div>
           {{ form_end(profileForm) }}
@@ -368,14 +437,32 @@
               </span>
             </div>
 
-            <div class="grid grid-cols-2 gap-2 pt-1">
+            <div class="pt-1 flex items-start justify-between gap-2">
               <div>
                 <span class="text-[10px] uppercase font-mono tracking-wider text-ink/50 block">Alta al Registre</span>
                 <span class="font-bold text-ink text-xs">{{ user.createdAt|date('d/m/Y') }}</span>
               </div>
-              <div>
+              <div class="text-right">
                 <span class="text-[10px] uppercase font-mono tracking-wider text-ink/50 block">Verificació KYC</span>
-                <span class="font-semibold text-amber-700 text-xs capitalize">{{ user.kycStatus.value }}</span>
+                {% set kycVal = user.kycStatus.value %}
+                {% if kycVal == 'approved' %}
+                  <span class="font-bold text-emerald-800 text-xs flex items-center justify-end gap-1">
+                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                    <span>Verificada eIDAS</span>
+                  </span>
+                {% elseif kycVal == 'pending' %}
+                  <span class="font-bold text-amber-700 text-xs flex items-center justify-end gap-1">
+                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                    <span>En curs</span>
+                  </span>
+                {% elseif kycVal == 'rejected' %}
+                  <span class="font-bold text-red-700 text-xs flex items-center justify-end gap-1">
+                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-red-600"></span>
+                    <span>Rebutjada</span>
+                  </span>
+                {% else %}
+                  <a href="#kyc" class="font-semibold text-amber-700 hover:text-ink text-xs underline decoration-gold/60 inline-block">No verificada →</a>
+                {% endif %}
               </div>
             </div>
 
@@ -428,6 +515,88 @@
               </a>
             </div>
           </div>
+        </div>
+
+        {# Targeta de Verificació d'Identitat Oficial (Namirial OnBoarding eIDV / KYC) #}
+        {% set kycState = user.kycStatus.value %}
+        {% set kycPriceCents = kycContext is defined ? kycContext.priceCents : (user.plan ? user.plan.kycPriceCents : 350) %}
+        {% set kycCanStartDirect = kycContext is defined ? kycContext.canStartDirectly : (is_granted('ROLE_ADMIN') or (user.plan and user.plan.kycIncluded > 0) or user.kycPaidCredits > 0) %}
+        <div id="kyc" class="bg-white rounded-xl border {{ kycState == 'approved' ? 'border-emerald-300' : 'border-gold/40' }} shadow-2xs p-4 sm:p-4.5">
+          <div class="flex items-center justify-between pb-2 mb-2.5 border-b border-steel/15 gap-2">
+            <h3 class="font-marcellus text-sm text-ink">Identitat Oficial (eIDV)</h3>
+            {% if kycState == 'approved' %}
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[10px] font-mono font-bold border border-emerald-200">
+                ✓ Acreditada
+              </span>
+            {% elseif kycState == 'pending' %}
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 text-[10px] font-mono font-bold border border-amber-200">
+                ⏳ Pendent
+              </span>
+            {% elseif kycState == 'rejected' %}
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-50 text-red-700 text-[10px] font-mono font-bold border border-red-200">
+                ✕ Rebutjada
+              </span>
+            {% else %}
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-cream text-steel text-[10px] font-mono font-bold border border-steel/20">
+                No verificada
+              </span>
+            {% endif %}
+          </div>
+
+          {% if kycState == 'approved' %}
+            <p class="text-[11px] text-ink/80 leading-snug mb-2">
+              La teva identitat ha estat contrastada biomètricament amb document oficial via <strong>Namirial OnBoarding</strong> sota normativa eIDAS.
+            </p>
+            <div class="text-[10px] font-mono text-steel space-y-0.5 bg-cream/30 p-2 rounded-lg border border-steel/15">
+              {% if user.identityVerifiedAt %}
+                <div>Verificada: <strong class="text-ink">{{ user.identityVerifiedAt|date('d/m/Y H:i') }} UTC</strong></div>
+              {% endif %}
+              {% if user.signaturitKycId %}
+                <div class="truncate">Sessió: <strong class="text-ink">{{ user.signaturitKycId }}</strong></div>
+              {% endif %}
+            </div>
+          {% elseif kycState == 'pending' %}
+            <p class="text-[11px] text-ink/80 leading-snug mb-2.5">
+              Tens una verificació en curs a Namirial OnBoarding. Si ja l'has completada al mòbil o navegador, comprova'n el veredicte ara.
+            </p>
+            <div class="space-y-2">
+              <form action="{{ path('app_kyc_sync') }}" method="POST">
+                <input type="hidden" name="_token" value="{{ csrf_token('kyc_sync') }}">
+                <button type="submit" class="w-full py-2 px-3 rounded-xl bg-ink hover:bg-ink/90 text-gold border border-gold/40 font-bold text-xs shadow-xs transition-all cursor-pointer flex items-center justify-center gap-1.5">
+                  <span>↻ Comprovar estat a Namirial</span>
+                </button>
+              </form>
+              {% if kycCanStartDirect %}
+                <button type="button" onclick="openKycStartModal()" class="w-full py-1.5 px-3 rounded-lg bg-cream/70 hover:bg-cream text-ink border border-steel/20 font-semibold text-[11px] transition-colors cursor-pointer">
+                  Iniciar nova sessió eIDV
+                </button>
+              {% endif %}
+            </div>
+          {% else %}
+            {% if kycState == 'rejected' and user.kycLastReason %}
+              <div class="border-l-[3.5px] border-red-600 bg-red-50/70 p-2.5 rounded-r-lg text-[11px] text-red-900 mb-2.5">
+                <strong>Motiu de l'últim rebuig:</strong> {{ user.kycLastReason }}
+              </div>
+            {% endif %}
+
+            <p class="text-[11px] text-ink/75 leading-snug mb-2.5">
+              Necessari per emetre <strong>Certificats Oficials</strong>. Validació en línia de DNI/Passaport i prova de vida amb contrast de nom i cognoms.
+            </p>
+
+            {% if user.kycPaidCredits > 0 and not (user.plan and user.plan.kycIncluded > 0) %}
+              <div class="text-[10px] font-mono text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-lg px-2.5 py-1 mb-2">
+                ✓ Tens {{ user.kycPaidCredits }} crèdit KYC abonat disponible per iniciar ara.
+              </div>
+            {% endif %}
+
+            <button type="button" onclick="openKycStartModal()" class="w-full py-2.5 px-3 rounded-xl bg-ink hover:bg-ink/90 text-gold border border-gold/40 font-bold text-xs shadow-xs transition-all cursor-pointer flex items-center justify-center gap-1.5">
+              {% if kycCanStartDirect %}
+                <span>Verificar Identitat ara (Namirial) →</span>
+              {% else %}
+                <span>Verificar Identitat ({{ (kycPriceCents / 100)|number_format(2, ',', '.') }} €) →</span>
+              {% endif %}
+            </button>
+          {% endif %}
         </div>
 
         {# Caixa Blava Notarial Ink #}
@@ -510,6 +679,74 @@
       </button>
       <button type="submit" id="legacy-modal-submit" class="bg-red-700 hover:bg-red-800 text-white font-bold text-xs px-4 py-2 rounded-xl shadow-xs transition-all cursor-pointer">
         Confirmar Revocació
+      </button>
+    </form>
+  </div>
+</div>
+
+{# Modal Certificat PWA Dual per Iniciar Verificació d'Identitat Namirial (eIDV / KYC) #}
+{% set modalKycPriceCents = kycContext is defined ? kycContext.priceCents : (user.plan ? user.plan.kycPriceCents : 350) %}
+{% set modalCanStartDirect = kycContext is defined ? kycContext.canStartDirectly : (is_granted('ROLE_ADMIN') or (user.plan and user.plan.kycIncluded > 0) or user.kycPaidCredits > 0) %}
+{% set modalHasFirstName = (user.firstName|default('')|trim != '') %}
+{% set modalHasLastName = (user.lastName|default('')|trim != '') %}
+{% set modalHasTaxId = (user.taxId|default('')|trim != '') %}
+{% set modalHasCompleteIdentity = kycContext is defined and kycContext.hasCompleteIdentityProfile is defined ? kycContext.hasCompleteIdentityProfile : (modalHasFirstName and modalHasLastName and modalHasTaxId) %}
+<div id="modal-kyc-start" class="hidden fixed inset-0 z-50 bg-ink/75 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 transition-all duration-200" onclick="if (event.target === this) closeKycStartModal();">
+  <div class="bg-white rounded-t-3xl sm:rounded-2xl border-t sm:border border-gold/40 shadow-2xl max-w-md w-full max-h-[90vh] sm:max-h-[92vh] overflow-hidden relative flex flex-col">
+    <div class="sm:hidden w-10 h-1 bg-steel/30 rounded-full mx-auto mt-2 -mb-1 shrink-0"></div>
+    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+
+    <div class="p-4 sm:p-5 border-b border-steel/15 flex items-center justify-between gap-3">
+      <h3 class="font-marcellus text-lg text-ink flex items-center gap-2">
+        <span class="w-6 h-6 rounded-full bg-cream text-gold border border-gold/40 flex items-center justify-center text-xs font-bold">✓</span>
+        <span>Verificació Oficial eIDV (Namirial)</span>
+      </h3>
+      <button type="button" onclick="closeKycStartModal()" class="text-steel hover:text-ink p-1 rounded-lg transition-colors cursor-pointer" aria-label="Tancar">✕</button>
+    </div>
+
+    <div class="p-4 sm:p-5 font-raleway text-xs sm:text-sm text-ink/85 leading-relaxed overflow-y-auto space-y-3">
+      <div class="p-3 rounded-xl bg-cream/40 border border-steel/20 text-xs space-y-2">
+        <span class="text-[10px] uppercase font-mono tracking-wider text-steel block">Revisa les dades del titular abans d'iniciar el procés</span>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div>
+            <span class="text-[10px] font-mono uppercase text-steel block">Nom i cognoms</span>
+            <strong class="text-ink text-sm">{{ (modalHasFirstName or modalHasLastName) ? ((user.firstName|default('') ~ ' ' ~ user.lastName|default(''))|trim) : 'Pendent de completar' }}</strong>
+          </div>
+          <div>
+            <span class="text-[10px] font-mono uppercase text-steel block">NIF / NIE / CIF Fiscal</span>
+            <strong class="font-mono text-ink text-sm">{{ modalHasTaxId ? (user.taxId|upper) : 'Pendent de completar' }}</strong>
+          </div>
+        </div>
+        <a href="#profile_form_firstName" onclick="closeKycStartModal();" class="text-[11px] font-bold text-gold hover:text-ink hover:underline block pt-1">
+          No coincideix exactament? Revisa i desa nom, cognoms i NIF abans →
+        </a>
+      </div>
+
+      <div class="border-l-[3.5px] border-gold bg-gold/10 p-3 rounded-r-lg text-xs text-ink/85 space-y-1.5">
+        <div><strong>Bloqueig permanent post-verificació:</strong> En iniciar la verificació, <code>Nom</code>, <code>Cognoms</code> i <code>NIF</code> queden bloquejats. Qualsevol canvi posterior exigeix revocar els certificats vigents i repetir el KYC.</div>
+        <div><strong>Comparativa nominal i documental:</strong> El nom i cognoms del teu perfil han de coincidir exactament amb el document oficial (<code>ID_CARD</code>, <code>PASSPORT</code> o <code>DRIVER_LICENSE</code>).</div>
+        <div><strong>Privadesa biomètrica:</strong> El procés de document i prova de vida (*selfie*) s'executa íntegrament als servidors certificats eIDAS de Namirial; Registrals no emmagatzema selfies biomètrics.</div>
+        <div><strong>Tarifa aplicada:</strong> {% if modalCanStartDirect %}Inclòs al teu pla o crèdit abonat (0,00 € addicionals ara).{% else %}Taxa única Pla Free de <code>{{ (modalKycPriceCents / 100)|number_format(2, ',', '.') }} €</code> abonada via Stripe abans d'obrir Namirial.{% endif %}</div>
+      </div>
+
+      {% if not modalHasCompleteIdentity %}
+        <div class="border-l-[3.5px] border-red-600 bg-red-50 p-3 rounded-r-lg text-xs text-red-900">
+          <strong>Falten dades obligatòries:</strong> Desa prèviament <strong>Nom</strong>, <strong>Cognoms</strong> i <strong>NIF / NIE / CIF Fiscal</strong> al formulari de perfil abans de començar.
+        </div>
+      {% endif %}
+    </div>
+
+    <form action="{{ path(modalCanStartDirect ? 'app_kyc_start' : 'app_payment_kyc_checkout') }}" method="POST" class="p-4 bg-cream-50/60 border-t border-steel/15 flex items-center justify-end gap-2.5">
+      <input type="hidden" name="_token" value="{{ csrf_token(modalCanStartDirect ? 'kyc_start' : 'checkout_kyc') }}">
+      <button type="button" onclick="closeKycStartModal()" class="bg-cream hover:bg-cream/80 text-ink text-xs font-semibold px-4 py-2 rounded-xl transition-all cursor-pointer">
+        Cancel·lar
+      </button>
+      <button type="submit" {{ not modalHasCompleteIdentity ? 'disabled' : '' }} class="bg-ink hover:bg-ink/90 disabled:opacity-50 disabled:cursor-not-allowed text-gold border border-gold/40 font-bold text-xs px-4 py-2 rounded-xl shadow-xs transition-all cursor-pointer">
+        {% if modalCanStartDirect %}
+          Obrir Verificació a Namirial →
+        {% else %}
+          Abonar {{ (modalKycPriceCents / 100)|number_format(2, ',', '.') }} € a Stripe →
+        {% endif %}
       </button>
     </form>
   </div>
@@ -613,10 +850,25 @@
       document.body.classList.remove('overflow-hidden');
     }
   }
+  function openKycStartModal() {
+    const modal = document.getElementById('modal-kyc-start');
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.classList.add('overflow-hidden');
+    }
+  }
+  function closeKycStartModal() {
+    const modal = document.getElementById('modal-kyc-start');
+    if (modal && !modal.classList.contains('hidden')) {
+      modal.classList.add('hidden');
+      document.body.classList.remove('overflow-hidden');
+    }
+  }
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
       closeLegacyRevokeModal();
       closeLegacyStartClaimModal();
+      closeKycStartModal();
     }
   });
 </script>

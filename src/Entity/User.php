@@ -43,13 +43,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(type: 'string', length: 100)]
-    private string $firstName;
+    private string $firstName = '';
 
     #[ORM\Column(type: 'string', length: 150)]
-    private string $lastName;
+    private string $lastName = '';
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $taxId = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $billingName = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $billingAddress = null;
+
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $billingPostalCode = null;
+
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    private ?string $billingCity = null;
+
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    private ?string $billingProvince = null;
 
     #[ORM\Column(type: 'string', length: 30, nullable: true)]
     private ?string $phone = null;
@@ -283,6 +298,79 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->taxId = $taxId;
         return $this;
+    }
+
+    public function getBillingName(): ?string
+    {
+        return $this->billingName;
+    }
+
+    public function setBillingName(?string $billingName): static
+    {
+        $this->billingName = $billingName !== null ? trim($billingName) : null;
+        return $this;
+    }
+
+    public function getEffectiveBillingName(): string
+    {
+        if ($this->billingName !== null && trim($this->billingName) !== '') {
+            return trim($this->billingName);
+        }
+
+        return $this->getFullName();
+    }
+
+    public function getBillingAddress(): ?string
+    {
+        return $this->billingAddress;
+    }
+
+    public function setBillingAddress(?string $billingAddress): static
+    {
+        $this->billingAddress = $billingAddress !== null ? trim($billingAddress) : null;
+        return $this;
+    }
+
+    public function getBillingPostalCode(): ?string
+    {
+        return $this->billingPostalCode;
+    }
+
+    public function setBillingPostalCode(?string $billingPostalCode): static
+    {
+        $this->billingPostalCode = $billingPostalCode !== null ? trim($billingPostalCode) : null;
+        return $this;
+    }
+
+    public function getBillingCity(): ?string
+    {
+        return $this->billingCity;
+    }
+
+    public function setBillingCity(?string $billingCity): static
+    {
+        $this->billingCity = $billingCity !== null ? trim($billingCity) : null;
+        return $this;
+    }
+
+    public function getBillingProvince(): ?string
+    {
+        return $this->billingProvince;
+    }
+
+    public function setBillingProvince(?string $billingProvince): static
+    {
+        $this->billingProvince = $billingProvince !== null ? trim($billingProvince) : null;
+        return $this;
+    }
+
+    public function hasCompleteBillingProfile(): bool
+    {
+        return trim((string) ($this->taxId ?? '')) !== ''
+            && trim((string) ($this->billingAddress ?? '')) !== ''
+            && trim((string) ($this->billingPostalCode ?? '')) !== ''
+            && trim((string) ($this->billingCity ?? '')) !== ''
+            && trim((string) ($this->countryCode ?? '')) !== '';
     }
 
     public function getPhone(): ?string

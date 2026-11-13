@@ -68,6 +68,20 @@ enum EmailOtpVerificationStatus: string {
     case EXPIRED_OR_MISSING = 'expired_or_missing';
     case MAX_ATTEMPTS_EXCEEDED = 'max_attempts_exceeded';
 }
+
+enum InvoiceType: string {
+    case F1_COMPLETE = 'F1';       // Factura ordinària completa (amb NIF + adreça fiscal)
+    case F2_SIMPLIFIED = 'F2';     // Factura simplificada / tiquet (consumidor final)
+    case R1_RECTIFICATION = 'R1';  // Factura rectificativa / devolució o abonament
+    case R4_RECTIFICATION = 'R4';  // Factura rectificativa per altres motius legals
+}
+
+enum InvoiceStatus: string {
+    case ISSUED = 'issued';
+    case PAID = 'paid';
+    case CANCELLED = 'cancelled';
+    case REFUNDED = 'refunded';
+}
 ```
 
 ## 2. Entitats Principals de Domini
@@ -789,6 +803,59 @@ Taula: `site_visits` (`src/Entity/SiteVisit.php`)
 - `ip_hash`: VARCHAR(64) (resum anonimitzat per deduplicació sense galetes).
 - `device_type`: VARCHAR(20) (`desktop` / `mobile`, per defecte `desktop`).
 - `created_at`: DATETIME_IMMUTABLE INDEXAT (`idx_site_visits_created`).
+
+### 2.9. Entitat **BillingConfig** (Configuració Fiscal de l'Emissor)
+
+Taula: `billing_configs` (`src/Entity/BillingConfig.php`)
+
+Governa les dades tributàries corporatives de l'emissor de la plataforma, les sèries de facturació i els tipus impositius vigents, permetent la transició d'autònom a SL o canvis de seu sense tocar codi ni alterar factures prèvies.
+
+- `id`: INTEGER (PK, Auto-increment).
+- `legal_name`: VARCHAR(255) (Raó social / nom legal de l'emissor).
+- `tax_id`: VARCHAR(30) (NIF / CIF de l'emissor).
+- `address`, `postal_code`, `city`, `province`: Domicili fiscal de l'emissor.
+- `country_code`: VARCHAR(2) (`ES`).
+- `mercantile_registry`: VARCHAR(255) NULLABLE (Tom, foli, full d'inscripció mercantil).
+- `billing_email`: VARCHAR(180).
+- `default_vat_rate`: NUMERIC(5,2) (`21.00`).
+- `default_irpf_rate`: NUMERIC(5,2) (`0.00`, configurable per a retencions B2B com 15% o 7%).
+- `series_complete`: VARCHAR(20) (`REG-`).
+- `series_simplified`: VARCHAR(20) (`FS-`).
+- `series_rectification`: VARCHAR(20) (`R-`).
+- `next_number_complete`: INTEGER (`1`).
+- `next_number_simplified`: INTEGER (`1`).
+- `next_number_rectification`: INTEGER (`1`).
+- `footer_legal_text`: LONGTEXT NULLABLE (Text preceptiu de peu de factura).
+- `is_active`: BOOLEAN (`true`).
+- `toIssuerSnapshot()`: Mètode exportador d'instantània immutable per incrustar a cada factura emesa.
+
+### 2.10. Entitat **Invoice** (Factura Oficial Autònoma & VeriFactu)
+
+Taula: `invoices` (`src/Entity/Invoice.php`)
+
+Factura oficial autònoma emesa per Registrals (independent de Stripe Invoicing). Garanteix immutabilitat històrica absoluta i compliment del Reglament de Facturació (RD 1619/2012) i VeriFactu (Llei Antifrau).
+
+- `id`: INTEGER (PK, Auto-increment).
+- `uuid`: BINARY(16) UNIQUE (UUID v7 per a enllaços i descàrregues públiques segures).
+- `invoice_number`: VARCHAR(50) UNIQUE INDEXAT (ex. `REG-2026-0001`, `FS-2026-0001`, `R-2026-0001`).
+- `series`: VARCHAR(20), `year`: INTEGER, `sequential_number`: INTEGER.
+- `invoice_type`: VARCHAR(10) Enum `InvoiceType`: `F1` (Completa), `F2` (Simplificada), `R1` (Rectificativa).
+- `status`: VARCHAR(20) Enum `InvoiceStatus`: `issued`, `paid`, `cancelled`, `refunded`.
+- `user_id`: FK `users.id` (nullable ON DELETE SET NULL).
+- `payment_transaction_id`: FK `payment_transactions.id` (nullable ON DELETE SET NULL).
+- `original_invoice_id`: FK `invoices.id` (nullable, per enllaçar factures rectificatives amb la factura que esmena).
+- `issued_at`: DATETIME_IMMUTABLE INDEXAT.
+- `paid_at`: DATETIME_IMMUTABLE NULLABLE.
+- `subtotal_cents`: INTEGER (Base imposable en cèntims).
+- `vat_rate`: NUMERIC(5,2) (`21.00`), `vat_amount_cents`: INTEGER.
+- `irpf_rate`: NUMERIC(5,2) (`0.00`), `irpf_amount_cents`: INTEGER.
+- `total_cents`: INTEGER (Total a pagar / cobrat), `currency`: VARCHAR(3) (`EUR`).
+- `issuer_snapshot`: JSON (Còpia immutable de les dades de l'emissor en el segon exacte d'emissió).
+- `customer_snapshot`: JSON (Còpia immutable de les dades fiscals del client en el segon d'emissió).
+- `line_items`: JSON (Línies de detall amb concepte, quantitat, preu unitari, tipus d'IVA i subtotal).
+- `previous_invoice_hash`: VARCHAR(64) NULLABLE (Hash de la factura prèvia per encadenament VeriFactu).
+- `current_hash`: VARCHAR(64) (Hash SHA-256 calculat sobre `NIF|num_factura|data|total|previous_hash`).
+- `stripe_payment_intent_id`: VARCHAR(255) NULLABLE, `stripe_fee_cents`: INTEGER NULLABLE.
 
 ---
 

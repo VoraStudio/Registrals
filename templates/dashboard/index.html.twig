@@ -1326,7 +1326,8 @@
       </button>
     </div>
 
-    {% set canIssueBatchOfficial = is_granted('ROLE_ADMIN') or (app.user.plan and app.user.plan.allowOfficialCertificates) %}
+    {% set isBatchKycVerified = is_granted('ROLE_ADMIN') or app.user.identityVerified %}
+    {% set canIssueBatchOfficial = isBatchKycVerified and (is_granted('ROLE_ADMIN') or (app.user.plan and app.user.plan.allowOfficialCertificates)) %}
     {% set certQuota = app.user.plan ? app.user.plan.monthlyCertificatesQuota : -1 %}
 
     {# Formulari d'Acció #}
@@ -1379,6 +1380,21 @@
                 <span class="text-steel block text-[11px] mt-0.5">Sense marca d'aigua, segellat temporal qualificat Signaturit/Namirial i ancoratge Polygon L2. Apte per a asseguradores.</span>
               </div>
             </label>
+          {% elseif app.user.plan and app.user.plan.allowOfficialCertificates and not isBatchKycVerified %}
+            <div class="p-3 rounded-xl border border-gold/40 bg-gold/10">
+              <div class="flex items-center justify-between gap-2 text-xs">
+                <strong class="text-ink font-bold flex items-center gap-1.5">
+                  <span>🔒</span>
+                  <span>Certificat Oficial eIDAS + L2</span>
+                </strong>
+                <a href="{{ path('app_profile') }}#kyc" class="px-2 py-0.5 bg-ink text-gold text-[10px] font-bold rounded-full border border-gold/40 whitespace-nowrap hover:bg-ink/90">
+                  Verificar Identitat (eIDV) →
+                </a>
+              </div>
+              <p class="text-[11px] text-ink/80 mt-1">
+                Tens el Pla Plus actiu. Completa la verificació oficial d'identitat a Namirial OnBoarding des del teu perfil per desbloquejar els certificats oficials.
+              </p>
+            </div>
           {% else %}
             <div class="p-3 rounded-xl border border-gold/30 bg-cream-50/60 opacity-85">
               <div class="flex items-center justify-between gap-2 text-xs">

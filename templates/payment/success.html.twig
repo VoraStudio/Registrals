@@ -43,6 +43,8 @@
               Emissió de Certificat Oficial
             {% elseif type == 'transfer' %}
               Taxa de Traspàs Certificat C2C
+            {% elseif type == 'kyc' %}
+              Verificació d'Identitat Oficial (eIDV / KYC)
             {% else %}
               Transacció de Certificació
             {% endif %}
@@ -63,18 +65,38 @@
 
       {% if type == 'subscription' %}
         {# Nota informativa de Següent Pas: Verificació Namirial #}
-        <div class="guide-note mb-6 text-left max-w-lg mx-auto">
-          <strong>Següent Pas (Acreditació de Titularitat):</strong> Per a l'emissió de certificats oficials eIDAS d'alta seguretat, podràs completar la verificació d'identitat oficial amb <strong>Namirial Onboarding</strong> des del teu perfil en qualsevol moment.
+        <div class="border-l-[3.5px] border-gold bg-gold/10 p-3.5 rounded-r-lg mb-6 text-left max-w-lg mx-auto text-xs text-ink/85">
+          <strong>Següent Pas Inclòs (Acreditació de Titularitat):</strong> El teu Pla Plus inclou <strong>1 verificació oficial d'identitat via Namirial OnBoarding</strong> necessària per emetre certificats oficials.
+        </div>
+      {% elseif type == 'kyc' %}
+        <div class="border-l-[3.5px] border-gold bg-gold/10 p-3.5 rounded-r-lg mb-6 text-left max-w-lg mx-auto text-xs text-ink/85">
+          <strong>Taxa KYC acreditada correctament:</strong> Ja pots iniciar el procés guiat amb el teu DNI o Passaport i prova de vida facial a <strong>Namirial OnBoarding</strong>.
         </div>
       {% endif %}
 
       <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
         {% if type == 'subscription' %}
-          <a href="{{ path('app_plan') }}" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 text-xs font-bold font-raleway shadow-xs transition-all uppercase tracking-wider">
-            Revisar el meu Pla
-          </a>
+          {% if app.user and not app.user.identityVerified %}
+            <a href="{{ path('app_profile') }}#kyc" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 text-xs font-bold font-raleway shadow-xs transition-all uppercase tracking-wider">
+              Verificar Identitat ara (Inclòs) →
+            </a>
+          {% else %}
+            <a href="{{ path('app_plan') }}" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 text-xs font-bold font-raleway shadow-xs transition-all uppercase tracking-wider">
+              Revisar el meu Pla
+            </a>
+          {% endif %}
           <a href="{{ path('app_dashboard') }}" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-cream hover:bg-cream/80 text-ink text-xs font-semibold font-raleway transition-all">
             Anar al Patrimoni
+          </a>
+        {% elseif type == 'kyc' %}
+          <form action="{{ path('app_kyc_start') }}" method="POST" class="w-full sm:w-auto">
+            <input type="hidden" name="_token" value="{{ csrf_token('kyc_start') }}">
+            <button type="submit" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 text-xs font-bold font-raleway shadow-xs transition-all uppercase tracking-wider cursor-pointer">
+              Iniciar Verificació a Namirial →
+            </button>
+          </form>
+          <a href="{{ path('app_profile') }}#kyc" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-cream hover:bg-cream/80 text-ink text-xs font-semibold font-raleway transition-all">
+            Tornar al Perfil
           </a>
         {% elseif type == 'certificate' %}
           <a href="{{ path('app_certificates_index') }}" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 text-xs font-bold font-raleway shadow-xs transition-all uppercase tracking-wider">

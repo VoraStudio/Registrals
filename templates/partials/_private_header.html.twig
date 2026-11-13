@@ -50,9 +50,53 @@
     <div class="flex items-center gap-3">
 
       {% if app.user %}
+        {% set showKycIndicator = not is_granted('ROLE_ADMIN') and not is_granted('ROLE_GESTOR') and app.user.plan is not null %}
+        {% set kycStatusValue = app.user.kycStatus.value %}
+        {% set userPlanCode = app.user.plan ? app.user.plan.code|default('free') : 'free' %}
+        {% set isPaidKycIncludedPlan = userPlanCode in ['plus', 'unlimited'] %}
+        {% if showKycIndicator %}
+          {% if kycStatusValue == 'approved' %}
+            {% set kycBadgeBg = 'bg-emerald-600 text-white' %}
+            {% set kycTooltip = 'Identitat Oficial (KYC) verificada' %}
+            {% set kycMenuLabel = 'Verificada' %}
+            {% set kycMenuBadgeClass = 'bg-emerald-50 text-emerald-800 border-emerald-200' %}
+          {% elseif kycStatusValue == 'pending' %}
+            {% set kycBadgeBg = 'bg-amber-500 text-white' %}
+            {% set kycTooltip = 'Verificació d\'identitat (KYC) en curs' %}
+            {% set kycMenuLabel = 'En procés' %}
+            {% set kycMenuBadgeClass = 'bg-amber-50 text-amber-800 border-amber-200' %}
+          {% elseif kycStatusValue == 'rejected' %}
+            {% set kycBadgeBg = 'bg-red-600 text-white' %}
+            {% set kycTooltip = 'Verificació d\'identitat (KYC) rebutjada — Cal revisar' %}
+            {% set kycMenuLabel = 'Rebutjada →' %}
+            {% set kycMenuBadgeClass = 'bg-red-50 text-red-700 border-red-200' %}
+          {% elseif isPaidKycIncludedPlan %}
+            {% set kycBadgeBg = 'bg-red-600 text-white' %}
+            {% set kycTooltip = 'Identitat (KYC) pendent de validar — Inclosa al teu pla' %}
+            {% set kycMenuLabel = 'Validar ara →' %}
+            {% set kycMenuBadgeClass = 'bg-red-50 text-red-700 border-red-200' %}
+          {% else %}
+            {% set kycBadgeBg = 'bg-steel text-white' %}
+            {% set kycTooltip = 'Identitat (KYC) no verificada — Necessària per a certificats oficials' %}
+            {% set kycMenuLabel = 'No verificada →' %}
+            {% set kycMenuBadgeClass = 'bg-cream/60 text-steel border-steel/25' %}
+          {% endif %}
+          {% set kycIconSvg %}
+            {% if kycStatusValue == 'approved' %}
+              <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+            {% elseif kycStatusValue == 'pending' %}
+              <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l2.5 1.5"/></svg>
+            {% elseif kycStatusValue == 'rejected' or isPaidKycIncludedPlan %}
+              <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 7v6m0 4h.01"/></svg>
+            {% else %}
+              <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.8" d="M7 12h10"/></svg>
+            {% endif %}
+          {% endset %}
+        {% endif %}
+
         <div class="relative" id="user-menu-container">
           {# Botó Avatar amb Micro-Badge #}
-          <button type="button" id="user-menu-button" onclick="toggleUserMenu()" class="flex items-center focus:outline-none focus:ring-2 focus:ring-gold rounded-full p-0.5 cursor-pointer" aria-expanded="false" aria-haspopup="true">
+          <button type="button" id="user-menu-button" onclick="toggleUserMenu()" title="{{ showKycIndicator ? kycTooltip : '' }}" class="flex items-center focus:outline-none focus:ring-2 focus:ring-gold rounded-full p-0.5 cursor-pointer" aria-expanded="false" aria-haspopup="true">
             <div class="relative">
               {# Cercle Avatar #}
               <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full {{ isDark ? 'bg-white/10 border border-gold/60 text-gold' : 'bg-cream border border-gold/40 text-ink' }} flex items-center justify-center font-bold text-xs sm:text-sm font-raleway shadow-2xs">
@@ -62,6 +106,13 @@
                   <svg class="w-5 h-5 text-ink/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                 {% endif %}
               </div>
+
+              {# Micro-Indicador d'Identitat KYC a la cantonada superior dreta #}
+              {% if showKycIndicator %}
+                <span data-testid="avatar-kyc-badge" data-kyc-status="{{ kycStatusValue }}" title="{{ kycTooltip }}" aria-label="{{ kycTooltip }}" class="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full {{ kycBadgeBg }} ring-2 {{ isDark ? 'ring-ink' : 'ring-white' }} flex items-center justify-center shadow-2xs">
+                  {{ kycIconSvg|raw }}
+                </span>
+              {% endif %}
 
               {# Micro-Badge a la cantonada inferior dreta #}
               {% if is_granted('ROLE_ADMIN') %}
@@ -156,6 +207,15 @@
                     {{ app.user.plan.code|upper }}
                   </span>
                 </div>
+
+                {% if showKycIndicator %}
+                  <a href="{{ path('app_profile') }}#kyc" class="mt-2 px-2.5 py-2 rounded-xl bg-white border border-steel/15 hover:border-gold/50 flex items-center justify-between text-xs transition-colors">
+                    <span class="text-[10px] uppercase tracking-wider text-ink/65 font-semibold">Identitat (KYC)</span>
+                    <span class="px-2 py-0.5 rounded-md border font-mono text-[10px] font-bold {{ kycMenuBadgeClass }}">
+                      {{ kycMenuLabel }}
+                    </span>
+                  </a>
+                {% endif %}
               </div>
 
               {# Opcions de Gestió per a Usuaris Normals #}
@@ -219,11 +279,18 @@
               {# Capçalera de l'usuari #}
               <div class="p-4 border-b border-steel/15 flex items-center justify-between">
                 <div class="flex items-center gap-3 min-w-0">
-                  <div class="w-10 h-10 rounded-full bg-cream border border-gold/40 text-ink flex items-center justify-center font-bold text-sm font-raleway shrink-0">
-                    {% if app.user.firstName and app.user.lastName %}
-                      {{ app.user.firstName|first|upper }}{{ app.user.lastName|first|upper }}
-                    {% else %}
-                      <svg class="w-5 h-5 text-ink/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                  <div class="relative shrink-0">
+                    <div class="w-10 h-10 rounded-full bg-cream border border-gold/40 text-ink flex items-center justify-center font-bold text-sm font-raleway">
+                      {% if app.user.firstName and app.user.lastName %}
+                        {{ app.user.firstName|first|upper }}{{ app.user.lastName|first|upper }}
+                      {% else %}
+                        <svg class="w-5 h-5 text-ink/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                      {% endif %}
+                    </div>
+                    {% if showKycIndicator %}
+                      <span title="{{ kycTooltip }}" aria-label="{{ kycTooltip }}" class="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full {{ kycBadgeBg }} ring-2 ring-white flex items-center justify-center shadow-2xs">
+                        {{ kycIconSvg|raw }}
+                      </span>
                     {% endif %}
                   </div>
                   <div class="min-w-0">
@@ -236,15 +303,25 @@
                 </button>
               </div>
 
-              {# Targeta de subscripció #}
-              <div class="px-4 py-2.5 bg-cream-50/70 border-b border-steel/10 flex items-center justify-between text-xs">
-                <div>
-                  <span class="text-[10px] uppercase font-mono tracking-wider text-ink/60 block">Pla Actiu</span>
-                  <span class="font-bold text-ink">{{ app.user.plan ? app.user.plan.name : 'Free' }}</span>
+              {# Targeta de subscripció i estat KYC #}
+              <div class="px-4 py-2.5 bg-cream-50/70 border-b border-steel/10 space-y-2 text-xs">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <span class="text-[10px] uppercase font-mono tracking-wider text-ink/60 block">Pla Actiu</span>
+                    <span class="font-bold text-ink">{{ app.user.plan ? app.user.plan.name : 'Free' }}</span>
+                  </div>
+                  <span class="px-2 py-0.5 rounded-md font-mono text-[10px] font-bold {{ app.user.plan and app.user.plan.code == 'plus' ? 'bg-ink text-gold' : (app.user.plan and app.user.plan.code == 'unlimited' ? 'bg-gold text-ink' : 'bg-cream text-steel border border-steel/20') }}">
+                    {{ (app.user.plan ? app.user.plan.code : 'free')|upper }}
+                  </span>
                 </div>
-                <span class="px-2 py-0.5 rounded-md font-mono text-[10px] font-bold {{ app.user.plan and app.user.plan.code == 'plus' ? 'bg-ink text-gold' : (app.user.plan and app.user.plan.code == 'unlimited' ? 'bg-gold text-ink' : 'bg-cream text-steel border border-steel/20') }}">
-                  {{ (app.user.plan ? app.user.plan.code : 'free')|upper }}
-                </span>
+                {% if showKycIndicator %}
+                  <a href="{{ path('app_profile') }}#kyc" onclick="closeUserMenuMobile()" class="flex items-center justify-between pt-2 border-t border-steel/10">
+                    <span class="text-[10px] uppercase font-mono tracking-wider text-ink/65 font-semibold">Identitat (KYC)</span>
+                    <span class="px-2 py-0.5 rounded-md border font-mono text-[10px] font-bold {{ kycMenuBadgeClass }}">
+                      {{ kycMenuLabel }}
+                    </span>
+                  </a>
+                {% endif %}
               </div>
 
               {# Llista de Navegació en Format Tàctil #}

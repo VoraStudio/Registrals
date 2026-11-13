@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <title>Factura {{ invoice.invoiceNumber }} — Registrals</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background: #FFFFFF;
+      color: #1D2F4B;
+      font-family: 'Raleway', 'Helvetica Neue', Arial, sans-serif;
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .page {
+      width: 210mm;
+      height: 297mm;
+      padding: 14mm 16mm 12mm 16mm;
+      position: relative;
+      background: #FFFFFF;
+      overflow: hidden;
+    }
+
+    .border-gold-outer {
+      position: absolute;
+      top: 7mm;
+      left: 7mm;
+      right: 7mm;
+      bottom: 7mm;
+      border: 2px solid #CAA36C;
+      pointer-events: none;
+    }
+    .border-gold-inner {
+      position: absolute;
+      top: 9mm;
+      left: 9mm;
+      right: 9mm;
+      bottom: 9mm;
+      border: 0.75px solid rgba(202, 163, 108, 0.45);
+      pointer-events: none;
+    }
+
+    .font-marcellus {
+      font-family: 'Marcellus', Georgia, serif;
+    }
+    .font-mono {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    }
+
+    .header {
+      border-bottom: 2px solid #CAA36C;
+      padding-bottom: 4mm;
+      margin-bottom: 7mm;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .brand-logo {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+    }
+    .brand-title {
+      font-family: 'Marcellus', Georgia, serif;
+      font-size: 24px;
+      letter-spacing: 2px;
+      color: #1D2F4B;
+      margin: 0;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .brand-subtitle {
+      font-size: 10px;
+      color: #6A86A2;
+      letter-spacing: 0.3px;
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    .doc-meta {
+      text-align: right;
+    }
+    .doc-type {
+      font-family: 'Marcellus', Georgia, serif;
+      font-size: 15px;
+      color: #1D2F4B;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .doc-num {
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: #CAA36C;
+      margin-top: 2px;
+    }
+    .doc-date {
+      font-size: 10px;
+      color: #6A86A2;
+      margin-top: 2px;
+    }
+
+    .grid-parties {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6mm;
+      margin-bottom: 7mm;
+    }
+    .party-card {
+      background: #FAF6F0;
+      border: 1px solid rgba(202, 163, 108, 0.35);
+      border-radius: 6px;
+      padding: 3.5mm 4mm;
+    }
+    .party-title {
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #6A86A2;
+      font-weight: 700;
+      border-bottom: 1px solid rgba(106, 134, 162, 0.2);
+      padding-bottom: 1.5mm;
+      margin-bottom: 2mm;
+    }
+    .party-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: #1D2F4B;
+      margin-bottom: 1mm;
+    }
+    .party-line {
+      font-size: 10px;
+      color: #1D2F4B;
+      margin-bottom: 0.8mm;
+    }
+
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 6mm;
+    }
+    .items-table th {
+      background: #1D2F4B;
+      color: #FAF6F0;
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 2.5mm 3.5mm;
+      text-align: left;
+    }
+    .items-table th.text-right {
+      text-align: right;
+    }
+    .items-table td {
+      padding: 3mm 3.5mm;
+      border-bottom: 1px solid rgba(106, 134, 162, 0.2);
+      font-size: 10.5px;
+      color: #1D2F4B;
+    }
+    .items-table td.text-right {
+      text-align: right;
+    }
+
+    .grid-totals {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 6mm;
+      margin-bottom: 6mm;
+    }
+    .totals-box {
+      background: #FAF6F0;
+      border: 1px solid #CAA36C;
+      border-radius: 6px;
+      padding: 3mm 4mm;
+    }
+    .totals-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: #1D2F4B;
+      margin-bottom: 1.5mm;
+    }
+    .totals-row.grand-total {
+      border-top: 1.5px solid #CAA36C;
+      padding-top: 2mm;
+      margin-top: 2mm;
+      font-size: 13px;
+      font-weight: 700;
+      color: #1D2F4B;
+    }
+
+    .payment-badge {
+      display: inline-block;
+      padding: 1.5mm 3mm;
+      background: #E8F5E9;
+      color: #2E7D32;
+      border: 1px solid #A5D6A7;
+      border-radius: 4px;
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-top: 2mm;
+    }
+
+    .verifactu-card {
+      border: 1px dashed rgba(106, 134, 162, 0.4);
+      background: #FFFFFF;
+      border-radius: 6px;
+      padding: 2.5mm 3.5mm;
+      font-size: 8.5px;
+      color: #6A86A2;
+      line-height: 1.35;
+    }
+    .verifactu-title {
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      font-size: 8.5px;
+      font-weight: 700;
+      color: #1D2F4B;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 1mm;
+    }
+
+    .footer {
+      position: absolute;
+      bottom: 11mm;
+      left: 16mm;
+      right: 16mm;
+      text-align: center;
+      font-size: 8.5px;
+      color: #6A86A2;
+      border-top: 0.5px solid rgba(106, 134, 162, 0.25);
+      padding-top: 2mm;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="border-gold-outer"></div>
+    <div class="border-gold-inner"></div>
+
+    {# Capçalera Institucional #}
+    <div class="header">
+      <div class="brand-group">
+        {# Isotip Oficial Registrals #}
+        {% if logoDataUri %}
+          <img src="{{ logoDataUri }}" alt="Registrals" class="brand-logo" />
+        {% endif %}
+        <div>
+          <h1 class="brand-title">REGISTRALS</h1>
+          <div class="brand-subtitle">Certificació &amp; custòdia de béns mobles</div>
+        </div>
+      </div>
+
+      <div class="doc-meta">
+        <div class="doc-type">{{ invoice.invoiceType.label }}</div>
+        <div class="doc-num">{{ invoice.invoiceNumber }}</div>
+        <div class="doc-date">Data d'emissió: {{ invoice.issuedAt|date('d/m/Y') }}</div>
+      </div>
+    </div>
+
+    {# Dades Fiscals de l'Emissor i del Receptor #}
+    <div class="grid-parties">
+      {# Emissor (Registrals / Titular) #}
+      <div class="party-card">
+        <div class="party-title">Dades de l'Emissor</div>
+        <div class="party-name">{{ issuer.legal_name|default('Registrals') }}</div>
+        <div class="party-line"><strong>NIF/CIF:</strong> <span class="font-mono">{{ issuer.tax_id|default('---') }}</span></div>
+        <div class="party-line">{{ issuer.address|default('') }}</div>
+        <div class="party-line">{{ issuer.postal_code|default('') }} {{ issuer.city|default('') }} ({{ issuer.province|default('') }}), {{ issuer.country_code|default('ES') }}</div>
+        {% if issuer.mercantile_registry %}
+          <div class="party-line" style="font-size: 9px; color: #6A86A2; margin-top: 1mm;">{{ issuer.mercantile_registry }}</div>
+        {% endif %}
+        <div class="party-line" style="font-size: 9px; color: #6A86A2;">Correu: {{ issuer.billing_email|default('facturacio@registrals.cat') }}</div>
+      </div>
+
+      {# Receptor (Client) #}
+      <div class="party-card">
+        <div class="party-title">Dades del Receptor (Client)</div>
+        <div class="party-name">{{ customer.legal_name|default('Particular / Consumidor Final') }}</div>
+        <div class="party-line">
+          <strong>NIF/NIE/CIF:</strong> 
+          <span class="font-mono">{{ customer.tax_id ? customer.tax_id : 'No indicat (Consumidor Final)' }}</span>
+        </div>
+        {% if customer.address %}
+          <div class="party-line">{{ customer.address }}</div>
+          <div class="party-line">{{ customer.postal_code|default('') }} {{ customer.city|default('') }} ({{ customer.province|default('') }}), {{ customer.country_code|default('ES') }}</div>
+        {% else %}
+          <div class="party-line" style="color: #6A86A2; font-style: italic;">Domicili fiscal no facilitat pel titular</div>
+        {% endif %}
+        <div class="party-line" style="font-size: 9px; color: #6A86A2;">Correu: {{ customer.email|default('---') }}</div>
+      </div>
+    </div>
+
+    {# Taula de Conceptes Facturats #}
+    <table class="items-table">
+      <thead>
+        <tr>
+          <th>Descripció del Servei / Concepte</th>
+          <th class="text-right" style="width: 15%;">Unitats</th>
+          <th class="text-right" style="width: 20%;">Preu Unitari</th>
+          <th class="text-right" style="width: 15%;">IVA (%)</th>
+          <th class="text-right" style="width: 20%;">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in lineItems %}
+          <tr>
+            <td>
+              <strong>{{ item.concept|default('Servei de Registre & Certificació') }}</strong>
+            </td>
+            <td class="text-right font-mono">{{ item.quantity|default(1) }}</td>
+            <td class="text-right font-mono">{{ ((item.unit_price_cents|default(invoice.subtotalCents)) / 100)|number_format(2, ',', '.') }} €</td>
+            <td class="text-right font-mono">{{ item.vat_rate|default(invoice.vatRate) }}%</td>
+            <td class="text-right font-mono"><strong>{{ ((item.total_cents|default(invoice.totalCents)) / 100)|number_format(2, ',', '.') }} €</strong></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {# Desglossament Tributari i Total #}
+    <div class="grid-totals">
+      <div>
+        <div class="verifactu-card">
+          <div class="verifactu-title">Verificació &amp; Traçabilitat VeriFactu (Llei Antifrau)</div>
+          <div><strong>Hash SHA-256 Factura:</strong> <span class="font-mono" style="font-size: 7.5px;">{{ invoice.currentHash }}</span></div>
+          <div><strong>Hash Factura Anterior:</strong> <span class="font-mono" style="font-size: 7.5px;">{{ invoice.previousInvoiceHash|default('GÈNESI / PRIMER REGISTRE FISCAL') }}</span></div>
+          <div style="margin-top: 1mm;">Document emès segons el Reglament de Facturació (RD 1619/2012). Registre inalterable amb encadenament criptogràfic d'empremtes.</div>
+        </div>
+
+        <div class="payment-badge">
+          ✓ Cobrament Completat &amp; Confirmat (Stripe {{ invoice.stripePaymentIntentId ? invoice.stripePaymentIntentId|slice(0, 15) ~ '...' : '' }})
+        </div>
+      </div>
+
+      <div class="totals-box">
+        <div class="totals-row">
+          <span>Base Imposable:</span>
+          <span class="font-mono font-bold">{{ invoice.subtotalFormatted }}</span>
+        </div>
+        <div class="totals-row">
+          <span>Quota IVA ({{ invoice.vatRate }}%):</span>
+          <span class="font-mono font-bold">{{ invoice.vatAmountFormatted }}</span>
+        </div>
+        {% if invoice.irpfAmountCents > 0 %}
+          <div class="totals-row" style="color: #C62828;">
+            <span>Retenció IRPF (-{{ invoice.irpfRate }}%):</span>
+            <span class="font-mono font-bold">-{{ invoice.irpfAmountFormatted }}</span>
+          </div>
+        {% endif %}
+        <div class="totals-row grand-total">
+          <span>TOTAL FACTURA:</span>
+          <span class="font-mono">{{ invoice.totalFormatted }}</span>
+        </div>
+      </div>
+    </div>
+
+    {# Peu de Pàgina Legal #}
+    <div class="footer">
+      {{ issuer.footer_legal_text|default("Règim general de l'IVA. Document oficial emès per Registrals.") }}
+      &nbsp;·&nbsp; Pàgina 1 de 1
+    </div>
+  </div>
+</body>
+</html>
+
