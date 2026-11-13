@@ -51,7 +51,7 @@ Recull el que ja està decidit al projecte (Decisions d'Arquitectura `D-xxx` i R
 - [6. Els webhooks de Stripe](#6-els-webhooks-de-stripe)
 - [7. Entorn i mode de prova (Desenvolupament local)](#7-entorn-i-mode-de-prova-desenvolupament-local)
 - [8. Flux A · Contractació de Subscripció Anual (Plans Plus i Unlimited)](#8-flux-a--contractació-de-subscripció-anual-plans-plus-i-unlimited)
-- [9. Flux B · Compra de Certificat Oficial Solt (Pay-per-Value)](#9-flux-b--compra-de-certificat-oficial-solt-pay-per-value)
+- [9. Flux B · Compra de Certificat Oficial Individual (Pay-per-Value)](#9-flux-b--compra-de-certificat-oficial-individual-pay-per-value)
 - [10. Flux C · Traspàs Notarial C2C de Pagament](#10-flux-c--traspàs-notarial-c2c-de-pagament)
 - [11. Flux D · Portal de Client (Customer Portal de Stripe)](#11-flux-d--portal-de-client-customer-portal-de-stripe)
 - [12. Fluxos E i F · Expiracions, Devolucions i Fallades de Cobrament](#12-fluxos-e-i-f--expiracions-devolucions-i-fallades-de-cobrament)
@@ -70,7 +70,7 @@ Registrals té dos canals econòmics independents: **recurrència anual (SaaS)**
 | :--- | :--- | :--- | :--- | :--- |
 | **Subscripció Pla Plus** | Quota anual patrimoni mig | `mode: subscription` | **22,00 € / any** (2.200 cèntims) | Automàtic: Stripe Billing + Webhook `invoice.payment_succeeded` |
 | **Subscripció Pla Unlimited** | Quota anual col·leccionista | `mode: subscription` | **59,00 € / any** (5.900 cèntims) | Automàtic: Stripe Billing + Webhook `invoice.payment_succeeded` |
-| **Certificat Oficial Solt** | Emissió oficial extra | `mode: payment` | **5,90 € / cert** (590 cèntims) | Automàtic: Stripe Checkout + Webhook `checkout.session.completed` |
+| **Certificat Oficial Individual** | Emissió oficial extra | `mode: payment` | **5,90 € / cert** (590 cèntims) | Automàtic: Stripe Checkout + Webhook `checkout.session.completed` |
 | **Traspàs C2C Solt** | Canvi titularitat extra | `mode: payment` | **2,90 € / traspàs** (290 cèntims) | Automàtic: Stripe Checkout + Webhook `checkout.session.completed` |
 
 ### Les Dues Regles d'Or
@@ -147,7 +147,7 @@ Per a cobraments puntuals de pagament únic, es poden configurar productes amb p
 
 | Nom del Concepte | Descripció | Tipus de Cobrament | Import Fix | Paràmetre intern |
 | :--- | :--- | :--- | :--- | :--- |
-| **Certificat Oficial Solt** | Emissió oficial eIDAS + Polygon d'1 certificat per a un bé | Pagament Únic | **5,90 €** (590 cèntims) | `CERTIFICATE_PRICE_CENTS=590` |
+| **Certificat Oficial Individual** | Emissió oficial eIDAS + Polygon d'1 certificat per a un bé | Pagament Únic | **5,90 €** (590 cèntims) | `CERTIFICATE_PRICE_CENTS=590` |
 | **Traspàs C2C Solt** | Canvi de titularitat notarial C2C amb reserva de 72 hores | Pagament Únic | **2,90 €** (290 cèntims) | `TRANSFER_PRICE_CENTS=290` |
 
 ---
@@ -301,7 +301,7 @@ Per provar els webhooks a la màquina local sense necessitat de serveis de túne
 
 ---
 
-# 9. Flux B · Compra de Certificat Oficial Solt (Pay-per-Value)
+# 9. Flux B · Compra de Certificat Oficial Individual (Pay-per-Value)
 
 **Objectiu:** Que un usuari (fins i tot estant en el pla Free) pugui comprar l'emissió oficial d'un certificat notarial per a un bé moble per **5,90 €**.
 

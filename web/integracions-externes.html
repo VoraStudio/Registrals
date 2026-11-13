@@ -534,7 +534,7 @@
       <div class="guide-nav-title">Desenvolupament & Fluxos</div>
       <a href="#entorn-dev" class="guide-nav-link"><span class="dot"></span> 7. Entorn i mode de prova</a>
       <a href="#flux-a-subscripcio" class="guide-nav-link"><span class="dot"></span> 8. Flux A · Subscripció anual</a>
-      <a href="#flux-b-certificat" class="guide-nav-link"><span class="dot"></span> 9. Flux B · Certificat solt</a>
+      <a href="#flux-b-certificat" class="guide-nav-link"><span class="dot"></span> 9. Flux B · Certificat individual</a>
       <a href="#flux-c-traspas" class="guide-nav-link"><span class="dot"></span> 10. Flux C · Traspàs C2C (72h)</a>
       <a href="#flux-d-portal" class="guide-nav-link"><span class="dot"></span> 11. Flux D · Customer Portal</a>
       <a href="#flux-e-devolucions" class="guide-nav-link"><span class="dot"></span> 12. Flux E · Devolucions & Fallades</a>
@@ -693,7 +693,7 @@
             <td>Automàtic: Checkout + Webhooks de renovació periòdica</td>
           </tr>
           <tr>
-            <td><strong>Certificats Oficials Solts (5,90 €)</strong></td>
+            <td><strong>Certificats Oficials Individuals (5,90 €)</strong></td>
             <td>Stripe Payments (mode payment)</td>
             <td>Automàtic: Checkout + Webhook checkout.session.completed</td>
           </tr>
@@ -934,11 +934,11 @@ stripe listen --forward-to https://127.0.0.1:8008/webhook/stripe
       </div>
     </section>
 
-    <!-- 9. FLUX B: CERTIFICAT SOLT -->
+    <!-- 9. FLUX B: CERTIFICAT INDIVIDUAL -->
     <section id="flux-b-certificat" class="guide-section">
       <div class="guide-section-head">
         <span class="guide-section-num">9.</span>
-        <h2 class="guide-section-title">Flux B · Compra de Certificat Oficial Solt (Pay-per-Value)</h2>
+        <h2 class="guide-section-title">Flux B · Compra de Certificat Oficial Individual (Pay-per-Value)</h2>
       </div>
 
       <p style="font-size: 14px; margin-bottom: 16px;">
@@ -994,7 +994,7 @@ stripe listen --forward-to https://127.0.0.1:8008/webhook/stripe
             <tr>
               <td><code>checkout.session.completed</code></td>
               <td><code>SubscriptionActivationService</code></td>
-              <td>Assigna pla Plus/Unlimited, data d'inici i venciment (+1 any), o autoritza el certificat oficial solt.</td>
+              <td>Assigna pla Plus/Unlimited, data d'inici i venciment (+1 any), o autoritza el certificat oficial individual.</td>
             </tr>
             <tr>
               <td><code>invoice.payment_succeeded</code></td>

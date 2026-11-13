@@ -111,7 +111,7 @@ class InvoiceTest extends TestCase
     {
         $issuerSnapshot = ['legal_name' => 'Albert', 'tax_id' => '40323344J'];
         $customerSnapshot = ['legal_name' => 'Client', 'tax_id' => null];
-        $lineItems = [['concept' => 'Emissió de Certificat Solt', 'totalCents' => 590]];
+        $lineItems = [['concept' => 'Emissió de Certificat Individual', 'totalCents' => 590]];
 
         $original = new Invoice(
             invoiceNumber: 'FS-2026-0001',

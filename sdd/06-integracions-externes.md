@@ -23,7 +23,7 @@ v1.0 · Base: disseny aprovat (SDD-01 a SDD-05) · Implementació: Iteració 7 (
 
 Aquest document és el **Marc Arquitectural Global** dels tres components externs de Registrals. Per garantir el màxim rigor operatiu i d'enginyeria, la documentació s'estructura en tres guies monogràfiques exhaustives de referència obligatòria:
 
-* 📘 [**`sdd/06a-stripe.md` — Stripe: Guia d'Ús, Arquitectura i Configuració**](06a-stripe.md): Manual operatiu de 16 capítols per a subscripcions recurrents (Plans Plus i Unlimited), micropagaments de certificats i traspassos solts, tractament d'esdeveniments webhooks amb Messenger, gestió de fallades i Customer Portal.
+* 📘 [**`sdd/06a-stripe.md` — Stripe: Guia d'Ús, Arquitectura i Configuració**](06a-stripe.md): Manual operatiu de 16 capítols per a subscripcions recurrents (Plans Plus i Unlimited), micropagaments de certificats individuals i traspassos puntuals, tractament d'esdeveniments webhooks amb Messenger, gestió de fallades i Customer Portal.
 * 📕 [**`sdd/06b-signaturit.md` — Signaturit & Namirial OnBoarding: Guia de Segellat eIDAS i KYC**](06b-signaturit.md): Manual operatiu per al Time Stamping conforme a l'estàndard RFC 3161 (Signaturit API v3 en Fase II) i verificació biomètrica d'identitat eIDV al MVP amb **Namirial OnBoarding API v2**.
 * 📗 [**`sdd/06c-polygon.md` — Polygon PoS: Guia d'Ancoratge Criptogràfic Layer 2**](06c-polygon.md): Manual de 12 capítols per a l'ancoratge descentralitzat en Calldata de 0 POL (zero smart contracts vulnerables), xarxa Amoy de proves, gestió de gas EIP-1559 i explorador Polygonscan.
 
@@ -53,7 +53,7 @@ Aquest document és el **Marc Arquitectural Global** dels tres components extern
 - [6. La infraestructura de Polygon PoS Blockchain](#6-la-infraestructura-de-polygon-pos-blockchain)
 - [7. Entorn i mode de prova (Desenvolupament local)](#7-entorn-i-mode-de-prova-desenvolupament-local)
 - [8. Flux A · Contractació de Subscripció Anual (Pla Plus o Unlimited)](#8-flux-a--contractaci%C3%B3-de-subscripci%C3%B3-anual-pla-plus-o-unlimited)
-- [9. Flux B · Compra de Certificat Oficial Solt (Pay-per-Value)](#9-flux-b--compra-de-certificat-oficial-solt-pay-per-value)
+- [9. Flux B · Compra de Certificat Oficial Individual (Pay-per-Value)](#9-flux-b--compra-de-certificat-oficial-individual-pay-per-value)
 - [10. Flux C · Traspàs Notarial C2C de Pagament i Reserva de 72h](#10-flux-c--trasp%C3%A0s-notarial-c2c-de-pagament-i-reserva-de-72h)
 - [11. Flux D · Portal de Client (Canvi de Targeta, Factures i Cancel·lació)](#11-flux-d--portal-de-client-canvi-de-targeta-factures-i-cancel%C2%B7laci%C3%B3)
 - [12. Flux E · Devolucions, Discrepàncies i Fallades de Cobrament](#12-flux-e--devolucions-discrep%C3%A0ncies-i-fallades-de-cobrament)
@@ -73,7 +73,7 @@ Registrals té dos fluxos operatius clarament diferenciats: el **flux econòmic 
 | Flux Operatiu | Canal / Proveïdor | Objectiu | Com es controla |
 | :--- | :--- | :--- | :--- |
 | **Subscripcions Anuals** | Stripe Billing (Checkout Hosted) | Cobrament recurrent de plans Plus (22 €) i Unlimited (59 €) | Automàtic: Checkout + Webhooks de renovació |
-| **Micro-pagaments Puntuals** | Stripe Payments (Checkout Hosted) | Cobrament de certificats solts (5,90 €), traspassos (2,00 €/2,90 €) i KYC Free (3,50 €) | Automàtic: Checkout + Webhooks d'activació |
+| **Micro-pagaments Puntuals** | Stripe Payments (Checkout Hosted) | Cobrament de certificats individuals (5,90 €), traspassos (2,00 €/2,90 €) i KYC Free (3,50 €) | Automàtic: Checkout + Webhooks d'activació |
 | **Segellat de Temps Legal** | Signaturit / Grup Namirial (QTSP · Fase II) | Prova de data i hora fefaent davant tribunals i asseguradores (eIDAS RFC 3161) | Síncron/Asíncron mitjançant hash SHA-256 |
 | **Verificació d'Identitat (KYC)** | Namirial OnBoarding API v2 (eIDV · MVP) | Validació biomètrica facial i OCR de documents oficials d'identitat | Redirecció a *wizard* Namirial + Verificació servidor-a-servidor + Webhook |
 | **Ancoratge Criptogràfic L2** | Polygon PoS (JSON-RPC) | Immutabilització pública i descentralitzada del fingerprint | Cua asíncrona de Symfony Messenger (`async_chain`) |
@@ -96,7 +96,7 @@ Aquesta taula es llegeix de dalt a baix: quan un concepte aparegui més endavant
 | **Compte de Plataforma** | El compte principal de Registrals a Stripe. | D'on surten totes les crides de l'API i on s'ingressen els fons cobrats als usuaris. |
 | **Sessió de Checkout** | Formulari de pagament segur allotjat als servidors de Stripe (*Hosted Checkout*). | La pàgina on l'usuari introdueix la targeta o paga amb un sol clic des del mòbil. |
 | **Mode `subscription`** | Paràmetre de Checkout per crear una subscripció anual amb renovació periòdica. | S'utilitza a la contractació dels plans Plus i Unlimited. |
-| **Mode `payment`** | Paràmetre de Checkout per cobrar una transacció única immediata sense renovació. | S'utilitza a la compra de certificats oficials solts i traspassos puntuals. |
+| **Mode `payment`** | Paràmetre de Checkout per cobrar una transacció única immediata sense renovació. | S'utilitza a la compra de certificats oficials individuals i traspassos puntuals. |
 | **Stripe Customer Portal** | Pàgina allotjada per Stripe on el client pot canviar la targeta o cancel·lar la renovació. | Enllaçada des de `/app/plan` per als subscriptors de pagament. |
 | **Webhook** | Notificació HTTP POST que un proveïdor extern envia al nostre servidor quan passa un fet. | Endpoints `/webhook/stripe` i `/webhook/namirial/onboarding`. |
 | **Secret de Signat (`whsec_...`)**| Clau secreta que Stripe utilitza per signar digitalment cada webhook que ens envia. | Permet verificar que la notificació prové realment de Stripe i no d'un atacant. |
@@ -266,7 +266,7 @@ Aquest secret `whsec_...` és el que es copia a `STRIPE_WEBHOOK_SECRET` a `.env.
 
 ---
 
-# 9. Flux B · Compra de Certificat Oficial Solt (Pay-per-Value)
+# 9. Flux B · Compra de Certificat Oficial Individual (Pay-per-Value)
 
 **Objectiu:** Que un usuari del Pla Free que vol emetre un certificat oficial puntual (amb validesa legal eIDAS i ancoratge a Blockchain) pugui pagar 5,90 € sense obligar-lo a contractar una subscripció anual.
 

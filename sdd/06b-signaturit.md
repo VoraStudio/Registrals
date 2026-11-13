@@ -7,7 +7,7 @@ Registrals — Signaturit / Grup Namirial: Guia d'ús, arquitectura i configurac
 Com integrar Signaturit (Grup Namirial) com a Prestador Qualificat de Serveis de Confiança (QTSP):
 segellat de certificats PDF, verificació d'identitat, credencials de sandbox,
 webhooks i custòdia de proves conforme al Reglament UE 910/2014.
-v1.0 · Base: disseny aprovat (D-025, D-055, D-082) · Implementació: Iteració 5 (Subiteració 5.3 en Sandbox) & Iteració 7 (Subiteració 7.5: Verificació d'Identitat eIDV per a Plus i Certificats Solts al MVP) · Activació de Bossa de Segells TSA: Fase II
+v1.0 · Base: disseny aprovat (D-025, D-055, D-082) · Implementació: Iteració 5 (Subiteració 5.3 en Sandbox) & Iteració 7 (Subiteració 7.5: Verificació d'Identitat eIDV per a Plus i Certificats Individuals al MVP) · Activació de Bossa de Segells TSA: Fase II
 ```
 
 | Camp | Detall |
@@ -45,7 +45,7 @@ Recull el que ja està decidit al projecte (Decisions d'Arquitectura `D-xxx` i R
 | [`sdd/03-model-dades.md`](03-model-dades.md) | Camps `signaturit_timestamp_id`, `signaturit_sealed_at`, `timestamp_token_path` a l'entitat `Certificate`. |
 | [`sdd/04-fluxos-maquines-estat.md`](04-fluxos-maquines-estat.md) | Cua asíncrona de segellat (`async_chain`) i transició d'estats del certificat. |
 | [`sdd/05-guia-interficies.md`](05-guia-interficies.md) | Disseny del PDF certificat amb les insígnies oficials de garantia eIDAS i codi QR de validació. |
-| [`sdd/07-iteracions.md`](07-iteracions.md) | Subiteració 7.5 (Verificació d'Identitat eIDV al MVP per a Plus i Certificats Solts) & Fase II (Segellat TSA RFC 3161). |
+| [`sdd/07-iteracions.md`](07-iteracions.md) | Subiteració 7.5 (Verificació d'Identitat eIDV al MVP per a Plus i Certificats Individuals) & Fase II (Segellat TSA RFC 3161). |
 | [`sdd/08-annexes.md`](08-annexes.md) | Marc jurídic europeu eIDAS (Reglament UE 910/2014, Art. 41 i 42) i valor probatori en judici. |
 
 ---

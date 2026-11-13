@@ -16,7 +16,7 @@ enum PaymentType: string
     {
         return match ($this) {
             self::SUBSCRIPTION => 'Subscripció Anual de Pla',
-            self::CERTIFICATE => 'Emissió de Certificat Oficial Solt',
+            self::CERTIFICATE => 'Emissió de Certificat Oficial Individual',
             self::TRANSFER => 'Taxa de Traspàs C2C',
             self::SUCCESSION_CLAIM => 'Taxa d\'Obertura d\'Expedient Successori',
             self::KYC => 'Verificació d\'Identitat (eIDV / KYC)',

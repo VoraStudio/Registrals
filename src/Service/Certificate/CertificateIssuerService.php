@@ -58,7 +58,7 @@ class CertificateIssuerService
 
             if (!$isAdmin && $plan !== null && !$plan->isAllowOfficialCertificates()) {
                 throw new RuntimeException(
-                    'El teu pla actual no permet l\'emissió de certificats oficials. Passa al Pla Plus o Unlimited o contracta un certificat solt.'
+                    'El teu pla actual no permet l\'emissió de certificats oficials. Passa al Pla Plus o Unlimited o contracta un certificat individual.'
                 );
             }
 

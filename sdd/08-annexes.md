@@ -75,7 +75,7 @@ L'error clàssic del SaaS és posar finestres emergents molestes (*paywalls*) qu
 
 - Si l'usuari del pla Free no vol una subscripció anual de 22 €, se li permet pagar l'acció puntual via **Stripe Checkout / Apple Pay / Google Pay**:
 - 
-- Certificat oficial solt: **5,90 €**.
+- Certificat oficial individual: **5,90 €**.
 - 
 - Traspàs de bé solt: **2,90 €**.
 - 
@@ -117,7 +117,7 @@ Aquesta estratègia afecta 4 dels documents que hem anat treballant. Aquests só
 - 
 - A Certificate:
 - 
-- Un camp payment_id (nullable) que vincula si aquest certificat específic s'ha pagat amb transacció solta (Stripe PaymentIntent) sense subscripció.
+- Un camp payment_id (nullable) que vincula si aquest certificat específic s'ha pagat amb transacció individual (Stripe PaymentIntent) sense subscripció.
 - 
 
 ### 3. Al Document 4: Fluxos de l'Aplicació
@@ -195,7 +195,7 @@ Al llibre d'especificacions hi ha una matriu de preus directes i pagaments per �
 - 
 - **Transferència a tercera persona:** **2,00 € - 2,90 €** per operació.
 - 
-- **Emissió de certificat oficial solt:** Pagament per ús per a plans gratuïts que necessitin un certificat formal puntual.
+- **Emissió de certificat oficial individual:** Pagament per ús per a plans gratuïts que necessitin un certificat formal puntual.
 - 
 
 ### 2. Ha de ser configurable a la gestió Admin?
@@ -226,7 +226,7 @@ En una arquitectura SaaS sòlida desenvolupada amb **Symfony**, aquests valors *
 - 
 - **Preus de les accions soltes (Microtransaccions / Pay-per-use):**
 - 
-- Preu del certificat oficial solt (single_certificate_price_cents).
+- Preu del certificat oficial individual (single_certificate_price_cents).
 - 
 - Preu de transferència extra (extra_transfer_price_cents).
 - 
@@ -251,7 +251,7 @@ Tot queda parametritzat sense necessitat de reiniciar servidors ni desplegar cod
 
 - Vols que definim exactament el formulari de Symfony (PlanType) amb tots aquests camps per al panell d'administració?
 - 
-- Fixem a la base de dades inicial els preus de l'Excel (22 €/any el Plus, 80 €/any l'Unlimited, 2,90 € el traspàs i 5,90 € el certificat solt)?
+- Fixem a la base de dades inicial els preus de l'Excel (22 €/any el Plus, 80 €/any l'Unlimited, 2,90 € el traspàs i 5,90 € el certificat individual)?
 
 Per analitzar si els preus dels plans i de les accions individuals són correctes i sostenibles, hem de confrontar directament els **costos marginals directes per operació** (despeses de proveïdors externs, xarxa i infraestructura) amb els **ingressos de cada tarifa**.
 
@@ -292,7 +292,7 @@ Aquestes són les accions soltes que pot fer un usuari del pla *Free* (o usuaris
 | --- | --- | --- | --- | --- | --- | --- |
 | **Traspàs de bé (C2C)** | **2,90 €** | 0,005 € (Gas L2) | 0,29 € | ~0,30 € | **+2,60 €** | **89,6%** |
 | **Traspàs de bé (Opció mínima)** | **2,00 €** | 0,005 € (Gas L2) | 0,28 € | ~0,28 € | **+1,72 €** | **86,0%** |
-| **Certificat Oficial Solt** | **5,90 €** | 0,10 € (Signaturit) + 0,005 € (L2) | 0,33 € | ~0,44 € | **+5,46 €** | **92,5%** |
+| **Certificat Oficial Individual** | **5,90 €** | 0,10 € (Signaturit) + 0,005 € (L2) | 0,33 € | ~0,44 € | **+5,46 €** | **92,5%** |
 
 - **Veredicte accions puntuals:** Els preus de **2,90 € per traspàs** i **5,90 € per certificat oficial** són altament rendibles. El marge brut supera el 85%, cobrint sobradament la comissió mínima fixa de Stripe (0,25 €).
 - 
@@ -309,7 +309,7 @@ Aquestes són les accions soltes que pot fer un usuari del pla *Free* (o usuaris
 - 
 - Ancoratge d'alta a Blockchain (20 béns  0,005 €): **0,10 €** de cost únic en la vida de l'usuari.
 - 
-- **Veredicte:** El cost d'adquisició i manteniment d'un usuari gratuït és inferior a **0,15 €**. És un cost molt baix que es rendibilitza tan bon punt aquest usuari fa **un sol traspàs (2,90 €)** o emet **un certificat oficial solt (5,90 €)**.
+- **Veredicte:** El cost d'adquisició i manteniment d'un usuari gratuït és inferior a **0,15 €**. És un cost molt baix que es rendibilitza tan bon punt aquest usuari fa **un sol traspàs (2,90 €)** o emet **un certificat oficial individual (5,90 €)**.
 - 
 
 #### B. Pla *****Plus***** — 22,00 € / any (Tarifa 2 de l'Excel)
@@ -383,7 +383,7 @@ Per sostenir la plataforma amb el model local d'IA i MySQL:
   - **L'emissió del certificat v2 és SEMPRE a demanda de l'usuari** (mai automàtica) per permetre múltiples retocs sense sobrecostos imprevistos.
   - Al **Pla Free**, si l'usuari vol un certificat oficial v2 ha de contractar-lo (5,90 € o migrar a Pla Plus) per cobrir el segellat eIDAS (Signaturit) i el gas a Polygon L2. L'esborrany informatiu es regenera gratuïtament.
 - **El cost del KYC de Signaturit s'absorbeix sense problema** al primer any del Pla Plus (i s'amortitza completament en les renovacions).
-- **El preu de 2,90 € per traspàs i 5,90 € per certificat solt** protegeix el compte de resultats de possibles usuaris no subscriptors i genera una via de monetització addicional neta.
+- **El preu de 2,90 € per traspàs i 5,90 € per certificat individual** protegeix el compte de resultats de possibles usuaris no subscriptors i genera una via de monetització addicional neta.
 - 
 - Vols que et prepari un resum executiu d'aquest estudi en format taula o PDF per presentar-lo directament a l'Albert?
 - 

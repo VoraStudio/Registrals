@@ -1408,7 +1408,7 @@
               </div>
               {% set certPriceCents = freePlan ? freePlan.extraCertificatePriceCents : (app.user.plan ? app.user.plan.extraCertificatePriceCents : 590) %}
               <p class="text-[11px] text-steel mt-1">
-                L'emissió oficial per lot està inclosa al Pla Plus. També pots comprar certificats oficials solts ({{ (certPriceCents / 100)|number_format(2, ',', '.') }} €) des de la fitxa de cada bé.
+                L'emissió oficial per lot està inclosa al Pla Plus. També pots comprar certificats oficials individuals ({{ (certPriceCents / 100)|number_format(2, ',', '.') }} €) des de la fitxa de cada bé.
               </p>
             </div>
           {% endif %}

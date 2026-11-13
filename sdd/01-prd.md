@@ -129,7 +129,7 @@ S'aplica la metodologia de **"Fricció Positiva en el Moment del Valor"** (*Cont
    Cada addició, eliminació, reordenació de fotos o canvi documental invalida el fingerprint SHA-256 previ i genera una nova versió (`v1` -> `v2`).
    - Els certificats oficials emesos amb anterioritat (`v1`) mantenen la seva fefaença històrica però passen automàticament a l'estat **`SUPERSEDED`** (*Superat per nova versió v2*).
    - **L'emissió del certificat v2 és sempre a petició de l'usuari (mai automàtica):** permet a l'usuari efectuar múltiples retocs sense generar despesa recurrent involuntària.
-   - **Impacte per Pla:** Al Pla Free, si l'usuari havia adquirit un certificat oficial solt (5,90 €) i modifica el bé, l'esborrany informatiu es regenera de franc, però l'emissió del nou certificat oficial v2 requereix una nova compra (o ampliació a Pla Plus) per cobrir el cost directe de segellat eIDAS i gas a Polygon. Als plans Plus i Unlimited, l'emissió v2 es descompta de la quota de certificats oficials del pla.
+   - **Impacte per Pla:** Al Pla Free, si l'usuari havia adquirit un certificat oficial individual (5,90 €) i modifica el bé, l'esborrany informatiu es regenera de franc, però l'emissió del nou certificat oficial v2 requereix una nova compra (o ampliació a Pla Plus) per cobrir el cost directe de segellat eIDAS i gas a Polygon. Als plans Plus i Unlimited, l'emissió v2 es descompta de la quota de certificats oficials del pla.
 
 7. **Desglossament de Crèdits d'IA Local (Qwen VL) vs Costos Interns d'Infraestructura:**
    - **Naturalesa Sobirana:** La IA s'executa íntegrament en maquinari propi (node privat SGLang Qwen VL), amb cost marginal d'API externa de **0,00 €**. El cost és purament d'infraestructura/GPU mensual.
