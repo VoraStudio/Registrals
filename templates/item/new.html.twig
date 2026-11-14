@@ -990,10 +990,12 @@
   };
 
   async function analyzeMediaWithAi(file, promptType) {
-    const loadingOverlay = document.getElementById(promptType === 'photo' ? 'photo-ai-loading' : 'invoice-ai-loading');
+    const isExtraPhoto = promptType === 'photo_extra';
+    const backendPromptType = isExtraPhoto ? 'photo' : promptType;
+    const loadingOverlay = isExtraPhoto ? null : document.getElementById(backendPromptType === 'photo' ? 'photo-ai-loading' : 'invoice-ai-loading');
     if (loadingOverlay) loadingOverlay.classList.remove('hidden');
 
-    if (promptType === 'photo') isAnalyzingPhoto = true;
+    if (backendPromptType === 'photo') isAnalyzingPhoto = true;
     else isAnalyzingInvoice = true;
     updateSubmitButtonState();
 
@@ -1005,7 +1007,7 @@
 
     const formData = new FormData();
     formData.append('file', fileToSend);
-    formData.append('promptType', promptType);
+    formData.append('promptType', backendPromptType);
 
     try {
       const response = await fetch('{{ path('app_item_analyze_media') }}', {
@@ -1050,14 +1052,41 @@
         return;
       }
 
-      if (promptType === 'photo') isPhotoRejected = false;
+      if (backendPromptType === 'photo') isPhotoRejected = false;
       else isInvoiceRejected = false;
       updateSubmitButtonState();
 
       if (res && res.data) {
         const d = res.data;
         let fieldsUpdated = 0;
-        const isPhoto = promptType === 'photo';
+        const isPhoto = backendPromptType === 'photo';
+
+        // Foto addicional: només cerquem número de sèrie si encara és buit, sense sobreescriure la identitat principal
+        if (isExtraPhoto) {
+          if (d.serialNumber && serialInput && serialInput.value.trim() === '') {
+            serialInput.value = d.serialNumber;
+            serialInput.dataset.inferredFromPhoto = 'true';
+            markFieldWithAi(serialInput);
+            if (window.RegistralsToast) {
+              window.RegistralsToast.show(
+                'Número de sèrie detectat',
+                `S'ha identificat el número de sèrie <strong>${d.serialNumber}</strong> a la foto addicional.`,
+                'success',
+                4800
+              );
+            }
+          } else if (window.RegistralsToast) {
+            window.RegistralsToast.show(
+              'Foto addicional analitzada',
+              serialInput && serialInput.value.trim() !== ''
+                ? 'El número de sèrie ja estava omplert i s\'ha mantingut sense canvis.'
+                : 'No s\'ha pogut llegir cap número de sèrie nou en aquesta foto.',
+              'info',
+              4000
+            );
+          }
+          return;
+        }
 
         // 1. Camps d'Identitat del Bé Físic (Pas 3): NOMÉS la fotografia principal pot inferir-los!
         // El document fiscal (Pas 2) mai no ha de sobreescriure la identitat del bé.
@@ -1208,7 +1237,7 @@
       }
     } finally {
       if (loadingOverlay) loadingOverlay.classList.add('hidden');
-      if (promptType === 'photo') isAnalyzingPhoto = false;
+      if (!isExtraPhoto && backendPromptType === 'photo') isAnalyzingPhoto = false;
       else isAnalyzingInvoice = false;
       updateSubmitButtonState();
     }
@@ -1216,7 +1245,7 @@
 
   // Feedback dinàmic en triar arxius i disparador d'IA
   const primaryInput = document.getElementById('{{ form.primaryPhoto.vars.id }}');
-  function setupMultiFileQueue({ inputId, previewId, counterId, maxFiles, acceptFile, limitMsg, mode }) {
+  function setupMultiFileQueue({ inputId, previewId, counterId, maxFiles, acceptFile, limitMsg, mode, onFileAdded }) {
     const inputEl = document.getElementById(inputId);
     const previewEl = document.getElementById(previewId);
     const counterEl = document.getElementById(counterId);
@@ -1290,6 +1319,7 @@
           break;
         }
         filesQueue.push(file);
+        if (typeof onFileAdded === 'function') onFileAdded(file);
       }
       sync();
     });
@@ -1306,6 +1336,7 @@
             break;
           }
           filesQueue.push(file);
+          if (typeof onFileAdded === 'function') onFileAdded(file);
         }
         sync();
       }
@@ -1320,6 +1351,11 @@
     acceptFile: (f) => f.type.startsWith('image/'),
     limitMsg: 'El teu pla no permet afegir més fotografies addicionals en aquest bé.',
     mode: 'images',
+    onFileAdded: (file) => {
+      if (aiAvailable && serialInput && serialInput.value.trim() === '') {
+        analyzeMediaWithAi(file, 'photo_extra');
+      }
+    },
   });
 
   const extraEvidencesQueue = setupMultiFileQueue({
