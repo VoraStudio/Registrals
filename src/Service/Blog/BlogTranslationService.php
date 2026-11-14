@@ -212,7 +212,8 @@ class BlogTranslationService
         try {
             $response = $this->httpClient->request('POST', $endpoint, [
                 'headers' => $headers,
-                'timeout' => 60,
+                'timeout' => 180,
+                'max_duration' => 240,
                 'json' => [
                     'model' => $this->modelName,
                     'messages' => [
