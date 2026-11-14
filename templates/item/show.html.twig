@@ -1584,13 +1584,15 @@
             </div>
           </div>
         </div>
+
+        <div id="replace-ai-feedback" class="hidden"></div>
       </div>
 
       <div class="pt-2 flex items-center justify-end gap-2.5 border-t border-steel/15">
         <button type="button" onclick="closeReplaceDocModal()" class="px-4 py-2 rounded-xl border border-steel/30 text-ink/75 hover:text-ink hover:bg-white text-xs font-semibold transition-all cursor-pointer">
           Cancel·lar
         </button>
-        <button type="submit" class="px-5 py-2.5 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-xs uppercase tracking-wider transition-all shadow-xs flex items-center gap-1.5 cursor-pointer">
+        <button type="submit" id="btn-submit-replace-doc" class="px-5 py-2.5 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-xs uppercase tracking-wider transition-all shadow-xs flex items-center gap-1.5 cursor-pointer">
           🔄 <span>Confirmar Substitució</span>
         </button>
       </div>
@@ -1924,21 +1926,17 @@
     }
   }
 
-  async function previewAddEvidenceFile(input) {
-    if (!input.files || !input.files[0]) return;
-
-    const file = input.files[0];
-    const previewName = document.getElementById('add-evidence-preview-name');
-    const emptyState = document.getElementById('add-evidence-empty-state');
-    const previewBox = document.getElementById('add-evidence-preview-box');
-    const feedback = document.getElementById('add-evidence-ai-feedback');
-    const submitBtn = document.getElementById('btn-submit-add-evidence');
-
-    if (previewName) previewName.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
-    if (emptyState) emptyState.classList.add('hidden');
-    if (previewBox) previewBox.classList.remove('hidden');
-
+  async function validateShowModalFileWithAi({ file, promptType, feedbackId, submitBtnId, resetFnName, acceptFnName, acceptLabel }) {
+    const feedback = document.getElementById(feedbackId);
+    const submitBtn = document.getElementById(submitBtnId);
     if (!feedback) return;
+
+    const setSubmitDisabled = (disabled) => {
+      if (!submitBtn) return;
+      submitBtn.disabled = disabled;
+      submitBtn.classList.toggle('opacity-50', disabled);
+      submitBtn.classList.toggle('cursor-not-allowed', disabled);
+    };
 
     feedback.classList.remove('hidden');
     feedback.innerHTML = `
@@ -1946,24 +1944,20 @@
         <div class="w-4 h-4 rounded-full border-2 border-gold/40 border-t-gold animate-spin shrink-0"></div>
         <div>
           <div class="font-bold text-gold font-marcellus text-[11px]">Assistent d'IA SGLang</div>
-          <div class="text-[10px] text-cream/80">Validant autenticitat i congruència del document amb el bé...</div>
+          <div class="text-[10px] text-cream/80">${promptType === 'photo' ? 'Verificant integritat i anàlisi visual...' : 'Validant autenticitat i congruència del document amb el bé...'}</div>
         </div>
       </div>`;
-
-    if (submitBtn) {
-      submitBtn.disabled = true;
-      submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-    }
+    setSubmitDisabled(true);
 
     try {
       let fileToSend = file;
-      if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+      if (promptType === 'invoice' && (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf'))) {
         fileToSend = await convertEvidencePdfToImage(file);
       }
 
       const formData = new FormData();
       formData.append('file', fileToSend);
-      formData.append('promptType', 'invoice');
+      formData.append('promptType', promptType);
 
       const response = await fetch('{{ path('app_item_analyze_media') }}', {
         method: 'POST',
@@ -1976,29 +1970,23 @@
         if (res && res.code === 'AI_SYNTHETIC_REJECTED') {
           feedback.innerHTML = `
             <div class="rounded-xl border border-red-300 bg-red-50 p-3 text-xs text-red-900 space-y-2">
-              <div class="font-bold">⚠️ Document rebutjat per seguretat</div>
+              <div class="font-bold">⚠️ Fitxer rebutjat per seguretat</div>
               <div class="text-[11px] text-red-800">${escapeEvidenceHtml(res.error)}</div>
-              <button type="button" onclick="resetAddEvidenceFile()" class="px-2.5 py-1 rounded-lg bg-red-700 text-white text-[10px] font-bold hover:bg-red-800 cursor-pointer">✕ Treure fitxer</button>
+              <button type="button" onclick="${resetFnName}()" class="px-2.5 py-1 rounded-lg bg-red-700 text-white text-[10px] font-bold hover:bg-red-800 cursor-pointer">✕ Treure fitxer</button>
             </div>`;
           return;
         }
 
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-        }
+        setSubmitDisabled(false);
         feedback.innerHTML = `
           <div class="rounded-xl border border-steel/25 bg-steel/5 p-2.5 text-[11px] text-steel">
-            ℹ️ ${escapeEvidenceHtml(res?.error || 'No s\'ha pogut completar la lectura automàtica. El document es custodiarà xifrat.')}
+            ℹ️ ${escapeEvidenceHtml(res?.error || 'No s\'ha pogut completar la lectura automàtica. El fitxer es custodiarà xifrat.')}
           </div>`;
         return;
       }
 
       if (res && res.aiEnabled === false) {
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-        }
+        setSubmitDisabled(false);
         feedback.innerHTML = `
           <div class="rounded-xl border border-steel/25 bg-steel/5 p-2.5 text-[11px] text-steel">
             ✓ Integritat verificada. ${escapeEvidenceHtml(res.message || '')}
@@ -2007,6 +1995,20 @@
       }
 
       const d = res?.data || {};
+      if (promptType === 'photo') {
+        setSubmitDisabled(false);
+        const photoDetails = [];
+        if (d.brand) photoDetails.push(`Marca: <strong>${escapeEvidenceHtml(d.brand)}</strong>`);
+        if (d.model) photoDetails.push(`Model: <strong>${escapeEvidenceHtml(d.model)}</strong>`);
+        if (d.serialNumber) photoDetails.push(`Núm. sèrie: <strong>${escapeEvidenceHtml(d.serialNumber)}</strong>`);
+        feedback.innerHTML = `
+          <div class="rounded-xl border border-emerald-300 bg-emerald-50 p-2.5 text-[11px] text-emerald-900 space-y-0.5">
+            <div class="font-bold">✓ Fotografia verificada per IA</div>
+            ${photoDetails.length > 0 ? `<div class="text-[10px] font-mono text-emerald-800">${photoDetails.join(' · ')}</div>` : ''}
+          </div>`;
+        return;
+      }
+
       const itemBrand = '{{ (item.brand ?? '')|e('js') }}'.trim().toLowerCase();
       const itemName = '{{ item.name|e('js') }}'.trim().toLowerCase();
       const itemCatId = '{{ item.category ? item.category.id : '' }}';
@@ -2029,11 +2031,11 @@
               ${escapeEvidenceHtml(d.notes || "No s'han pogut extreure dades fiscals ni de compra d'aquest document.")}
             </div>
             <div class="pt-1.5 border-t border-gold/25 flex items-center justify-between gap-2">
-              <button type="button" onclick="resetAddEvidenceFile()" class="inline-flex items-center gap-1 text-[10px] font-semibold text-red-700 hover:text-red-900 bg-red-50 hover:bg-red-100 py-1 px-2.5 rounded-lg border border-red-200 cursor-pointer">
+              <button type="button" onclick="${resetFnName}()" class="inline-flex items-center gap-1 text-[10px] font-semibold text-red-700 hover:text-red-900 bg-red-50 hover:bg-red-100 py-1 px-2.5 rounded-lg border border-red-200 cursor-pointer">
                 ✕ Treure fitxer
               </button>
-              <button type="button" onclick="acceptAddEvidenceDiscrepancy()" class="text-[10px] font-semibold text-ink/75 hover:text-ink hover:underline cursor-pointer">
-                Custodiar igualment
+              <button type="button" onclick="${acceptFnName}()" class="text-[10px] font-semibold text-ink/75 hover:text-ink hover:underline cursor-pointer">
+                ${acceptLabel}
               </button>
             </div>
           </div>`;
@@ -2055,11 +2057,11 @@
             </div>
             <div class="text-[10px] text-ink/80">${mismatchMsg}</div>
             <div class="pt-1.5 border-t border-gold/25 flex items-center justify-between gap-2">
-              <button type="button" onclick="resetAddEvidenceFile()" class="inline-flex items-center gap-1 text-[10px] font-semibold text-red-700 hover:text-red-900 bg-red-50 hover:bg-red-100 py-1 px-2.5 rounded-lg border border-red-200 cursor-pointer">
+              <button type="button" onclick="${resetFnName}()" class="inline-flex items-center gap-1 text-[10px] font-semibold text-red-700 hover:text-red-900 bg-red-50 hover:bg-red-100 py-1 px-2.5 rounded-lg border border-red-200 cursor-pointer">
                 ✕ Treure fitxer
               </button>
-              <button type="button" onclick="acceptAddEvidenceDiscrepancy()" class="text-[10px] font-semibold text-ink/75 hover:text-ink hover:underline cursor-pointer">
-                Custodiar igualment
+              <button type="button" onclick="${acceptFnName}()" class="text-[10px] font-semibold text-ink/75 hover:text-ink hover:underline cursor-pointer">
+                ${acceptLabel}
               </button>
             </div>
           </div>`;
@@ -2069,10 +2071,7 @@
         return;
       }
 
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-      }
+      setSubmitDisabled(false);
       const details = [];
       if (d.sellerName) details.push(`Venedor: <strong>${escapeEvidenceHtml(d.sellerName)}</strong>`);
       if (d.acquisitionDate) details.push(`Data: <strong>${escapeEvidenceHtml(d.acquisitionDate)}</strong>`);
@@ -2084,15 +2083,35 @@
           ${details.length > 0 ? `<div class="text-[10px] font-mono text-emerald-800">${details.join(' · ')}</div>` : ''}
         </div>`;
     } catch (err) {
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-      }
+      setSubmitDisabled(false);
       feedback.innerHTML = `
         <div class="rounded-xl border border-steel/25 bg-steel/5 p-2.5 text-[11px] text-steel">
-          ℹ️ Error de connexió en l'anàlisi prèvia. Pots custodiar el document igualment.
+          ℹ️ Error de connexió en l'anàlisi prèvia. Pots continuar igualment.
         </div>`;
     }
+  }
+
+  async function previewAddEvidenceFile(input) {
+    if (!input.files || !input.files[0]) return;
+
+    const file = input.files[0];
+    const previewName = document.getElementById('add-evidence-preview-name');
+    const emptyState = document.getElementById('add-evidence-empty-state');
+    const previewBox = document.getElementById('add-evidence-preview-box');
+
+    if (previewName) previewName.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+    if (emptyState) emptyState.classList.add('hidden');
+    if (previewBox) previewBox.classList.remove('hidden');
+
+    await validateShowModalFileWithAi({
+      file,
+      promptType: 'invoice',
+      feedbackId: 'add-evidence-ai-feedback',
+      submitBtnId: 'btn-submit-add-evidence',
+      resetFnName: 'resetAddEvidenceFile',
+      acceptFnName: 'acceptAddEvidenceDiscrepancy',
+      acceptLabel: 'Custodiar igualment'
+    });
   }
 
   function handleAddDocSubmit(form) {
@@ -2306,7 +2325,53 @@
     openReplaceModalForDoc(uuid, filename, 'evidence', typeValue);
   }
 
+  let replaceDocKind = 'photo';
+
+  function resetReplaceFile() {
+    const input = document.getElementById('input-replace-file');
+    const emptyState = document.getElementById('replace-empty-state');
+    const previewBox = document.getElementById('replace-preview-box');
+    const previewImg = document.getElementById('replace-preview-img');
+    const previewName = document.getElementById('replace-preview-name');
+    const feedback = document.getElementById('replace-ai-feedback');
+    const submitBtn = document.getElementById('btn-submit-replace-doc');
+
+    if (input) input.value = '';
+    if (previewName) previewName.textContent = '';
+    if (previewImg) {
+      previewImg.src = '';
+      previewImg.classList.add('hidden');
+    }
+    if (previewBox) previewBox.classList.add('hidden');
+    if (emptyState) emptyState.classList.remove('hidden');
+    if (feedback) {
+      feedback.innerHTML = '';
+      feedback.classList.add('hidden');
+    }
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+  }
+
+  function acceptReplaceDiscrepancy() {
+    const feedback = document.getElementById('replace-ai-feedback');
+    const submitBtn = document.getElementById('btn-submit-replace-doc');
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+    if (feedback) {
+      feedback.innerHTML = `
+        <div class="rounded-xl border border-gold/40 bg-gold/10 p-2.5 text-[11px] text-ink flex items-center justify-between gap-2">
+          <span>ℹ️ <strong>Discrepància acceptada pel titular.</strong> Pots confirmar la substitució.</span>
+          <button type="button" onclick="resetReplaceFile()" class="text-[10px] text-steel hover:text-red-700 hover:underline shrink-0 font-semibold cursor-pointer">✕ Treure</button>
+        </div>`;
+    }
+  }
+
   function openReplaceModalForDoc(uuid, filename, kind, typeValue = '') {
+    replaceDocKind = kind;
     const form = document.getElementById('form-replace-doc');
     if (form) {
       form.action = '{{ path('app_item_document_replace', {'cui': item.cui, 'uuid': 'UUID_PLACEHOLDER'}) }}'.replace('UUID_PLACEHOLDER', uuid);
@@ -2315,10 +2380,7 @@
     const curLabel = document.getElementById('replace-doc-current-label');
     if (curLabel) curLabel.textContent = `Substituint: ${filename}`;
 
-    const emptyState = document.getElementById('replace-empty-state');
-    const previewBox = document.getElementById('replace-preview-box');
-    if (emptyState) emptyState.classList.remove('hidden');
-    if (previewBox) previewBox.classList.add('hidden');
+    resetReplaceFile();
 
     const input = document.getElementById('input-replace-file');
     const evidenceTypeContainer = document.getElementById('replace-evidence-type-container');
@@ -2350,9 +2412,10 @@
       modal.classList.remove('flex');
       document.body.classList.remove('overflow-hidden');
     }
+    resetReplaceFile();
   }
 
-  function previewReplaceFile(input) {
+  async function previewReplaceFile(input) {
     if (input.files && input.files[0]) {
       const file = input.files[0];
       const previewName = document.getElementById('replace-preview-name');
@@ -2374,6 +2437,16 @@
       } else if (previewImg) {
         previewImg.classList.add('hidden');
       }
+
+      await validateShowModalFileWithAi({
+        file,
+        promptType: replaceDocKind === 'photo' ? 'photo' : 'invoice',
+        feedbackId: 'replace-ai-feedback',
+        submitBtnId: 'btn-submit-replace-doc',
+        resetFnName: 'resetReplaceFile',
+        acceptFnName: 'acceptReplaceDiscrepancy',
+        acceptLabel: 'Substituir igualment'
+      });
     }
   }
 
