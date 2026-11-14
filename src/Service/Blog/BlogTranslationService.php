@@ -187,7 +187,7 @@ class BlogTranslationService
                 $destName,
                 $text
             );
-            $maxTokens = 150;
+            $maxTokens = 1024;
         } else {
             $prompt = sprintf(
                 "Ets un traductor tècnic i jurídic especialitzat en propietat civil, prova digital, eIDAS i custòdia documental. Tradueix fidelment el següent text escrit en català al %s. Mantén el format Markdown, llistes, negretes, taules i enllaços intactes. Retorna ÚNICAMENT la traducció directa del text facilitat, sense salutacions ni comentaris.\n\nText a traduir:\n%s",
@@ -222,6 +222,7 @@ class BlogTranslationService
                     ],
                     'temperature' => 0.1,
                     'max_tokens' => $maxTokens,
+                    'chat_template_kwargs' => ['enable_thinking' => false],
                 ],
             ]);
 
@@ -233,7 +234,8 @@ class BlogTranslationService
             }
 
             $data = $response->toArray(false);
-            $content = trim((string) ($data['choices'][0]['message']['content'] ?? ''));
+            $content = (string) ($data['choices'][0]['message']['content'] ?? '');
+            $content = trim((string) preg_replace('/<think>[\s\S]*?<\/think>\s*/i', '', $content));
             return $content !== '' ? $content : null;
         } catch (\Throwable $e) {
             $this->logger->warning('BlogTranslationService: error connectant amb el node local SGLang', [

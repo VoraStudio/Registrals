@@ -55,10 +55,29 @@ class BlogController extends AbstractController
             }
         }
 
+        $translations = [];
+        if ($lang !== 'cat') {
+            $toTranslate = [];
+            if ($featuredPost !== null) {
+                $toTranslate[] = $featuredPost->title;
+                $toTranslate[] = $featuredPost->summary;
+            }
+            foreach ($otherPosts as $p) {
+                $toTranslate[] = $p->title;
+                $toTranslate[] = $p->summary;
+            }
+            foreach (array_unique($toTranslate) as $txt) {
+                if ($txt !== '') {
+                    $translations[$txt] = $this->translationService->translate($txt, $lang)['text'];
+                }
+            }
+        }
+
         return $this->render('page/blog.html.twig', [
             'posts' => $posts,
             'featuredPost' => $featuredPost,
             'otherPosts' => $otherPosts,
+            'translations' => $translations,
             'tags' => $tags,
             'selectedTag' => $selectedTag,
             'sort' => $sort,

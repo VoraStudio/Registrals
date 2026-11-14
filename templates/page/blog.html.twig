@@ -116,12 +116,12 @@
 
                   <h2 class="translatable-text text-2xl sm:text-3xl lg:text-4xl font-marcellus text-cream leading-tight group-hover:text-gold-light transition-colors"
                       data-original="{{ featuredPost.title|e('html_attr') }}">
-                    {{ featuredPost.title }}
+                    {{ translations[featuredPost.title]|default(featuredPost.title) }}
                   </h2>
 
                   <p class="translatable-text text-xs sm:text-sm text-cream/80 font-raleway leading-relaxed max-w-3xl"
                      data-original="{{ featuredPost.summary|e('html_attr') }}">
-                    {{ featuredPost.summary }}
+                    {{ translations[featuredPost.summary]|default(featuredPost.summary) }}
                   </p>
 
                   <div class="pt-2 flex flex-wrap items-center gap-4 text-xs font-mono text-cream/70">
@@ -168,12 +168,12 @@
 
                     <h3 class="translatable-text font-marcellus text-xl text-cream leading-snug group-hover:text-gold-light transition-colors"
                         data-original="{{ post.title|e('html_attr') }}">
-                      {{ post.title }}
+                      {{ translations[post.title]|default(post.title) }}
                     </h3>
 
                     <p class="translatable-text text-xs sm:text-sm text-cream/75 font-raleway leading-relaxed"
                        data-original="{{ post.summary|e('html_attr') }}">
-                      {{ post.summary }}
+                      {{ translations[post.summary]|default(post.summary) }}
                     </p>
                   </div>
 
