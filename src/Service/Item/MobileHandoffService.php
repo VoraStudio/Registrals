@@ -186,6 +186,22 @@ class MobileHandoffService
     }
 
     /**
+     * Marca la sessió com a finalitzada manualment des del mòbil perquè el PC aturi el polling.
+     */
+    public function finishSession(string $token): bool
+    {
+        $session = $this->getSession($token);
+        if ($session === null) {
+            return false;
+        }
+
+        $session['status'] = 'finished';
+        file_put_contents($this->getSessionFilePath($token), json_encode($session, JSON_THROW_ON_ERROR));
+
+        return true;
+    }
+
+    /**
      * Neteja els fitxers d'una sessió completada o cancel·lada.
      */
     public function cleanupSession(string $token): void

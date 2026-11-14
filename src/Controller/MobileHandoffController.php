@@ -177,4 +177,18 @@ class MobileHandoffController extends AbstractController
             'remaining' => $result['remaining'] ?? 0,
         ]);
     }
+
+    /**
+     * Finalitza manualment la sessió des del mòbil quan l'usuari decideix no pujar més fitxers.
+     */
+    #[Route('/handoff/{token}/finish', name: 'app_mobile_handoff_finish', methods: ['POST'])]
+    public function finishFromMobile(string $token): JsonResponse
+    {
+        $finished = $this->handoffService->finishSession($token);
+
+        return $this->json([
+            'success' => $finished,
+            'status' => $finished ? 'finished' : 'expired',
+        ]);
+    }
 }

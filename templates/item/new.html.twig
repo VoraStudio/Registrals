@@ -2029,11 +2029,16 @@
             : (isInvoiceFlow ? 'La foto del document feta des del telèfon s\'ha transferit amb èxit.' : 'La foto del bé feta des del telèfon s\'ha transferit amb èxit.');
           window.RegistralsToast.show(title, msg, 'success');
         }
-      } else if (data && data.status === 'expired') {
+      } else if (data && (data.status === 'finished' || data.status === 'expired')) {
         clearInterval(handoffPollingInterval);
         handoffPollingInterval = null;
         const statusText = document.getElementById('qr-status-text');
-        if (statusText) statusText.innerText = '⚠️ La sessió ha caducat. Torna a obrir el QR.';
+        if (data.status === 'finished') {
+          const modal = document.getElementById('modal-mobile-handoff');
+          if (modal) modal.classList.add('hidden');
+        } else if (statusText) {
+          statusText.innerText = '⚠️ La sessió ha caducat. Torna a obrir el QR.';
+        }
       }
     } catch (err) {
       console.warn('Avís de polling de handoff:', err);

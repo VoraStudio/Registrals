@@ -198,14 +198,20 @@
     if (errorBox) errorBox.classList.add('hidden');
   }
 
-  function finishHandoffSession() {
+  async function finishHandoffSession() {
     const btnMore = document.getElementById('btn-upload-more');
     const btnFinish = document.getElementById('btn-finish-handoff');
     const closedMsg = document.getElementById('handoff-closed-msg');
     if (btnMore) btnMore.classList.add('hidden');
     if (btnFinish) btnFinish.classList.add('hidden');
     if (closedMsg) closedMsg.classList.remove('hidden');
-    try { window.close(); } catch (e) {}
+
+    try {
+      await fetch('/handoff/' + encodeURIComponent(token) + '/finish', {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      });
+    } catch (e) {}
   }
 
   async function uploadPhoto() {
