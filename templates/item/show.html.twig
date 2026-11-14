@@ -6,6 +6,18 @@
 {% block body_class %}bg-cream-50 text-ink min-h-screen flex flex-col font-raleway antialiased selection:bg-gold selection:text-ink{% endblock %}
 
 {% block body %}
+  {% set orderedPhotos = [] %}
+  {% for photo in item.photos %}
+    {% if photo.type.value == 'photo_primary' %}
+      {% set orderedPhotos = orderedPhotos|merge([photo]) %}
+    {% endif %}
+  {% endfor %}
+  {% for photo in item.photos %}
+    {% if photo.type.value != 'photo_primary' %}
+      {% set orderedPhotos = orderedPhotos|merge([photo]) %}
+    {% endif %}
+  {% endfor %}
+
   {# Barra Superior Privada Unificada (Fons Blanc + Línia Tènue + Avatar) #}
   {% include 'partials/_private_header.html.twig' %}
 
@@ -135,9 +147,9 @@
         </div>
 
         {# Miniatures a Mòbil si hi ha més d'una foto #}
-        {% if item.photos|length > 1 %}
+        {% if orderedPhotos|length > 1 %}
           <div class="flex items-center gap-1.5 overflow-x-auto pb-1 px-1">
-            {% for photo in item.photos %}
+            {% for photo in orderedPhotos %}
               <button type="button" onclick="setGalleryIndex({{ loop.index0 }})" class="gallery-thumb-btn-mobile w-10 h-10 rounded-lg overflow-hidden border-2 {{ loop.first ? 'border-gold shadow-xs' : 'border-steel/20 opacity-70' }} shrink-0 transition-all cursor-pointer" data-index="{{ loop.index0 }}">
                 <img src="{{ path('app_media_document', {'uuid': photo.uuid}) }}" alt="Miniatura {{ loop.index }}" class="w-full h-full object-cover" />
               </button>
@@ -154,6 +166,11 @@
         </div>
         
         <dl class="grid grid-cols-2 gap-x-4 gap-y-3 text-xs">
+          <div class="col-span-2">
+            <dt class="text-[10px] uppercase tracking-wider text-ink/60 font-semibold">Descripció / Nom del Bé</dt>
+            <dd class="text-ink font-bold mt-0.5 text-xs leading-snug">{{ item.name }}</dd>
+          </div>
+
           <div>
             <dt class="text-[10px] uppercase tracking-wider text-ink/60 font-semibold">Marca</dt>
             <dd class="text-ink font-bold mt-0.5 truncate">{{ item.brand|default('—') }}</dd>
@@ -394,6 +411,11 @@
             </div>
 
             <dl class="grid grid-cols-2 sm:grid-cols-3 gap-x-3 gap-y-2 text-xs pt-1.5">
+              <div class="col-span-2 sm:col-span-3">
+                <dt class="text-[10px] uppercase tracking-wider text-ink/60 font-semibold">Descripció / Nom del Bé</dt>
+                <dd class="text-ink font-bold mt-0.5 text-xs sm:text-sm leading-snug">{{ item.name }}</dd>
+              </div>
+
               <div>
                 <dt class="text-[10px] uppercase tracking-wider text-ink/60 font-semibold">Marca</dt>
                 <dd class="text-ink font-bold mt-0.5 truncate">{{ item.brand|default('—') }}</dd>
@@ -524,9 +546,9 @@
                 </div>
 
                 {# Miniatures si hi ha múltiples fotografies #}
-                {% if item.photos|length > 1 %}
+                {% if orderedPhotos|length > 1 %}
                   <div class="flex items-center gap-1.5 pt-1.5 overflow-x-auto pb-0.5" id="gallery-desktop-thumbnails">
-                    {% for photo in item.photos %}
+                    {% for photo in orderedPhotos %}
                       <button type="button" onclick="setGalleryIndex({{ loop.index0 }})" class="gallery-thumb-btn w-10 h-10 rounded-lg overflow-hidden border-2 {{ loop.first ? 'border-gold shadow-xs' : 'border-steel/20 opacity-70 hover:opacity-100' }} shrink-0 transition-all cursor-pointer" data-index="{{ loop.index0 }}">
                         <img src="{{ path('app_media_document', {'uuid': photo.uuid}) }}" alt="Miniatura {{ loop.index }}" class="w-full h-full object-cover" />
                       </button>
@@ -1579,7 +1601,7 @@
   // Gestió de Galeria Fotogràfica Dinàmica
   // ==========================================
   const galleryPhotos = [
-    {% for photo in item.photos %}
+    {% for photo in orderedPhotos %}
       {
         uuid: '{{ photo.uuid }}',
         url: '{{ path('app_media_document', {'uuid': photo.uuid}) }}',
