@@ -1401,6 +1401,8 @@
             </div>
           </div>
         </div>
+
+        <div id="add-evidence-ai-feedback" class="hidden"></div>
       </div>
 
       <div class="pt-2 flex items-center justify-end gap-2.5 border-t border-steel/15">
@@ -1596,7 +1598,12 @@
   </div>
 </div>
 
+<script src="/vendor/pdfjs/pdf.min.js"></script>
 <script>
+  if (window.pdfjsLib) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = '/vendor/pdfjs/pdf.worker.min.js';
+  }
+
   // ==========================================
   // Gestió de Galeria Fotogràfica Dinàmica
   // ==========================================
@@ -1759,6 +1766,7 @@
       modal.classList.remove('flex');
       document.body.classList.remove('overflow-hidden');
     }
+    resetAddEvidenceFile();
   }
 
   function handlePhotoLimitClick() {
@@ -1826,16 +1834,264 @@
     }
   }
 
-  function previewAddEvidenceFile(input) {
-    if (input.files && input.files[0]) {
-      const file = input.files[0];
-      const previewName = document.getElementById('add-evidence-preview-name');
-      const emptyState = document.getElementById('add-evidence-empty-state');
-      const previewBox = document.getElementById('add-evidence-preview-box');
+  function escapeEvidenceHtml(str) {
+    return String(str || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
 
-      if (previewName) previewName.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
-      if (emptyState) emptyState.classList.add('hidden');
-      if (previewBox) previewBox.classList.remove('hidden');
+  function resetAddEvidenceFile() {
+    const input = document.getElementById('input-add-evidence-file');
+    const emptyState = document.getElementById('add-evidence-empty-state');
+    const previewBox = document.getElementById('add-evidence-preview-box');
+    const previewName = document.getElementById('add-evidence-preview-name');
+    const feedback = document.getElementById('add-evidence-ai-feedback');
+    const submitBtn = document.getElementById('btn-submit-add-evidence');
+
+    if (input) input.value = '';
+    if (previewName) previewName.textContent = '';
+    if (previewBox) previewBox.classList.add('hidden');
+    if (emptyState) emptyState.classList.remove('hidden');
+    if (feedback) {
+      feedback.innerHTML = '';
+      feedback.classList.add('hidden');
+    }
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+  }
+
+  function acceptAddEvidenceDiscrepancy() {
+    const feedback = document.getElementById('add-evidence-ai-feedback');
+    const submitBtn = document.getElementById('btn-submit-add-evidence');
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+    if (feedback) {
+      feedback.innerHTML = `
+        <div class="rounded-xl border border-gold/40 bg-gold/10 p-2.5 text-[11px] text-ink flex items-center justify-between gap-2">
+          <span>ℹ️ <strong>Discrepància acceptada pel titular.</strong> Pots custodiar el document.</span>
+          <button type="button" onclick="resetAddEvidenceFile()" class="text-[10px] text-steel hover:text-red-700 hover:underline shrink-0 font-semibold cursor-pointer">✕ Treure</button>
+        </div>`;
+    }
+  }
+
+  async function convertEvidencePdfToImage(pdfFile) {
+    if (!window.pdfjsLib) return pdfFile;
+    try {
+      const arrayBuffer = await pdfFile.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const numPagesToRender = Math.min(pdf.numPages, 2);
+      const renderedPages = [];
+      let totalHeight = 0;
+      let maxWidth = 0;
+
+      for (let p = 1; p <= numPagesToRender; p++) {
+        const page = await pdf.getPage(p);
+        const viewport = page.getViewport({ scale: 1.5 });
+        renderedPages.push({ page, viewport });
+        totalHeight += viewport.height;
+        if (viewport.width > maxWidth) maxWidth = viewport.width;
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = maxWidth;
+      canvas.height = totalHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      let currentY = 0;
+      for (const { page, viewport } of renderedPages) {
+        const pageCanvas = document.createElement('canvas');
+        pageCanvas.width = viewport.width;
+        pageCanvas.height = viewport.height;
+        await page.render({ canvasContext: pageCanvas.getContext('2d'), viewport }).promise;
+        ctx.drawImage(pageCanvas, 0, currentY);
+        currentY += viewport.height;
+      }
+
+      const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.88));
+      if (!blob) return pdfFile;
+      return new File([blob], pdfFile.name.replace(/\.pdf$/i, '') + '_pages.jpg', { type: 'image/jpeg' });
+    } catch (err) {
+      console.warn('Avís en convertir PDF a imatge:', err);
+      return pdfFile;
+    }
+  }
+
+  async function previewAddEvidenceFile(input) {
+    if (!input.files || !input.files[0]) return;
+
+    const file = input.files[0];
+    const previewName = document.getElementById('add-evidence-preview-name');
+    const emptyState = document.getElementById('add-evidence-empty-state');
+    const previewBox = document.getElementById('add-evidence-preview-box');
+    const feedback = document.getElementById('add-evidence-ai-feedback');
+    const submitBtn = document.getElementById('btn-submit-add-evidence');
+
+    if (previewName) previewName.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+    if (emptyState) emptyState.classList.add('hidden');
+    if (previewBox) previewBox.classList.remove('hidden');
+
+    if (!feedback) return;
+
+    feedback.classList.remove('hidden');
+    feedback.innerHTML = `
+      <div class="rounded-xl border border-gold/40 bg-ink text-cream p-3 text-xs flex items-center gap-2.5">
+        <div class="w-4 h-4 rounded-full border-2 border-gold/40 border-t-gold animate-spin shrink-0"></div>
+        <div>
+          <div class="font-bold text-gold font-marcellus text-[11px]">Assistent d'IA SGLang</div>
+          <div class="text-[10px] text-cream/80">Validant autenticitat i congruència del document amb el bé...</div>
+        </div>
+      </div>`;
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    }
+
+    try {
+      let fileToSend = file;
+      if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+        fileToSend = await convertEvidencePdfToImage(file);
+      }
+
+      const formData = new FormData();
+      formData.append('file', fileToSend);
+      formData.append('promptType', 'invoice');
+
+      const response = await fetch('{{ path('app_item_analyze_media') }}', {
+        method: 'POST',
+        body: formData,
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      });
+      const res = await response.json().catch(() => null);
+
+      if (!response.ok || (res && res.success === false)) {
+        if (res && res.code === 'AI_SYNTHETIC_REJECTED') {
+          feedback.innerHTML = `
+            <div class="rounded-xl border border-red-300 bg-red-50 p-3 text-xs text-red-900 space-y-2">
+              <div class="font-bold">⚠️ Document rebutjat per seguretat</div>
+              <div class="text-[11px] text-red-800">${escapeEvidenceHtml(res.error)}</div>
+              <button type="button" onclick="resetAddEvidenceFile()" class="px-2.5 py-1 rounded-lg bg-red-700 text-white text-[10px] font-bold hover:bg-red-800 cursor-pointer">✕ Treure fitxer</button>
+            </div>`;
+          return;
+        }
+
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+        feedback.innerHTML = `
+          <div class="rounded-xl border border-steel/25 bg-steel/5 p-2.5 text-[11px] text-steel">
+            ℹ️ ${escapeEvidenceHtml(res?.error || 'No s\'ha pogut completar la lectura automàtica. El document es custodiarà xifrat.')}
+          </div>`;
+        return;
+      }
+
+      if (res && res.aiEnabled === false) {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+        feedback.innerHTML = `
+          <div class="rounded-xl border border-steel/25 bg-steel/5 p-2.5 text-[11px] text-steel">
+            ✓ Integritat verificada. ${escapeEvidenceHtml(res.message || '')}
+          </div>`;
+        return;
+      }
+
+      const d = res?.data || {};
+      const itemBrand = '{{ (item.brand ?? '')|e('js') }}'.trim().toLowerCase();
+      const itemName = '{{ item.name|e('js') }}'.trim().toLowerCase();
+      const itemCatId = '{{ item.category ? item.category.id : '' }}';
+      const docBrand = (d.brand || '').trim().toLowerCase();
+      const docName = (d.name || '').trim().toLowerCase();
+      const docCatId = d.categoryId ? String(d.categoryId) : '';
+
+      const isNonFiscal = (typeof d.confidence === 'number' && d.confidence <= 0.2) || (!docBrand && !docName);
+      const isBrandMismatch = Boolean(docBrand && ((itemBrand && itemBrand !== docBrand && !itemName.includes(docBrand)) || (!itemBrand && !itemName.includes(docBrand))));
+      const isCategoryMismatch = Boolean(itemCatId && docCatId && itemCatId !== docCatId);
+
+      if (isNonFiscal) {
+        feedback.innerHTML = `
+          <div class="guide-note py-2.5 px-3 text-[11px] leading-snug space-y-2">
+            <div class="flex items-center gap-1.5 font-bold text-ink">
+              <span class="text-gold">⚠️</span>
+              <span>Document no coincident o no fiscal</span>
+            </div>
+            <div class="text-[10px] text-ink/80">
+              ${escapeEvidenceHtml(d.notes || "No s'han pogut extreure dades fiscals ni de compra d'aquest document.")}
+            </div>
+            <div class="pt-1.5 border-t border-gold/25 flex items-center justify-between gap-2">
+              <button type="button" onclick="resetAddEvidenceFile()" class="inline-flex items-center gap-1 text-[10px] font-semibold text-red-700 hover:text-red-900 bg-red-50 hover:bg-red-100 py-1 px-2.5 rounded-lg border border-red-200 cursor-pointer">
+                ✕ Treure fitxer
+              </button>
+              <button type="button" onclick="acceptAddEvidenceDiscrepancy()" class="text-[10px] font-semibold text-ink/75 hover:text-ink hover:underline cursor-pointer">
+                Custodiar igualment
+              </button>
+            </div>
+          </div>`;
+        if (window.RegistralsToast) {
+          window.RegistralsToast.show('⚠️ Document no coincident', 'Aquest fitxer no sembla un comprovant vàlid per a aquest bé.', 'warning');
+        }
+        return;
+      }
+
+      if (isBrandMismatch || isCategoryMismatch) {
+        const mismatchMsg = isBrandMismatch
+          ? `El document correspon a <strong>${escapeEvidenceHtml(d.brand || d.name)}</strong>, mentre que el bé és <strong>${escapeEvidenceHtml(itemBrand || itemName)}</strong>.`
+          : 'La categoria del document no sembla correspondre a la categoria d\'aquest bé.';
+        feedback.innerHTML = `
+          <div class="guide-note py-2.5 px-3 text-[11px] leading-snug space-y-2">
+            <div class="flex items-center gap-1.5 font-bold text-ink">
+              <span class="text-gold">⚠️</span>
+              <span>Possible discrepància amb el bé</span>
+            </div>
+            <div class="text-[10px] text-ink/80">${mismatchMsg}</div>
+            <div class="pt-1.5 border-t border-gold/25 flex items-center justify-between gap-2">
+              <button type="button" onclick="resetAddEvidenceFile()" class="inline-flex items-center gap-1 text-[10px] font-semibold text-red-700 hover:text-red-900 bg-red-50 hover:bg-red-100 py-1 px-2.5 rounded-lg border border-red-200 cursor-pointer">
+                ✕ Treure fitxer
+              </button>
+              <button type="button" onclick="acceptAddEvidenceDiscrepancy()" class="text-[10px] font-semibold text-ink/75 hover:text-ink hover:underline cursor-pointer">
+                Custodiar igualment
+              </button>
+            </div>
+          </div>`;
+        if (window.RegistralsToast) {
+          window.RegistralsToast.show('⚠️ Discrepància detectada', 'Revisa si el document pertany realment a aquest bé.', 'warning');
+        }
+        return;
+      }
+
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      }
+      const details = [];
+      if (d.sellerName) details.push(`Venedor: <strong>${escapeEvidenceHtml(d.sellerName)}</strong>`);
+      if (d.acquisitionDate) details.push(`Data: <strong>${escapeEvidenceHtml(d.acquisitionDate)}</strong>`);
+      if (d.declaredValueEuros) details.push(`Import: <strong>${escapeEvidenceHtml(String(d.declaredValueEuros))} €</strong>`);
+
+      feedback.innerHTML = `
+        <div class="rounded-xl border border-emerald-300 bg-emerald-50 p-2.5 text-[11px] text-emerald-900 space-y-0.5">
+          <div class="font-bold">✓ Document verificat per IA</div>
+          ${details.length > 0 ? `<div class="text-[10px] font-mono text-emerald-800">${details.join(' · ')}</div>` : ''}
+        </div>`;
+    } catch (err) {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      }
+      feedback.innerHTML = `
+        <div class="rounded-xl border border-steel/25 bg-steel/5 p-2.5 text-[11px] text-steel">
+          ℹ️ Error de connexió en l'anàlisi prèvia. Pots custodiar el document igualment.
+        </div>`;
     }
   }
 
