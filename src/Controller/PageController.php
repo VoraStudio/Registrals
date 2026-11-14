@@ -119,7 +119,7 @@ final class PageController extends AbstractController
      */
     private function loadFaqs(string $locale = 'ca'): array
     {
-        $projectDir = (string) $this->getParameter('kernel.project_dir');
+        $projectDir = dirname(__DIR__, 2);
         $path = $projectDir . '/content/faq/faqs.' . $locale . '.json';
         if (!is_file($path)) {
             $path = $projectDir . '/content/faq/faqs.ca.json';

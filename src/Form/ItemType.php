@@ -18,6 +18,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -149,6 +150,33 @@ class ItemType extends AbstractType
                             'image/heif',
                         ],
                         'mimeTypesMessage' => 'Si us plau, puja una imatge vàlida (JPG, PNG, WebP o HEIC).',
+                    ]),
+                ],
+                'attr' => [
+                    'accept' => 'image/*',
+                    'class' => 'sr-only',
+                ],
+            ])
+            ->add('extraPhotos', FileType::class, [
+                'label' => 'Fotografies addicionals (detall / número de sèrie)',
+                'mapped' => false,
+                'required' => false,
+                'multiple' => true,
+                'constraints' => [
+                    new All([
+                        'constraints' => [
+                            new File([
+                                'maxSize' => '15M',
+                                'mimeTypes' => [
+                                    'image/jpeg',
+                                    'image/png',
+                                    'image/webp',
+                                    'image/heic',
+                                    'image/heif',
+                                ],
+                                'mimeTypesMessage' => 'Si us plau, puja imatges vàlides (JPG, PNG, WebP o HEIC).',
+                            ]),
+                        ],
                     ]),
                 ],
                 'attr' => [

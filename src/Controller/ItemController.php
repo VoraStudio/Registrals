@@ -48,7 +48,7 @@ class ItemController extends AbstractController
         EntityManagerInterface $entityManager,
         \Symfony\Component\Messenger\MessageBusInterface $messageBus,
         UserActivityLogger $activityLogger,
-        \App\Repository\SystemSettingRepository $settingRepository
+        ?\App\Repository\SystemSettingRepository $settingRepository = null
     ): Response {
         /** @var User $user */
         $user = $this->getUser();
@@ -98,6 +98,9 @@ class ItemController extends AbstractController
         $form = $this->createForm(ItemType::class, $item);
         $form->handleRequest($request);
 
+        $plan = $user->getPlan();
+        $maxPhotos = ($plan !== null && !$user->isAdmin()) ? $plan->getMaxPhotosPerItem() : -1;
+
         if ($form->isSubmitted() && $form->isValid()) {
             $hasIntegrityErrors = false;
 
@@ -113,6 +116,24 @@ class ItemController extends AbstractController
                 } else {
                     $photoMetadata = $photoCheck->metadata;
                 }
+            }
+
+            // Validació de fotografies addicionals (Pla Plus / Unlimited / Admin)
+            /** @var UploadedFile[] $rawExtraPhotos */
+            $rawExtraPhotos = $form->get('extraPhotos')->getData() ?? [];
+            $validExtraPhotos = [];
+            $maxExtraAllowed = $maxPhotos > 0 ? max(0, $maxPhotos - ($primaryPhoto instanceof UploadedFile ? 1 : 0)) : PHP_INT_MAX;
+            foreach (array_slice($rawExtraPhotos, 0, $maxExtraAllowed) as $extraPhoto) {
+                if (!$extraPhoto instanceof UploadedFile) {
+                    continue;
+                }
+                $extraCheck = $integrityValidator->validateItemPhoto($extraPhoto);
+                if (!$extraCheck->isValid) {
+                    $form->get('extraPhotos')->addError(new FormError($extraCheck->rejectionReason ?? 'Una fotografia addicional no és vàlida.'));
+                    $hasIntegrityErrors = true;
+                    break;
+                }
+                $validExtraPhotos[] = ['file' => $extraPhoto, 'metadata' => $extraCheck->metadata];
             }
 
             // Validació d'integritat del comprovant/factura d'adquisició
@@ -134,6 +155,10 @@ class ItemController extends AbstractController
 
                 if ($primaryPhoto instanceof UploadedFile) {
                     $storageService->storeUploadedDocument($item, $primaryPhoto, DocumentType::PHOTO_PRIMARY, $photoMetadata);
+                }
+
+                foreach ($validExtraPhotos as $extraItem) {
+                    $storageService->storeUploadedDocument($item, $extraItem['file'], DocumentType::PHOTO_DETAIL, $extraItem['metadata']);
                 }
 
                 if ($invoiceFile instanceof UploadedFile) {
@@ -174,9 +199,11 @@ class ItemController extends AbstractController
 
         $rootCategories = $categoryRepository->findRootCategories();
 
-        $plan = $user->getPlan();
         $planCode = $plan ? $plan->getCode() : 'free';
-        $aiGlobalEnabled = $settingRepository->getBool('ai_global_enabled', (bool) $this->getParameter('app.ai_assistance_enabled'));
+        $defaultAiGlobal = (bool) $this->getParameter('app.ai_assistance_enabled');
+        $aiGlobalEnabled = $settingRepository !== null
+            ? $settingRepository->getBool('ai_global_enabled', $defaultAiGlobal)
+            : $defaultAiGlobal;
         $aiPlanEnabled = $plan === null || $plan->isAiAssistanceEnabled();
         $aiQuota = $plan ? $plan->getAiAssistanceQuota() : -1;
         $aiUsage = $user->getAiUsageCount();
@@ -189,6 +216,7 @@ class ItemController extends AbstractController
             'cui' => $cui,
             'categories' => $rootCategories,
             'planCode' => $planCode,
+            'maxPhotos' => $maxPhotos,
             'aiAvailable' => $aiAvailable,
             'aiRemainingCredits' => $aiRemainingCredits,
         ]);

@@ -149,6 +149,29 @@
                 </button>
               </div>
 
+              {# Fotos addicionals (detall / número de sèrie) per a Pla Plus / Unlimited #}
+              {% if maxPhotos|default(1) <= 0 or maxPhotos|default(1) > 1 %}
+                {% set maxExtra = maxPhotos|default(1) > 0 ? maxPhotos - 1 : -1 %}
+                <div class="rounded-xl border border-gold/30 bg-cream/20 p-2.5 space-y-2">
+                  {{ form_widget(form.extraPhotos) }}
+                  <div class="flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-1.5 min-w-0">
+                      <span class="text-[11px] font-semibold text-ink truncate">Fotos de detall / Núm. sèrie</span>
+                      <span id="extra-photos-counter" class="text-[10px] font-mono font-bold text-ink/75 bg-white px-1.5 py-0.5 rounded border border-gold/30 shrink-0">
+                        0/{{ maxExtra > 0 ? maxExtra : '∞' }}
+                      </span>
+                    </div>
+                    <button type="button"
+                            onclick="document.getElementById('{{ form.extraPhotos.vars.id }}').click();"
+                            class="px-2.5 py-1 rounded-lg bg-white hover:bg-cream border border-gold/40 text-ink text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer shrink-0">
+                      + Afegir fotos
+                    </button>
+                  </div>
+                  <div id="extra-photos-preview" class="hidden grid grid-cols-4 gap-1.5"></div>
+                  {{ form_errors(form.extraPhotos, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
+                </div>
+              {% endif %}
+
               {# Botó de navegació Mòbil per al Pas 1 #}
               <div class="lg:hidden flex items-center justify-between pt-2 border-t border-gold/20">
                 <a href="{{ path('app_dashboard') }}" class="text-xs text-ink/70 hover:text-ink font-semibold">
@@ -1120,7 +1143,7 @@
               setTimeout(() => {
                 window.RegistralsToast.show(
                   '📸 Recomanació Pla Plus: Número de sèrie',
-                  'No s\'ha detectat cap número de sèrie o identificació única. No és obligatori, però amb el Pla Plus et recomanem fer una foto específica de la numeració un cop creat el bé.',
+                  'No s\'ha detectat cap número de sèrie o identificació única. No és obligatori, però amb el Pla Plus pots afegir aquí mateix una foto específica de la numeració.',
                   'info',
                   7500
                 );
@@ -1154,6 +1177,75 @@
 
   // Feedback dinàmic en triar arxius i disparador d'IA
   const primaryInput = document.getElementById('{{ form.primaryPhoto.vars.id }}');
+  const extraPhotosInput = document.getElementById('{{ form.extraPhotos.vars.id }}');
+  const extraPhotosPreview = document.getElementById('extra-photos-preview');
+  const extraPhotosCounter = document.getElementById('extra-photos-counter');
+  const maxExtraPhotos = {{ maxPhotos|default(1) > 0 ? maxPhotos - 1 : -1 }};
+  let extraPhotosFiles = [];
+
+  function syncExtraPhotosInput() {
+    if (!extraPhotosInput) return;
+    const dt = new DataTransfer();
+    extraPhotosFiles.forEach((f) => dt.items.add(f));
+    extraPhotosInput.files = dt.files;
+
+    if (extraPhotosCounter) {
+      extraPhotosCounter.textContent = `${extraPhotosFiles.length}/${maxExtraPhotos > 0 ? maxExtraPhotos : '∞'}`;
+    }
+    if (!extraPhotosPreview) return;
+
+    if (extraPhotosFiles.length === 0) {
+      extraPhotosPreview.classList.add('hidden');
+      extraPhotosPreview.innerHTML = '';
+      return;
+    }
+
+    extraPhotosPreview.classList.remove('hidden');
+    extraPhotosPreview.innerHTML = '';
+    extraPhotosFiles.forEach((file, idx) => {
+      const card = document.createElement('div');
+      card.className = 'relative aspect-square rounded-lg overflow-hidden border border-gold/40 bg-white group';
+      const img = document.createElement('img');
+      img.className = 'w-full h-full object-cover';
+      img.alt = file.name;
+      const reader = new FileReader();
+      reader.onload = (ev) => { img.src = ev.target.result; };
+      reader.readAsDataURL(file);
+
+      const rmBtn = document.createElement('button');
+      rmBtn.type = 'button';
+      rmBtn.className = 'absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-ink/85 text-cream text-[10px] leading-none flex items-center justify-center hover:bg-red-600 cursor-pointer';
+      rmBtn.textContent = '×';
+      rmBtn.title = 'Treure foto';
+      rmBtn.onclick = () => {
+        extraPhotosFiles.splice(idx, 1);
+        syncExtraPhotosInput();
+      };
+
+      card.appendChild(img);
+      card.appendChild(rmBtn);
+      extraPhotosPreview.appendChild(card);
+    });
+  }
+
+  if (extraPhotosInput) {
+    extraPhotosInput.addEventListener('change', function() {
+      const incoming = Array.from(this.files || []).filter((f) => f.type.startsWith('image/'));
+      if (incoming.length === 0) return;
+
+      for (const file of incoming) {
+        if (maxExtraPhotos > 0 && extraPhotosFiles.length >= maxExtraPhotos) {
+          if (window.RegistralsToast) {
+            window.RegistralsToast.show('Límit de fotos assolit', `El teu pla permet fins a ${maxExtraPhotos} fotos addicionals a més de la principal.`, 'warning');
+          }
+          break;
+        }
+        extraPhotosFiles.push(file);
+      }
+      syncExtraPhotosInput();
+    });
+  }
+
   const primaryCameraInput = document.getElementById('primary-photo-camera');
   if (primaryCameraInput) {
     primaryCameraInput.addEventListener('change', function() {
