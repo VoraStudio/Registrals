@@ -1237,7 +1237,7 @@
       }
     } finally {
       if (loadingOverlay) loadingOverlay.classList.add('hidden');
-      if (!isExtraPhoto && backendPromptType === 'photo') isAnalyzingPhoto = false;
+      if (backendPromptType === 'photo') isAnalyzingPhoto = false;
       else isAnalyzingInvoice = false;
       updateSubmitButtonState();
     }
