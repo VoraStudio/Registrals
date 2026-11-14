@@ -333,40 +333,49 @@ const sectionReveals = {
       // Primeres 7 preguntes visibles d'entrada: fade up ràpid i net
       const initialFaqCards = gsap.utils.toArray("#s8 [data-reveal=card]").slice(0, 7);
       if (initialFaqCards.length) {
-        tl.from(initialFaqCards, { opacity: 0, y: 28, duration: 0.65, ease: "power2.out", stagger: 0.09 }, "-=0.4");
+        tl.from(initialFaqCards, { opacity: 0, y: 24, duration: 0.6, ease: "power2.out", stagger: 0.08 }, "-=0.4");
       }
       // Icona de fons: només opacity (el transform el porta el CSS), alhora que el títol
       tl.from("#s8 [data-reveal=icon]", { opacity: 0, duration: 4, ease: "power2.out" }, "title");
 
-      // Scroll intern dins la caixa de FAQs: entrada progressiva amb GSAP i gestió del degradat
+      // Pin + scrub GSAP a escriptori: mentre baixes amb el ratolí, les preguntes fan scroll dins la caixa
       const faqContainer = document.getElementById("faq-scroll-container");
+      const faqTrack = document.getElementById("faq-scroll-track");
       const faqFade = document.getElementById("faq-scroll-fade");
       const faqHint = document.getElementById("faq-scroll-hint");
-      if (faqContainer) {
-        const extraFaqCards = gsap.utils.toArray("#s8 [data-reveal=card]").slice(7);
-        if (extraFaqCards.length) {
-          gsap.set(extraFaqCards, { opacity: 0, y: 18 });
-          const faqObserver = new IntersectionObserver(
-            (entries) => {
-              entries.forEach((entry) => {
-                if (entry.isIntersecting) {
-                  gsap.to(entry.target, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" });
-                  faqObserver.unobserve(entry.target);
-                }
-              });
-            },
-            { root: faqContainer, threshold: 0.15 }
-          );
-          extraFaqCards.forEach((card) => faqObserver.observe(card));
-        }
 
-        const updateFaqFade = () => {
-          const atBottom = faqContainer.scrollTop + faqContainer.clientHeight >= faqContainer.scrollHeight - 12;
-          if (faqFade) faqFade.style.opacity = atBottom ? "0" : "1";
-          if (faqHint) faqHint.style.opacity = atBottom ? "0.35" : "1";
-        };
-        faqContainer.addEventListener("scroll", updateFaqFade, { passive: true });
-        updateFaqFade();
+      if (faqContainer && faqTrack) {
+        const localMm = gsap.matchMedia();
+        localMm.add("(min-width: 768px)", () => {
+          const getDistance = () => Math.max(0, faqTrack.scrollHeight - faqContainer.clientHeight);
+          if (getDistance() <= 0) return;
+
+          const scrollTween = gsap.to(faqTrack, {
+            y: () => -getDistance(),
+            ease: "none",
+            scrollTrigger: {
+              trigger: "#s8",
+              start: "top top",
+              end: () => "+=" + getDistance(),
+              pin: true,
+              scrub: 0.6,
+              invalidateOnRefresh: true,
+              onUpdate: (self) => {
+                const atEnd = self.progress > 0.94;
+                if (faqFade) faqFade.style.opacity = atEnd ? "0" : "1";
+                if (faqHint) faqHint.style.opacity = atEnd ? "0.35" : "1";
+              },
+            },
+          });
+
+          const onToggle = () => requestAnimationFrame(() => ScrollTrigger.refresh());
+          faqTrack.querySelectorAll("details").forEach((d) => d.addEventListener("toggle", onToggle));
+
+          return () => {
+            scrollTween.kill();
+            faqTrack.querySelectorAll("details").forEach((d) => d.removeEventListener("toggle", onToggle));
+          };
+        });
       }
     },
   },
