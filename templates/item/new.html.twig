@@ -161,11 +161,19 @@
                         0/{{ maxExtra > 0 ? maxExtra : '∞' }}
                       </span>
                     </div>
-                    <button type="button"
-                            onclick="document.getElementById('{{ form.extraPhotos.vars.id }}').click();"
-                            class="px-2.5 py-1 rounded-lg bg-white hover:bg-cream border border-gold/40 text-ink text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer shrink-0">
-                      + Afegir fotos
-                    </button>
+                    <div class="flex items-center gap-1.5 shrink-0">
+                      <button type="button"
+                              onclick="openMobileHandoffModal('extra_photo')"
+                              class="hidden lg:inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-cream/70 hover:bg-cream border border-gold/40 text-ink text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                              title="Fer foto addicional amb el mòbil (QR)">
+                        <span>📱 QR</span>
+                      </button>
+                      <button type="button"
+                              onclick="document.getElementById('{{ form.extraPhotos.vars.id }}').click();"
+                              class="px-2.5 py-1 rounded-lg bg-white hover:bg-cream border border-gold/40 text-ink text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer">
+                        + Afegir fotos
+                      </button>
+                    </div>
                   </div>
                   <div id="extra-photos-preview" class="hidden grid grid-cols-4 gap-1.5"></div>
                   {{ form_errors(form.extraPhotos, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
@@ -283,11 +291,19 @@
                         0/{{ maxExtraEvidences > 0 ? maxExtraEvidences : '∞' }}
                       </span>
                     </div>
-                    <button type="button"
-                            onclick="document.getElementById('{{ form.extraEvidences.vars.id }}').click();"
-                            class="px-2.5 py-1 rounded-lg bg-white hover:bg-cream border border-steel/30 text-ink text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer shrink-0">
-                      + Afegir proves
-                    </button>
+                    <div class="flex items-center gap-1.5 shrink-0">
+                      <button type="button"
+                              onclick="openMobileHandoffModal('extra_invoice')"
+                              class="hidden lg:inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-cream/70 hover:bg-cream border border-gold/40 text-ink text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                              title="Capturar prova addicional amb el mòbil (QR)">
+                        <span>📱 QR</span>
+                      </button>
+                      <button type="button"
+                              onclick="document.getElementById('{{ form.extraEvidences.vars.id }}').click();"
+                              class="px-2.5 py-1 rounded-lg bg-white hover:bg-cream border border-steel/30 text-ink text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer">
+                        + Afegir proves
+                      </button>
+                    </div>
                   </div>
                   <div id="extra-evidences-preview" class="hidden flex flex-wrap gap-1.5"></div>
                   {{ form_errors(form.extraEvidences, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
@@ -1277,9 +1293,25 @@
       }
       sync();
     });
+
+    return {
+      addFiles: (files) => {
+        for (const file of files) {
+          if (!acceptFile(file)) continue;
+          if (maxFiles > 0 && filesQueue.length >= maxFiles) {
+            if (window.RegistralsToast) {
+              window.RegistralsToast.show('Límit assolit', limitMsg, 'warning');
+            }
+            break;
+          }
+          filesQueue.push(file);
+        }
+        sync();
+      }
+    };
   }
 
-  setupMultiFileQueue({
+  const extraPhotosQueue = setupMultiFileQueue({
     inputId: '{{ form.extraPhotos.vars.id }}',
     previewId: 'extra-photos-preview',
     counterId: 'extra-photos-counter',
@@ -1289,7 +1321,7 @@
     mode: 'images',
   });
 
-  setupMultiFileQueue({
+  const extraEvidencesQueue = setupMultiFileQueue({
     inputId: '{{ form.extraEvidences.vars.id }}',
     previewId: 'extra-evidences-preview',
     counterId: 'extra-evidences-counter',
@@ -1813,6 +1845,8 @@
 
   async function openMobileHandoffModal(target = 'photo') {
     handoffCurrentTarget = target;
+    const backendTarget = (target === 'invoice' || target === 'extra_invoice') ? 'invoice' : 'photo';
+    const isInvoiceFlow = backendTarget === 'invoice';
     const modal = document.getElementById('modal-mobile-handoff');
     const qrLoading = document.getElementById('qr-loading');
     const qrImg = document.getElementById('qr-code-img');
@@ -1821,14 +1855,14 @@
     const modalDesc = document.getElementById('modal-handoff-desc');
 
     if (modalTitle) {
-      modalTitle.innerText = target === 'invoice'
-        ? 'Captura del Comprovant des del Mòbil'
-        : 'Captura de la Foto des del Mòbil';
+      if (target === 'extra_invoice') modalTitle.innerText = 'Captura de Prova Addicional des del Mòbil';
+      else if (target === 'extra_photo') modalTitle.innerText = 'Captura de Foto Addicional des del Mòbil';
+      else modalTitle.innerText = isInvoiceFlow ? 'Captura del Comprovant des del Mòbil' : 'Captura de la Foto des del Mòbil';
     }
     if (modalDesc) {
-      modalDesc.innerText = target === 'invoice'
-        ? 'Escaneja aquest codi QR amb la càmera del teu telèfon per fotografiar la factura, tiquet o garantia. Es transmetrà en temps real a aquesta pantalla.'
-        : 'Escaneja aquest codi QR amb la càmera del teu telèfon per fer la foto de l\'objecte. La imatge es transmetrà en temps real a aquesta pantalla.';
+      modalDesc.innerText = isInvoiceFlow
+        ? 'Escaneja aquest codi QR amb la càmera del teu telèfon per fotografiar el document o comprovant. Es transmetrà en temps real a aquesta pantalla.'
+        : 'Escaneja aquest codi QR amb la càmera del teu telèfon per fer la foto de l\'objecte o del número de sèrie. La imatge es transmetrà en temps real a aquesta pantalla.';
     }
 
     if (modal) modal.classList.remove('hidden');
@@ -1843,7 +1877,7 @@
           'X-Requested-With': 'XMLHttpRequest',
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ target: target })
+        body: JSON.stringify({ target: backendTarget })
       });
       const data = await response.json().catch(() => null);
 
@@ -1900,29 +1934,45 @@
         const fileRes = await fetch(downloadUrl);
         const blob = await fileRes.blob();
 
-        const target = data.target || handoffCurrentTarget || 'photo';
-        const defaultFilename = target === 'invoice' ? 'comprovant_mobil.jpg' : 'foto_mobil.jpg';
+        const target = handoffCurrentTarget || data.target || 'photo';
+        const isInvoiceFlow = target === 'invoice' || target === 'extra_invoice';
+        const defaultFilename = isInvoiceFlow ? 'comprovant_mobil.jpg' : 'foto_mobil.jpg';
         const filename = data.photoOriginalName || defaultFilename;
         const file = new File([blob], filename, { type: blob.type || 'image/jpeg' });
 
         const dt = new DataTransfer();
         dt.items.add(file);
 
-        if (target === 'invoice' && invoiceInput) {
-          invoiceInput.files = dt.files;
-          invoiceInput.dispatchEvent(new Event('change', { bubbles: true }));
-        } else if (primaryInput) {
-          primaryInput.files = dt.files;
-          primaryInput.dispatchEvent(new Event('change', { bubbles: true }));
+        let routedAsExtra = false;
+        if (target === 'extra_invoice' || (target === 'invoice' && invoiceInput && invoiceInput.files && invoiceInput.files.length > 0 && extraEvidencesQueue)) {
+          if (extraEvidencesQueue) {
+            extraEvidencesQueue.addFiles([file]);
+            routedAsExtra = true;
+          }
+        } else if (target === 'extra_photo' || (target === 'photo' && primaryInput && primaryInput.files && primaryInput.files.length > 0 && extraPhotosQueue)) {
+          if (extraPhotosQueue) {
+            extraPhotosQueue.addFiles([file]);
+            routedAsExtra = true;
+          }
+        }
+
+        if (!routedAsExtra) {
+          if (isInvoiceFlow && invoiceInput) {
+            invoiceInput.files = dt.files;
+            invoiceInput.dispatchEvent(new Event('change', { bubbles: true }));
+          } else if (primaryInput) {
+            primaryInput.files = dt.files;
+            primaryInput.dispatchEvent(new Event('change', { bubbles: true }));
+          }
         }
 
         closeMobileHandoffModal();
 
         if (window.RegistralsToast) {
-          const title = target === 'invoice' ? '✨ Comprovant Sincronitzat' : '✨ Fotografia Sincronitzada';
-          const msg = target === 'invoice'
-            ? 'La foto del document feta des del telèfon s\'ha transferit amb èxit.'
-            : 'La foto del bé feta des del telèfon s\'ha transferit amb èxit.';
+          const title = isInvoiceFlow ? '✨ Comprovant Sincronitzat' : '✨ Fotografia Sincronitzada';
+          const msg = routedAsExtra
+            ? (isInvoiceFlow ? 'S\'ha afegit com a prova addicional.' : 'S\'ha afegit com a foto de detall addicional.')
+            : (isInvoiceFlow ? 'La foto del document feta des del telèfon s\'ha transferit amb èxit.' : 'La foto del bé feta des del telèfon s\'ha transferit amb èxit.');
           window.RegistralsToast.show(title, msg, 'success');
         }
       } else if (data && data.status === 'expired') {
