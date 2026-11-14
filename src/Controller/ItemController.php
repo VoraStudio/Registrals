@@ -47,7 +47,8 @@ class ItemController extends AbstractController
         MediaIntegrityValidator $integrityValidator,
         EntityManagerInterface $entityManager,
         \Symfony\Component\Messenger\MessageBusInterface $messageBus,
-        UserActivityLogger $activityLogger
+        UserActivityLogger $activityLogger,
+        \App\Repository\SystemSettingRepository $settingRepository
     ): Response {
         /** @var User $user */
         $user = $this->getUser();
@@ -173,11 +174,23 @@ class ItemController extends AbstractController
 
         $rootCategories = $categoryRepository->findRootCategories();
 
+        $plan = $user->getPlan();
+        $planCode = $plan ? $plan->getCode() : 'free';
+        $aiGlobalEnabled = $settingRepository->getBool('ai_global_enabled', (bool) $this->getParameter('app.ai_assistance_enabled'));
+        $aiPlanEnabled = $plan === null || $plan->isAiAssistanceEnabled();
+        $aiQuota = $plan ? $plan->getAiAssistanceQuota() : -1;
+        $aiUsage = $user->getAiUsageCount();
+        $aiRemainingCredits = ($aiQuota === -1 || $aiQuota >= 9999) ? -1 : max(0, $aiQuota - $aiUsage);
+        $aiAvailable = $aiGlobalEnabled && $aiPlanEnabled && ($aiRemainingCredits === -1 || $aiRemainingCredits > 0);
+
         return $this->render('item/new.html.twig', [
             'item' => $item,
             'form' => $form,
             'cui' => $cui,
             'categories' => $rootCategories,
+            'planCode' => $planCode,
+            'aiAvailable' => $aiAvailable,
+            'aiRemainingCredits' => $aiRemainingCredits,
         ]);
     }
 

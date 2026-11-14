@@ -527,8 +527,24 @@
   }
 
   // Estat reactiu de l'anàlisi de document
+  const userPlanCode = '{{ planCode|default('free')|e('js') }}';
+  const isPlusOrHigherPlan = userPlanCode === 'plus' || userPlanCode === 'unlimited';
+  const aiAvailable = {{ aiAvailable|default(false) ? 'true' : 'false' }};
+  const aiRemainingCredits = {{ aiRemainingCredits|default(0) }};
   let lastInvoiceExtraction = null;
   let isDiscrepancyAccepted = false;
+
+  if (aiAvailable && window.RegistralsToast) {
+    const creditsNote = aiRemainingCredits === -1
+      ? 'Tens consultes d\'IA sobirana il·limitades.'
+      : `Disposes de ${aiRemainingCredits} consultes d'IA disponibles.`;
+    window.RegistralsToast.show(
+      '✨ Assistència d\'IA i càlcul d\'import',
+      `En pujar la foto o la factura, la IA pot estimar el preu o extreure l'import del comprovant perquè el facis servir opcionalment. ${creditsNote}`,
+      'info',
+      7000
+    );
+  }
 
   // Variables d'estat per al Bloqueig Notarial del Botó Guardar (Subiteració 3.6)
   let isPhotoRejected = false;
@@ -1097,6 +1113,17 @@
               ? `S'han deduït ${fieldsUpdated} camps automàticament. Revisa'ls al formulari.`
               : 'Anàlisi completada. Pots completar o revisar els camps manualment.';
             window.RegistralsToast.show(title, msg, 'success');
+
+            if (promptType === 'photo' && isPlusOrHigherPlan && (!serialInput || serialInput.value.trim() === '')) {
+              setTimeout(() => {
+                window.RegistralsToast.show(
+                  '📸 Recomanació Pla Plus: Número de sèrie',
+                  'No s\'ha detectat cap número de sèrie o identificació única. No és obligatori, però amb el Pla Plus et recomanem fer una foto específica de la numeració un cop creat el bé.',
+                  'info',
+                  7500
+                );
+              }, 350);
+            }
           }
         }
       }
