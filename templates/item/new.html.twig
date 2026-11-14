@@ -22,7 +22,7 @@
         { label: 'Nou' }
       ],
       title: 'Registra un Nou Bé',
-      badge: '<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-gold/40 text-[11px] font-mono text-ink shadow-2xs"><span class="w-2 h-2 rounded-full bg-gold animate-pulse"></span><span>CUI: <strong class="font-bold text-ink">' ~ cui ~ '</strong></span></div>',
+      action_raw_html: '<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-gold/40 text-[11px] font-mono text-ink shadow-2xs"><span class="w-2 h-2 rounded-full bg-gold animate-pulse"></span><span>CUI: <strong class="font-bold text-ink">' ~ cui ~ '</strong></span></div>',
       mb_class: 'mb-2 sm:mb-2.5',
       pb_class: 'pb-2 sm:pb-2.5'
     } %}
@@ -534,17 +534,19 @@
   let lastInvoiceExtraction = null;
   let isDiscrepancyAccepted = false;
 
-  if (aiAvailable && window.RegistralsToast) {
-    const creditsNote = aiRemainingCredits === -1
-      ? 'Tens consultes d\'IA sobirana il·limitades.'
-      : `Disposes de ${aiRemainingCredits} consultes d'IA disponibles.`;
-    window.RegistralsToast.show(
-      '✨ Assistència d\'IA i càlcul d\'import',
-      `En pujar la foto o la factura, la IA pot estimar el preu o extreure l'import del comprovant perquè el facis servir opcionalment. ${creditsNote}`,
-      'info',
-      7000
-    );
-  }
+  document.addEventListener('DOMContentLoaded', () => {
+    if (aiAvailable && window.RegistralsToast) {
+      const creditsNote = aiRemainingCredits === -1
+        ? 'Tens consultes d\'IA sobirana il·limitades.'
+        : `Disposes de ${aiRemainingCredits} consultes d'IA disponibles.`;
+      window.RegistralsToast.show(
+        '✨ Assistència d\'IA i càlcul d\'import',
+        `En pujar la foto o la factura, la IA pot estimar el preu o extreure l'import del comprovant perquè el facis servir opcionalment. ${creditsNote}`,
+        'info',
+        7000
+      );
+    }
+  });
 
   // Variables d'estat per al Bloqueig Notarial del Botó Guardar (Subiteració 3.6)
   let isPhotoRejected = false;
