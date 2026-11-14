@@ -432,7 +432,7 @@
       }
 
       const data = await response.json();
-      if (!data.ok) {
+      if (!data.success) {
         throw new Error(data.error || 'No s\'ha pogut traduir l\'article');
       }
 
@@ -459,7 +459,7 @@
         if (targetLang === 'cat') {
           badgeEl.textContent = 'Original (CAT)';
         } else {
-          badgeEl.textContent = data.fromCache ? 'Memòria cau SHA-256' : 'Traducció IA Sobirana';
+          badgeEl.textContent = data.from_cache ? 'Memòria cau SHA-256' : 'Traducció IA Sobirana';
         }
       }
 
