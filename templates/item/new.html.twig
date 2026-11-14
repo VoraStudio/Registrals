@@ -152,7 +152,13 @@
               {# Fotos addicionals (detall / número de sèrie) per a Pla Plus / Unlimited #}
               {% if maxPhotos|default(1) <= 0 or maxPhotos|default(1) > 1 %}
                 {% set maxExtra = maxPhotos|default(1) > 0 ? maxPhotos - 1 : -1 %}
-                <div class="rounded-xl border border-gold/30 bg-cream/20 p-2.5 space-y-2">
+                <div class="relative rounded-xl border border-gold/30 bg-cream/20 p-2.5 space-y-2">
+                  {# Overlay d'anàlisi d'IA en curs per a fotos addicionals #}
+                  <div id="extra-photo-ai-loading" class="hidden absolute inset-0 bg-ink/90 backdrop-blur-xs rounded-xl flex flex-col items-center justify-center p-2.5 text-center text-cream z-20 transition-all pointer-events-none">
+                    <div class="w-6 h-6 rounded-full border-2 border-gold/40 border-t-gold animate-spin mb-1.5"></div>
+                    <div class="text-[11px] font-bold text-gold font-marcellus">Assistent d'IA SGLang</div>
+                    <div class="text-[10px] text-cream/80">Cercant número de sèrie...</div>
+                  </div>
                   {{ form_widget(form.extraPhotos) }}
                   <div class="flex items-center justify-between gap-2">
                     <div class="flex items-center gap-1.5 min-w-0">
@@ -992,7 +998,9 @@
   async function analyzeMediaWithAi(file, promptType) {
     const isExtraPhoto = promptType === 'photo_extra';
     const backendPromptType = isExtraPhoto ? 'photo' : promptType;
-    const loadingOverlay = isExtraPhoto ? null : document.getElementById(backendPromptType === 'photo' ? 'photo-ai-loading' : 'invoice-ai-loading');
+    const loadingOverlay = isExtraPhoto
+      ? document.getElementById('extra-photo-ai-loading')
+      : document.getElementById(backendPromptType === 'photo' ? 'photo-ai-loading' : 'invoice-ai-loading');
     if (loadingOverlay) loadingOverlay.classList.remove('hidden');
 
     if (backendPromptType === 'photo') isAnalyzingPhoto = true;
