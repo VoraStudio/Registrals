@@ -82,12 +82,6 @@ final class PageController extends AbstractController
         return $this->render('page/premsa.html.twig');
     }
 
-    #[Route('/blog', name: 'app_blog', methods: ['GET', 'HEAD'])]
-    public function blog(): Response
-    {
-        return $this->render('page/blog.html.twig');
-    }
-
     #[Route('/contacte', name: 'app_contact', methods: ['GET', 'HEAD'])]
     public function contact(): Response
     {
