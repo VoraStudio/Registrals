@@ -30,10 +30,14 @@ final class PageController extends AbstractController
         // 3. Tots els plans (incloent Properament/inactius) parametritzats des de backoffice
         $plans = $this->getPlansByCode($planRepository);
 
-        // 4. Visitant nou o sessió desconeguda: mostra la Landing Page corporativa amb mètriques reals
+        // 4. Preguntes freqüents des de JSON extern (preparat per a i18n)
+        $faqs = $this->loadFaqs('ca');
+
+        // 5. Visitant nou o sessió desconeguda: mostra la Landing Page corporativa amb mètriques reals
         return $this->render('page/home.html.twig', [
             'stats' => $statsService->getHomeStats(),
             'plans' => $plans,
+            'faqs' => $faqs,
         ]);
     }
 
@@ -108,5 +112,32 @@ final class PageController extends AbstractController
         }
 
         return $plans;
+    }
+
+    /**
+     * @return array<int, array{id: int, question: string, answer: string}>
+     */
+    private function loadFaqs(string $locale = 'ca'): array
+    {
+        $projectDir = (string) $this->getParameter('kernel.project_dir');
+        $path = $projectDir . '/content/faq/faqs.' . $locale . '.json';
+        if (!is_file($path)) {
+            $path = $projectDir . '/content/faq/faqs.ca.json';
+        }
+        if (!is_file($path)) {
+            return [];
+        }
+
+        $raw = file_get_contents($path);
+        if ($raw === false) {
+            return [];
+        }
+
+        try {
+            $decoded = json_decode($raw, true, 512, JSON_THROW_ON_ERROR);
+            return is_array($decoded) ? $decoded : [];
+        } catch (\Throwable) {
+            return [];
+        }
     }
 }

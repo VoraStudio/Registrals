@@ -1,0 +1,92 @@
+[
+  {
+    "id": 1,
+    "question": "Per a què serveix Registrals? Està adreçat només a professionals?",
+    "answer": "No. Registrals és una plataforma digital pensada per a qualsevol persona o professional (com a persona física) que vulgui tenir els seus béns, drets i creacions identificats, documentats i organitzats en un únic espai. Des d'una mateixa aplicació podràs crear un inventari dels teus béns, associar-hi factures, fotografies, justificants i altres documents acreditatius, registrar-ne la titularitat i obtenir certificats que permetin acreditar la informació registrada. Tot això de manera senzilla, des del mòbil o l'ordinador, les 24 hores del dia i des de qualsevol lloc amb connexió a Internet. Registrals reuneix en una única eina funcionalitats que habitualment es troben disperses en diferents serveis: inventari de béns, arxiu documental, identificació d'objectes, acreditació de titularitat, certificació temporal i gestió de transmissions."
+  },
+  {
+    "id": 2,
+    "question": "Per què és convenient tenir els meus béns registrats?",
+    "answer": "Molts béns de consum, com ara rellotges, joies, obres d'art, aparells electrònics, bicicletes o col·leccions, no disposen d'un registre públic oficial de titularitat, com sí que passa amb els immobles o determinats vehicles. En aquests casos, la possessió de bona fe d'un bé moble pot constituir un títol de propietat. Tanmateix, quan cal demostrar aquesta titularitat davant d'una asseguradora, en una herència, un divorci o un procediment judicial, disposar de proves documentals pot marcar una diferència important."
+  },
+  {
+    "id": 3,
+    "question": "Què passa si no tinc la factura de compra?",
+    "answer": "No disposar de la factura no significa que no puguis registrar un bé ni documentar-ne la titularitat. Hi ha moltes altres evidències que poden ajudar a acreditar que un bé és teu: fotografies on aparegui l'objecte, justificants bancaris, contractes privats de compravenda o donació, correus electrònics, certificats de garantia, informes pericials o altres documents que permetin identificar-lo i relacionar-lo amb tu."
+  },
+  {
+    "id": 4,
+    "question": "Puc consultar les dades d'altres persones o dels béns registrats?",
+    "answer": "No. Registrals no és un registre públic i la informació que hi introdueixen els usuaris és confidencial. Cada usuari només pot consultar la informació del seu propi espai privat, d'acord amb els permisos i les funcionalitats disponibles en el seu pla. Ni altres usuaris ni terceres persones poden accedir lliurement a les dades dels teus béns, documents o informació personal."
+  },
+  {
+    "id": 5,
+    "question": "Com puc donar-me d'alta al servei?",
+    "answer": "És molt senzill. Només cal accedir a la pàgina web de Registrals, crear un compte d'usuari i completar el procés de registre. Un cop donat d'alta, podràs començar a incorporar els teus béns, organitzar-los, associar-hi documents i utilitzar les funcionalitats gratuïtes que ofereix la plataforma."
+  },
+  {
+    "id": 6,
+    "question": "Té algun cost donar-se d'alta a Registrals?",
+    "answer": "No. El registre com a usuari i l'accés al pla gratuït de Registrals no tenen cap cost. Aquest pla permet començar a utilitzar la plataforma i gaudir de les seves funcionalitats bàsiques. Si necessites més capacitat o vols accedir a funcionalitats addicionals, pots contractar els plans Plus i Unlimited."
+  },
+  {
+    "id": 7,
+    "question": "Quants béns puc registrar?",
+    "answer": "El nombre de béns que pots incorporar a Registrals depèn del pla que hagis contractat. El pla gratuït permet començar a crear el teu inventari personal, mentre que els plans Plus i Unlimited amplien progressivament la capacitat de registre i gestió."
+  },
+  {
+    "id": 8,
+    "question": "Puc eliminar o traspassar els béns registrats?",
+    "answer": "Sí. Pots gestionar els teus béns i actualitzar la informació sempre que ho necessitis. Si deixes de ser titular d'un bé o dret, pots actualitzar-ne l'estat o eliminar-lo del teu inventari. Si vols transmetre'l a una altra persona, Registrals t'ajuda a documentar el procés de transmissió amb tecnologia blockchain."
+  },
+  {
+    "id": 9,
+    "question": "Com puc obtenir una factura formal de l'import del servei?",
+    "answer": "Si contractes un dels plans de pagament de Registrals, podràs obtenir la factura corresponent des de la mateixa plataforma, amb les dades fiscals necessàries, directament des del teu espai d'usuari."
+  },
+  {
+    "id": 10,
+    "question": "Rebré assistència si el servei no funciona o tinc algun problema?",
+    "answer": "Sí. Si tens qualsevol incidència tècnica, dubte o necessites ajuda, pots posar-te en contacte a través de telèfon, whatsapp o enviant un correu electrònic a info@registrals.com. També disposes d'un manual d'ajuda dins del perfil d'usuari."
+  },
+  {
+    "id": 11,
+    "question": "Què he de fer per evitar errors en registrar els meus béns?",
+    "answer": "La millor manera d'evitar errors és introduir la informació de cada bé de manera individual, ordenada i detallada (marca, model, número de sèrie, fotografies i documentació acreditativa). Tota la informació obté un hash SH-256 per assegurar la seva immutabilitat."
+  },
+  {
+    "id": 12,
+    "question": "Puc modificar les meves dades personals o la informació dels béns registrats?",
+    "answer": "Pots consultar les dades personals i de béns des del teu espai privat. No pots modificar les dades personals un cop certificades amb KYC i eIDAS. Les modificacions de béns generen un nou hash associat i segell temporal per garantir la traçabilitat."
+  },
+  {
+    "id": 13,
+    "question": "És segur registrar els meus béns i documents a Registrals?",
+    "answer": "Sí. La seguretat i la confidencialitat són essencials. S'incorporen mesures de protecció, tecnologia blockchain i segells temporals per reforçar la integritat, la traçabilitat i la immutabilitat de les dades."
+  },
+  {
+    "id": 14,
+    "question": "Qui emet els certificats i la informació registrada?",
+    "answer": "La plataforma Registrals genera els certificats corresponents a partir de la informació aportada per l'usuari, acreditant-ne la integritat i la traçabilitat, tot i que no substitueix els registres públics oficials."
+  },
+  {
+    "id": 15,
+    "question": "Puc proposar millores o noves funcionalitats per a Registrals?",
+    "answer": "Sí. Registrals està en constant evolució. Pots fer arribar les teves propostes i suggeriments a través del correu electrònic info@registrals.com."
+  },
+  {
+    "id": 16,
+    "question": "Per què m'he d'identificar per utilitzar determinades funcionalitats?",
+    "answer": "Per vincular amb total garantia la identitat de la persona física amb els béns registrats, s'incorpora un procés KYC mitjançant una empresa externa certificada amb eIDAS. No és necessari per a les funcionalitats bàsiques gratuïtes."
+  },
+  {
+    "id": 17,
+    "question": "Què passa amb els meus béns registrats si moro o perdo la capacitat de gestionar-los?",
+    "answer": "Registrals incorpora un sistema periòdic de verificació de vida (fe de vida). Si no es respon a tres requeriments, s'activa el protocol de comunicació amb el marmessor o persona de confiança prèviament designada."
+  },
+  {
+    "id": 18,
+    "question": "Quina és la proposta de valor de Registrals?",
+    "answer": "«Tots els teus béns, documents i drets en un únic espai. Identificats, organitzats i documentats per poder acreditar-ne la titularitat quan ho necessitis.» Combinant inventari digital, arxiu documental, acreditació temporal i gestió de titularitat."
+  }
+]
