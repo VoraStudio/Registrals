@@ -477,7 +477,7 @@
   {# 3. BLINDATGE NOTARIAL I DOBLE CERTIFICACIÓ #}
   <div class="section-title">
     <span>3. Garantia de Certificació, Integritat i Segellat</span>
-    <span class="font-mono" style="font-size: 9px; color: #CAA36C;">v1 (Immutable)</span>
+    <span class="font-mono" style="font-size: 9px; color: #CAA36C;">v{{ item.version }} (Immutable)</span>
   </div>
 
   <div class="integrity-box">
@@ -495,7 +495,7 @@
         {% if latestReceipt %}
           POLYGON POS &middot; BLOC #{{ latestReceipt.blockNumber }} &middot; TX: {{ latestReceipt.shortTxHash }}
         {% else %}
-          ANGLATGE PROGRAMAT A POLYGON LAYER 2
+          ANCORATGE PROGRAMAT A POLYGON LAYER 2
         {% endif %}
       </span>
     </div>
@@ -513,14 +513,14 @@
 
   {# Clàusula d'Immutabilitat solemne #}
   <div style="margin-top: 8px; font-size: 8.5px; color: #6A86A2; line-height: 1.35; padding: 6px 10px; border-left: 3px solid #CAA36C; background: rgba(202, 163, 108, 0.08);">
-    <strong>Clàusula de Custòdia i Certificació:</strong> Aquest certificat acredita les dades i evidències aportades pel titular en la data d'emissió. Qualsevol modificació sobre el bé (noves fotos, proves o canvi de titularitat) revoca automàticament aquesta versió i genera una nova emissió certificada <code>v2</code> amb un nou hash SHA-256.
+    <strong>Clàusula de Custòdia i Certificació:</strong> Aquest certificat acredita les dades i evidències aportades pel titular en la data d'emissió. Qualsevol modificació sobre el bé (noves fotos, proves o canvi de titularitat) revoca automàticament aquesta versió i genera una nova emissió certificada <code>v{{ item.version + 1 }}</code> amb un nou hash SHA-256.
   </div>
 
   {# Peu de pàgina solemne amb Codi QR de comprovació pública #}
   <div class="footer-seal">
     <div class="legal-clause">
       <strong>Verificació pública d'autenticitat (Art. 22 RGPD):</strong><br>
-      Aquest document pot ser comprovat per qualsevol companyia asseguradora, jutjat, cos de seguretat o tercer interessat escanejant el codi QR adjunt o visitant l'adreça pública de consulta <code>{{ certificate.getVerificationUrl('https://registrals.cat') }}</code>. No s'exposen dades sensibles no autoritzades.
+      Aquest document pot ser comprovat per qualsevol companyia asseguradora, jutjat, cos de seguretat o tercer interessat escanejant el codi QR adjunt o visitant l'adreça pública de consulta <code>{{ verificationUrl|default(certificate.getVerificationUrl('https://registrals.cat')) }}</code>. No s'exposen dades sensibles no autoritzades.
     </div>
 
     <div class="qr-container">

@@ -17,6 +17,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use League\Flysystem\FilesystemOperator;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Uid\Uuid;
 use Twig\Environment;
@@ -37,7 +38,8 @@ class CertificateIssuerService
         private readonly KernelInterface $kernel,
         private readonly ?SignaturitTimestampInterface $signaturitClient = null,
         private readonly string $defaultBaseUrl = 'https://registrals.cat',
-        private readonly ?LoggerInterface $logger = null
+        private readonly ?LoggerInterface $logger = null,
+        private readonly ?RequestStack $requestStack = null
     ) {
     }
 
@@ -49,7 +51,7 @@ class CertificateIssuerService
      * @param CertificateMode $mode Mode DRAFT (gratuït) o OFFICIAL (segellat)
      * @return Certificate L'entitat persistida amb el PDF custodiat
      */
-    public function issueCertificate(Item $item, User $issuer, CertificateMode $mode, bool $isDirectPurchase = false): Certificate
+    public function issueCertificate(Item $item, User $issuer, CertificateMode $mode, bool $isDirectPurchase = false, ?string $baseUrl = null): Certificate
     {
         // 1. Validació de quotes i permisos per a la modalitat Oficial (només si no és compra directa)
         if ($mode->isOfficial() && !$isDirectPurchase) {
@@ -105,7 +107,7 @@ class CertificateIssuerService
         $certificateUuid = Uuid::v7();
 
         // 4. Generació del codi QR de validació pública
-        $verificationUrl = rtrim($this->defaultBaseUrl, '/') . '/verify/' . $certificateUuid->toRfc4122();
+        $verificationUrl = $this->resolveBaseUrl($baseUrl) . '/verify/' . $certificateUuid->toRfc4122();
         $qrDataUri = $this->qrGenerator->generateDataUri($verificationUrl);
 
         // Assets visuals notarials: Logo oficial i miniatura del bé
@@ -130,6 +132,7 @@ class CertificateIssuerService
             'certificate' => $dummyCertificate,
             'isDraft' => $mode->isDraft(),
             'qrDataUri' => $qrDataUri,
+            'verificationUrl' => $verificationUrl,
             'logoDataUri' => $logoDataUri,
             'mainPhotoDataUri' => $mainPhotoDataUri,
             'latestReceipt' => $item->getLatestBlockchainReceipt(),
@@ -185,10 +188,10 @@ class CertificateIssuerService
     /**
      * Regenera el document PDF d'un certificat existent (útil per a esborranys en canvis de plantilla).
      */
-    public function regeneratePdf(Certificate $certificate): void
+    public function regeneratePdf(Certificate $certificate, ?string $baseUrl = null): void
     {
         $item = $certificate->requireItem();
-        $verificationUrl = rtrim($this->defaultBaseUrl, '/') . '/verify/' . $certificate->getUuid()->toRfc4122();
+        $verificationUrl = $this->resolveBaseUrl($baseUrl) . '/verify/' . $certificate->getUuid()->toRfc4122();
         $qrDataUri = $this->qrGenerator->generateDataUri($verificationUrl);
 
         $logoDataUri = $this->getLogoDataUri();
@@ -199,6 +202,7 @@ class CertificateIssuerService
             'certificate' => $certificate,
             'isDraft' => $certificate->getMode()->isDraft(),
             'qrDataUri' => $qrDataUri,
+            'verificationUrl' => $verificationUrl,
             'logoDataUri' => $logoDataUri,
             'mainPhotoDataUri' => $mainPhotoDataUri,
             'latestReceipt' => $item->getLatestBlockchainReceipt(),
@@ -257,5 +261,19 @@ class CertificateIssuerService
         $mime = $mainPhoto->getMimeType() ?: 'image/jpeg';
 
         return sprintf('data:%s;base64,%s', $mime, base64_encode($binary));
+    }
+
+    private function resolveBaseUrl(?string $baseUrl = null): string
+    {
+        if ($baseUrl !== null && $baseUrl !== '') {
+            return rtrim($baseUrl, '/');
+        }
+
+        $request = $this->requestStack?->getCurrentRequest();
+        if ($request !== null) {
+            return rtrim($request->getSchemeAndHttpHost(), '/');
+        }
+
+        return rtrim($this->defaultBaseUrl, '/');
     }
 }
