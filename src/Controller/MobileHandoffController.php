@@ -47,7 +47,17 @@ class MobileHandoffController extends AbstractController
             $target = 'photo';
         }
 
-        $session = $this->handoffService->createSession($user, $baseUrl, $target);
+        $plan = $user->getPlan();
+        $planLimit = $user->isAdmin()
+            ? 20
+            : ($target === 'invoice'
+                ? ($plan?->getMaxEvidencesPerItem() ?? 1)
+                : ($plan?->getMaxPhotosPerItem() ?? 1));
+        $effectivePlanLimit = $planLimit <= 0 ? 20 : $planLimit;
+        $requestedRemaining = $request->getPayload()->getInt('remainingSlots', $effectivePlanLimit);
+        $maxUploads = max(1, min($effectivePlanLimit, $requestedRemaining));
+
+        $session = $this->handoffService->createSession($user, $baseUrl, $target, $maxUploads);
 
         return $this->json([
             'success' => true,
@@ -56,6 +66,7 @@ class MobileHandoffController extends AbstractController
             'qrDataUri' => $session['qrDataUri'],
             'expiresAt' => $session['expiresAt'],
             'target' => $session['target'],
+            'maxUploads' => $session['maxUploads'],
         ]);
     }
 
@@ -81,6 +92,8 @@ class MobileHandoffController extends AbstractController
             'status' => $session['status'],
             'target' => $session['target'] ?? 'photo',
             'photoOriginalName' => $session['photoOriginalName'] ?? null,
+            'uploadCount' => (int) ($session['uploadCount'] ?? 0),
+            'maxUploads' => (int) ($session['maxUploads'] ?? 1),
         ]);
     }
 
@@ -159,6 +172,9 @@ class MobileHandoffController extends AbstractController
         return $this->json([
             'success' => true,
             'message' => 'Fotografia enviada amb èxit cap al formulari del PC.',
+            'uploadCount' => $result['uploadCount'] ?? 1,
+            'maxUploads' => $result['maxUploads'] ?? 1,
+            'remaining' => $result['remaining'] ?? 0,
         ]);
     }
 }

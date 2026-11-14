@@ -112,9 +112,17 @@
             {{ isInvoice ? 'L\'Assistent d\'IA està extraient l\'import, data i dades fiscals del comprovant.' : 'L\'Assistent d\'IA està analitzant la imatge per auto-omplir la marca, model i especificacions del bé.' }}
           </p>
         </div>
-        <button type="button" onclick="retakePhoto()" class="text-xs text-steel hover:text-ink font-semibold underline decoration-gold">
-          Vols repetir o substituir aquesta foto?
-        </button>
+        <div id="handoff-more-actions" class="pt-1 space-y-2.5">
+          <button id="btn-upload-more" type="button" onclick="retakePhoto()" class="hidden w-full py-2.5 px-4 rounded-xl bg-ink text-gold border border-gold/40 text-xs font-bold shadow-sm active:scale-[0.98] transition-transform cursor-pointer">
+            + Pujar una altra foto
+          </button>
+          <p id="handoff-limit-reached" class="hidden text-[11px] font-mono text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-1.5">
+            ✓ Has assolit el màxim permès per al teu pla.
+          </p>
+          <button id="btn-retake-single" type="button" onclick="retakePhoto()" class="text-xs text-steel hover:text-ink font-semibold underline decoration-gold">
+            Vols repetir o substituir aquesta foto?
+          </button>
+        </div>
       </div>
     {% endif %}
   </main>
@@ -215,6 +223,30 @@
       }
 
       // Èxit
+      const remaining = typeof res?.remaining === 'number' ? res.remaining : 0;
+      const uploadCount = typeof res?.uploadCount === 'number' ? res.uploadCount : 1;
+      const maxUploads = typeof res?.maxUploads === 'number' ? res.maxUploads : 1;
+      const btnMore = document.getElementById('btn-upload-more');
+      const limitBox = document.getElementById('handoff-limit-reached');
+      const btnSingle = document.getElementById('btn-retake-single');
+
+      if (remaining > 0 && btnMore) {
+        const noun = {{ isInvoice ? "'document'" : "'foto'" }};
+        btnMore.textContent = `+ Pujar un${ {{ isInvoice ? "' altre '" : "'a altra '" }} }${noun} (${uploadCount}/${maxUploads} · en queden ${remaining})`;
+        btnMore.classList.remove('hidden');
+        if (limitBox) limitBox.classList.add('hidden');
+        if (btnSingle) btnSingle.classList.add('hidden');
+      } else {
+        if (btnMore) btnMore.classList.add('hidden');
+        if (maxUploads > 1) {
+          if (limitBox) limitBox.classList.remove('hidden');
+          if (btnSingle) btnSingle.classList.add('hidden');
+        } else {
+          if (limitBox) limitBox.classList.add('hidden');
+          if (btnSingle) btnSingle.classList.remove('hidden');
+        }
+      }
+
       if (captureCard) captureCard.classList.add('hidden');
       if (successCard) successCard.classList.remove('hidden');
 

@@ -38,9 +38,9 @@ class MobileHandoffService
      * Crea una sessió de captura mòbil temporal i genera el codi QR notarial.
      *
      * @param string $target 'photo' per a la fotografia principal o 'invoice' per al comprovant fiscal
-     * @return array{token: string, url: string, qrDataUri: string, expiresAt: int, target: string}
+     * @return array{token: string, url: string, qrDataUri: string, expiresAt: int, target: string, maxUploads: int}
      */
-    public function createSession(User $user, string $baseUrl, string $target = 'photo'): array
+    public function createSession(User $user, string $baseUrl, string $target = 'photo', int $maxUploads = 1): array
     {
         $this->purgeExpiredSessions();
 
@@ -70,6 +70,8 @@ class MobileHandoffService
             'token' => $token,
             'userId' => $user->getId(),
             'target' => in_array($target, ['photo', 'invoice'], true) ? $target : 'photo',
+            'maxUploads' => max(1, $maxUploads),
+            'uploadCount' => 0,
             'createdAt' => $now,
             'expiresAt' => $expiresAt,
             'status' => 'pending',
@@ -86,6 +88,7 @@ class MobileHandoffService
             'qrDataUri' => $qrDataUri,
             'expiresAt' => $expiresAt,
             'target' => $sessionData['target'],
+            'maxUploads' => $sessionData['maxUploads'],
         ];
     }
 
@@ -143,20 +146,29 @@ class MobileHandoffService
             ];
         }
 
+        $maxUploads = max(1, (int) ($session['maxUploads'] ?? 1));
+        $uploadCount = (int) ($session['uploadCount'] ?? 0) + 1;
+
         $ext = $file->guessExtension() ?? $file->getClientOriginalExtension() ?? 'jpg';
-        $photoFilename = sprintf('%s_%s.%s', $token, $target, $ext);
+        $photoFilename = sprintf('%s_%s_%d.%s', $token, $target, $uploadCount, $ext);
         $targetPath = $this->storageDir . '/' . $photoFilename;
 
         $file->move($this->storageDir, $photoFilename);
 
         $session['status'] = 'completed';
+        $session['uploadCount'] = $uploadCount;
         $session['photoFilename'] = $photoFilename;
         $session['photoMimeType'] = mime_content_type($targetPath) ?: 'image/jpeg';
         $session['photoOriginalName'] = $file->getClientOriginalName();
 
         file_put_contents($this->getSessionFilePath($token), json_encode($session, JSON_THROW_ON_ERROR));
 
-        return ['success' => true];
+        return [
+            'success' => true,
+            'uploadCount' => $uploadCount,
+            'maxUploads' => $maxUploads,
+            'remaining' => max(0, $maxUploads - $uploadCount),
+        ];
     }
 
     /**

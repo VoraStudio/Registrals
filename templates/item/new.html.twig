@@ -1295,6 +1295,7 @@
     });
 
     return {
+      getCount: () => filesQueue.length,
       addFiles: (files) => {
         for (const file of files) {
           if (!acceptFile(file)) continue;
@@ -1842,11 +1843,21 @@
   let handoffPollingInterval = null;
   let handoffToken = null;
   let handoffCurrentTarget = 'photo';
+  let lastHandoffUploadCount = 0;
 
   async function openMobileHandoffModal(target = 'photo') {
     handoffCurrentTarget = target;
+    lastHandoffUploadCount = 0;
     const backendTarget = (target === 'invoice' || target === 'extra_invoice') ? 'invoice' : 'photo';
     const isInvoiceFlow = backendTarget === 'invoice';
+    const maxTotal = isInvoiceFlow ? {{ maxEvidences|default(1) }} : {{ maxPhotos|default(1) }};
+    const usedPrimary = isInvoiceFlow
+      ? (invoiceInput && invoiceInput.files && invoiceInput.files.length > 0 ? 1 : 0)
+      : (primaryInput && primaryInput.files && primaryInput.files.length > 0 ? 1 : 0);
+    const usedExtra = isInvoiceFlow
+      ? (extraEvidencesQueue ? extraEvidencesQueue.getCount() : 0)
+      : (extraPhotosQueue ? extraPhotosQueue.getCount() : 0);
+    const remainingSlots = maxTotal <= 0 ? 20 : Math.max(1, maxTotal - usedPrimary - usedExtra);
     const modal = document.getElementById('modal-mobile-handoff');
     const qrLoading = document.getElementById('qr-loading');
     const qrImg = document.getElementById('qr-code-img');
@@ -1877,7 +1888,7 @@
           'X-Requested-With': 'XMLHttpRequest',
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ target: backendTarget })
+        body: JSON.stringify({ target: backendTarget, remainingSlots: remainingSlots })
       });
       const data = await response.json().catch(() => null);
 
@@ -1922,15 +1933,21 @@
       });
       const data = await res.json().catch(() => null);
 
-      if (data && data.status === 'completed') {
-        clearInterval(handoffPollingInterval);
-        handoffPollingInterval = null;
+      const currentUploadCount = data ? (data.uploadCount || 1) : 0;
+      const maxUploads = data ? (data.maxUploads || 1) : 1;
+
+      if (data && data.status === 'completed' && currentUploadCount > lastHandoffUploadCount) {
+        lastHandoffUploadCount = currentUploadCount;
+        if (currentUploadCount >= maxUploads) {
+          clearInterval(handoffPollingInterval);
+          handoffPollingInterval = null;
+        }
 
         const statusText = document.getElementById('qr-status-text');
         if (statusText) statusText.innerText = '✓ Fitxer rebut! Descarregant...';
 
         // Descarregar la imatge com a blob per injectar-la a l'input corresponent
-        const downloadUrl = '/app/items/mobile-handoff/download/' + encodeURIComponent(handoffToken);
+        const downloadUrl = '/app/items/mobile-handoff/download/' + encodeURIComponent(handoffToken) + '?seq=' + currentUploadCount;
         const fileRes = await fetch(downloadUrl);
         const blob = await fileRes.blob();
 
@@ -1966,7 +1983,8 @@
           }
         }
 
-        closeMobileHandoffModal();
+        const modal = document.getElementById('modal-mobile-handoff');
+        if (modal) modal.classList.add('hidden');
 
         if (window.RegistralsToast) {
           const title = isInvoiceFlow ? '✨ Comprovant Sincronitzat' : '✨ Fotografia Sincronitzada';
