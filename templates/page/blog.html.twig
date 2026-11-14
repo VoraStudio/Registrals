@@ -51,7 +51,7 @@
           {% for t in tags %}
             <a href="{{ path('app_blog', {tag: t, sort: sort, lang: lang}) }}"
                class="px-3.5 py-1.5 rounded-full border transition-all {{ selectedTag == t ? 'bg-ink-light text-gold border-gold/40 shadow-sm' : 'bg-ink/5 text-ink/75 border-steel/25 hover:bg-ink-light hover:text-cream hover:border-gold/30' }}">
-              {{ t }}
+              <span class="translatable-text" data-original="{{ t|e('html_attr') }}">{{ translations[t]|default(t) }}</span>
             </a>
           {% endfor %}
         </div>
@@ -137,7 +137,7 @@
                 <div class="lg:col-span-3 flex flex-wrap lg:flex-col gap-2 items-start lg:items-end justify-start">
                   {% for tag in featuredPost.tags %}
                     <span class="px-3 py-1 rounded-full bg-cream/10 border border-gold/25 text-gold text-[11px] font-mono">
-                      #{{ tag }}
+                      #<span class="translatable-text" data-original="{{ tag|e('html_attr') }}">{{ translations[tag]|default(tag) }}</span>
                     </span>
                   {% endfor %}
                 </div>
@@ -157,8 +157,9 @@
                   <div class="space-y-4">
                     <div class="flex items-center justify-between gap-2 text-[11px] font-mono">
                       {% if post.tags is not empty %}
-                        <span class="px-2.5 py-1 rounded-full bg-gold/15 text-gold border border-gold/30 font-bold uppercase tracking-wider text-[10px]">
-                          {{ post.tags[0] }}
+                        <span class="translatable-text px-2.5 py-1 rounded-full bg-gold/15 text-gold border border-gold/30 font-bold uppercase tracking-wider text-[10px]"
+                              data-original="{{ post.tags[0]|e('html_attr') }}">
+                          {{ translations[post.tags[0]]|default(post.tags[0]) }}
                         </span>
                       {% else %}
                         <span></span>

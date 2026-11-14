@@ -215,8 +215,9 @@
           <div class="flex flex-wrap items-center gap-2">
             {% for tag in post.tags %}
               <a href="{{ path('app_blog', {tag: tag, lang: lang}) }}"
-                 class="px-2.5 py-0.5 rounded-full bg-cream/10 border border-gold/30 text-gold text-[11px] font-mono hover:bg-gold hover:text-ink transition-colors">
-                {{ tag }}
+                 data-tag-original="{{ tag|e('html_attr') }}"
+                 class="article-tag-link px-2.5 py-0.5 rounded-full bg-cream/10 border border-gold/30 text-gold text-[11px] font-mono hover:bg-gold hover:text-ink transition-colors">
+                {{ tagTranslations[tag]|default(tag) }}
               </a>
             {% endfor %}
           </div>
@@ -439,6 +440,20 @@
       if (titleEl && data.title) titleEl.textContent = data.title;
       if (summaryEl && data.summary) summaryEl.textContent = data.summary;
       if (bodyEl && data.html) bodyEl.innerHTML = data.html;
+
+      if (data.tags && typeof data.tags === 'object') {
+        document.querySelectorAll('.article-tag-link[data-tag-original]').forEach((tagEl) => {
+          const orig = tagEl.getAttribute('data-tag-original');
+          if (orig && data.tags[orig]) {
+            tagEl.textContent = data.tags[orig];
+          }
+          try {
+            const tagUrl = new URL(tagEl.href, window.location.origin);
+            tagUrl.searchParams.set('lang', targetLang);
+            tagEl.href = tagUrl.pathname + tagUrl.search;
+          } catch (e) {}
+        });
+      }
 
       if (tocEl && Array.isArray(data.headings)) {
         tocEl.innerHTML = data.headings.map((h) => {

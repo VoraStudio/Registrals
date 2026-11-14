@@ -57,6 +57,11 @@ class BlogPretranslateCommand extends Command
             foreach ($langs as $lang) {
                 $io->write(sprintf('  • [%s] "%s" -> %s ... ', $post->slug, mb_substr($post->title, 0, 45), strtoupper($lang)));
                 $res = $this->translationService->translatePost($post, $lang, $force);
+                foreach ($post->tags as $tag) {
+                    if (trim($tag) !== '') {
+                        $this->translationService->translate($tag, $lang, $force);
+                    }
+                }
 
                 if ($res['from_cache']) {
                     $io->writeln('<info>CACHE HIT</info>');

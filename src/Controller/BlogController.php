@@ -57,14 +57,16 @@ class BlogController extends AbstractController
 
         $translations = [];
         if ($lang !== 'cat') {
-            $toTranslate = [];
+            $toTranslate = $tags;
             if ($featuredPost !== null) {
                 $toTranslate[] = $featuredPost->title;
                 $toTranslate[] = $featuredPost->summary;
+                $toTranslate = array_merge($toTranslate, $featuredPost->tags);
             }
             foreach ($otherPosts as $p) {
                 $toTranslate[] = $p->title;
                 $toTranslate[] = $p->summary;
+                $toTranslate = array_merge($toTranslate, $p->tags);
             }
             foreach (array_unique($toTranslate) as $txt) {
                 if ($txt !== '') {
@@ -101,11 +103,17 @@ class BlogController extends AbstractController
         $summary = $post->summary;
         $rawContent = (string) ($post->content ?? '');
 
+        $tagTranslations = [];
         if ($lang !== 'cat') {
             $translated = $this->translationService->translatePost($post, $lang);
             $title = $translated['title'];
             $summary = $translated['summary'];
             $rawContent = $translated['content'];
+            foreach ($post->tags as $tag) {
+                if ($tag !== '') {
+                    $tagTranslations[$tag] = $this->translationService->translate($tag, $lang)['text'];
+                }
+            }
         }
 
         $headings = $this->markdownRenderer->extractHeadings($rawContent);
@@ -122,6 +130,7 @@ class BlogController extends AbstractController
             'post' => $post,
             'title' => $title,
             'summary' => $summary,
+            'tagTranslations' => $tagTranslations,
             'htmlContent' => $htmlContent,
             'headings' => $headings,
             'relatedPosts' => $relatedPosts,
@@ -151,6 +160,14 @@ class BlogController extends AbstractController
             $res = $this->translationService->translatePost($post, $lang);
             $html = $this->markdownRenderer->toHtml($res['content'], true);
             $headings = $this->markdownRenderer->extractHeadings($res['content']);
+            $translatedTags = [];
+            foreach ($post->tags as $tag) {
+                if ($tag !== '') {
+                    $translatedTags[$tag] = $lang === 'cat'
+                        ? $tag
+                        : $this->translationService->translate($tag, $lang)['text'];
+                }
+            }
 
             return new JsonResponse([
                 'success' => !$res['fallback'],
@@ -160,6 +177,7 @@ class BlogController extends AbstractController
                 'model_used' => $res['model_used'],
                 'title' => $res['title'],
                 'summary' => $res['summary'],
+                'tags' => $translatedTags,
                 'html' => $html,
                 'headings' => $headings,
             ]);
