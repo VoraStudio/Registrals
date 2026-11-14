@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Entity\Item;
 use App\Entity\User;
 use App\Enum\BlockchainActionType;
+use App\Enum\CertificateStatus;
 use App\Enum\DocumentType;
 use App\Enum\ItemStatus;
 use App\Form\ItemType;
@@ -393,21 +394,24 @@ class ItemController extends AbstractController
 
         $storedDoc = $storageService->storeUploadedDocument($item, $file, $documentType, $metadata);
 
-        // Actualització de timestamp per canviar automàticament el fingerprint SHA-256
-        $item->setUpdatedAt(new \DateTimeImmutable());
+        // Actualització de versió, timestamp i invalidació de certificats anteriors
+        $supersededCount = $this->bumpItemVersionAndInvalidateCertificates($item);
         $entityManager->flush();
 
         $activityLogger->log(
             user: $user,
             action: UserActivityAction::ITEM_UPDATED,
             description: sprintf(
-                "Afegit nou document (%s: %s) al bé %s",
+                "Afegit nou document (%s: %s) al bé %s (v%d)",
                 $documentType->label(),
                 $storedDoc->getOriginalFilename(),
-                $item->getCui()
+                $item->getCui(),
+                $item->getVersion()
             ),
             details: [
                 'cui' => $item->getCui(),
+                'version' => $item->getVersion(),
+                'superseded_certificates' => $supersededCount,
                 'document_uuid' => $storedDoc->getUuid()->toRfc4122(),
                 'document_type' => $documentType->value,
                 'sha256_hash' => $storedDoc->getSha256Hash(),
@@ -415,10 +419,15 @@ class ItemController extends AbstractController
             ]
         );
 
+        $certNotice = $supersededCount > 0
+            ? sprintf(' %d certificat(s) anterior(s) han passat a estat superat.', $supersededCount)
+            : '';
         $this->addFlash('success', sprintf(
-            "S'ha afegit i custodiat amb èxit '%s' (%s). El fingerprint del bé s'ha actualitzat.",
+            "S'ha afegit i custodiat amb èxit '%s' (%s). Versió v%d i fingerprint mestre SHA-256 actualitzats.%s",
             $storedDoc->getOriginalFilename(),
-            $documentType->label()
+            $documentType->label(),
+            $item->getVersion(),
+            $certNotice
         ));
 
         return $this->redirectToRoute('app_item_show', ['cui' => $cui]);
@@ -488,7 +497,7 @@ class ItemController extends AbstractController
 
         // Promocionar la foto seleccionada a principal
         $targetDoc->setType(DocumentType::PHOTO_PRIMARY);
-        $item->setUpdatedAt(new \DateTimeImmutable());
+        $supersededCount = $this->bumpItemVersionAndInvalidateCertificates($item);
         $entityManager->flush();
 
         /** @var User $user */
@@ -496,15 +505,24 @@ class ItemController extends AbstractController
         $activityLogger->log(
             user: $user,
             action: UserActivityAction::ITEM_UPDATED,
-            description: sprintf("Establerta nova fotografia principal (%s) al bé %s", $targetDoc->getOriginalFilename(), $item->getCui()),
+            description: sprintf("Establerta nova fotografia principal (%s) al bé %s (v%d)", $targetDoc->getOriginalFilename(), $item->getCui(), $item->getVersion()),
             details: [
                 'cui' => $item->getCui(),
+                'version' => $item->getVersion(),
+                'superseded_certificates' => $supersededCount,
                 'document_uuid' => $targetDoc->getUuid()->toRfc4122(),
                 'sha256_hash' => $targetDoc->getSha256Hash(),
             ]
         );
 
-        $this->addFlash('success', "Fotografia principal actualitzada amb èxit! L'empremta SHA-256 del bé s'ha recalculat. Si tenies un certificat oficial v1 emès, ha quedat superat per la versió v2.");
+        $certNotice = $supersededCount > 0
+            ? sprintf(' %d certificat(s) anterior(s) han quedat superats per la versió v%d.', $supersededCount, $item->getVersion())
+            : '';
+        $this->addFlash('success', sprintf(
+            "Fotografia principal actualitzada! Versió v%d i empremta mestre SHA-256 recalculades.%s",
+            $item->getVersion(),
+            $certNotice
+        ));
 
         return $this->redirectToRoute('app_item_show', ['cui' => $cui]);
     }
@@ -586,7 +604,7 @@ class ItemController extends AbstractController
         $item->removeDocument($targetDoc);
         $entityManager->remove($targetDoc);
 
-        $item->setUpdatedAt(new \DateTimeImmutable());
+        $supersededCount = $this->bumpItemVersionAndInvalidateCertificates($item);
         $entityManager->flush();
 
         /** @var User $user */
@@ -594,15 +612,25 @@ class ItemController extends AbstractController
         $activityLogger->log(
             user: $user,
             action: UserActivityAction::ITEM_UPDATED,
-            description: sprintf("Eliminat document custodiat (%s: %s) del bé %s", $docTypeLabel, $docName, $item->getCui()),
+            description: sprintf("Eliminat document custodiat (%s: %s) del bé %s (v%d)", $docTypeLabel, $docName, $item->getCui(), $item->getVersion()),
             details: [
                 'cui' => $item->getCui(),
+                'version' => $item->getVersion(),
+                'superseded_certificates' => $supersededCount,
                 'filename' => $docName,
                 'sha256_hash' => $docHash,
             ]
         );
 
-        $this->addFlash('success', sprintf("S'ha eliminat el document '%s'. L'empremta SHA-256 del bé s'ha recalculat.", $docName));
+        $certNotice = $supersededCount > 0
+            ? sprintf(' %d certificat(s) anterior(s) han quedat superats per la versió v%d.', $supersededCount, $item->getVersion())
+            : '';
+        $this->addFlash('success', sprintf(
+            "S'ha eliminat el document '%s'. Versió v%d i empremta mestre SHA-256 recalculades.%s",
+            $docName,
+            $item->getVersion(),
+            $certNotice
+        ));
 
         return $this->redirectToRoute('app_item_show', ['cui' => $cui]);
     }
@@ -701,7 +729,7 @@ class ItemController extends AbstractController
         // Emmagatzema el nou fitxer mantenint el tipus (per exemple, PHOTO_PRIMARY)
         $newDoc = $storageService->storeUploadedDocument($item, $file, $targetType, $metadata);
 
-        $item->setUpdatedAt(new \DateTimeImmutable());
+        $supersededCount = $this->bumpItemVersionAndInvalidateCertificates($item);
         $entityManager->flush();
 
         /** @var User $user */
@@ -709,16 +737,27 @@ class ItemController extends AbstractController
         $activityLogger->log(
             user: $user,
             action: UserActivityAction::ITEM_UPDATED,
-            description: sprintf("Substituït document custodiat (%s per %s) al bé %s", $oldName, $newDoc->getOriginalFilename(), $item->getCui()),
+            description: sprintf("Substituït document custodiat (%s per %s) al bé %s (v%d)", $oldName, $newDoc->getOriginalFilename(), $item->getCui(), $item->getVersion()),
             details: [
                 'cui' => $item->getCui(),
+                'version' => $item->getVersion(),
+                'superseded_certificates' => $supersededCount,
                 'old_filename' => $oldName,
                 'new_filename' => $newDoc->getOriginalFilename(),
                 'new_sha256' => $newDoc->getSha256Hash(),
             ]
         );
 
-        $this->addFlash('success', sprintf("S'ha substituït el document '%s' per '%s'. L'empremta SHA-256 del bé s'ha actualitzat.", $oldName, $newDoc->getOriginalFilename()));
+        $certNotice = $supersededCount > 0
+            ? sprintf(' %d certificat(s) anterior(s) han quedat superats per la versió v%d.', $supersededCount, $item->getVersion())
+            : '';
+        $this->addFlash('success', sprintf(
+            "S'ha substituït el document '%s' per '%s'. Versió v%d i empremta mestre SHA-256 actualitzades.%s",
+            $oldName,
+            $newDoc->getOriginalFilename(),
+            $item->getVersion(),
+            $certNotice
+        ));
 
         return $this->redirectToRoute('app_item_show', ['cui' => $cui]);
     }
@@ -1140,6 +1179,26 @@ class ItemController extends AbstractController
         }
 
         return $this->redirectToRoute('app_dashboard');
+    }
+
+    /**
+     * Incrementa la versió immutable del bé, actualitza el timestamp i marca
+     * com a superats (superseded) els certificats vigents anteriors.
+     */
+    private function bumpItemVersionAndInvalidateCertificates(Item $item): int
+    {
+        $item->incrementVersion();
+        $item->setUpdatedAt(new \DateTimeImmutable());
+
+        $supersededCount = 0;
+        foreach ($item->getCertificates() as $certificate) {
+            if ($certificate->getStatus() === CertificateStatus::VALID) {
+                $certificate->setStatus(CertificateStatus::SUPERSEDED);
+                $supersededCount++;
+            }
+        }
+
+        return $supersededCount;
     }
 }
 

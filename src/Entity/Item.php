@@ -111,6 +111,9 @@ class Item
     #[ORM\Column(type: 'string', length: 30, enumType: ItemStatus::class, options: ['default' => 'active'])]
     private ItemStatus $status = ItemStatus::ACTIVE;
 
+    #[ORM\Column(type: 'integer', options: ['default' => 1])]
+    private int $version = 1;
+
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
@@ -605,6 +608,25 @@ class Item
         }
 
         return null;
+    }
+
+    public function getVersion(): int
+    {
+        return $this->version;
+    }
+
+    public function setVersion(int $version): static
+    {
+        $this->version = max(1, $version);
+
+        return $this;
+    }
+
+    public function incrementVersion(): static
+    {
+        $this->version++;
+
+        return $this;
     }
 }
 
