@@ -3,40 +3,45 @@
 {% block title %}{{ title }} — Blog Registrals{% endblock %}
 {% block meta_description %}{{ summary }}{% endblock %}
 
-{% block body_class %}bg-cream text-ink min-h-screen flex flex-col justify-between selection:bg-gold selection:text-ink font-raleway{% endblock %}
+{% block body_class %}bg-cream-50 text-ink min-h-screen flex flex-col justify-between selection:bg-gold selection:text-ink font-raleway{% endblock %}
 
-{% block stylesheets %}
-  {{ parent() }}
+{% block head_extra %}
   <style>
+    .blog-prose > *:first-child {
+      margin-top: 0;
+    }
     .blog-prose h2 {
       font-family: 'Marcellus', Georgia, serif;
-      font-size: 1.55rem;
+      font-size: 1.6rem;
       line-height: 1.3;
       color: #1D2F4B;
-      margin-top: 2.25rem;
-      margin-bottom: 0.9rem;
-      padding-bottom: 0.45rem;
-      border-bottom: 1px solid rgba(202, 163, 108, 0.35);
+      margin-top: 2.5rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1.5px solid rgba(202, 163, 108, 0.4);
       scroll-margin-top: 6rem;
     }
     .blog-prose h3 {
       font-family: 'Marcellus', Georgia, serif;
-      font-size: 1.2rem;
-      line-height: 1.35;
+      font-size: 1.22rem;
+      line-height: 1.38;
       color: #1D2F4B;
-      margin-top: 1.65rem;
-      margin-bottom: 0.65rem;
+      margin-top: 1.75rem;
+      margin-bottom: 0.7rem;
       scroll-margin-top: 6rem;
     }
     .blog-prose p {
-      color: rgba(29, 47, 75, 0.85);
-      line-height: 1.8;
-      margin-bottom: 1.15rem;
-      font-size: 0.98rem;
+      color: rgba(29, 47, 75, 0.88);
+      line-height: 1.85;
+      margin-bottom: 1.25rem;
+      font-size: 1.02rem;
     }
     .blog-prose strong {
       color: #1D2F4B;
       font-weight: 700;
+    }
+    .blog-prose em {
+      color: rgba(29, 47, 75, 0.92);
     }
     .blog-prose a {
       color: #1D2F4B;
@@ -50,9 +55,10 @@
     }
     .blog-prose ul,
     .blog-prose ol {
-      margin: 1rem 0 1.35rem 1.4rem;
-      color: rgba(29, 47, 75, 0.85);
-      line-height: 1.75;
+      margin: 1rem 0 1.4rem 1.5rem;
+      color: rgba(29, 47, 75, 0.88);
+      line-height: 1.8;
+      font-size: 1rem;
     }
     .blog-prose ul {
       list-style-type: disc;
@@ -61,14 +67,18 @@
       list-style-type: decimal;
     }
     .blog-prose li {
-      margin-bottom: 0.45rem;
+      margin-bottom: 0.5rem;
       padding-left: 0.25rem;
+    }
+    .blog-prose li::marker {
+      color: #CAA36C;
+      font-weight: 700;
     }
     .blog-prose blockquote {
       border-left: 3.5px solid #CAA36C;
-      background-color: rgba(202, 163, 108, 0.08);
-      padding: 0.95rem 1.25rem;
-      margin: 1.5rem 0;
+      background-color: rgba(202, 163, 108, 0.09);
+      padding: 1rem 1.3rem;
+      margin: 1.6rem 0;
       border-radius: 0 0.75rem 0.75rem 0;
       color: #1D2F4B;
       font-style: italic;
@@ -90,7 +100,7 @@
       padding: 1.15rem 1.35rem;
       border-radius: 0.85rem;
       overflow-x: auto;
-      margin: 1.4rem 0;
+      margin: 1.5rem 0;
       border: 1px solid rgba(202, 163, 108, 0.3);
     }
     .blog-prose pre code {
@@ -103,7 +113,7 @@
       width: 100%;
       border-collapse: collapse;
       margin: 1.5rem 0;
-      font-size: 0.9rem;
+      font-size: 0.92rem;
       overflow: hidden;
       border-radius: 0.75rem;
       border: 1px solid rgba(106, 134, 162, 0.25);
@@ -112,13 +122,13 @@
       background-color: #1D2F4B;
       color: #FAF6F0;
       text-align: left;
-      padding: 0.7rem 0.9rem;
+      padding: 0.7rem 0.95rem;
       font-weight: 600;
     }
     .blog-prose td {
-      padding: 0.65rem 0.9rem;
+      padding: 0.65rem 0.95rem;
       border-top: 1px solid rgba(106, 134, 162, 0.18);
-      color: rgba(29, 47, 75, 0.85);
+      color: rgba(29, 47, 75, 0.88);
     }
     .blog-prose tr:nth-child(even) td {
       background-color: rgba(241, 227, 211, 0.35);
@@ -128,34 +138,45 @@
       background-color: rgba(202, 163, 108, 0.08);
       padding: 1rem 1.25rem;
       border-radius: 0 0.75rem 0.75rem 0;
-      margin: 1.5rem 0;
+      margin: 1.6rem 0;
     }
     .blog-prose .admonition-title {
       font-weight: 700;
       color: #1D2F4B;
       margin-bottom: 0.35rem;
-      font-size: 0.92rem;
+      font-size: 0.94rem;
     }
     .blog-prose hr {
       border: 0;
       border-top: 1px solid rgba(106, 134, 162, 0.25);
-      margin: 2rem 0;
+      margin: 2.2rem 0;
+    }
+    .toc-link.is-active {
+      color: #1D2F4B;
+      font-weight: 700;
+      border-left-color: #CAA36C;
+      background-color: rgba(202, 163, 108, 0.08);
     }
   </style>
 {% endblock %}
 
 {% block body %}
-<div class="min-h-screen flex flex-col justify-between bg-cream">
+<div class="min-h-screen flex flex-col justify-between bg-cream-50">
+
+  {# Barra de progrés de lectura #}
+  <div id="reading-progress"
+       class="fixed top-0 left-0 h-[3px] bg-gold z-[60] transition-[width] duration-75"
+       style="width: 0%;"></div>
 
   {# Header Institucional per a Subpàgines #}
   {% include 'partials/_public_subpage_header.html.twig' %}
 
   <main class="w-full flex-1">
 
-    {# Capçalera Solemne de l'Article #}
-    <section class="bg-ink text-cream py-12 sm:py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      <div class="absolute inset-0 bg-radial-at-t from-gold/15 via-transparent to-transparent pointer-events-none"></div>
-      <div class="max-w-5xl mx-auto relative z-10 space-y-5">
+    {# Capçalera Editorial Compacta #}
+    <section class="bg-ink text-cream py-8 sm:py-10 px-4 sm:px-6 lg:px-8 relative overflow-hidden border-b border-gold/25">
+      <div class="absolute inset-0 bg-radial-at-t from-gold/12 via-transparent to-transparent pointer-events-none"></div>
+      <div class="max-w-6xl mx-auto relative z-10 space-y-4">
 
         <div class="flex flex-wrap items-center justify-between gap-3">
           <a href="{{ path('app_blog', {lang: lang}) }}"
@@ -201,7 +222,7 @@
           </div>
         {% endif %}
 
-        <h1 id="article-title" class="text-2xl sm:text-4xl lg:text-[2.6rem] font-marcellus text-cream tracking-wide leading-tight">
+        <h1 id="article-title" class="text-2xl sm:text-4xl font-marcellus text-cream tracking-wide leading-tight max-w-4xl">
           {{ title }}
         </h1>
 
@@ -209,39 +230,37 @@
           {{ summary }}
         </p>
 
-        <div class="flex flex-wrap items-center gap-x-5 gap-y-2 pt-2 text-xs font-mono text-cream/70 border-t border-cream/10">
+        <div class="flex flex-wrap items-center gap-x-5 gap-y-1.5 pt-2 text-xs font-mono text-cream/70 border-t border-cream/10">
           <span>✍️ {{ post.author }}</span>
           <span>📅 {{ post.formattedDate }}</span>
-          <span>⏱️ {{ post.readTime }} min de lectura</span>
+          <span>⏱️ {{ post.readTime }} de lectura</span>
         </div>
       </div>
     </section>
 
-    {# Cos de l'Article + Índex Lateral #}
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
+    {# Cos de l'Article (Esquerra) + Índex Lateral i CTA (Dreta) #}
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+
+      {# Índex mòbil plegable (només pantalles petites) #}
+      {% if headings is not empty %}
+        <details class="lg:hidden mb-6 bg-whitef border border-steel/20 rounded-xl p-4 shadow-xs">
+          <summary class="text-xs font-mono uppercase tracking-wider text-ink font-semibold cursor-pointer select-none">
+            📑 Índex de l'article ({{ headings|length }} seccions)
+          </summary>
+          <nav class="mt-3 pt-3 border-t border-steel/15 space-y-2 text-xs font-raleway">
+            {% for h in headings %}
+              <a href="#{{ h.id }}" class="block text-ink/80 hover:text-ink border-l-2 border-gold/40 pl-3 py-0.5">
+                {{ h.title }}
+              </a>
+            {% endfor %}
+          </nav>
+        </details>
+      {% endif %}
+
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-        {# Índex de Continguts (Escriptori) #}
-        {% if headings is not empty %}
-          <aside class="lg:col-span-4 lg:sticky lg:top-24 order-2 lg:order-1">
-            <div class="bg-whitef border border-steel/20 rounded-2xl p-5 shadow-xs space-y-3">
-              <p class="text-[11px] font-mono uppercase tracking-wider text-steel font-semibold">
-                Índex de l'article
-              </p>
-              <nav id="article-toc" class="space-y-2 text-xs font-raleway">
-                {% for h in headings %}
-                  <a href="#{{ h.id }}"
-                     class="block text-ink/75 hover:text-ink hover:translate-x-0.5 transition-all leading-snug border-l-2 border-gold/30 hover:border-gold pl-3 py-0.5">
-                    {{ h.title }}
-                  </a>
-                {% endfor %}
-              </nav>
-            </div>
-          </aside>
-        {% endif %}
-
-        {# Contingut Principal #}
-        <article class="{{ headings is not empty ? 'lg:col-span-8 order-1 lg:order-2' : 'lg:col-span-12' }} bg-whitef border border-steel/20 rounded-2xl p-6 sm:p-10 shadow-sm relative">
+        {# Contingut Principal (8 columnes a l'esquerra per lectura natural) #}
+        <article class="lg:col-span-8 bg-whitef border border-steel/20 rounded-2xl p-6 sm:p-10 shadow-xs">
 
           {# Estat de Càrrega durant traducció #}
           <div id="article-loading"
@@ -262,11 +281,47 @@
             </div>
           </div>
         </article>
+
+        {# Barra Lateral Dreta Sticky: Índex + Targeta de Custòdia #}
+        <aside class="hidden lg:block lg:col-span-4 lg:sticky lg:top-24 space-y-5">
+          {% if headings is not empty %}
+            <div class="bg-whitef border border-steel/20 rounded-2xl p-5 shadow-xs space-y-3">
+              <p class="text-[11px] font-mono uppercase tracking-wider text-steel font-semibold">
+                En aquest article
+              </p>
+              <nav id="article-toc" class="space-y-1 text-[13px] font-raleway">
+                {% for h in headings %}
+                  <a href="#{{ h.id }}"
+                     data-toc-id="{{ h.id }}"
+                     class="toc-link block text-ink/75 hover:text-ink border-l-2 border-steel/20 hover:border-gold pl-3 py-1.5 rounded-r-md transition-all leading-snug">
+                    {{ h.title }}
+                  </a>
+                {% endfor %}
+              </nav>
+            </div>
+          {% endif %}
+
+          <div class="bg-ink text-cream rounded-2xl p-5 border border-gold/30 shadow-xs space-y-3">
+            <div class="text-[11px] font-mono uppercase tracking-wider text-gold">
+              Custòdia Digital Registrals
+            </div>
+            <p class="font-marcellus text-lg leading-snug text-cream">
+              Protegeix el teu patrimoni abans de necessitar demostrar-ne la propietat
+            </p>
+            <p class="text-xs text-cream/75 leading-relaxed">
+              Inventaria rellotges, bicicletes, joies o equipament amb traçabilitat fotogràfica, segellat eIDAS i ancoratge a Polygon.
+            </p>
+            <a href="{{ path('app_register') }}"
+               class="inline-flex items-center justify-center w-full px-4 py-2.5 rounded-full bg-gold text-ink text-xs font-bold hover:bg-cream transition-colors">
+              Començar gratis (Pla Free) →
+            </a>
+          </div>
+        </aside>
       </div>
 
       {# Articles Relacionats #}
       {% if relatedPosts is not empty %}
-        <section class="mt-14 pt-10 border-t border-steel/20 space-y-6">
+        <section class="mt-12 pt-8 border-t border-steel/20 space-y-5">
           <div class="flex items-center justify-between">
             <h2 class="text-xl sm:text-2xl font-marcellus text-ink">Articles relacionats</h2>
             <a href="{{ path('app_blog', {lang: lang}) }}" class="text-xs font-semibold text-ink hover:underline">
@@ -279,7 +334,7 @@
                  class="group bg-whitef border border-steel/20 hover:border-gold/60 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-3">
                 <div class="space-y-2">
                   <div class="text-[11px] font-mono text-steel">
-                    {{ rel.formattedDate }} · {{ rel.readTime }} min
+                    {{ rel.formattedDate }} · {{ rel.readTime }}
                   </div>
                   <h3 class="font-marcellus text-lg text-ink group-hover:text-ink-light leading-snug">
                     {{ rel.title }}
@@ -307,6 +362,36 @@
 
 <script>
   let currentArticleLang = '{{ lang }}';
+
+  function updateReadingProgressAndToc() {
+    const progressEl = document.getElementById('reading-progress');
+    const articleBody = document.getElementById('article-body');
+    if (progressEl && articleBody) {
+      const rect = articleBody.getBoundingClientRect();
+      const total = articleBody.offsetHeight - window.innerHeight * 0.6;
+      const scrolled = Math.max(0, -rect.top + window.innerHeight * 0.25);
+      const pct = total > 0 ? Math.min(100, Math.max(0, (scrolled / total) * 100)) : 0;
+      progressEl.style.width = pct.toFixed(1) + '%';
+    }
+
+    const headings = document.querySelectorAll('#article-body h2[id]');
+    const tocLinks = document.querySelectorAll('#article-toc a[data-toc-id]');
+    if (!headings.length || !tocLinks.length) return;
+
+    let activeId = headings[0].id;
+    headings.forEach((h) => {
+      if (h.getBoundingClientRect().top <= 140) {
+        activeId = h.id;
+      }
+    });
+
+    tocLinks.forEach((link) => {
+      link.classList.toggle('is-active', link.getAttribute('data-toc-id') === activeId);
+    });
+  }
+
+  window.addEventListener('scroll', updateReadingProgressAndToc, { passive: true });
+  document.addEventListener('DOMContentLoaded', updateReadingProgressAndToc);
 
   async function switchArticleLang(targetLang) {
     if (targetLang === currentArticleLang) {
@@ -362,11 +447,12 @@
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;');
-          return `<a href="#${safeId}" class="block text-ink/75 hover:text-ink hover:translate-x-0.5 transition-all leading-snug border-l-2 border-gold/30 hover:border-gold pl-3 py-0.5">${safeTitle}</a>`;
+          return `<a href="#${safeId}" data-toc-id="${safeId}" class="toc-link block text-ink/75 hover:text-ink border-l-2 border-steel/20 hover:border-gold pl-3 py-1.5 rounded-r-md transition-all leading-snug">${safeTitle}</a>`;
         }).join('');
       }
 
       currentArticleLang = targetLang;
+      updateReadingProgressAndToc();
 
       if (badgeEl) {
         badgeEl.classList.remove('hidden');
@@ -391,4 +477,3 @@
   }
 </script>
 {% endblock %}
-
