@@ -100,6 +100,7 @@ class ItemController extends AbstractController
 
         $plan = $user->getPlan();
         $maxPhotos = ($plan !== null && !$user->isAdmin()) ? $plan->getMaxPhotosPerItem() : -1;
+        $maxEvidences = ($plan !== null && !$user->isAdmin()) ? $plan->getMaxEvidencesPerItem() : -1;
 
         if ($form->isSubmitted() && $form->isValid()) {
             $hasIntegrityErrors = false;
@@ -150,6 +151,24 @@ class ItemController extends AbstractController
                 }
             }
 
+            // Validació de proves documentals addicionals (Pla Plus / Unlimited / Admin)
+            /** @var UploadedFile[] $rawExtraEvidences */
+            $rawExtraEvidences = $form->get('extraEvidences')->getData() ?? [];
+            $validExtraEvidences = [];
+            $maxExtraEvidencesAllowed = $maxEvidences > 0 ? max(0, $maxEvidences - ($invoiceFile instanceof UploadedFile ? 1 : 0)) : PHP_INT_MAX;
+            foreach (array_slice($rawExtraEvidences, 0, $maxExtraEvidencesAllowed) as $extraDoc) {
+                if (!$extraDoc instanceof UploadedFile) {
+                    continue;
+                }
+                $docCheck = $integrityValidator->validateProofDocument($extraDoc);
+                if (!$docCheck->isValid) {
+                    $form->get('extraEvidences')->addError(new FormError($docCheck->rejectionReason ?? 'Un document de prova addicional no és vàlid.'));
+                    $hasIntegrityErrors = true;
+                    break;
+                }
+                $validExtraEvidences[] = ['file' => $extraDoc, 'metadata' => $docCheck->metadata];
+            }
+
             if (!$hasIntegrityErrors) {
                 $entityManager->persist($item);
 
@@ -163,6 +182,10 @@ class ItemController extends AbstractController
 
                 if ($invoiceFile instanceof UploadedFile) {
                     $storageService->storeUploadedDocument($item, $invoiceFile, DocumentType::INVOICE_RECEIPT, $invoiceMetadata);
+                }
+
+                foreach ($validExtraEvidences as $extraDoc) {
+                    $storageService->storeUploadedDocument($item, $extraDoc['file'], DocumentType::INVOICE_RECEIPT, $extraDoc['metadata']);
                 }
 
                 // Increment del comptador de béns registrats (període anual i històric)
@@ -217,6 +240,7 @@ class ItemController extends AbstractController
             'categories' => $rootCategories,
             'planCode' => $planCode,
             'maxPhotos' => $maxPhotos,
+            'maxEvidences' => $maxEvidences,
             'aiAvailable' => $aiAvailable,
             'aiRemainingCredits' => $aiRemainingCredits,
         ]);

@@ -271,6 +271,29 @@
                 </button>
               </div>
 
+              {# Proves documentals addicionals (garanties, extractes, fotos de comprovants) per a Pla Plus / Unlimited #}
+              {% if maxEvidences|default(1) <= 0 or maxEvidences|default(1) > 1 %}
+                {% set maxExtraEvidences = maxEvidences|default(1) > 0 ? maxEvidences - 1 : -1 %}
+                <div class="rounded-xl border border-steel/25 bg-cream/15 p-2.5 space-y-2">
+                  {{ form_widget(form.extraEvidences) }}
+                  <div class="flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-1.5 min-w-0">
+                      <span class="text-[11px] font-semibold text-ink truncate">Proves / documents addicionals</span>
+                      <span id="extra-evidences-counter" class="text-[10px] font-mono font-bold text-ink/75 bg-white px-1.5 py-0.5 rounded border border-steel/25 shrink-0">
+                        0/{{ maxExtraEvidences > 0 ? maxExtraEvidences : '∞' }}
+                      </span>
+                    </div>
+                    <button type="button"
+                            onclick="document.getElementById('{{ form.extraEvidences.vars.id }}').click();"
+                            class="px-2.5 py-1 rounded-lg bg-white hover:bg-cream border border-steel/30 text-ink text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer shrink-0">
+                      + Afegir proves
+                    </button>
+                  </div>
+                  <div id="extra-evidences-preview" class="hidden flex flex-wrap gap-1.5"></div>
+                  {{ form_errors(form.extraEvidences, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
+                </div>
+              {% endif %}
+
               {# Estat de Concordança i Lectura de la Prova #}
               <div id="invoice-feedback-container" class="hidden transition-all"></div>
 
@@ -1177,74 +1200,104 @@
 
   // Feedback dinàmic en triar arxius i disparador d'IA
   const primaryInput = document.getElementById('{{ form.primaryPhoto.vars.id }}');
-  const extraPhotosInput = document.getElementById('{{ form.extraPhotos.vars.id }}');
-  const extraPhotosPreview = document.getElementById('extra-photos-preview');
-  const extraPhotosCounter = document.getElementById('extra-photos-counter');
-  const maxExtraPhotos = {{ maxPhotos|default(1) > 0 ? maxPhotos - 1 : -1 }};
-  let extraPhotosFiles = [];
+  function setupMultiFileQueue({ inputId, previewId, counterId, maxFiles, acceptFile, limitMsg, mode }) {
+    const inputEl = document.getElementById(inputId);
+    const previewEl = document.getElementById(previewId);
+    const counterEl = document.getElementById(counterId);
+    if (!inputEl) return;
 
-  function syncExtraPhotosInput() {
-    if (!extraPhotosInput) return;
-    const dt = new DataTransfer();
-    extraPhotosFiles.forEach((f) => dt.items.add(f));
-    extraPhotosInput.files = dt.files;
+    const filesQueue = [];
 
-    if (extraPhotosCounter) {
-      extraPhotosCounter.textContent = `${extraPhotosFiles.length}/${maxExtraPhotos > 0 ? maxExtraPhotos : '∞'}`;
+    function sync() {
+      const dt = new DataTransfer();
+      filesQueue.forEach((f) => dt.items.add(f));
+      inputEl.files = dt.files;
+
+      if (counterEl) {
+        counterEl.textContent = `${filesQueue.length}/${maxFiles > 0 ? maxFiles : '∞'}`;
+      }
+      if (!previewEl) return;
+
+      if (filesQueue.length === 0) {
+        previewEl.classList.add('hidden');
+        previewEl.innerHTML = '';
+        return;
+      }
+
+      previewEl.classList.remove('hidden');
+      previewEl.innerHTML = '';
+      filesQueue.forEach((file, idx) => {
+        const rmBtn = document.createElement('button');
+        rmBtn.type = 'button';
+        rmBtn.textContent = '×';
+        rmBtn.title = 'Treure fitxer';
+        rmBtn.onclick = () => {
+          filesQueue.splice(idx, 1);
+          sync();
+        };
+
+        if (mode === 'images') {
+          const card = document.createElement('div');
+          card.className = 'relative aspect-square rounded-lg overflow-hidden border border-gold/40 bg-white';
+          const img = document.createElement('img');
+          img.className = 'w-full h-full object-cover';
+          img.alt = file.name;
+          const reader = new FileReader();
+          reader.onload = (ev) => { img.src = ev.target.result; };
+          reader.readAsDataURL(file);
+          rmBtn.className = 'absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-ink/85 text-cream text-[10px] leading-none flex items-center justify-center hover:bg-red-600 cursor-pointer';
+          card.appendChild(img);
+          card.appendChild(rmBtn);
+          previewEl.appendChild(card);
+        } else {
+          const chip = document.createElement('div');
+          chip.className = 'inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-white border border-steel/30 text-[10px] font-mono text-ink max-w-full';
+          const label = document.createElement('span');
+          label.className = 'truncate max-w-[140px]';
+          label.textContent = (file.type === 'application/pdf' ? '📄 ' : '🖼️ ') + file.name;
+          rmBtn.className = 'text-red-500 hover:text-red-700 font-bold text-xs leading-none cursor-pointer shrink-0';
+          chip.appendChild(label);
+          chip.appendChild(rmBtn);
+          previewEl.appendChild(chip);
+        }
+      });
     }
-    if (!extraPhotosPreview) return;
 
-    if (extraPhotosFiles.length === 0) {
-      extraPhotosPreview.classList.add('hidden');
-      extraPhotosPreview.innerHTML = '';
-      return;
-    }
-
-    extraPhotosPreview.classList.remove('hidden');
-    extraPhotosPreview.innerHTML = '';
-    extraPhotosFiles.forEach((file, idx) => {
-      const card = document.createElement('div');
-      card.className = 'relative aspect-square rounded-lg overflow-hidden border border-gold/40 bg-white group';
-      const img = document.createElement('img');
-      img.className = 'w-full h-full object-cover';
-      img.alt = file.name;
-      const reader = new FileReader();
-      reader.onload = (ev) => { img.src = ev.target.result; };
-      reader.readAsDataURL(file);
-
-      const rmBtn = document.createElement('button');
-      rmBtn.type = 'button';
-      rmBtn.className = 'absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-ink/85 text-cream text-[10px] leading-none flex items-center justify-center hover:bg-red-600 cursor-pointer';
-      rmBtn.textContent = '×';
-      rmBtn.title = 'Treure foto';
-      rmBtn.onclick = () => {
-        extraPhotosFiles.splice(idx, 1);
-        syncExtraPhotosInput();
-      };
-
-      card.appendChild(img);
-      card.appendChild(rmBtn);
-      extraPhotosPreview.appendChild(card);
-    });
-  }
-
-  if (extraPhotosInput) {
-    extraPhotosInput.addEventListener('change', function() {
-      const incoming = Array.from(this.files || []).filter((f) => f.type.startsWith('image/'));
+    inputEl.addEventListener('change', function() {
+      const incoming = Array.from(this.files || []).filter(acceptFile);
       if (incoming.length === 0) return;
-
       for (const file of incoming) {
-        if (maxExtraPhotos > 0 && extraPhotosFiles.length >= maxExtraPhotos) {
+        if (maxFiles > 0 && filesQueue.length >= maxFiles) {
           if (window.RegistralsToast) {
-            window.RegistralsToast.show('Límit de fotos assolit', `El teu pla permet fins a ${maxExtraPhotos} fotos addicionals a més de la principal.`, 'warning');
+            window.RegistralsToast.show('Límit assolit', limitMsg, 'warning');
           }
           break;
         }
-        extraPhotosFiles.push(file);
+        filesQueue.push(file);
       }
-      syncExtraPhotosInput();
+      sync();
     });
   }
+
+  setupMultiFileQueue({
+    inputId: '{{ form.extraPhotos.vars.id }}',
+    previewId: 'extra-photos-preview',
+    counterId: 'extra-photos-counter',
+    maxFiles: {{ maxPhotos|default(1) > 0 ? maxPhotos - 1 : -1 }},
+    acceptFile: (f) => f.type.startsWith('image/'),
+    limitMsg: 'El teu pla no permet afegir més fotografies addicionals en aquest bé.',
+    mode: 'images',
+  });
+
+  setupMultiFileQueue({
+    inputId: '{{ form.extraEvidences.vars.id }}',
+    previewId: 'extra-evidences-preview',
+    counterId: 'extra-evidences-counter',
+    maxFiles: {{ maxEvidences|default(1) > 0 ? maxEvidences - 1 : -1 }},
+    acceptFile: (f) => f.type === 'application/pdf' || f.type.startsWith('image/'),
+    limitMsg: 'El teu pla no permet afegir més proves documentals addicionals en aquest bé.',
+    mode: 'files',
+  });
 
   const primaryCameraInput = document.getElementById('primary-photo-camera');
   if (primaryCameraInput) {

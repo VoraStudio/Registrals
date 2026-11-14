@@ -204,6 +204,32 @@ class ItemType extends AbstractType
                     'accept' => 'image/*,application/pdf',
                     'class' => 'sr-only',
                 ],
+            ])
+            ->add('extraEvidences', FileType::class, [
+                'label' => 'Proves o documents addicionals',
+                'mapped' => false,
+                'required' => false,
+                'multiple' => true,
+                'constraints' => [
+                    new All([
+                        'constraints' => [
+                            new File([
+                                'maxSize' => '20M',
+                                'mimeTypes' => [
+                                    'application/pdf',
+                                    'image/jpeg',
+                                    'image/png',
+                                    'image/webp',
+                                ],
+                                'mimeTypesMessage' => 'Puja un PDF o una fotografia del comprovant (JPG, PNG, WebP).',
+                            ]),
+                        ],
+                    ]),
+                ],
+                'attr' => [
+                    'accept' => 'image/*,application/pdf',
+                    'class' => 'sr-only',
+                ],
             ]);
     }
 
