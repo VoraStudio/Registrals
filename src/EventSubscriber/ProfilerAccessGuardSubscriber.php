@@ -27,6 +27,7 @@ final class ProfilerAccessGuardSubscriber implements EventSubscriberInterface
 
     public function __construct(
         private readonly ?Profiler $profiler = null,
+        private readonly ?string $extraAllowedIps = null,
     ) {
     }
 
@@ -44,7 +45,7 @@ final class ProfilerAccessGuardSubscriber implements EventSubscriberInterface
         }
 
         $clientIp = $event->getRequest()->getClientIp() ?? '';
-        $isAllowed = $clientIp !== '' && IpUtils::checkIp($clientIp, self::ALLOWED_CIDRS);
+        $isAllowed = $clientIp !== '' && IpUtils::checkIp($clientIp, $this->getAllowedCidrs());
 
         if (!$isAllowed) {
             $this->profiler?->disable();
@@ -58,6 +59,19 @@ final class ProfilerAccessGuardSubscriber implements EventSubscriberInterface
         if (!$isAllowed) {
             throw new NotFoundHttpException();
         }
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getAllowedCidrs(): array
+    {
+        $raw = $this->extraAllowedIps
+            ?? ($_ENV['PROFILER_ALLOWED_IPS'] ?? $_SERVER['PROFILER_ALLOWED_IPS'] ?? '');
+
+        $extra = array_values(array_filter(array_map('trim', explode(',', (string) $raw))));
+
+        return array_merge(self::ALLOWED_CIDRS, $extra);
     }
 }
 

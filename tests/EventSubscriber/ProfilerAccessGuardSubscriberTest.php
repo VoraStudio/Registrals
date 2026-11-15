@@ -70,5 +70,19 @@ final class ProfilerAccessGuardSubscriberTest extends TestCase
 
         $subscriber->onKernelRequest($event);
     }
+
+    public function testAllowsConfiguredExtraIpOnProfilerRoute(): void
+    {
+        $profiler = $this->createMock(Profiler::class);
+        $profiler->expects($this->never())->method('disable');
+
+        $subscriber = new ProfilerAccessGuardSubscriber($profiler, '83.43.195.95');
+        $request = Request::create('/_profiler/phpinfo', 'GET', [], [], [], ['REMOTE_ADDR' => '83.43.195.95']);
+        $kernel = $this->createMock(HttpKernelInterface::class);
+        $event = new RequestEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST);
+
+        $subscriber->onKernelRequest($event);
+        $this->addToAssertionCount(1);
+    }
 }
 
