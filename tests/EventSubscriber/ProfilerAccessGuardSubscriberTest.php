@@ -84,5 +84,48 @@ final class ProfilerAccessGuardSubscriberTest extends TestCase
         $subscriber->onKernelRequest($event);
         $this->addToAssertionCount(1);
     }
+
+    public function testBlocksLoopbackClientIpBehindProxyOnPublicHost(): void
+    {
+        $subscriber = new ProfilerAccessGuardSubscriber(null, '83.43.195.95');
+        $request = Request::create('https://83.43.195.95:8008/_profiler/search', 'GET', [], [], [], [
+            'REMOTE_ADDR' => '127.0.0.1',
+        ]);
+        $kernel = $this->createMock(HttpKernelInterface::class);
+        $event = new RequestEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST);
+
+        $this->expectException(NotFoundHttpException::class);
+        $subscriber->onKernelRequest($event);
+    }
+
+    public function testBlocksSpoofedXForwardedForWithBotIp(): void
+    {
+        $subscriber = new ProfilerAccessGuardSubscriber(null, '83.43.195.95');
+        $request = Request::create('https://83.43.195.95:8008/_profiler/24bda2/search/results', 'GET', [], [], [], [
+            'REMOTE_ADDR' => '127.0.0.1',
+            'HTTP_X_FORWARDED_FOR' => '127.0.0.1, 148.251.71.4',
+        ]);
+        $kernel = $this->createMock(HttpKernelInterface::class);
+        $event = new RequestEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST);
+
+        $this->expectException(NotFoundHttpException::class);
+        $subscriber->onKernelRequest($event);
+    }
+
+    public function testBlocksEverythingWhenForceDisabled(): void
+    {
+        $profiler = $this->createMock(Profiler::class);
+        $profiler->expects($this->once())->method('disable');
+
+        $subscriber = new ProfilerAccessGuardSubscriber($profiler, '83.43.195.95', true);
+        $request = Request::create('https://127.0.0.1:8008/_profiler/phpinfo', 'GET', [], [], [], [
+            'REMOTE_ADDR' => '127.0.0.1',
+        ]);
+        $kernel = $this->createMock(HttpKernelInterface::class);
+        $event = new RequestEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST);
+
+        $this->expectException(NotFoundHttpException::class);
+        $subscriber->onKernelRequest($event);
+    }
 }
 
