@@ -155,9 +155,9 @@ A la vista de detall d'un bé (`/app/items/{cui}`):
 
 - **Fórmula del Fingerprint Mestre:** SHA-256 determinista calculat a partir de: `hash(cui | nom | marca | num_serie | sha256_foto_principal | hashes_documents_custodiats)`.
 - **Regla d'Immutabilitat i Edició:**
-  - Un bé no és un registre mutable ordinari d'un formulari web, sinó una **declaració notarial de custòdia**.
-  - Qualsevol addició o eliminació de fotografies, reordenació de la foto principal o incorporació de noves factures **altera de forma irreversible el fingerprint global**.
-  - Aquesta acció genera una nova entrada a l'històric d'auditoria (`v1` -> `v2`), mantenint la traçabilitat del hash primigeni, i requereix un nou segellat de temps qualificat eIDAS i un nou ancoratge a blockchain.
+  - Un bé no és un registre mutable ordinari d'un formulari web, sinó una **declaració de custòdia immutable**.
+  - Qualsevol addició, substitució o eliminació de fotografies o proves documentals, així com el canvi de foto principal, incrementa `Item::$version` (`v1` -> `v2` -> `v3`...), **altera de forma irreversible el Master Fingerprint SHA-256**, registra l'entrada a `ItemHistoryLog` i passa automàticament els certificats `VALID` previs a **`SUPERSEDED`**.
+  - **Botó unificat de Log (Fitxa del Bé i Perfil):** Tant al peu de *Especificacions & Identificació* (`vN · Log` -> modal `#modal-item-history` amb línia temporal de versions i `SHA-256`) com a la targeta *Registre d'Activitat* de `/app/perfil` (`Log (N)` -> modal `#modal-profile-activity` AJAX amb cerca, filtre per acció i paginació de 25 registres sobre `UserActivityLog`), s'utilitza la mateixa píndola compacta (`bg-cream/60 border-gold/40` + icona SVG de rellotge/històric).
   - La interfície alerta d'aquesta circumstància per evitar canvis frívols per part de l'usuari.
 
 ---

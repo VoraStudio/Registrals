@@ -882,6 +882,18 @@ Per garantir la immutabilitat forense, protegir el rendiment transaccional del n
 - `details`: JSON NULLABLE (metadades estructurades com firewall, motiu de suspensió, versió de clàusules acceptades, etc.).
 - `created_at`: DATETIME INDEXAT (segell de temps immutable UTC).
 
+### Entitat `ItemHistoryLog` (`src/Entity/ItemHistoryLog.php` — BD principal `registrals`)
+Separada deliberadament de `UserActivityLog` (`registrals_audit`) per pertànyer al **domini del bé** i viatjar amb el CUI en traspassos C2C:
+- `id`: INTEGER (PK, Auto-increment).
+- `item_id`: FK -> `items.id` (`ON DELETE CASCADE`), indexat amb `version` i `created_at`.
+- `actor_id`: FK nullable -> `users.id` (`ON DELETE SET NULL`).
+- `version`: INTEGER (versió del bé `1`, `2`, `3`..., sincronitzada amb `items.version` que s'incrementa a cada modificació documental o fotogràfica).
+- `event_type`: VARCHAR(40) (`created`, `document_added`, `document_replaced`, `document_deleted`, `primary_photo_changed`).
+- `summary`: VARCHAR(255) (resum llegible de l'acció).
+- `master_sha256`: VARCHAR(64) (Master Fingerprint SHA-256 calculat per `ItemFingerprintCalculator` en aquell instant).
+- `metadata`: JSON NULLABLE (UUID/nom/hash del document afectat i recompte `superseded_certificates`).
+- `created_at`: DATETIME (UTC).
+
 ## 9. Extensió Planificada — Herència Digital (Iteració 10)
 
 Les evolucions previstes al model de dades per al mòdul d'**Herència Digital** (`LegacyContact`, `SuccessionClaim`, `Certificate::$item` nullable amb `CertificateScope` i paràmetres successoris a `Plan` i `UserActivityAction`) es troben especificades íntegrament a [`09-herencia-digital.md`](09-herencia-digital.md#3-model-de-dades-proposat-srcentity--srcenum).
