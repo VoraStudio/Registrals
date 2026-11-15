@@ -106,7 +106,7 @@ class StripeGatewayClient implements PaymentGatewayInterface
                     'quantity' => 1,
                 ],
             ],
-            'success_url' => $successUrl,
+            'success_url' => $this->normalizeSuccessUrl($successUrl),
             'cancel_url' => $cancelUrl,
             'client_reference_id' => (string) $user->getId(),
             'metadata' => [
@@ -151,7 +151,7 @@ class StripeGatewayClient implements PaymentGatewayInterface
                     'quantity' => 1,
                 ],
             ],
-            'success_url' => $successUrl,
+            'success_url' => $this->normalizeSuccessUrl($successUrl),
             'cancel_url' => $cancelUrl,
             'client_reference_id' => (string) $user->getId(),
             'metadata' => [
@@ -197,7 +197,7 @@ class StripeGatewayClient implements PaymentGatewayInterface
                     'quantity' => 1,
                 ],
             ],
-            'success_url' => $successUrl,
+            'success_url' => $this->normalizeSuccessUrl($successUrl),
             'cancel_url' => $cancelUrl,
             'client_reference_id' => (string) $user->getId(),
             'metadata' => [
@@ -245,7 +245,7 @@ class StripeGatewayClient implements PaymentGatewayInterface
                     'quantity' => 1,
                 ],
             ],
-            'success_url' => $successUrl,
+            'success_url' => $this->normalizeSuccessUrl($successUrl),
             'cancel_url' => $cancelUrl,
             'client_reference_id' => $claim->getUuid()->toRfc4122(),
             'metadata' => [
@@ -293,7 +293,7 @@ class StripeGatewayClient implements PaymentGatewayInterface
                     'quantity' => 1,
                 ],
             ],
-            'success_url' => $successUrl,
+            'success_url' => $this->normalizeSuccessUrl($successUrl),
             'cancel_url' => $cancelUrl,
             'client_reference_id' => (string) $user->getId(),
             'metadata' => [
@@ -413,5 +413,13 @@ class StripeGatewayClient implements PaymentGatewayInterface
         $event = Webhook::constructEvent($rawPayload, $signatureHeader, $this->webhookSecret, 300);
 
         return $event->toArray();
+    }
+
+    /**
+     * Assegura que el placeholder de Stripe no quedi URL-encoded per Symfony Router.
+     */
+    private function normalizeSuccessUrl(string $successUrl): string
+    {
+        return str_replace('%7BCHECKOUT_SESSION_ID%7D', '{CHECKOUT_SESSION_ID}', $successUrl);
     }
 }

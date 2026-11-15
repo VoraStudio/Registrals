@@ -380,9 +380,16 @@ class PaymentController extends AbstractController
         $token = $request->query->get('token');
 
         $transaction = null;
-        if ($sessionId !== '') {
+        if ($sessionId !== '' && $sessionId !== '{CHECKOUT_SESSION_ID}') {
             $this->paymentManager->syncSessionIfPaid($sessionId, $this->paymentGateway);
             $transaction = $this->transactionRepository->findByStripeSessionId($sessionId);
+        }
+
+        if (($transaction === null || $transaction->getStatus() !== PaymentStatus::PAID) && ($user = $this->getUser()) instanceof User) {
+            $this->paymentManager->syncPendingTransactionsForUser($user, $this->paymentGateway);
+            if ($sessionId !== '' && $sessionId !== '{CHECKOUT_SESSION_ID}') {
+                $transaction = $this->transactionRepository->findByStripeSessionId($sessionId);
+            }
         }
 
         return $this->render('payment/success.html.twig', [
