@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\HttpKernel\Profiler\Profiler;
 
 final class ProfilerAccessGuardSubscriberTest extends TestCase
 {
@@ -56,4 +57,18 @@ final class ProfilerAccessGuardSubscriberTest extends TestCase
         $subscriber->onKernelRequest($event);
         $this->addToAssertionCount(1);
     }
+
+    public function testDisablesProfilerForExternalIpOnNormalRoute(): void
+    {
+        $profiler = $this->createMock(Profiler::class);
+        $profiler->expects($this->once())->method('disable');
+
+        $subscriber = new ProfilerAccessGuardSubscriber($profiler);
+        $request = Request::create('/app/dashboard', 'GET', [], [], [], ['REMOTE_ADDR' => '83.43.195.95']);
+        $kernel = $this->createMock(HttpKernelInterface::class);
+        $event = new RequestEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST);
+
+        $subscriber->onKernelRequest($event);
+    }
 }
+

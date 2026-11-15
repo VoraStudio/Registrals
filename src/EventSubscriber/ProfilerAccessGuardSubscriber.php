@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\IpUtils;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\HttpKernel\Profiler\Profiler;
 
 /**
  * Blocks external public access to Symfony WebProfiler / WDT endpoints
@@ -24,6 +25,11 @@ final class ProfilerAccessGuardSubscriber implements EventSubscriberInterface
         '192.168.0.0/16',
     ];
 
+    public function __construct(
+        private readonly ?Profiler $profiler = null,
+    ) {
+    }
+
     public static function getSubscribedEvents(): array
     {
         return [
@@ -37,14 +43,21 @@ final class ProfilerAccessGuardSubscriber implements EventSubscriberInterface
             return;
         }
 
+        $clientIp = $event->getRequest()->getClientIp() ?? '';
+        $isAllowed = $clientIp !== '' && IpUtils::checkIp($clientIp, self::ALLOWED_CIDRS);
+
+        if (!$isAllowed) {
+            $this->profiler?->disable();
+        }
+
         $path = $event->getRequest()->getPathInfo();
         if (!str_starts_with($path, '/_profiler') && !str_starts_with($path, '/_wdt')) {
             return;
         }
 
-        $clientIp = $event->getRequest()->getClientIp() ?? '';
-        if ($clientIp === '' || !IpUtils::checkIp($clientIp, self::ALLOWED_CIDRS)) {
+        if (!$isAllowed) {
             throw new NotFoundHttpException();
         }
     }
 }
+
