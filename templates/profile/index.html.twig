@@ -619,9 +619,10 @@
               <span class="text-gold text-sm">🛡️</span>
               <h3 class="font-marcellus text-xs sm:text-sm text-ink font-bold">Registre d'Activitat</h3>
             </div>
-            <span class="px-1.5 py-0.5 rounded-full bg-cream text-ink text-[9px] font-mono font-bold border border-gold/30">
-              {{ activityLogs|default([])|length }} recents
-            </span>
+            <button type="button" onclick="openProfileActivityModal()" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-cream/60 hover:bg-cream border border-gold/40 text-ink text-[11px] font-mono font-semibold transition-all shadow-2xs cursor-pointer" title="Veure tot l'històric d'activitat">
+              <svg class="w-3.5 h-3.5 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <span>Log ({{ activityTotal|default(activityLogs|default([])|length) }})</span>
+            </button>
           </div>
           {% if activityLogs is defined and activityLogs|length > 0 %}
             <div class="space-y-1.5 max-h-60 overflow-y-auto pr-1">
@@ -899,7 +900,161 @@
       closeLegacyRevokeModal();
       closeLegacyStartClaimModal();
       closeKycStartModal();
+      closeProfileActivityModal();
     }
   });
+
+  // ==========================================
+  // Modal d'Històric Complet d'Activitat (AJAX)
+  // ==========================================
+  let activityCurrentPage = 1;
+  let activitySearchTimer = null;
+
+  function openProfileActivityModal() {
+    const modal = document.getElementById('modal-profile-activity');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.classList.add('overflow-hidden');
+      loadProfileActivityLogs(1);
+    }
+  }
+
+  function closeProfileActivityModal() {
+    const modal = document.getElementById('modal-profile-activity');
+    if (modal && !modal.classList.contains('hidden')) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.classList.remove('overflow-hidden');
+    }
+  }
+
+  function handleActivityFilterChange() {
+    clearTimeout(activitySearchTimer);
+    activitySearchTimer = setTimeout(() => loadProfileActivityLogs(1), 220);
+  }
+
+  async function loadProfileActivityLogs(page = 1) {
+    activityCurrentPage = page;
+    const listEl = document.getElementById('activity-modal-list');
+    const summaryEl = document.getElementById('activity-modal-summary');
+    const pageInfoEl = document.getElementById('activity-modal-page-info');
+    const prevBtn = document.getElementById('activity-prev-btn');
+    const nextBtn = document.getElementById('activity-next-btn');
+    const q = document.getElementById('activity-search-input')?.value?.trim() || '';
+    const action = document.getElementById('activity-action-filter')?.value || '';
+
+    if (listEl) {
+      listEl.innerHTML = '<div class="py-8 text-center text-xs text-steel font-mono">Carregant registre d\'activitat...</div>';
+    }
+
+    const params = new URLSearchParams({ page: String(page) });
+    if (q) params.set('q', q);
+    if (action) params.set('action', action);
+
+    try {
+      const res = await fetch('{{ path('app_profile_activity_logs') }}?' + params.toString(), {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      });
+      const data = await res.json();
+
+      if (summaryEl) {
+        summaryEl.textContent = `${data.total} registre(s) · 25 per pàgina`;
+      }
+      if (pageInfoEl) {
+        pageInfoEl.textContent = `Pàgina ${data.page} de ${data.pages}`;
+      }
+      if (prevBtn) prevBtn.disabled = data.page <= 1;
+      if (nextBtn) nextBtn.disabled = data.page >= data.pages;
+
+      if (!listEl) return;
+      if (!data.items || data.items.length === 0) {
+        listEl.innerHTML = '<div class="py-8 text-center text-xs text-steel">No s\'han trobat registres amb els filtres seleccionats.</div>';
+        return;
+      }
+
+      listEl.innerHTML = data.items.map((item) => `
+        <div class="p-3 rounded-xl border border-steel/15 bg-cream-50/50 space-y-1">
+          <div class="flex items-center justify-between gap-2 flex-wrap">
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold border ${item.actionBadgeClasses}">
+              ${escapeProfileHtml(item.actionLabel)}
+            </span>
+            <div class="flex items-center gap-2 text-[10px] font-mono text-steel">
+              ${item.ipAddress ? `<span>IP: ${escapeProfileHtml(item.ipAddress)}</span>` : ''}
+              <span>${escapeProfileHtml(item.createdAt)}</span>
+            </div>
+          </div>
+          <p class="text-xs text-ink/85 leading-snug">${escapeProfileHtml(item.description)}</p>
+        </div>
+      `).join('');
+    } catch (err) {
+      if (listEl) {
+        listEl.innerHTML = '<div class="py-8 text-center text-xs text-red-700">Error carregant el registre d\'activitat.</div>';
+      }
+    }
+  }
+
+  function escapeProfileHtml(str) {
+    return String(str || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
 </script>
+
+{# Modal PWA Dual: Registre d'Activitat Complet #}
+<div id="modal-profile-activity" class="hidden fixed inset-0 z-50 bg-ink/75 backdrop-blur-xs items-end sm:items-center justify-center p-0 sm:p-4 transition-all duration-200" onclick="if (event.target === this) closeProfileActivityModal();">
+  <div class="bg-white rounded-t-3xl sm:rounded-2xl border-t sm:border border-gold/40 shadow-2xl max-w-3xl w-full max-h-[90vh] sm:max-h-[92vh] overflow-hidden flex flex-col font-raleway">
+    <div class="sm:hidden w-10 h-1 bg-cream/30 rounded-full mx-auto mt-2 -mb-1 shrink-0"></div>
+
+    <div class="p-4 sm:p-5 bg-ink text-cream border-b border-gold/30 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-gold/20 border border-gold/40 text-gold flex items-center justify-center shrink-0">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div>
+          <h3 class="font-marcellus text-base sm:text-lg text-whitef">Registre d'Activitat del Compte</h3>
+          <p id="activity-modal-summary" class="text-[11px] font-mono text-steel">Auditoria personal · 25 per pàgina</p>
+        </div>
+      </div>
+      <button type="button" onclick="closeProfileActivityModal()" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-cream flex items-center justify-center text-sm font-bold cursor-pointer" aria-label="Tancar">
+        ✕
+      </button>
+    </div>
+
+    <div class="p-3 sm:p-4 bg-cream-50/70 border-b border-steel/15 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+      <input type="search" id="activity-search-input" oninput="handleActivityFilterChange()" placeholder="Cercar per descripció, CUI o IP..." class="w-full px-3 py-2 rounded-xl bg-white border border-steel/30 text-xs text-ink focus:outline-none focus:border-gold" />
+      <select id="activity-action-filter" onchange="loadProfileActivityLogs(1)" class="w-full px-3 py-2 rounded-xl bg-white border border-steel/30 text-xs text-ink font-semibold focus:outline-none focus:border-gold">
+        <option value="">Totes les accions</option>
+        {% if activityActionGroups is defined %}
+          {% for groupLabel, actions in activityActionGroups %}
+            <optgroup label="{{ groupLabel }}">
+              {% for act in actions %}
+                <option value="{{ act.value }}">{{ act.label }}</option>
+              {% endfor %}
+            </optgroup>
+          {% endfor %}
+        {% endif %}
+      </select>
+    </div>
+
+    <div id="activity-modal-list" class="p-4 sm:p-5 overflow-y-auto space-y-2 flex-1"></div>
+
+    <div class="p-3 sm:p-4 bg-cream-50/50 border-t border-steel/15 flex items-center justify-between gap-2">
+      <span id="activity-modal-page-info" class="text-[11px] font-mono text-steel">Pàgina 1 de 1</span>
+      <div class="flex items-center gap-2">
+        <button type="button" id="activity-prev-btn" onclick="loadProfileActivityLogs(activityCurrentPage - 1)" class="px-3 py-1.5 rounded-lg bg-white border border-steel/30 text-xs font-semibold text-ink hover:bg-cream disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+          ← Anterior
+        </button>
+        <button type="button" id="activity-next-btn" onclick="loadProfileActivityLogs(activityCurrentPage + 1)" class="px-3 py-1.5 rounded-lg bg-white border border-steel/30 text-xs font-semibold text-ink hover:bg-cream disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+          Següent →
+        </button>
+        <button type="button" onclick="closeProfileActivityModal()" class="px-3.5 py-1.5 rounded-lg bg-ink text-gold border border-gold/40 hover:bg-ink/90 text-xs font-bold cursor-pointer">
+          Tancar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

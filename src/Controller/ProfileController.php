@@ -19,6 +19,7 @@ use App\Service\Legacy\LegacyCertificateIssuerService;
 use App\Service\Legacy\LegacyDesignationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -115,11 +116,15 @@ class ProfileController extends AbstractController
         ];
 
         $activityLogs = [];
+        $activityTotal = 0;
         if ($activityLogRepository !== null) {
             try {
-                $activityLogs = $activityLogRepository->findRecentByUserUuid($user->getUuid()->toRfc4122(), 15);
+                $activityResult = $activityLogRepository->findPaginatedByUserUuid($user->getUuid()->toRfc4122(), 1, 10);
+                $activityLogs = $activityResult['items'];
+                $activityTotal = $activityResult['total'];
             } catch (\Throwable) {
                 $activityLogs = [];
+                $activityTotal = 0;
             }
         }
 
@@ -136,6 +141,8 @@ class ProfileController extends AbstractController
             'legacyForm' => $legacyForm,
             'kycContext' => $kycContext,
             'activityLogs' => $activityLogs,
+            'activityTotal' => $activityTotal,
+            'activityActionGroups' => UserActivityAction::groupedByCategory(),
         ]);
     }
 
@@ -181,5 +188,42 @@ class ProfileController extends AbstractController
         );
 
         return $this->redirectToRoute('app_profile');
+    }
+
+    #[Route('/app/perfil/activitat', name: 'app_profile_activity_logs', methods: ['GET'])]
+    public function activityLogs(Request $request, UserActivityLogRepository $activityLogRepository): JsonResponse
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $page = max(1, $request->query->getInt('page', 1));
+        $search = $request->query->getString('q', '');
+        $action = $request->query->getString('action', '');
+
+        $result = $activityLogRepository->findPaginatedByUserUuid(
+            userUuid: $user->getUuid()->toRfc4122(),
+            page: $page,
+            limit: 25,
+            search: $search !== '' ? $search : null,
+            action: $action !== '' ? $action : null,
+        );
+
+        $items = array_map(static function ($log): array {
+            return [
+                'actionLabel' => $log->getAction()->label(),
+                'actionBadgeClasses' => $log->getAction()->badgeClasses(),
+                'description' => $log->getDescription(),
+                'createdAt' => $log->getCreatedAt()->format('d/m/Y H:i:s'),
+                'ipAddress' => $log->getIpAddress(),
+            ];
+        }, $result['items']);
+
+        return $this->json([
+            'items' => $items,
+            'total' => $result['total'],
+            'page' => $page,
+            'pages' => $result['pages'],
+            'limit' => 25,
+        ]);
     }
 }

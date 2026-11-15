@@ -209,8 +209,9 @@
         </dl>
         <div class="pt-2 border-t border-cream/80 text-[11px] text-ink/50 flex items-center justify-between">
           <span>Dades validades pel titular</span>
-          <button type="button" onclick="openItemHistoryModal()" class="font-mono text-steel hover:text-ink underline decoration-gold/60 hover:decoration-gold cursor-pointer transition-colors">
-            v{{ item.version }} · Històric
+          <button type="button" onclick="openItemHistoryModal()" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-cream/60 hover:bg-cream border border-gold/40 text-ink text-[11px] font-mono font-semibold transition-all shadow-2xs cursor-pointer" title="Veure històric immutable de versions">
+            <svg class="w-3.5 h-3.5 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>v{{ item.version }} · Log</span>
           </button>
         </div>
       </div>
@@ -480,8 +481,9 @@
 
           <div class="pt-1.5 border-t border-cream/80 text-[11px] text-ink/50 flex items-center justify-between mt-auto">
             <span>Dades validades pel titular</span>
-            <button type="button" onclick="openItemHistoryModal()" class="font-mono text-steel hover:text-ink underline decoration-gold/60 hover:decoration-gold cursor-pointer transition-colors" title="Veure històric immutable de versions">
-              v{{ item.version }} {{ item.version == 1 ? '(Original)' : '(Actualitzat)' }} · Històric
+            <button type="button" onclick="openItemHistoryModal()" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-cream/60 hover:bg-cream border border-gold/40 text-ink text-[11px] font-mono font-semibold transition-all shadow-2xs cursor-pointer" title="Veure històric immutable de versions">
+              <svg class="w-3.5 h-3.5 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <span>v{{ item.version }} · Log</span>
             </button>
           </div>
         </div>

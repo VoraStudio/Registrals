@@ -36,31 +36,49 @@ class UserActivityLogRepository extends ServiceEntityRepository
     /**
      * @return array{items: UserActivityLog[], total: int, pages: int}
      */
-    public function findPaginatedByUserUuid(string $userUuid, int $page = 1, int $limit = 20): array
-    {
+    public function findPaginatedByUserUuid(
+        string $userUuid,
+        int $page = 1,
+        int $limit = 25,
+        ?string $search = null,
+        ?string $action = null
+    ): array {
         $page = max(1, $page);
         $limit = max(1, min(100, $limit));
 
-        $total = (int) $this->createQueryBuilder('l')
+        $countQb = $this->createQueryBuilder('l')
             ->select('COUNT(l.id)')
             ->andWhere('l.userUuid = :uuid')
-            ->setParameter('uuid', $userUuid)
-            ->getQuery()
-            ->getSingleScalarResult();
+            ->setParameter('uuid', $userUuid);
 
-        $items = $this->createQueryBuilder('l')
+        $itemsQb = $this->createQueryBuilder('l')
             ->andWhere('l.userUuid = :uuid')
             ->setParameter('uuid', $userUuid)
             ->orderBy('l.createdAt', 'DESC')
             ->setFirstResult(($page - 1) * $limit)
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult();
+            ->setMaxResults($limit);
+
+        if ($search !== null && trim($search) !== '') {
+            $q = '%' . mb_strtolower(trim($search)) . '%';
+            $countQb->andWhere('LOWER(l.description) LIKE :q OR LOWER(l.ipAddress) LIKE :q')->setParameter('q', $q);
+            $itemsQb->andWhere('LOWER(l.description) LIKE :q OR LOWER(l.ipAddress) LIKE :q')->setParameter('q', $q);
+        }
+
+        if ($action !== null && trim($action) !== '') {
+            $enum = \App\Audit\Enum\UserActivityAction::tryFrom(trim($action));
+            if ($enum !== null) {
+                $countQb->andWhere('l.action = :action')->setParameter('action', $enum);
+                $itemsQb->andWhere('l.action = :action')->setParameter('action', $enum);
+            }
+        }
+
+        $total = (int) $countQb->getQuery()->getSingleScalarResult();
+        $items = $itemsQb->getQuery()->getResult();
 
         return [
             'items' => $items,
             'total' => $total,
-            'pages' => (int) ceil($total / $limit),
+            'pages' => max(1, (int) ceil($total / $limit)),
         ];
     }
 
