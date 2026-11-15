@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Audit\Enum\UserActivityAction;
+use App\Audit\Repository\UserActivityLogRepository;
 use App\Audit\Service\UserActivityLogger;
 use App\Entity\User;
 use App\Enum\KycStatus;
@@ -38,6 +39,7 @@ class ProfileController extends AbstractController
         ?LegacyCertificateIssuerService $legacyCertificateIssuer = null,
         ?SuccessionClaimRepository $successionClaimRepository = null,
         ?KycVerificationService $kycService = null,
+        ?UserActivityLogRepository $activityLogRepository = null,
     ): Response {
         /** @var User $user */
         $user = $this->getUser();
@@ -112,6 +114,15 @@ class ProfileController extends AbstractController
             'taxIdLocked' => $isTaxIdLocked,
         ];
 
+        $activityLogs = [];
+        if ($activityLogRepository !== null) {
+            try {
+                $activityLogs = $activityLogRepository->findRecentByUserUuid($user->getUuid()->toRfc4122(), 15);
+            } catch (\Throwable) {
+                $activityLogs = [];
+            }
+        }
+
         return $this->render('profile/index.html.twig', [
             'user' => $user,
             'profileForm' => $profileForm->createView(),
@@ -124,6 +135,7 @@ class ProfileController extends AbstractController
             'legacyCertEligibility' => $legacyCertificateIssuer?->evaluateEmissionEligibility($user),
             'legacyForm' => $legacyForm,
             'kycContext' => $kycContext,
+            'activityLogs' => $activityLogs,
         ]);
     }
 

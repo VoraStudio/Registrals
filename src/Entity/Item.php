@@ -147,6 +147,13 @@ class Item
     #[ORM\OrderBy(['requestedAt' => 'DESC'])]
     private Collection $transfers;
 
+    /**
+     * @var Collection<int, ItemHistoryLog>
+     */
+    #[ORM\OneToMany(mappedBy: 'item', targetEntity: ItemHistoryLog::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OrderBy(['version' => 'DESC', 'id' => 'DESC'])]
+    private Collection $historyLogs;
+
     public function __construct(User $owner, string $cui, string $name, Category $category)
     {
         $this->uuid = Uuid::v7();
@@ -159,6 +166,7 @@ class Item
         $this->blockchainReceipts = new ArrayCollection();
         $this->certificates = new ArrayCollection();
         $this->transfers = new ArrayCollection();
+        $this->historyLogs = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
     }
@@ -625,6 +633,23 @@ class Item
     public function incrementVersion(): static
     {
         $this->version++;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ItemHistoryLog>
+     */
+    public function getHistoryLogs(): Collection
+    {
+        return $this->historyLogs;
+    }
+
+    public function addHistoryLog(ItemHistoryLog $historyLog): static
+    {
+        if (!$this->historyLogs->contains($historyLog)) {
+            $this->historyLogs->add($historyLog);
+        }
 
         return $this;
     }

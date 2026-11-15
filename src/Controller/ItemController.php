@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Item;
+use App\Entity\ItemHistoryLog;
 use App\Entity\User;
 use App\Enum\BlockchainActionType;
 use App\Enum\CertificateStatus;
@@ -17,6 +18,7 @@ use App\Repository\ItemRepository;
 use App\Audit\Enum\UserActivityAction;
 use App\Audit\Service\UserActivityLogger;
 use App\Security\Voter\ItemVoter;
+use App\Service\ItemFingerprintCalculator;
 use App\Service\Item\CuiGeneratorService;
 use App\Service\Item\ItemLifecycleService;
 use App\Service\Storage\SecureDocumentStorageService;
@@ -49,7 +51,8 @@ class ItemController extends AbstractController
         EntityManagerInterface $entityManager,
         \Symfony\Component\Messenger\MessageBusInterface $messageBus,
         UserActivityLogger $activityLogger,
-        ?\App\Repository\SystemSettingRepository $settingRepository = null
+        ?\App\Repository\SystemSettingRepository $settingRepository = null,
+        ?ItemFingerprintCalculator $fingerprintCalculator = null,
     ): Response {
         /** @var User $user */
         $user = $this->getUser();
@@ -193,6 +196,27 @@ class ItemController extends AbstractController
                 $user->incrementPeriodItemsRegistered();
                 $user->setLifetimeItemsRegistered($user->getLifetimeItemsRegistered() + 1);
 
+                // Registre inicial v1 a l'històric immutable del bé
+                $fingerprintCalculator ??= new ItemFingerprintCalculator();
+                $initialLog = new ItemHistoryLog(
+                    item: $item,
+                    version: $item->getVersion(),
+                    eventType: 'created',
+                    summary: sprintf(
+                        'Alta inicial del bé (%d foto(s), %d prova(es))',
+                        count($item->getPhotos()),
+                        count($item->getEvidenceDocuments())
+                    ),
+                    masterSha256: $fingerprintCalculator->calculateForItem($item),
+                    actor: $user,
+                    metadata: [
+                        'cui' => $item->getCui(),
+                        'name' => $item->getName(),
+                    ]
+                );
+                $item->addHistoryLog($initialLog);
+                $entityManager->persist($initialLog);
+
                 $entityManager->flush();
 
                 // Registre a la base d'auditoria forense (registrals_audit)
@@ -314,7 +338,8 @@ class ItemController extends AbstractController
         SecureDocumentStorageService $storageService,
         MediaIntegrityValidator $integrityValidator,
         EntityManagerInterface $entityManager,
-        UserActivityLogger $activityLogger
+        UserActivityLogger $activityLogger,
+        ?ItemFingerprintCalculator $fingerprintCalculator = null
     ): Response {
         $item = $itemRepository->findOneByCui($cui);
 
@@ -395,7 +420,19 @@ class ItemController extends AbstractController
         $storedDoc = $storageService->storeUploadedDocument($item, $file, $documentType, $metadata);
 
         // Actualització de versió, timestamp i invalidació de certificats anteriors
-        $supersededCount = $this->bumpItemVersionAndInvalidateCertificates($item);
+        $supersededCount = $this->bumpItemVersionAndInvalidateCertificates(
+            item: $item,
+            fingerprintCalculator: $fingerprintCalculator,
+            actor: $user,
+            eventType: 'document_added',
+            summary: sprintf('Afegit %s: %s', $documentType->label(), $storedDoc->getOriginalFilename()),
+            metadata: [
+                'document_uuid' => $storedDoc->getUuid()->toRfc4122(),
+                'document_type' => $documentType->value,
+                'filename' => $storedDoc->getOriginalFilename(),
+                'sha256_hash' => $storedDoc->getSha256Hash(),
+            ]
+        );
         $entityManager->flush();
 
         $activityLogger->log(
@@ -444,7 +481,8 @@ class ItemController extends AbstractController
         Request $request,
         ItemRepository $itemRepository,
         EntityManagerInterface $entityManager,
-        UserActivityLogger $activityLogger
+        UserActivityLogger $activityLogger,
+        ?ItemFingerprintCalculator $fingerprintCalculator = null
     ): Response {
         $item = $itemRepository->findOneByCui($cui);
 
@@ -497,11 +535,21 @@ class ItemController extends AbstractController
 
         // Promocionar la foto seleccionada a principal
         $targetDoc->setType(DocumentType::PHOTO_PRIMARY);
-        $supersededCount = $this->bumpItemVersionAndInvalidateCertificates($item);
-        $entityManager->flush();
-
         /** @var User $user */
         $user = $this->getUser();
+        $supersededCount = $this->bumpItemVersionAndInvalidateCertificates(
+            item: $item,
+            fingerprintCalculator: $fingerprintCalculator,
+            actor: $user,
+            eventType: 'primary_photo_changed',
+            summary: sprintf('Nova fotografia principal: %s', $targetDoc->getOriginalFilename()),
+            metadata: [
+                'document_uuid' => $targetDoc->getUuid()->toRfc4122(),
+                'filename' => $targetDoc->getOriginalFilename(),
+                'sha256_hash' => $targetDoc->getSha256Hash(),
+            ]
+        );
+        $entityManager->flush();
         $activityLogger->log(
             user: $user,
             action: UserActivityAction::ITEM_UPDATED,
@@ -539,7 +587,8 @@ class ItemController extends AbstractController
         ItemRepository $itemRepository,
         SecureDocumentStorageService $storageService,
         EntityManagerInterface $entityManager,
-        UserActivityLogger $activityLogger
+        UserActivityLogger $activityLogger,
+        ?ItemFingerprintCalculator $fingerprintCalculator = null
     ): Response {
         $item = $itemRepository->findOneByCui($cui);
 
@@ -604,11 +653,21 @@ class ItemController extends AbstractController
         $item->removeDocument($targetDoc);
         $entityManager->remove($targetDoc);
 
-        $supersededCount = $this->bumpItemVersionAndInvalidateCertificates($item);
-        $entityManager->flush();
-
         /** @var User $user */
         $user = $this->getUser();
+        $supersededCount = $this->bumpItemVersionAndInvalidateCertificates(
+            item: $item,
+            fingerprintCalculator: $fingerprintCalculator,
+            actor: $user,
+            eventType: 'document_deleted',
+            summary: sprintf('Eliminat %s: %s', $docTypeLabel, $docName),
+            metadata: [
+                'filename' => $docName,
+                'document_type_label' => $docTypeLabel,
+                'sha256_hash' => $docHash,
+            ]
+        );
+        $entityManager->flush();
         $activityLogger->log(
             user: $user,
             action: UserActivityAction::ITEM_UPDATED,
@@ -647,7 +706,8 @@ class ItemController extends AbstractController
         SecureDocumentStorageService $storageService,
         MediaIntegrityValidator $integrityValidator,
         EntityManagerInterface $entityManager,
-        UserActivityLogger $activityLogger
+        UserActivityLogger $activityLogger,
+        ?ItemFingerprintCalculator $fingerprintCalculator = null
     ): Response {
         $item = $itemRepository->findOneByCui($cui);
 
@@ -729,11 +789,21 @@ class ItemController extends AbstractController
         // Emmagatzema el nou fitxer mantenint el tipus (per exemple, PHOTO_PRIMARY)
         $newDoc = $storageService->storeUploadedDocument($item, $file, $targetType, $metadata);
 
-        $supersededCount = $this->bumpItemVersionAndInvalidateCertificates($item);
-        $entityManager->flush();
-
         /** @var User $user */
         $user = $this->getUser();
+        $supersededCount = $this->bumpItemVersionAndInvalidateCertificates(
+            item: $item,
+            fingerprintCalculator: $fingerprintCalculator,
+            actor: $user,
+            eventType: 'document_replaced',
+            summary: sprintf('Substituït %s per %s', $oldName, $newDoc->getOriginalFilename()),
+            metadata: [
+                'old_filename' => $oldName,
+                'new_filename' => $newDoc->getOriginalFilename(),
+                'new_sha256' => $newDoc->getSha256Hash(),
+            ]
+        );
+        $entityManager->flush();
         $activityLogger->log(
             user: $user,
             action: UserActivityAction::ITEM_UPDATED,
@@ -1182,11 +1252,20 @@ class ItemController extends AbstractController
     }
 
     /**
-     * Incrementa la versió immutable del bé, actualitza el timestamp i marca
-     * com a superats (superseded) els certificats vigents anteriors.
+     * Incrementa la versió immutable del bé, actualitza el timestamp, marca
+     * com a superats (superseded) els certificats vigents anteriors i registra l'entrada a ItemHistoryLog.
+     *
+     * @param array<string, mixed> $metadata
      */
-    private function bumpItemVersionAndInvalidateCertificates(Item $item): int
-    {
+    private function bumpItemVersionAndInvalidateCertificates(
+        Item $item,
+        ?ItemFingerprintCalculator $fingerprintCalculator,
+        ?User $actor,
+        string $eventType,
+        string $summary,
+        array $metadata = []
+    ): int {
+        $fingerprintCalculator ??= new ItemFingerprintCalculator();
         $item->incrementVersion();
         $item->setUpdatedAt(new \DateTimeImmutable());
 
@@ -1197,6 +1276,21 @@ class ItemController extends AbstractController
                 $supersededCount++;
             }
         }
+
+        if ($supersededCount > 0) {
+            $metadata['superseded_certificates'] = $supersededCount;
+        }
+
+        $historyLog = new ItemHistoryLog(
+            item: $item,
+            version: $item->getVersion(),
+            eventType: $eventType,
+            summary: $summary,
+            masterSha256: $fingerprintCalculator->calculateForItem($item),
+            actor: $actor,
+            metadata: $metadata !== [] ? $metadata : null
+        );
+        $item->addHistoryLog($historyLog);
 
         return $supersededCount;
     }

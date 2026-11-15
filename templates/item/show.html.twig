@@ -207,6 +207,12 @@
             </div>
           {% endif %}
         </dl>
+        <div class="pt-2 border-t border-cream/80 text-[11px] text-ink/50 flex items-center justify-between">
+          <span>Dades validades pel titular</span>
+          <button type="button" onclick="openItemHistoryModal()" class="font-mono text-steel hover:text-ink underline decoration-gold/60 hover:decoration-gold cursor-pointer transition-colors">
+            v{{ item.version }} · Històric
+          </button>
+        </div>
       </div>
 
       {# 4. PROVES (Proves Documentals) #}
@@ -474,7 +480,9 @@
 
           <div class="pt-1.5 border-t border-cream/80 text-[11px] text-ink/50 flex items-center justify-between mt-auto">
             <span>Dades validades pel titular</span>
-            <span class="font-mono text-steel">v{{ item.version }} {{ item.version == 1 ? '(Original)' : '(Actualitzat)' }}</span>
+            <button type="button" onclick="openItemHistoryModal()" class="font-mono text-steel hover:text-ink underline decoration-gold/60 hover:decoration-gold cursor-pointer transition-colors" title="Veure històric immutable de versions">
+              v{{ item.version }} {{ item.version == 1 ? '(Original)' : '(Actualitzat)' }} · Històric
+            </button>
           </div>
         </div>
 
@@ -1600,6 +1608,84 @@
   </div>
 </div>
 
+{# ========================================================================= #}
+{# MODAL 6: Històric Immutable de Versions del Bé (PWA Dual Modal)           #}
+{# ========================================================================= #}
+<div id="modal-item-history" class="fixed inset-0 z-50 bg-ink/75 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-all duration-200" onclick="if(event.target === this) closeItemHistoryModal();">
+  <div class="bg-white rounded-t-3xl sm:rounded-2xl border-t sm:border border-gold/40 shadow-2xl max-w-2xl w-full max-h-[90vh] sm:max-h-[92vh] overflow-hidden flex flex-col font-raleway">
+    <div class="sm:hidden w-10 h-1 bg-cream/30 rounded-full mx-auto mt-2 -mb-1 shrink-0"></div>
+
+    <div class="p-4 sm:p-5 bg-ink text-cream border-b border-gold/30 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-gold/20 border border-gold/40 text-gold flex items-center justify-center shrink-0 font-mono text-xs font-bold">
+          v{{ item.version }}
+        </div>
+        <div>
+          <h3 class="font-marcellus text-base sm:text-lg text-whitef">Històric Immutable de Versions</h3>
+          <p class="text-[11px] font-mono text-steel">{{ item.cui }} · Traçabilitat SHA-256</p>
+        </div>
+      </div>
+      <button type="button" onclick="closeItemHistoryModal()" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-cream flex items-center justify-center text-sm font-bold cursor-pointer" aria-label="Tancar">
+        ✕
+      </button>
+    </div>
+
+    <div class="p-4 sm:p-5 overflow-y-auto space-y-3 text-xs sm:text-sm text-ink/80 leading-relaxed">
+      <div class="guide-note p-3 text-[11px] leading-snug">
+        <strong>Traçabilitat Criptogràfica:</strong> Cada modificació sobre fotografies o proves documentals genera una nova versió amb el seu <code>SHA-256</code> mestre i supera els certificats previs.
+      </div>
+
+      {% if item.historyLogs|length > 0 %}
+        <div class="space-y-2.5">
+          {% for log in item.historyLogs %}
+            <div class="rounded-xl border {{ loop.first ? 'border-gold/50 bg-cream/25' : 'border-steel/20 bg-white' }} p-3 space-y-1.5">
+              <div class="flex items-center justify-between gap-2 flex-wrap">
+                <div class="flex items-center gap-2">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-md font-mono text-[11px] font-bold {{ loop.first ? 'bg-ink text-gold' : 'bg-cream text-ink border border-steel/25' }}">
+                    v{{ log.version }}
+                  </span>
+                  <span class="font-bold text-ink text-xs">{{ log.eventLabel }}</span>
+                  {% if loop.first %}
+                    <span class="text-[10px] font-mono uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded">Vigent</span>
+                  {% endif %}
+                </div>
+                <span class="text-[11px] font-mono text-steel">{{ log.createdAt|date('d/m/Y H:i:s') }}</span>
+              </div>
+              <p class="text-xs text-ink/85">{{ log.summary }}</p>
+              <div class="flex items-center justify-between gap-2 pt-1 border-t border-steel/10 text-[10px] font-mono text-steel flex-wrap">
+                <span class="truncate" title="{{ log.masterSha256 }}">SHA-256: {{ log.masterSha256 }}</span>
+                {% if log.metadata and log.metadata.superseded_certificates is defined %}
+                  <span class="text-amber-700 font-semibold shrink-0">{{ log.metadata.superseded_certificates }} certificat(s) superat(s)</span>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="rounded-xl border border-gold/40 bg-cream/25 p-3 space-y-1.5">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-md font-mono text-[11px] font-bold bg-ink text-gold">v{{ item.version }}</span>
+              <span class="font-bold text-ink text-xs">Estat vigent registrat</span>
+            </div>
+            <span class="text-[11px] font-mono text-steel">{{ item.updatedAt|date('d/m/Y H:i:s') }}</span>
+          </div>
+          <p class="text-xs text-ink/80">Les properes modificacions sobre fotos o proves quedaran detallades pas a pas en aquest històric.</p>
+          <div class="text-[10px] font-mono text-steel truncate pt-1 border-t border-steel/10">
+            SHA-256: {{ currentFingerprint|default('—') }}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="p-4 bg-cream-50/50 border-t border-steel/15 flex items-center justify-end">
+      <button type="button" onclick="closeItemHistoryModal()" class="px-4 py-2 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer">
+        Tancar
+      </button>
+    </div>
+  </div>
+</div>
+
 <script src="/vendor/pdfjs/pdf.min.js"></script>
 <script>
   if (window.pdfjsLib) {
@@ -1734,6 +1820,24 @@
   // ==========================================
   // Modals d'addició de Fotos i Proves
   // ==========================================
+  function openItemHistoryModal() {
+    const modal = document.getElementById('modal-item-history');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.classList.add('overflow-hidden');
+    }
+  }
+
+  function closeItemHistoryModal() {
+    const modal = document.getElementById('modal-item-history');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.classList.remove('overflow-hidden');
+    }
+  }
+
   function openAddPhotoModal() {
     const modal = document.getElementById('modal-add-photo');
     if (modal) {
@@ -2453,6 +2557,7 @@
   document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
       closeDocPreview();
+      closeItemHistoryModal();
       closeAiNudgingModal();
       closeCertificateModal();
       closeTransferModal();

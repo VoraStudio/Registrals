@@ -612,6 +612,36 @@
         </div>
 
         {# Targeta d'IA Sobirana & Marc Legal #}
+        {# Registre d'Activitat del Compte (Auditoria personal) #}
+        <div class="bg-white rounded-xl border border-steel/20 shadow-2xs p-3.5 sm:p-4">
+          <div class="flex items-center justify-between pb-2 mb-2 border-b border-steel/15">
+            <div class="flex items-center gap-1.5">
+              <span class="text-gold text-sm">🛡️</span>
+              <h3 class="font-marcellus text-xs sm:text-sm text-ink font-bold">Registre d'Activitat</h3>
+            </div>
+            <span class="px-1.5 py-0.5 rounded-full bg-cream text-ink text-[9px] font-mono font-bold border border-gold/30">
+              {{ activityLogs|default([])|length }} recents
+            </span>
+          </div>
+          {% if activityLogs is defined and activityLogs|length > 0 %}
+            <div class="space-y-1.5 max-h-60 overflow-y-auto pr-1">
+              {% for log in activityLogs %}
+                <div class="p-2 rounded-lg bg-cream-50/70 border border-steel/15 text-[11px] space-y-0.5">
+                  <div class="flex items-center justify-between gap-1.5">
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold border {{ log.action.badgeClasses }}">
+                      {{ log.action.label }}
+                    </span>
+                    <span class="text-[9px] font-mono text-steel shrink-0">{{ log.createdAt|date('d/m H:i') }}</span>
+                  </div>
+                  <p class="text-[10px] text-ink/80 leading-snug">{{ log.description }}</p>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p class="text-[11px] text-steel font-raleway py-1">Encara no hi ha activitat registrada al teu compte.</p>
+          {% endif %}
+        </div>
+
         <div class="bg-white rounded-xl border border-steel/20 shadow-2xs p-3.5 sm:p-4">
           <div class="flex items-center justify-between pb-2 mb-2 border-b border-steel/15">
             <div class="flex items-center gap-1.5">
