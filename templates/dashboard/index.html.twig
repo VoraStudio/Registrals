@@ -141,40 +141,47 @@
     {% set maxAi = app.user.plan ? app.user.plan.aiAssistanceQuota : -1 %}
     {% set aiPct = maxAi > 0 ? ((aiUsed / maxAi * 100)|round) : 0 %}
 
-    {# Versió Mòbil: 4 Micro-segments (< sm) #}
-    <div class="sm:hidden mb-4 bg-whitef border border-gold/40 rounded-2xl p-2 shadow-2xs flex items-center justify-between text-xs">
+    {# Versió Mòbil: 4 Micro-segments (< sm) en graella compacta sense desbordament #}
+    <div class="sm:hidden mb-4 bg-whitef border border-gold/40 rounded-2xl py-2 px-1.5 shadow-2xs grid grid-cols-4 items-center text-xs">
       {# Segment 1: Béns Actius #}
-      <div class="flex-1 flex items-center justify-center gap-1.5 px-1 border-r border-steel/20">
-        <svg class="w-3.5 h-3.5 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-        <span class="font-mono text-[11px] font-bold text-ink whitespace-nowrap">
-          {{ itemsCount }}<span class="text-ink/45 font-normal">/{{ maxAllowed > 0 ? maxAllowed : '∞' }}</span>
-        </span>
-        <span class="text-[9px] text-ink/60 font-semibold uppercase tracking-tight whitespace-nowrap">Actius</span>
+      <div class="min-w-0 flex flex-col items-center justify-center px-1 border-r border-steel/20">
+        <div class="flex items-center gap-1">
+          <svg class="w-3 h-3 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+          <span class="font-mono text-[11px] font-bold text-ink whitespace-nowrap">
+            {{ itemsCount }}<span class="text-ink/45 font-normal">/{{ maxAllowed > 0 ? maxAllowed : '∞' }}</span>
+          </span>
+        </div>
+        <span class="text-[9px] text-ink/60 font-semibold uppercase tracking-tight leading-tight mt-0.5">Actius</span>
       </div>
 
       {# Segment 2: Altes Cicle Anual #}
-      <div class="flex-1 flex items-center justify-center gap-1.5 px-1 border-r border-steel/20">
-        <svg class="w-3.5 h-3.5 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-        <span class="font-mono text-[11px] font-bold text-ink whitespace-nowrap">
-          {{ yearlyRegs }}<span class="text-ink/45 font-normal">/{{ maxYearlyRegs > 0 and maxYearlyRegs < 9999 ? maxYearlyRegs : '∞' }}</span>
-        </span>
-        <span class="text-[9px] text-ink/60 font-semibold uppercase tracking-tight whitespace-nowrap">Altes</span>
+      <div class="min-w-0 flex flex-col items-center justify-center px-1 border-r border-steel/20">
+        <div class="flex items-center gap-1">
+          <svg class="w-3 h-3 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          <span class="font-mono text-[11px] font-bold text-ink whitespace-nowrap">
+            {{ yearlyRegs }}<span class="text-ink/45 font-normal">/{{ maxYearlyRegs > 0 and maxYearlyRegs < 9999 ? maxYearlyRegs : '∞' }}</span>
+          </span>
+        </div>
+        <span class="text-[9px] text-ink/60 font-semibold uppercase tracking-tight leading-tight mt-0.5">Altes</span>
       </div>
 
       {# Segment 3: Crèdits IA #}
-      <div class="flex-1 flex items-center justify-center gap-1.5 px-1 border-r border-steel/20">
-        <svg class="w-3.5 h-3.5 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-        <span class="font-mono text-[11px] font-bold text-ink whitespace-nowrap">
-          {{ aiUsed }}<span class="text-ink/45 font-normal">/{{ maxAi > 0 ? maxAi : '∞' }}</span>
-        </span>
-        <span class="text-[9px] text-ink/60 font-semibold uppercase tracking-tight whitespace-nowrap">IA</span>
+      <div class="min-w-0 flex flex-col items-center justify-center px-1 border-r border-steel/20">
+        <div class="flex items-center gap-1">
+          <svg class="w-3 h-3 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <span class="font-mono text-[11px] font-bold text-ink whitespace-nowrap">
+            {{ aiUsed }}<span class="text-ink/45 font-normal">/{{ maxAi > 0 ? maxAi : '∞' }}</span>
+          </span>
+        </div>
+        <span class="text-[9px] text-ink/60 font-semibold uppercase tracking-tight leading-tight mt-0.5">IA</span>
       </div>
 
       {# Segment 4: Pla Actiu #}
-      <div class="flex-1 flex items-center justify-center px-1">
-        <span class="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-cream text-ink border border-gold/40 whitespace-nowrap">
-          <span>{{ app.user.plan ? app.user.plan.name|split('(')[0]|trim : 'ADMIN' }}</span>
+      <div class="min-w-0 flex flex-col items-center justify-center px-1">
+        <span class="inline-flex items-center justify-center max-w-full text-[9px] font-bold px-2 py-0.5 rounded-full bg-cream text-ink border border-gold/40 truncate">
+          {{ app.user.plan ? app.user.plan.name|split('(')[0]|trim|replace({'Pla ': ''}) : 'ADMIN' }}
         </span>
+        <span class="text-[9px] text-ink/60 font-semibold uppercase tracking-tight leading-tight mt-0.5">Pla</span>
       </div>
     </div>
 
