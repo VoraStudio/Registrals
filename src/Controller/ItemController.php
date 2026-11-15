@@ -279,7 +279,8 @@ class ItemController extends AbstractController
         string $cui,
         ItemRepository $itemRepository,
         \App\Service\ItemFingerprintCalculator $fingerprintCalculator,
-        \App\Service\Transfer\TransferExpirationService $transferExpirationService
+        \App\Service\Transfer\TransferExpirationService $transferExpirationService,
+        \App\Service\Plan\DocumentQuotaPolicy $quotaPolicy
     ): Response {
         $item = $itemRepository->findOneByCui($cui);
 
@@ -314,6 +315,8 @@ class ItemController extends AbstractController
         $canAddEvidence = ($maxEvidences <= 0 || count($item->getEvidenceDocuments()) < $maxEvidences)
             && $this->isGranted(ItemVoter::EDIT, $item);
 
+        $partition = $quotaPolicy->partitionDocuments($item, $plan);
+
         return $this->render('item/show.html.twig', [
             'item' => $item,
             'currentFingerprint' => $fingerprintCalculator->calculateForItem($item),
@@ -322,6 +325,10 @@ class ItemController extends AbstractController
             'canAddPhoto' => $canAddPhoto,
             'canAddEvidence' => $canAddEvidence,
             'plan' => $plan,
+            'activePhotos' => $partition['activePhotos'],
+            'frozenPhotosCount' => $partition['frozenPhotosCount'],
+            'activeEvidences' => $partition['activeEvidences'],
+            'frozenEvidencesCount' => $partition['frozenEvidencesCount'],
         ]);
     }
 

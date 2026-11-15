@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\ItemDocument;
+use App\Entity\User;
 use App\Security\Voter\ItemVoter;
+use App\Service\Plan\DocumentQuotaPolicy;
 use App\Service\Storage\SecureDocumentStorageService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\HeaderUtils;
@@ -26,7 +28,8 @@ class MediaController extends AbstractController
     public function serveDocument(
         string $uuid,
         \App\Repository\ItemDocumentRepository $documentRepository,
-        SecureDocumentStorageService $storageService
+        SecureDocumentStorageService $storageService,
+        DocumentQuotaPolicy $quotaPolicy
     ): Response {
         $document = $documentRepository->findOneBy(['uuid' => $uuid]);
 
@@ -38,6 +41,11 @@ class MediaController extends AbstractController
 
         // Verificació d'autorització mitjançant ItemVoter
         $this->denyAccessUnlessGranted(ItemVoter::VIEW, $item);
+
+        $currentUser = $this->getUser();
+        if ($currentUser instanceof User && !$quotaPolicy->isDocumentAccessibleByUser($document, $currentUser)) {
+            throw $this->createAccessDeniedException('Aquest document es troba en custòdia congelada perquè excedeix la quota del teu pla actual. Reactiva el Pla Plus per recuperar-hi l\'accés.');
+        }
 
         try {
             $stream = $storageService->readDocumentStream($document);
