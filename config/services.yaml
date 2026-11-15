@@ -33,6 +33,10 @@ services:
         arguments:
             $appSecret: '%kernel.secret%'
 
+    App\EventSubscriber\ProfilerAccessGuardSubscriber:
+        arguments:
+            $profiler: '@?profiler'
+
     App\EventSubscriber\VisitTelemetrySubscriber:
         arguments:
             $appSecret: '%kernel.secret%'
