@@ -34,6 +34,9 @@
     </div>
 
     {# Resum Mètric Compacte (1 sola línia d'alta densitat) #}
+    {% set currentPlan = app.user ? app.user.plan : null %}
+    {% set monthlyQuota = currentPlan ? currentPlan.monthlyCertificatesQuota : 0 %}
+    {% set monthlyUsed = app.user ? app.user.certificatesIssuedCount : 0 %}
     <div class="bg-white rounded-xl border border-steel/20 px-4 py-2 shadow-2xs flex flex-wrap items-center justify-between gap-3 text-xs font-raleway mb-3.5 sm:mb-4">
       <div class="flex items-center gap-4 sm:gap-6 flex-wrap">
         <div class="flex items-center gap-1.5">
@@ -52,9 +55,29 @@
           <span class="font-marcellus text-base font-bold text-ink px-2 py-0.5 rounded-md bg-cream-50 border border-steel/20">{{ metrics.draft }}</span>
         </div>
       </div>
-      <div class="hidden sm:flex items-center gap-1.5 text-[11px] text-ink/60">
-        <span class="w-1.5 h-1.5 rounded-full bg-gold"></span>
-        <span>Doble certificació eIDAS & Blockchain</span>
+      <div class="flex items-center gap-3 text-[11px]">
+        {% if currentPlan and currentPlan.allowOfficialCertificates %}
+          {% if monthlyQuota == -1 or monthlyQuota >= 9999 %}
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-cream-50 border border-gold/30 font-mono text-ink">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              Quota mensual eIDAS: <strong>Il·limitada</strong>
+            </span>
+          {% else %}
+            {% set quotaExhausted = monthlyUsed >= monthlyQuota %}
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md {{ quotaExhausted ? 'bg-amber-50 border border-amber-300 text-amber-900' : 'bg-cream-50 border border-gold/30 text-ink' }} font-mono">
+              <span class="w-1.5 h-1.5 rounded-full {{ quotaExhausted ? 'bg-amber-500' : 'bg-emerald-500' }}"></span>
+              Quota mes: <strong>{{ monthlyUsed }} / {{ monthlyQuota }}</strong>
+            </span>
+          {% endif %}
+        {% else %}
+          <a href="{{ path('app_plan') }}" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-cream-50 border border-steel/20 text-steel hover:text-ink hover:border-gold/40 font-mono transition-colors">
+            Oficials eIDAS: <strong class="text-ink">Pla Plus</strong>
+          </a>
+        {% endif %}
+        <span class="hidden lg:inline-flex items-center gap-1.5 text-ink/60">
+          <span class="w-1.5 h-1.5 rounded-full bg-gold"></span>
+          <span>Doble certificació eIDAS & Blockchain</span>
+        </span>
       </div>
     </div>
 
