@@ -376,6 +376,11 @@ Cada subiteració segueix un flux d'enginyeria estricte:
 ### Iteració 9: Internacionalització & Multidioma d'Adquisició (i18n Landing Page & SEO)
 **Objectiu:** Desplegament de la capa multidioma orientada a l'adquisició i posicionament SEO per a la Landing Page i subpàgines públiques, mantenint l'àrea privada i el domini desacoblats.
 
+> **Directrius d'Arquitectura i18n (Acordades):**
+> - **Estratègia per Fases:** **Fase A (Iteració 9)** cobreix exclusivament la part pública + SEO (`page/`, Blog via `BlogTranslation`, FAQs `faqs.{locale}.json`, Legal públic i Login/Registre). **Fase B (posterior)** cobrirà àrea privada, `User::$locale`, 14 Enums, missatges flash/JSON, correus i PDFs. **Fase C** manté el Backoffice `/admin` intern en català.
+> - **Rutes protegides sense prefix `/{_locale}/`:** No prefixar mai webhooks externs (`/webhook/stripe`, `/webhook/namirial/onboarding`), callback OAuth2 de Google, QRs/tokens ja emesos (`/verify/{uuid}`, `/transfer/{token}`, `/llegat/acceptar/{token}`, `/herencia/reclamar/{token}`, `/handoff/{token}`) ni APIs AJAX internes; en aquestes rutes l'idioma es resol via sessió/cookie/`Accept-Language`.
+> - **Immutabilitat de les dades del titular:** Les dades entrades i validades per l'usuari (`Item::$name`, `description`, `brand`, `model`, `serialNumber`, etc.) **no es tradueixen ni es modifiquen mai** (preservació del SHA-256 i valor probatori literal). Només es tradueixen les etiquetes del sistema; a Fase B, el prompt de **Qwen-VL** pot generar el *suggeriment inicial* al Wizard en l'idioma actiu *abans* de desar, però un cop validat pel titular queda immutable.
+
 - [ ] **Subiteració 9.1: Enrutament Públic i Detecció de Locale (`/{_locale}/`)**
   - [ ] Prefixes de ruta públics (`/ca/`, `/es/`, `/en/`) amb redirecció intel·ligent basada en la capçalera `Accept-Language` del navegador a la primera visita.
   - [ ] Implementació d'etiquetes SEO `hreflang` i URLs canòniques a la capçalera HTML per evitar contingut duplicat als cercadors.
