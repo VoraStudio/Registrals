@@ -333,10 +333,16 @@ class StripeGatewayClient implements PaymentGatewayInterface
 
         try {
             $session = $this->getClient()->checkout->sessions->retrieve($sessionId, [
-                'expand' => ['subscription.latest_invoice.payment_intent', 'payment_intent', 'invoice.payment_intent'],
+                'expand' => ['subscription', 'payment_intent', 'invoice.payments'],
             ]);
 
-            return $session->toArray();
+            $data = $session->toArray();
+
+            if (!isset($data['payment_intent']) && isset($data['invoice']['payments']['data'][0]['payment']['payment_intent'])) {
+                $data['resolved_payment_intent'] = $data['invoice']['payments']['data'][0]['payment']['payment_intent'];
+            }
+
+            return $data;
         } catch (\Throwable $e) {
             $this->logger?->warning(sprintf('Error recuperant Checkout Session %s de Stripe: %s', $sessionId, $e->getMessage()));
             return null;

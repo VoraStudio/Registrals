@@ -699,8 +699,11 @@ class PaymentManager
      */
     private function extractPaymentIntentFromSession(array $session): ?string
     {
-        return $this->extractStripeId($session['payment_intent'] ?? null)
+        return $this->extractStripeId($session['resolved_payment_intent'] ?? null)
+            ?? $this->extractStripeId($session['payment_intent'] ?? null)
             ?? $this->extractStripeId($session['invoice']['payment_intent'] ?? null)
-            ?? $this->extractStripeId($session['subscription']['latest_invoice']['payment_intent'] ?? null);
+            ?? $this->extractStripeId($session['invoice']['payments']['data'][0]['payment']['payment_intent'] ?? null)
+            ?? $this->extractStripeId($session['subscription']['latest_invoice']['payment_intent'] ?? null)
+            ?? $this->extractStripeId($session['subscription']['latest_invoice']['payments']['data'][0]['payment']['payment_intent'] ?? null);
     }
 }
