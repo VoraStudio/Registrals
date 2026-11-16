@@ -219,11 +219,13 @@ class PaymentManager
         if ($transaction !== null) {
             $transaction->setStatus(PaymentStatus::PAID);
             $transaction->setStripeEventId($eventId);
-            if (isset($session['payment_intent']) && \is_string($session['payment_intent'])) {
-                $transaction->setStripePaymentIntentId($session['payment_intent']);
+            $paymentIntentId = $this->extractPaymentIntentFromSession($session);
+            if ($paymentIntentId !== null) {
+                $transaction->setStripePaymentIntentId($paymentIntentId);
             }
-            if (isset($session['subscription']) && \is_string($session['subscription'])) {
-                $transaction->setStripeSubscriptionId($session['subscription']);
+            $subscriptionId = $this->extractStripeId($session['subscription'] ?? null);
+            if ($subscriptionId !== null) {
+                $transaction->setStripeSubscriptionId($subscriptionId);
             }
             $this->entityManager->persist($transaction);
         }
@@ -247,8 +249,9 @@ class PaymentManager
                 $user->setPeriodStartedAt(new \DateTimeImmutable());
                 $user->setPeriodItemsRegistered(0);
                 $user->setSubscriptionStatus('active');
-                if (isset($session['subscription']) && \is_string($session['subscription'])) {
-                    $user->setStripeSubscriptionId($session['subscription']);
+                $subscriptionId = $this->extractStripeId($session['subscription'] ?? null);
+                if ($subscriptionId !== null) {
+                    $user->setStripeSubscriptionId($subscriptionId);
                 }
                 $this->entityManager->persist($user);
                 $this->planDowngradeService?->unfreezeUserItems($user);
@@ -508,6 +511,9 @@ class PaymentManager
         if ($paymentIntent !== '') {
             $transaction = $this->transactionRepository->findByStripePaymentIntentId($paymentIntent);
             if ($transaction !== null) {
+                if ($transaction->getStatus() === PaymentStatus::REFUNDED) {
+                    return true;
+                }
                 $transaction->setStatus(PaymentStatus::REFUNDED);
                 $this->entityManager->persist($transaction);
                 $this->entityManager->flush();
@@ -579,6 +585,23 @@ class PaymentManager
 
         $piId = $transaction->getStripePaymentIntentId();
         if ($piId === null || $piId === '') {
+            $sessionId = $transaction->getStripeSessionId();
+            if ($sessionId !== null && str_starts_with($sessionId, 'cs_') && !str_starts_with($sessionId, 'cs_mock_')) {
+                $session = $gateway->fetchCheckoutSession($sessionId);
+                if ($session !== null) {
+                    $piId = $this->extractPaymentIntentFromSession($session);
+                    if ($piId !== null) {
+                        $transaction->setStripePaymentIntentId($piId);
+                    }
+                }
+            }
+        }
+
+        if ($piId === null || $piId === '') {
+            $sessionId = $transaction->getStripeSessionId();
+            if ($sessionId !== null && str_starts_with($sessionId, 'cs_') && !str_starts_with($sessionId, 'cs_mock_')) {
+                throw new \RuntimeException('No s\'ha pogut localitzar el PaymentIntent real a Stripe per a aquesta transacció.');
+            }
             // Si és mode mock i no té PaymentIntent ID, genera un identificador simulat
             $piId = 'pi_mock_' . bin2hex(random_bytes(8));
         }
@@ -657,5 +680,27 @@ class PaymentManager
     {
         $this->logger->debug(sprintf('Esdeveniment Stripe registrat sense acció: %s', $event['type'] ?? 'unknown'));
         return true;
+    }
+
+    private function extractStripeId(mixed $value): ?string
+    {
+        if (\is_string($value) && $value !== '') {
+            return $value;
+        }
+        if (\is_array($value) && isset($value['id']) && \is_string($value['id']) && $value['id'] !== '') {
+            return $value['id'];
+        }
+
+        return null;
+    }
+
+    /**
+     * @param array<string, mixed> $session
+     */
+    private function extractPaymentIntentFromSession(array $session): ?string
+    {
+        return $this->extractStripeId($session['payment_intent'] ?? null)
+            ?? $this->extractStripeId($session['invoice']['payment_intent'] ?? null)
+            ?? $this->extractStripeId($session['subscription']['latest_invoice']['payment_intent'] ?? null);
     }
 }

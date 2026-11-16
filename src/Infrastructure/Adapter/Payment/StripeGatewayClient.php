@@ -333,7 +333,7 @@ class StripeGatewayClient implements PaymentGatewayInterface
 
         try {
             $session = $this->getClient()->checkout->sessions->retrieve($sessionId, [
-                'expand' => ['subscription', 'payment_intent'],
+                'expand' => ['subscription.latest_invoice.payment_intent', 'payment_intent', 'invoice.payment_intent'],
             ]);
 
             return $session->toArray();
