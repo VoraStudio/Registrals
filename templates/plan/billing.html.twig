@@ -41,9 +41,15 @@
                 {{ currentPlan.code|upper }}
               </span>
               {% if currentPlan.code != 'free' %}
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 text-[10px] font-mono font-bold border border-emerald-200">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Renovació Automàtica Activa
-                </span>
+                {% if user.subscriptionStatus == 'past_due' %}
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-50 text-rose-800 text-[10px] font-mono font-bold border border-rose-200">
+                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span> Cobrament Pendent
+                  </span>
+                {% else %}
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 text-[10px] font-mono font-bold border border-emerald-200">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Renovació Automàtica Activa
+                  </span>
+                {% endif %}
               {% else %}
                 <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-cream text-steel text-[10px] font-mono font-bold border border-steel/20">
                   Sense Quotes
@@ -71,6 +77,17 @@
       </div>
 
       {# Metadades fiscals i de calendari #}
+      {% if user.subscriptionStatus == 'past_due' %}
+        <div class="mb-4 border-l-[3.5px] border-gold bg-rose-50/90 border border-rose-200 rounded-r-xl p-3.5 text-xs text-ink/85 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div>
+            <strong class="text-rose-900">Error en el cobrament de la renovació:</strong>
+            <span>No s'ha pogut carregar l'import anual a la targeta. Actualitza el mètode de pagament a Stripe per evitar la baixada al Pla Free.</span>
+          </div>
+          <a href="{{ path('app_payment_portal') }}" class="px-3 py-1.5 rounded-lg bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-[11px] uppercase tracking-wider shrink-0 text-center">
+            Actualitzar targeta →
+          </a>
+        </div>
+      {% endif %}
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
         <div class="p-3 rounded-xl bg-cream/30 border border-steel/15">
           <span class="text-[10px] uppercase font-mono tracking-wider text-ink/50 block">Inici & Vigència</span>
