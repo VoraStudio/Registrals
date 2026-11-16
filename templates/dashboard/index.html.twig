@@ -81,6 +81,24 @@
       </div>
     {% endif %}
 
+    {# Banner d'alerta per cobrament de renovació pendent / fallit (past_due) #}
+    {% if app.user and app.user.subscriptionStatus == 'past_due' %}
+      <div class="mb-4 sm:mb-6 border-l-[3.5px] border-gold bg-rose-50/90 border border-rose-200 rounded-r-2xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
+            <h2 class="font-marcellus text-base text-ink font-bold">Error en la renovació de la subscripció</h2>
+          </div>
+          <p class="text-xs sm:text-sm text-ink/80 font-raleway leading-relaxed">
+            No s'ha pogut completar el cobrament automàtic de la renovació del teu pla. Actualitza el mètode de pagament per evitar la baixada automàtica al Pla Free.
+          </p>
+        </div>
+        <a href="{{ path('app_plan_billing') }}" class="px-4 py-2 rounded-xl bg-ink text-gold border border-gold/40 hover:bg-ink/90 font-bold text-xs uppercase tracking-wider transition-all shadow-xs shrink-0 text-center">
+          Actualitzar targeta →
+        </a>
+      </div>
+    {% endif %}
+
     {# Banner de Període de Gràcia per Downgrade a Pla Free #}
     {% if inGracePeriod is defined and inGracePeriod %}
       <div class="mb-4 sm:mb-6 p-4 sm:p-5 rounded-2xl bg-amber-50/95 border-2 border-amber-400 shadow-sm space-y-3">

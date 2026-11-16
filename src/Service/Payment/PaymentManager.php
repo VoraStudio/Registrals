@@ -186,7 +186,7 @@ class PaymentManager
 
         return match ($eventType) {
             'checkout.session.completed' => $this->handleCheckoutSessionCompleted($event),
-            'invoice.payment_succeeded' => $this->handleInvoicePaymentSucceeded($event),
+            'invoice.payment_succeeded', 'invoice.paid' => $this->handleInvoicePaymentSucceeded($event),
             'invoice.payment_failed' => $this->handleInvoicePaymentFailed($event),
             'customer.subscription.deleted' => $this->handleSubscriptionDeleted($event),
             'charge.refunded' => $this->handleChargeRefunded($event),
@@ -370,7 +370,14 @@ class PaymentManager
     private function handleInvoicePaymentSucceeded(array $event): bool
     {
         $invoice = $event['data']['object'] ?? [];
-        $subscriptionId = (string) ($invoice['subscription'] ?? '');
+        $billingReason = (string) ($invoice['billing_reason'] ?? '');
+        if ($billingReason === 'subscription_create') {
+            return true;
+        }
+
+        $subscriptionId = $this->extractStripeId($invoice['subscription'] ?? null)
+            ?? $this->extractStripeId($invoice['parent']['subscription_details']['subscription'] ?? null)
+            ?? '';
         $customerId = (string) ($invoice['customer'] ?? '');
         $eventId = (string) ($event['id'] ?? '');
 
@@ -398,6 +405,12 @@ class PaymentManager
         $transaction->setStripeEventId($eventId);
         $transaction->setStripeSubscriptionId($subscriptionId);
         $transaction->setStripeInvoiceId((string) ($invoice['id'] ?? ''));
+
+        $paymentIntentId = $this->extractStripeId($invoice['payment_intent'] ?? null)
+            ?? $this->extractStripeId($invoice['payments']['data'][0]['payment']['payment_intent'] ?? null);
+        if ($paymentIntentId !== null) {
+            $transaction->setStripePaymentIntentId($paymentIntentId);
+        }
 
         $this->entityManager->persist($user);
         $this->entityManager->persist($transaction);
