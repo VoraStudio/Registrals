@@ -165,9 +165,14 @@
                       <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Cobrada
                     </span>
                   {% elseif inv.status.value == 'refunded' %}
-                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-cream-50 text-ink text-[10px] font-mono font-bold border border-gold/40">
-                      <span class="w-1.5 h-1.5 rounded-full bg-gold"></span> Cobrada · Rectificada
-                    </span>
+                    <div class="inline-flex flex-col items-center gap-1">
+                      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[10px] font-mono font-bold border border-emerald-200">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Cobrada
+                      </span>
+                      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-cream-50 text-ink text-[9px] font-mono font-bold border border-gold/40">
+                        <span class="w-1.5 h-1.5 rounded-full bg-gold"></span> Rectificada
+                      </span>
+                    </div>
                   {% else %}
                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 text-[10px] font-mono font-bold border border-amber-200">
                       {{ inv.status.label }}
