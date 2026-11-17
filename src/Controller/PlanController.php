@@ -143,7 +143,7 @@ class PlanController extends AbstractController
             try {
                 $activityResult = $activityLogRepository->findPaginatedByUserUuid($user->getUuid()->toRfc4122(), 1, 100);
                 foreach ($activityResult['items'] as $log) {
-                    if ($log->getAction()->category() === 'Facturació & Pagaments') {
+                    if ($log->getAction()->categoryLabel() === 'Facturació & Pagaments') {
                         $stripeLogs[] = $log;
                     }
                 }
