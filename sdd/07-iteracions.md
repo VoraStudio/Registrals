@@ -424,13 +424,31 @@ Cada subiteració segueix un flux d'enginyeria estricte:
 
 ---
 
+### Bloc de Hardening & Validació Operativa Pre-Producció (15–17/11/2026)
+- [x] **Custòdia Congelada en Downgrade (`DocumentQuotaPolicy`):**
+  - En baixar de Pla Plus a Pla Free, les fotografies i proves documentals excedents (`> 1`) es mantenen custodiades amb SHA-256 íntegre però queden congelades (no accessibles ni via `/media/document/{uuid}`, retornant `403`), i es desbloquegen automàticament en reactivar el Pla Plus.
+  - Avisos `.guide-note` a `item/show.html.twig` (mòbil i escriptori) amb enllaç directe a `/app/pla`.
+- [x] **Stripe Real (Checkout, Reemborsaments & Renovacions Recurrents):**
+  - Descodificació de `{CHECKOUT_SESSION_ID}` a `StripeGatewayClient::normalizeSuccessUrl()` i fallback `syncPendingTransactionsForUser()` a `/app/payment/success`.
+  - Resolució de `PaymentIntent` via `invoice.payments` per a reemborsaments reals de subscripcions, idempotència de `charge.refunded` i etiquetes apilades `Cobrada` + `Rectificada` / `Abonada` a `/admin/factures`.
+  - Protecció de renovacions recurrents (`billing_reason !== 'subscription_create'`, compatibilitat `invoice.paid`) i avís visual `past_due` al Dashboard i a `/app/perfil/facturacio`.
+- [x] **Safata de Certificats & Accions per Lot (Dashboard):**
+  - Comptador de quota mensual eIDAS (`Quota mes: X / 10`) a la barra de mètriques de `/app/certificats`.
+  - Emissió de certificats per lot limitada a 10 béns per petició amb avís dinàmic de quota restant.
+  - Baixa i eliminació per lot (`batch_deactivate` prioritzada abans de `/{cui}/deactivate`): permet triar purga definitiva per als béns sense certificats oficials ni traspassos, omet automàticament béns en `TRANSFER_PENDING` i recorda la Regla Anti-Carrusel.
+  - Traspàs de Lot posposat a **Fase II** (deshabilitat a UI i bloquejat a `TransferController::batchInitiate`).
+- [x] **Configuració SMTP real (`MAILER_DSN`):** codificació URL de caràcters especials a la contrasenya SMTP a `.env.local` i verificació d'enviament real.
+
+---
+
 ## Fase II: Roadmap d'Escalabilitat & Ampliacions Post-MVP
 
-Aquesta secció centralitza les funcionalitats i integracions de serveis externs planificades per a la segona fase del projecte, un cop el MVP amb certificació sobirana (Polygon L2 + Flysystem) i verificació d'identitat eIDV (Namirial OnBoarding) estigui en producció:
+Aquesta secció centralitza les funcionalitats i integracions de serveis externs planificades per a la segona fase del projecte, un cop el MVP amb certificació sobirana (Polygon L2 + Flysystem) estigui en producció:
 
-1. **Fase II.1 · Segellat de Temps Qualificat eIDAS (TSA RFC 3161):**
-   - Avaluació comparativa de proveïdors QTSP: **Namirial / Signaturit** (bossa de segells SaaS via Miriam) vs. **FNMT-RCM** (conveni directe CERES o canal majorista homologat com Funcionalia) per incrustar la presumpció legal europea eIDAS (Art. 41/42) a certificats oficials de gran valor.
-   - Activació del token de producció a l'adaptador RFC 3161 (`SignaturitClient` / `TimestampGatewayInterface`).
+1. **Fase II.1 · Segellat de Temps Qualificat eIDAS (TSA RFC 3161) & Avaluació KYC:**
+   - Avaluació comparativa de proveïdors QTSP per al TSP: **Lleida.net** (~0,03 €/segell) o **QTSA / Disig** (~0,035–0,042 €/segell en paquets prepagament) com a alternativa econòmica sense llicència Enterprise respecte a **Namirial / Signaturit**.
+   - Avaluació KYC (en lloc de Namirial OnBoarding a 7.055 €/any fixos): **Stripe Identity** (~1,50 $/verificació, 0 € fixos, comercial no-eIDAS), **Didit** (~0,33 $/verificació) o **Tecalis** (~0,63 €/transacció sota QTSP eIDAS).
+   - Activació del token de producció a l'adaptador RFC 3161 (`SignaturitClient` / `SignaturitTimestampInterface`).
 2. **Fase II.2 · Mètodes de Pagament Ràpid Mòbil (Apple Pay & Google Pay):**
    - Habilitació del *Payment Request Button* a Stripe Checkout per a la compra en un sol toc de certificats individuals (5,90 €), taxes de traspàs (2,90 €) i subscripcions anuals des de Safari i Chrome.
 3. **Fase II.3 · Smart Contract Propi de Registrals a Polygon PoS:**
@@ -439,4 +457,6 @@ Aquesta secció centralitza les funcionalitats i integracions de serveis externs
    - Evolució de la PWA actual cap a aplicació nativa empaquetada amb Capacitor / Trusted Web Activities (TWA) per tenir presència oficial a les botigues d'Apple i Google.
 5. **Fase II.5 · API B2B & Portal per a Asseguradores, Joieries i Perits:**
    - Portal corporatiu per a entitats col·laboradores que permeti donar d'alta béns en el punt de venda (joieries, botigues de ciclisme) i comprovar automàticament números de sèrie en casos de denúncies i peritatges de robatori.
+6. **Fase II.6 · Traspàs C2C per Lot (Multi-béns):**
+   - Agrupació transaccional (`batchToken`) per iniciar, cobrar la taxa C2C en Pla Free i acceptar o rebutjar múltiples béns en un sol flux (amb gestió de capacitat del receptor en recepció).
 
