@@ -1009,6 +1009,41 @@
     }
   }
 
+  const BATCH_CERT_MAX_ITEMS = 10;
+  const BATCH_CERT_QUOTA_REMAINING = {{ (app.user.plan and app.user.plan.allowOfficialCertificates and app.user.plan.monthlyCertificatesQuota != -1 and app.user.plan.monthlyCertificatesQuota < 9999) ? max(0, app.user.plan.monthlyCertificatesQuota - app.user.certificatesIssuedCount) : -1 }};
+
+  function updateBatchCertificateWarnings(selectedCount) {
+    const warningBox = document.getElementById('batch-cert-dynamic-warning');
+    const warningText = document.getElementById('batch-cert-dynamic-warning-text');
+    const submitBtn = document.getElementById('batch-cert-submit-btn');
+    if (!warningBox || !warningText) return;
+
+    const selectedMode = document.querySelector('#batch-cert-form input[name="mode"]:checked')?.value || 'draft';
+
+    if (selectedCount > BATCH_CERT_MAX_ITEMS) {
+      warningText.innerHTML = '<strong>Límit de lot superat:</strong> Pots emetre un màxim de <strong>10 certificats per lot</strong> (' + selectedCount + ' seleccionats). Desmarca\'n alguns per continuar.';
+      warningBox.classList.remove('hidden');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      }
+      return;
+    }
+
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+
+    if (selectedMode === 'official' && BATCH_CERT_QUOTA_REMAINING !== -1 && selectedCount > BATCH_CERT_QUOTA_REMAINING) {
+      warningText.innerHTML = '<strong>Quota mensual parcial:</strong> Has seleccionat <strong>' + selectedCount + '</strong> béns però et resten <strong>' + BATCH_CERT_QUOTA_REMAINING + '</strong> certificats oficials aquest mes (llevat que algun bé ja tingui certificat vigent idempotent).';
+      warningBox.classList.remove('hidden');
+      return;
+    }
+
+    warningBox.classList.add('hidden');
+  }
+
   function openBatchCertificateModal(selectedCheckboxes) {
     const modal = document.getElementById('modal-batch-certificate');
     if (!modal) return;
@@ -1017,7 +1052,7 @@
     const submitLabel = document.getElementById('batch-cert-submit-btn-label');
     if (submitBtn) {
       submitBtn.disabled = false;
-      submitBtn.classList.remove('opacity-75');
+      submitBtn.classList.remove('opacity-75', 'opacity-50', 'cursor-not-allowed');
     }
     if (submitLabel) submitLabel.textContent = 'Emetre Certificats';
 
@@ -1028,10 +1063,21 @@
       'batch-cert-items-count'
     );
 
+    modal.dataset.selectedCount = String(selectedCheckboxes.length);
+    updateBatchCertificateWarnings(selectedCheckboxes.length);
+
     modal.classList.remove('hidden');
     modal.classList.add('flex');
     document.body.classList.add('overflow-hidden');
   }
+
+  document.querySelectorAll('#batch-cert-form input[name="mode"]').forEach(function(radio) {
+    radio.addEventListener('change', function() {
+      const modal = document.getElementById('modal-batch-certificate');
+      const count = parseInt(modal?.dataset.selectedCount || '0', 10);
+      updateBatchCertificateWarnings(count);
+    });
+  });
 
   function closeBatchCertificateModal() {
     const modal = document.getElementById('modal-batch-certificate');
@@ -1441,6 +1487,11 @@
               </p>
             </div>
           {% endif %}
+        </div>
+
+        {# Avís dinàmic de límit de lot / quota mensual #}
+        <div id="batch-cert-dynamic-warning" class="hidden border-l-[3.5px] border-gold bg-amber-50/90 border border-amber-200 rounded-r-lg p-3 text-xs text-ink/85">
+          <p id="batch-cert-dynamic-warning-text"></p>
         </div>
 
         {# Avís Canònic Guide Note #}

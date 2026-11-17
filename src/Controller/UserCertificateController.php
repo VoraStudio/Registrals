@@ -200,6 +200,11 @@ class UserCertificateController extends AbstractController
             return $this->redirectToRoute('app_dashboard');
         }
 
+        if (count($cuis) > 10) {
+            $this->addFlash('warning', 'Pots emetre un màxim de 10 certificats per lot. Divideix la selecció en lots més petits.');
+            return $this->redirectToRoute('app_dashboard');
+        }
+
         $rawMode = (string) $request->request->get('mode', CertificateMode::DRAFT->value);
         $mode = CertificateMode::tryFrom($rawMode) ?? CertificateMode::DRAFT;
 
