@@ -195,139 +195,8 @@ class TransferController extends AbstractController
     #[IsGranted('ROLE_USER')]
     public function batchInitiate(Request $request): Response
     {
-        /** @var User $currentUser */
-        $currentUser = $this->getUser();
-
-        $token = (string) $request->request->get('_token', '');
-        if (!$this->isCsrfTokenValid('batch_transfer_initiate', $token)) {
-            $this->addFlash('error', 'El testimoni de seguretat no és vàlid. Si us plau, torna-ho a provar.');
-            return $this->redirectToRoute('app_dashboard');
-        }
-
-        $rawCuis = (array) $request->request->all('cuis');
-        if (empty($rawCuis)) {
-            $this->addFlash('warning', 'No s\'ha seleccionat cap bé per traspassar.');
-            return $this->redirectToRoute('app_dashboard');
-        }
-
-        $recipientEmail = strtolower(trim((string) $request->request->get('recipient_email', '')));
-        if (!filter_var($recipientEmail, FILTER_VALIDATE_EMAIL)) {
-            $this->addFlash('error', 'L\'adreça electrònica del receptor no és vàlida.');
-            return $this->redirectToRoute('app_dashboard');
-        }
-
-        if ($recipientEmail === strtolower($currentUser->getEmail())) {
-            $this->addFlash('error', 'No podeu traspassar béns a la vostra pròpia adreça de correu.');
-            return $this->redirectToRoute('app_dashboard');
-        }
-
-        $rawSecurityCode = trim((string) $request->request->get('security_code', ''));
-        $securityCode = $rawSecurityCode !== '' ? $rawSecurityCode : null;
-
-        $plan = $currentUser->getPlan();
-        $transfersIncluded = $plan?->getTransfersIncluded() ?? 0;
-        $transferFeeCents = $transfersIncluded > 0 ? 0 : ($plan?->getExtraTransferPriceCents() ?? 290);
-
-        $transferredItems = [];
-        $createdTransfers = [];
-        $skippedCount = 0;
-
-        foreach ($rawCuis as $cui) {
-            $item = $this->itemRepository->findOneBy(['cui' => (string) $cui]);
-            if (!$item || !$this->isGranted(ItemVoter::TRANSFER, $item)) {
-                ++$skippedCount;
-                continue;
-            }
-
-            if ($item->getActiveTransfer() !== null || $item->getStatus() !== ItemStatus::ACTIVE) {
-                ++$skippedCount;
-                continue;
-            }
-
-            $transfer = new ItemTransfer(
-                item: $item,
-                sender: $currentUser,
-                recipientEmail: $recipientEmail,
-                transferFeeCents: $transferFeeCents,
-                durationHours: 72,
-                senderIp: $request->getClientIp(),
-                securityCode: $securityCode
-            );
-
-            $this->lifecycleService->initiateTransfer($item);
-            $this->entityManager->persist($transfer);
-            $transferredItems[] = $item;
-            $createdTransfers[] = $transfer;
-        }
-
-        if (empty($transferredItems)) {
-            $this->addFlash('warning', 'Cap dels béns seleccionats és apte per ser traspassat (ja disposen d\'un traspàs en curs o no estan actius).');
-            return $this->redirectToRoute('app_dashboard');
-        }
-
-        $this->entityManager->flush();
-
-        // Enviament de la invitació per correu electrònic certificat
-        try {
-            $claimUrl = $this->generateUrl(
-                'app_transfer_index',
-                [],
-                UrlGeneratorInterface::ABSOLUTE_URL
-            );
-
-            $expiresAt = (new \DateTimeImmutable())->modify('+72 hours');
-
-            $email = (new TemplatedEmail())
-                ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
-                ->to(new Address($recipientEmail))
-                ->subject(sprintf('Invitació de Traspàs Certificat per Lot: %d béns', count($transferredItems)))
-                ->htmlTemplate('emails/batch_transfer_invitation.html.twig')
-                ->context([
-                    'sender' => $currentUser,
-                    'items' => $transferredItems,
-                    'transfers' => $createdTransfers,
-                    'claimUrl' => $claimUrl,
-                    'securityCode' => $securityCode,
-                    'expiresAt' => $expiresAt,
-                ]);
-
-            $this->mailer->send($email);
-        } catch (\Throwable $e) {
-            $this->logger?->warning('Error en enviar el correu electrònic de traspàs per lot: ' . $e->getMessage(), [
-                'recipient' => $recipientEmail,
-                'items_count' => count($transferredItems),
-            ]);
-        }
-
-        // Registre a la base d'auditoria forense (registrals_audit)
-        foreach ($transferredItems as $tItem) {
-            $this->activityLogger?->log(
-                user: $currentUser,
-                action: UserActivityAction::TRANSFER_INITIATED,
-                description: sprintf('Inici de traspàs per lot del bé %s (%s) a %s', $tItem->getName(), $tItem->getCui(), $recipientEmail),
-                details: [
-                    'cui' => $tItem->getCui(),
-                    'item_name' => $tItem->getName(),
-                    'recipient_email' => $recipientEmail,
-                    'fee_cents' => $transferFeeCents,
-                    'has_security_code' => $securityCode !== null,
-                    'batch_size' => count($transferredItems),
-                ]
-            );
-        }
-
-        $msg = sprintf(
-            'Sol·licitud de traspàs per lot de %d bé(ns) iniciada correctament. S\'ha enviat una invitació a %s vàlida durant 72 hores.',
-            count($transferredItems),
-            $recipientEmail
-        );
-        if ($skippedCount > 0) {
-            $msg .= sprintf(' (%d bé(ns) descartats per estar ja en traspàs o no actius).', $skippedCount);
-        }
-
-        $this->addFlash('success', $msg);
-
-        return $this->redirectToRoute('app_transfers_index');
+        $this->addFlash('info', 'El traspàs per lot no està disponible en aquesta versió (previst per a la Fase II). Pots traspassar cada bé individualment des de la seva fitxa.');
+        return $this->redirectToRoute('app_dashboard');
     }
 
     /**
@@ -517,7 +386,7 @@ class TransferController extends AbstractController
         if ($transfer->getSecurityCode() !== null) {
             $providedCode = trim((string) $request->request->get('security_code', ''));
             if ($providedCode !== $transfer->getSecurityCode()) {
-                $this->addFlash('error', 'El codi PIN de seguretat notarial no és correcte.');
+                $this->addFlash('error', 'El codi PIN de seguretat certificat no és correcte.');
                 return $this->redirectToRoute('app_transfer_claim', ['token' => $token]);
             }
         }

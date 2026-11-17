@@ -574,7 +574,7 @@
           <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
           <span id="desktop-batch-cert-label">Emetre Certificat</span>
         </button>
-        <button type="button" onclick="executeBatchAction('transfer')" class="px-3.5 lg:px-4 py-2 rounded-xl bg-cream/20 hover:bg-cream/30 text-cream font-semibold text-xs flex items-center gap-1.5 transition-colors cursor-pointer border border-cream/30 whitespace-nowrap shrink-0">
+        <button type="button" id="desktop-batch-transfer-btn" onclick="executeBatchAction('transfer')" class="px-3.5 lg:px-4 py-2 rounded-xl bg-cream/20 hover:bg-cream/30 text-cream font-semibold text-xs flex items-center gap-1.5 transition-colors cursor-pointer border border-cream/30 whitespace-nowrap shrink-0">
           <svg class="w-4 h-4 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
           <span id="desktop-batch-transfer-label">Traspassar</span>
         </button>
@@ -629,7 +629,7 @@
           <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
           <span>Certificat</span>
         </button>
-        <button type="button" onclick="executeBatchAction('transfer')" class="px-2 py-1.5 rounded-lg bg-ink text-cream text-[11px] font-semibold flex items-center gap-1 border border-gold/30 whitespace-nowrap shrink-0" title="Traspassar">
+        <button type="button" id="pwa-batch-transfer-btn" onclick="executeBatchAction('transfer')" class="px-2 py-1.5 rounded-lg bg-ink text-cream text-[11px] font-semibold flex items-center gap-1 border border-gold/30 whitespace-nowrap shrink-0" title="Traspassar">
           <svg class="w-3.5 h-3.5 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
           <span>Traspàs</span>
         </button>
@@ -706,16 +706,33 @@
     if (desktopCount) desktopCount.innerText = count;
     if (pwaCount) pwaCount.innerText = count;
 
+    const desktopTransferBtn = document.getElementById('desktop-batch-transfer-btn');
+    const pwaTransferBtn = document.getElementById('pwa-batch-transfer-btn');
+
     if (count === 1) {
       if (countLabel) countLabel.innerText = 'bé seleccionat';
       if (certLabel) certLabel.innerText = 'Emetre Certificat';
       if (transferLabel) transferLabel.innerText = 'Traspassar';
       if (deleteLabel) deleteLabel.innerText = 'Donar de baixa';
+      [desktopTransferBtn, pwaTransferBtn].forEach(btn => {
+        if (!btn) return;
+        btn.disabled = false;
+        btn.classList.remove('opacity-45', 'cursor-not-allowed');
+        btn.classList.add('cursor-pointer');
+        btn.title = 'Traspassar';
+      });
     } else {
       if (countLabel) countLabel.innerText = 'béns seleccionats';
       if (certLabel) certLabel.innerText = 'Emetre Certificats';
-      if (transferLabel) transferLabel.innerText = 'Traspàs de Lot';
+      if (transferLabel) transferLabel.innerText = 'Traspàs de Lot (Fase II)';
       if (deleteLabel) deleteLabel.innerText = `Donar de baixa (${count})`;
+      [desktopTransferBtn, pwaTransferBtn].forEach(btn => {
+        if (!btn) return;
+        btn.disabled = true;
+        btn.classList.add('opacity-45', 'cursor-not-allowed');
+        btn.classList.remove('cursor-pointer');
+        btn.title = 'El traspàs per lot no està disponible en aquesta versió (previst per a la Fase II)';
+      });
     }
 
     if (count > 0) {
@@ -742,6 +759,7 @@
     if (action === 'certificate') {
       openBatchCertificateModal(selectedCheckboxes);
     } else if (action === 'transfer') {
+      if (selectedCheckboxes.length > 1) return;
       openBatchTransferModal(selectedCheckboxes);
     } else if (action === 'delete') {
       openDeactivateModal(selectedCheckboxes);

@@ -525,14 +525,14 @@ class TransferControllerTest extends TestCase
 
         $transferRepo = $this->createMock(ItemTransferRepository::class);
         $lifecycle = $this->createMock(ItemLifecycleService::class);
-        $lifecycle->expects($this->exactly(2))->method('initiateTransfer');
+        $lifecycle->expects($this->never())->method('initiateTransfer');
 
         $em = $this->createMock(EntityManagerInterface::class);
-        $em->expects($this->exactly(2))->method('persist');
-        $em->expects($this->once())->method('flush');
+        $em->expects($this->never())->method('persist');
+        $em->expects($this->never())->method('flush');
 
         $mailer = $this->createMock(MailerInterface::class);
-        $mailer->expects($this->once())->method('send');
+        $mailer->expects($this->never())->method('send');
 
         $controller = $this->createController($itemRepo, $transferRepo, $lifecycle, $em, $mailer);
         $request = new Request([], [
@@ -546,7 +546,7 @@ class TransferControllerTest extends TestCase
         $response = $controller->batchInitiate($request);
 
         $this->assertSame(Response::HTTP_FOUND, $response->getStatusCode());
-        $this->assertSame('/app_transfers_index?', $response->headers->get('Location'));
+        $this->assertSame('/app_dashboard?', $response->headers->get('Location'));
     }
 
     public function testBatchInitiateFailsWithInvalidCsrfToken(): void
