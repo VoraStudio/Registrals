@@ -157,24 +157,24 @@
                 </td>
                 <td class="py-3 px-4 text-center whitespace-nowrap">
                   {% if inv.invoiceType.value == 'R1' %}
-                    <span class="inline-flex items-center justify-center gap-1.5 w-28 h-5 px-2.5 rounded-full bg-cream text-ink text-[10px] font-mono font-bold border border-gold/40">
+                    <span class="inline-flex items-center justify-start gap-1.5 w-28 h-5 px-3 rounded-full bg-cream text-ink text-[10px] font-mono font-bold border border-gold/40">
                       <span class="w-1.5 h-1.5 rounded-full bg-ink shrink-0"></span> Abonada
                     </span>
                   {% elseif inv.status.value == 'paid' %}
-                    <span class="inline-flex items-center justify-center gap-1.5 w-28 h-5 px-2.5 rounded-full bg-emerald-50 text-emerald-800 text-[10px] font-mono font-bold border border-emerald-200">
+                    <span class="inline-flex items-center justify-start gap-1.5 w-28 h-5 px-3 rounded-full bg-emerald-50 text-emerald-800 text-[10px] font-mono font-bold border border-emerald-200">
                       <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span> Cobrada
                     </span>
                   {% elseif inv.status.value == 'refunded' %}
                     <div class="inline-flex flex-col items-center gap-1">
-                      <span class="inline-flex items-center justify-center gap-1.5 w-28 h-5 px-2.5 rounded-full bg-emerald-50 text-emerald-800 text-[10px] font-mono font-bold border border-emerald-200">
+                      <span class="inline-flex items-center justify-start gap-1.5 w-28 h-5 px-3 rounded-full bg-emerald-50 text-emerald-800 text-[10px] font-mono font-bold border border-emerald-200">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span> Cobrada
                       </span>
-                      <span class="inline-flex items-center justify-center gap-1.5 w-28 h-5 px-2.5 rounded-full bg-rose-50 text-rose-800 text-[10px] font-mono font-bold border border-rose-200">
+                      <span class="inline-flex items-center justify-start gap-1.5 w-28 h-5 px-3 rounded-full bg-rose-50 text-rose-800 text-[10px] font-mono font-bold border border-rose-200">
                         <span class="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0"></span> Rectificada
                       </span>
                     </div>
                   {% else %}
-                    <span class="inline-flex items-center justify-center gap-1.5 w-28 h-5 px-2.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-mono font-bold border border-slate-300">
+                    <span class="inline-flex items-center justify-start gap-1.5 w-28 h-5 px-3 rounded-full bg-slate-100 text-slate-700 text-[10px] font-mono font-bold border border-slate-300">
                       {{ inv.status.label }}
                     </span>
                   {% endif %}
