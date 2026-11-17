@@ -244,8 +244,8 @@
                       {{ rectInv.totalFormatted }}
                     </td>
                     <td class="py-2.5 px-4 text-center whitespace-nowrap">
-                      <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cream text-ink text-xs font-mono font-semibold border border-gold/40">
-                        <span class="w-1.5 h-1.5 rounded-full bg-ink"></span> Abonada
+                      <span class="inline-flex items-center justify-center gap-1.5 w-28 py-0.5 rounded-full bg-cream text-ink text-[11px] font-mono font-semibold border border-gold/40">
+                        <span class="w-1.5 h-1.5 rounded-full bg-ink shrink-0"></span> Abonada
                       </span>
                     </td>
                     <td class="py-2.5 px-4 text-center whitespace-nowrap">
@@ -269,25 +269,25 @@
                   </td>
                   <td class="py-2.5 px-4 text-center whitespace-nowrap">
                     {% if tx.status.isSuccess %}
-                      <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-mono font-semibold border border-emerald-200">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Pagat
+                      <span class="inline-flex items-center justify-center gap-1.5 w-28 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-mono font-semibold border border-emerald-200">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span> Pagat
                       </span>
                     {% elseif tx.status.value == 'pending' %}
-                      <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-xs font-mono font-semibold border border-slate-300">
-                        <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span> Pendent
+                      <span class="inline-flex items-center justify-center gap-1.5 w-28 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[11px] font-mono font-semibold border border-slate-300">
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-500 shrink-0"></span> Pendent
                       </span>
                     {% elseif tx.status.value == 'refunded' %}
                       <div class="inline-flex flex-col items-center gap-1">
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[10px] font-mono font-bold border border-emerald-200">
-                          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Pagat
+                        <span class="inline-flex items-center justify-center gap-1.5 w-28 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[11px] font-mono font-semibold border border-emerald-200">
+                          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span> Pagat
                         </span>
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-50 text-rose-800 text-[9px] font-mono font-bold border border-rose-200">
-                          <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Rectificada
+                        <span class="inline-flex items-center justify-center gap-1.5 w-28 py-0.5 rounded-full bg-rose-50 text-rose-800 text-[11px] font-mono font-semibold border border-rose-200">
+                          <span class="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0"></span> Rectificada
                         </span>
                       </div>
                     {% else %}
-                      <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-red-50 text-red-700 text-xs font-mono font-semibold border border-red-200">
-                        <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> {{ tx.status.label }}
+                      <span class="inline-flex items-center justify-center gap-1.5 w-28 py-0.5 rounded-full bg-red-50 text-red-700 text-[11px] font-mono font-semibold border border-red-200">
+                        <span class="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0"></span> {{ tx.status.label }}
                       </span>
                     {% endif %}
                   </td>
