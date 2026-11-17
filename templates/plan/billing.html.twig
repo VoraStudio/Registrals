@@ -238,8 +238,8 @@
                       {{ rectInv.totalFormatted }}
                     </td>
                     <td class="py-2.5 px-4 text-center whitespace-nowrap">
-                      <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-ink text-white text-xs font-mono font-semibold border border-gold/40">
-                        <span class="w-1.5 h-1.5 rounded-full bg-gold"></span> Abonada
+                      <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cream text-ink text-xs font-mono font-semibold border border-gold/40">
+                        <span class="w-1.5 h-1.5 rounded-full bg-ink"></span> Abonada
                       </span>
                     </td>
                     <td class="py-2.5 px-4 text-center whitespace-nowrap">
@@ -259,7 +259,7 @@
                     {{ tx.type.label }}
                   </td>
                   <td class="py-2.5 px-4 text-right font-mono font-bold text-ink whitespace-nowrap text-xs sm:text-sm">
-                    {{ tx.amountFormatted }}
+                    {{ tx.amountFormatted|replace({' EUR': ' €'}) }}
                   </td>
                   <td class="py-2.5 px-4 text-center whitespace-nowrap">
                     {% if tx.status.isSuccess %}
