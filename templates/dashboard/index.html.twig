@@ -830,22 +830,55 @@
       const bInput = document.getElementById('deactivate-action-type-batch');
       if (bInput) bInput.disabled = false;
 
-      if (modalTitle) modalTitle.textContent = `Donar de Baixa ${count} Béns`;
-      if (itemCard) itemCard.classList.add('hidden');
-      if (protectedNotice) protectedNotice.classList.add('hidden');
-      if (unprotectedOptions) unprotectedOptions.classList.add('hidden');
-      if (batchNotice) batchNotice.classList.remove('hidden');
-      const batchCountNum = document.getElementById('deactivate-batch-count-num');
-      if (batchCountNum) batchCountNum.textContent = count;
-      if (submitBtnLabel) submitBtnLabel.textContent = `Donar de Baixa (${count})`;
-
+      let protectedCount = 0;
+      let unprotectedCount = 0;
       selectedCheckboxes.forEach(cb => {
+        const isItemProtected = cb.dataset.hasOfficialCert === '1' || cb.dataset.hasTransfers === '1';
+        if (isItemProtected) {
+          protectedCount++;
+        } else {
+          unprotectedCount++;
+        }
         const hidden = document.createElement('input');
         hidden.type = 'hidden';
         hidden.name = 'cuis[]';
         hidden.value = cb.dataset.cui;
         batchInputsContainer.appendChild(hidden);
       });
+
+      const batchSummary = document.getElementById('deactivate-batch-summary');
+      const batchOptions = document.getElementById('deactivate-batch-options');
+      const batchRadioInputs = document.querySelectorAll('#deactivate-batch-options input[name="action_type"]');
+
+      if (unprotectedCount > 0) {
+        if (bInput) bInput.disabled = true;
+        if (batchOptions) batchOptions.classList.remove('hidden');
+        batchRadioInputs.forEach(el => {
+          el.disabled = false;
+          if (el.value === 'archive') el.checked = true;
+        });
+        if (batchSummary) {
+          if (protectedCount > 0) {
+            batchSummary.innerHTML = `Esteu a punt de gestionar <strong>${count}</strong> béns: <strong>${protectedCount} protegit(s)</strong> (amb certificats oficials o traspassos, que s'arxivaran obligatòriament) i <strong>${unprotectedCount} sense protecció</strong>.`;
+          } else {
+            batchSummary.innerHTML = `Cap dels <strong>${count}</strong> béns seleccionats té certificats oficials ni traspassos. Trieu com voleu procedir:`;
+          }
+        }
+      } else {
+        if (bInput) bInput.disabled = false;
+        if (batchOptions) batchOptions.classList.add('hidden');
+        batchRadioInputs.forEach(el => el.disabled = true);
+        if (batchSummary) {
+          batchSummary.innerHTML = `Tots els <strong>${count}</strong> béns seleccionats tenen certificats oficials o traspassos registrats, de manera que s'arxivaran a la custòdia en fred.`;
+        }
+      }
+
+      if (modalTitle) modalTitle.textContent = `Donar de Baixa ${count} Béns`;
+      if (itemCard) itemCard.classList.add('hidden');
+      if (protectedNotice) protectedNotice.classList.add('hidden');
+      if (unprotectedOptions) unprotectedOptions.classList.add('hidden');
+      if (batchNotice) batchNotice.classList.remove('hidden');
+      if (submitBtnLabel) submitBtnLabel.textContent = `Confirmar Baixa (${count})`;
     }
 
     modal.classList.remove('hidden');
@@ -1252,7 +1285,7 @@
             </p>
           </div>
           <p class="text-xs text-steel leading-relaxed">
-            En donar-lo de baixa, el bé <strong>s'arxiva a la custòdia en fred</strong>: allibera quota del vostre pla i surt del patrimoni actiu, protegint la traçabilitat històrica.
+            En donar-lo de baixa, el bé <strong>s'arxiva a la custòdia en fred</strong>: allibera capacitat de béns actius del vostre pla (sense retornar les altes anuals ja consumides) i protegeix la traçabilitat històrica.
           </p>
           <input type="hidden" name="action_type" id="deactivate-action-type-protected" value="archive">
         </div>
@@ -1267,7 +1300,7 @@
               <input type="radio" name="action_type" value="archive" checked class="mt-0.5 accent-ink cursor-pointer">
               <div class="text-xs">
                 <strong class="text-ink block font-bold">Arxivar a la custòdia en fred (Recomanat)</strong>
-                <span class="text-steel block text-[11px] mt-0.5">Allibera la quota de béns del pla i conserva les fotografies i dades per si voleu reactivar-lo més endavant.</span>
+                <span class="text-steel block text-[11px] mt-0.5">Allibera capacitat activa del pla i conserva les fotografies i dades per si voleu reactivar-lo més endavant.</span>
               </div>
             </label>
             <label class="flex items-start gap-2.5 p-3 rounded-xl border border-red-200 bg-red-50/40 hover:bg-red-50/70 cursor-pointer transition-colors">
@@ -1278,17 +1311,34 @@
               </div>
             </label>
           </div>
+          <p class="text-[11px] text-steel">
+            Nota: donar de baixa o eliminar allibera capacitat activa, però no retorna les altes anuals ja consumides.
+          </p>
         </div>
 
         {# Bloc de Baixa en Lot #}
-        <div id="deactivate-batch-notice" class="hidden space-y-2">
-          <p class="text-xs text-ink/80">
-            Esteu a punt de donar de baixa <strong id="deactivate-batch-count-num"></strong> béns del vostre patrimoni actiu.
-          </p>
+        <div id="deactivate-batch-notice" class="hidden space-y-3">
+          <p id="deactivate-batch-summary" class="text-xs text-ink/80 leading-relaxed"></p>
+          <div id="deactivate-batch-options" class="hidden space-y-2">
+            <label class="flex items-start gap-2.5 p-3 rounded-xl border border-steel/30 bg-cream/20 hover:bg-cream/40 cursor-pointer transition-colors">
+              <input type="radio" name="action_type" value="archive" checked class="mt-0.5 accent-ink cursor-pointer">
+              <div class="text-xs">
+                <strong class="text-ink block font-bold">Arxivar a la custòdia en fred (Recomanat)</strong>
+                <span class="text-steel block text-[11px] mt-0.5">Allibera places actives i conserva les proves i fotografies de tots els béns seleccionats.</span>
+              </div>
+            </label>
+            <label class="flex items-start gap-2.5 p-3 rounded-xl border border-red-200 bg-red-50/40 hover:bg-red-50/70 cursor-pointer transition-colors">
+              <input type="radio" name="action_type" value="delete" class="mt-0.5 accent-red-600 cursor-pointer">
+              <div class="text-xs">
+                <strong class="text-red-800 block font-bold">Eliminar permanentment els béns sense protecció</strong>
+                <span class="text-red-700/80 block text-[11px] mt-0.5">Purga definitivament els béns sense certificats oficials ni traspassos; els protegits s'arxivaran igualment.</span>
+              </div>
+            </label>
+          </div>
           <div class="p-3.5 rounded-xl bg-gold/10 border-l-[3.5px] border-gold text-ink text-xs font-raleway space-y-1">
-            <strong>Custòdia en fred i alliberament de quota</strong>
+            <strong>Custòdia en fred i Regla de Quotes</strong>
             <p class="text-ink/80">
-              Els béns s'arxivaran a la custòdia en fred, alliberant les places corresponents del vostre pla i preservant la integritat de les dades registrades.
+              Allibera capacitat de béns actius del vostre pla, però mai retorna les altes anuals ja consumides. Els béns amb traspàs actiu pendent s'ometran automàticament.
             </p>
           </div>
           <input type="hidden" name="action_type" id="deactivate-action-type-batch" value="archive">

@@ -1189,11 +1189,17 @@ class ItemController extends AbstractController
         $currentUser = $this->getUser();
         $archivedCount = 0;
         $deletedCount = 0;
+        $skippedTransferCount = 0;
         $actionType = (string) $request->request->get('action_type', 'archive');
 
         foreach ($cuis as $cui) {
             $item = $itemRepository->findOneByCui((string) $cui);
             if (!$item || !$this->isGranted(ItemVoter::DELETE, $item)) {
+                continue;
+            }
+
+            if ($item->getActiveTransfer() !== null || $item->getStatus() === ItemStatus::TRANSFER_PENDING) {
+                ++$skippedTransferCount;
                 continue;
             }
 
@@ -1252,7 +1258,13 @@ class ItemController extends AbstractController
         }
 
         if (!empty($messages)) {
-            $this->addFlash('info', 'Operació completada: ' . implode(', ', $messages) . '.');
+            $finalMsg = 'Operació completada: ' . implode(', ', $messages) . '.';
+            if ($skippedTransferCount > 0) {
+                $finalMsg .= sprintf(' (%d bé(ns) omesos per tenir un traspàs actiu en curs).', $skippedTransferCount);
+            }
+            $this->addFlash('info', $finalMsg);
+        } elseif ($skippedTransferCount > 0) {
+            $this->addFlash('warning', sprintf('No s\'ha pogut donar de baixa cap bé: %d bé(ns) tenen un traspàs actiu en curs. Cancel·la el traspàs primer.', $skippedTransferCount));
         }
 
         return $this->redirectToRoute('app_dashboard');
