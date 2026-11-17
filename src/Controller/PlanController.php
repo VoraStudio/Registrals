@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Item;
+use App\Audit\Repository\UserActivityLogRepository;
 use App\Entity\User;
 use App\Infrastructure\Adapter\Payment\PaymentGatewayInterface;
 use App\Repository\InvoiceRepository;
@@ -77,7 +78,8 @@ class PlanController extends AbstractController
         ?PaymentManager $paymentManager = null,
         ?PaymentGatewayInterface $paymentGateway = null,
         ?InvoiceRepository $invoiceRepository = null,
-        ?InvoiceService $invoiceService = null
+        ?InvoiceService $invoiceService = null,
+        ?UserActivityLogRepository $activityLogRepository = null
     ): Response {
         $request ??= new Request();
 
@@ -136,6 +138,20 @@ class PlanController extends AbstractController
             }
         }
 
+        $stripeLogs = [];
+        if ($activityLogRepository !== null) {
+            try {
+                $activityResult = $activityLogRepository->findPaginatedByUserUuid($user->getUuid()->toRfc4122(), 1, 100);
+                foreach ($activityResult['items'] as $log) {
+                    if ($log->getAction()->category() === 'Facturació & Pagaments') {
+                        $stripeLogs[] = $log;
+                    }
+                }
+            } catch (\Throwable) {
+                $stripeLogs = [];
+            }
+        }
+
         return $this->render('plan/billing.html.twig', [
             'user' => $user,
             'currentPlan' => $currentPlan,
@@ -146,6 +162,8 @@ class PlanController extends AbstractController
             'transactions' => $transactions,
             'invoicesByTxId' => $invoicesByTxId,
             'rectificationsByOriginalId' => $rectificationsByOriginalId,
+            'rectificationsCount' => count($rectificationsByOriginalId),
+            'stripeLogs' => $stripeLogs,
             'currentPage' => $page,
             'currentLimit' => $limit,
             'totalItems' => $totalTransactions,

@@ -135,14 +135,20 @@
 
     {# Secció 2: Taula d'Actes de Pagament Notarials #}
     <div class="bg-white rounded-2xl border border-steel/20 shadow-xs p-5 sm:p-7">
-      <div class="flex items-center justify-between pb-3 mb-3 border-b border-steel/15">
+      <div class="flex flex-wrap items-center justify-between gap-2 pb-3 mb-3 border-b border-steel/15">
         <div>
           <h3 class="font-marcellus text-base sm:text-lg text-ink">Historial d'Actes de Pagament</h3>
           <p class="text-xs text-ink/65">Traçabilitat forense de transaccions, compres de certificats oficials i traspassos.</p>
         </div>
-        <span class="text-xs font-mono text-ink/60 bg-cream/50 px-2.5 py-1 rounded-lg border border-steel/15">
-          {{ transactions|length }} registre{{ transactions|length == 1 ? '' : 's' }}
-        </span>
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-mono text-ink/65 bg-cream/50 px-2.5 py-1 rounded-lg border border-steel/15">
+            {{ transactions|length }} pagament{{ transactions|length == 1 ? '' : 's' }}{% if rectificationsCount is defined and rectificationsCount > 0 %} · {{ rectificationsCount }} abonament{{ rectificationsCount == 1 ? '' : 's' }}{% endif %}
+          </span>
+          <button type="button" onclick="openStripeLogsModal()" class="inline-flex items-center gap-1.5 text-xs font-mono font-semibold text-ink bg-white hover:bg-cream/60 px-2.5 py-1 rounded-lg border border-gold/40 shadow-2xs transition-all cursor-pointer">
+            <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>Logs Stripe ({{ stripeLogs|default([])|length }})</span>
+          </button>
+        </div>
       </div>
 
       {% if transactions is not empty %}
@@ -421,7 +427,85 @@
     </div>
   </div>
 
+  {# Modal Canònic Dual PWA: Logs d'Activitat Stripe / Pagaments #}
+  <div id="modal-stripe-logs" class="hidden fixed inset-0 z-50 bg-ink/75 backdrop-blur-xs items-end sm:items-center justify-center p-0 sm:p-4 transition-all duration-200" onclick="if(event.target === this) closeStripeLogsModal();">
+    <div class="bg-white rounded-t-3xl sm:rounded-2xl border-t sm:border border-gold/40 shadow-2xl max-w-2xl w-full max-h-[90vh] sm:max-h-[88vh] overflow-hidden flex flex-col">
+      <div class="sm:hidden w-10 h-1 bg-steel/30 rounded-full mx-auto mt-2 -mb-1 shrink-0"></div>
+      <div class="p-4 sm:p-5 border-b border-steel/15 flex items-center justify-between bg-cream/30">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-ink text-gold flex items-center justify-center shrink-0">
+            <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div>
+            <h3 class="font-marcellus text-base sm:text-lg text-ink font-bold leading-tight">Registre d'Esdeveniments Stripe & Pagaments</h3>
+            <p class="text-[11px] font-mono text-steel">{{ stripeLogs|default([])|length }} registre(s) d'auditoria</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeStripeLogsModal()" class="w-8 h-8 rounded-lg bg-white border border-steel/20 text-steel hover:text-ink flex items-center justify-center text-sm font-bold cursor-pointer" aria-label="Tancar">
+          ✕
+        </button>
+      </div>
+      <div class="p-4 sm:p-5 overflow-y-auto space-y-2.5 flex-1 bg-cream-50/40">
+        {% if stripeLogs is defined and stripeLogs is not empty %}
+          {% for log in stripeLogs %}
+            <div class="p-3 rounded-xl bg-white border border-steel/20 shadow-2xs space-y-1.5">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <span class="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold border {{ log.action.badgeClasses }}">
+                  {{ log.action.label }}
+                </span>
+                <span class="text-[11px] font-mono text-steel">
+                  {% if log.ipAddress %}IP: {{ log.ipAddress }} · {% endif %}{{ log.createdAt|date('d/m/Y H:i:s') }}
+                </span>
+              </div>
+              <p class="text-xs text-ink font-raleway leading-relaxed">{{ log.description }}</p>
+              {% if log.details %}
+                <div class="flex flex-wrap gap-1.5 pt-0.5">
+                  {% for k, v in log.details %}
+                    {% if v is not null and v != '' %}
+                      <span class="text-[10px] font-mono text-steel bg-cream/50 px-1.5 py-0.5 rounded border border-steel/15">
+                        {{ k }}: {{ v is iterable ? v|json_encode : v }}
+                      </span>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="p-4 rounded-xl bg-white border border-steel/15 text-xs text-steel text-center">
+            No hi ha esdeveniments de facturació o Stripe registrats per a aquest compte.
+          </div>
+        {% endif %}
+      </div>
+      <div class="p-4 bg-cream-50/50 border-t border-steel/15 flex justify-end shrink-0">
+        <button type="button" onclick="closeStripeLogsModal()" class="px-4 py-2 rounded-xl bg-ink text-gold border border-gold/40 text-xs font-bold uppercase tracking-wider cursor-pointer">
+          Tancar
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
+    function openStripeLogsModal() {
+      const modal = document.getElementById('modal-stripe-logs');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.body.classList.add('overflow-hidden');
+      }
+    }
+    function closeStripeLogsModal() {
+      const modal = document.getElementById('modal-stripe-logs');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.body.classList.remove('overflow-hidden');
+      }
+    }
+    document.addEventListener('keydown', function(evt) {
+      if (evt.key === 'Escape') closeStripeLogsModal();
+    });
+
     function openCancelModal() {
       const modal = document.getElementById('cancel-subscription-modal');
       if (modal) {
