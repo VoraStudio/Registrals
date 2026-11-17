@@ -28,9 +28,12 @@ Internament, un PDF sense protecció criptogràfica és un contenidor d'objectes
 * En imprimir-lo en paper, és indistingible de l'original.
 * Confiar únicament en l'aspecte visual del document és, en termes de seguretat, un punt cec.
 
-## 2. El canvi de paradigma: el paper com a punter, no com a font única de veritat
+## 2. Protecció en digital vs. verificació en paper (el paper com a punter)
 
-A Registrals no demanem a una asseguradora, a un pèrit o a un comprador que es creguin un PDF només perquè porta un logotip bonic. El nostre Certificat Digital en PDF funciona com una **porta d'accés verificable** cap a l'evidència segellada:
+Per blindar un certificat en tots els escenaris cal distingir dues capes complementàries:
+
+* **Integritat de l'arxiu digital (signatura electrònica / PAdES):** Un PDF signat digitalment amb un certificat criptogràfic permet que qualsevol visor (com Adobe Reader o el navegador) detecti a l'instant si s'ha modificat ni que sigui un sol caràcter del fitxer.
+* **Verificació en paper i en línia (el QR + segellat extern):** En el moment en què algú imprimeix un PDF en paper, la signatura digital incrustada a l'arxiu no es pot comprovar sobre el foli. Per això, a Registrals no demanem a una asseguradora, a un pèrit o a un comprador que confiïn només en l'aspecte del document, sinó que convertim el PDF en una **porta d'accés verificable** cap a l'evidència segellada:
 
 1. **Empremta SHA-256 impresa:** El document inclou el resum criptogràfic exacte de l'expedient del bé en el moment de l'emissió.
 2. **Codi QR de resolució directa:** En escanejar el QR (`/verify/{uuid}`), el verificador consulta en temps real l'estat vigent del certificat sense haver de teclejar codis llargs.
@@ -47,3 +50,4 @@ Suposem que algú edita el PDF per canviar el número de sèrie d'un rellotge o 
 ## Conclusió
 
 Un PDF per si sol només demostra **com es veu** una pàgina. Combinat amb un codi QR de verificació viva, un hash SHA-256 i el segellat extern eIDAS + Polygon, es transforma en un **document auditat i contrastable** tant en pantalla com damunt d'una taula en format paper.
+
