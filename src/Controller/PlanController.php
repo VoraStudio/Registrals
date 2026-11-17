@@ -110,11 +110,15 @@ class PlanController extends AbstractController
 
         // Mapeig de factures per a cada transacció i auto-generació si no en té
         $invoicesByTxId = [];
+        $rectificationsByOriginalId = [];
         if ($invoiceRepository !== null) {
             $userInvoices = $invoiceRepository->findByUserOrdered($user);
             foreach ($userInvoices as $inv) {
                 if ($inv->getPaymentTransaction() !== null) {
                     $invoicesByTxId[$inv->getPaymentTransaction()->getId()] = $inv;
+                }
+                if ($inv->getOriginalInvoice() !== null) {
+                    $rectificationsByOriginalId[$inv->getOriginalInvoice()->getId()] = $inv;
                 }
             }
         }
@@ -141,6 +145,7 @@ class PlanController extends AbstractController
             'maxPlusItems' => $plusPlan?->getMaxActiveItems() ?? 100,
             'transactions' => $transactions,
             'invoicesByTxId' => $invoicesByTxId,
+            'rectificationsByOriginalId' => $rectificationsByOriginalId,
             'currentPage' => $page,
             'currentLimit' => $limit,
             'totalItems' => $totalTransactions,

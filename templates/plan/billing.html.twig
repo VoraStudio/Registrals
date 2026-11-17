@@ -92,13 +92,17 @@
         <div class="p-3 rounded-xl bg-cream/30 border border-steel/15">
           <span class="text-[10px] uppercase font-mono tracking-wider text-ink/50 block">Inici & Vigència</span>
           <span class="font-bold text-ink text-xs block mt-0.5">
-            {{ user.planStartedAt ? user.planStartedAt|date('d/m/Y') : user.createdAt|date('d/m/Y') }}
-            {% if user.planExpiresAt %}
-              fins al {{ user.planExpiresAt|date('d/m/Y') }}
+            {% if currentPlan.code == 'free' %}
+              {{ user.createdAt|date('d/m/Y') }}
+            {% else %}
+              {{ user.planStartedAt ? user.planStartedAt|date('d/m/Y') : user.createdAt|date('d/m/Y') }}
+              {% if user.planExpiresAt %}
+                fins al {{ user.planExpiresAt|date('d/m/Y') }}
+              {% endif %}
             {% endif %}
           </span>
           <span class="text-[10px] text-ink/50 block mt-0.5">
-            {{ user.planExpiresAt ? 'Renovació anual programada' : 'Pla gratuït indefinit' }}
+            {{ currentPlan.code != 'free' and user.planExpiresAt ? 'Renovació anual programada' : 'Pla gratuït indefinit' }}
           </span>
         </div>
 
@@ -248,10 +252,19 @@
                   <td class="py-2.5 px-4 text-center whitespace-nowrap">
                     {% if invoicesByTxId[tx.id] is defined %}
                       {% set inv = invoicesByTxId[tx.id] %}
-                      <a href="{{ path('app_invoice_download', {uuid: inv.uuid}) }}" target="_blank" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white border border-steel/30 text-ink hover:border-gold hover:text-gold text-[11px] font-mono shadow-2xs transition-all">
-                        <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-                        <span>{{ inv.invoiceNumber }}</span>
-                      </a>
+                      <div class="inline-flex flex-wrap items-center justify-center gap-1.5">
+                        <a href="{{ path('app_invoice_download', {uuid: inv.uuid}) }}" target="_blank" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white border border-steel/30 text-ink hover:border-gold hover:text-gold text-[11px] font-mono shadow-2xs transition-all">
+                          <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                          <span>{{ inv.invoiceNumber }}</span>
+                        </a>
+                        {% if rectificationsByOriginalId is defined and rectificationsByOriginalId[inv.id] is defined %}
+                          {% set rectInv = rectificationsByOriginalId[inv.id] %}
+                          <a href="{{ path('app_invoice_download', {uuid: rectInv.uuid}) }}" target="_blank" title="Factura Rectificativa d'Abonament" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-rose-50 border border-rose-200 text-rose-800 hover:bg-rose-100 text-[11px] font-mono shadow-2xs transition-all">
+                            <svg class="w-3.5 h-3.5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                            <span>{{ rectInv.invoiceNumber }}</span>
+                          </a>
+                        {% endif %}
+                      </div>
                     {% elseif tx.status.isSuccess %}
                       <span class="text-[10px] text-steel/60 font-mono">En generació...</span>
                     {% else %}
