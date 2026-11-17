@@ -1164,7 +1164,7 @@ class ItemController extends AbstractController
     /**
      * Dóna de baixa un lot de béns seleccionats al Dashboard.
      */
-    #[Route('/batch/deactivate', name: 'batch_deactivate', methods: ['POST'])]
+    #[Route('/batch/deactivate', name: 'batch_deactivate', methods: ['POST'], priority: 10)]
     public function batchDeactivate(
         Request $request,
         ItemRepository $itemRepository,
