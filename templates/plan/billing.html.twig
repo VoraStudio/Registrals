@@ -226,25 +226,25 @@
                 {% set inv = invoicesByTxId[tx.id] ?? null %}
                 {% set rectInv = (inv and rectificationsByOriginalId is defined and rectificationsByOriginalId[inv.id] is defined) ? rectificationsByOriginalId[inv.id] : null %}
                 {% if rectInv %}
-                  <tr class="bg-rose-50/20 hover:bg-rose-50/40 transition-colors">
+                  <tr class="bg-blue-50/20 hover:bg-blue-50/40 transition-colors">
                     <td class="py-2.5 px-4 font-mono text-xs text-ink/70 whitespace-nowrap">
                       {{ rectInv.createdAt|date('d/m/Y') }}
-                      <span class="block text-[10px] text-rose-700/70 font-mono">Rectificativa</span>
+                      <span class="block text-[10px] text-blue-700/80 font-mono">Rectificativa</span>
                     </td>
                     <td class="py-2.5 px-4 font-semibold text-ink text-xs sm:text-sm">
                       Abonament · {{ inv.invoiceNumber }}
                     </td>
-                    <td class="py-2.5 px-4 text-right font-mono font-bold text-rose-700 whitespace-nowrap text-xs sm:text-sm">
+                    <td class="py-2.5 px-4 text-right font-mono font-bold text-blue-800 whitespace-nowrap text-xs sm:text-sm">
                       {{ rectInv.totalFormatted }}
                     </td>
                     <td class="py-2.5 px-4 text-center whitespace-nowrap">
-                      <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-xs font-mono font-semibold border border-rose-200">
-                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Abonada
+                      <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-800 text-xs font-mono font-semibold border border-blue-200">
+                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Abonada
                       </span>
                     </td>
                     <td class="py-2.5 px-4 text-center whitespace-nowrap">
-                      <a href="{{ path('app_invoice_download', {uuid: rectInv.uuid}) }}" target="_blank" title="Descarregar Factura Rectificativa R1" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-rose-50 border border-rose-200 text-rose-800 hover:bg-rose-100 text-[11px] font-mono shadow-2xs transition-all">
-                        <svg class="w-3.5 h-3.5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                      <a href="{{ path('app_invoice_download', {uuid: rectInv.uuid}) }}" target="_blank" title="Descarregar Factura Rectificativa R1" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 border border-blue-200 text-blue-800 hover:bg-blue-100 text-[11px] font-mono shadow-2xs transition-all">
+                        <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
                         <span>{{ rectInv.invoiceNumber }}</span>
                       </a>
                     </td>
@@ -267,16 +267,16 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Pagat
                       </span>
                     {% elseif tx.status.value == 'pending' %}
-                      <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 text-xs font-mono font-semibold border border-amber-200">
-                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Pendent
+                      <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-xs font-mono font-semibold border border-slate-300">
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span> Pendent
                       </span>
                     {% elseif tx.status.value == 'refunded' %}
                       <div class="inline-flex flex-col items-center gap-1">
                         <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[10px] font-mono font-bold border border-emerald-200">
                           <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Pagat
                         </span>
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-cream-50 text-ink text-[9px] font-mono font-bold border border-gold/40">
-                          <span class="w-1.5 h-1.5 rounded-full bg-gold"></span> Rectificada
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-50 text-rose-800 text-[9px] font-mono font-bold border border-rose-200">
+                          <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Rectificada
                         </span>
                       </div>
                     {% else %}
