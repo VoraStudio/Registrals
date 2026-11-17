@@ -426,6 +426,7 @@
       </div>
     </div>
   </div>
+{% endif %}
 
   {# Modal Canònic Dual PWA: Logs d'Activitat Stripe / Pagaments #}
   <div id="modal-stripe-logs" class="hidden fixed inset-0 z-50 bg-ink/75 backdrop-blur-xs items-end sm:items-center justify-center p-0 sm:p-4 transition-all duration-200" onclick="if(event.target === this) closeStripeLogsModal();">
@@ -534,5 +535,4 @@
       openCancelModal();
     }
   </script>
-{% endif %}
 {% endblock %}
