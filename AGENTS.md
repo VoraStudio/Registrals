@@ -63,6 +63,7 @@ Aquest document estableix les regles d'arquitectura, el stack tecnològic, el si
 
 ## 3. Sistema de Disseny i Frontend (Guia d'Estils)
 
+- **Documentació local (fora del repo):** Les guies HTML (`web/guia-destils.html`, `web/integracions-externes.html`) i la documentació tècnica generada per MkDocs (`docs/`, `site/`, `mkdocs.yml`) són fitxers locals ignorats per git: no figuren en clons nous del repo. La referència compartible al repo és la carpeta `sdd/`.
 - **Font de veritat oficial:** [`web/guia-destils.html`](web/guia-destils.html) (accessible en local a `http://127.0.0.1:8004/guia-destils.html`), directrius a [`sdd/05-disseny-ui-ux.md`](sdd/05-disseny-ui-ux.md) i arquitectura de pantalles a [`sdd/05-guia-interficies.md`](sdd/05-guia-interficies.md).
 - **Guia d'Integracions Externes (HTML & Docs):** [`web/integracions-externes.html`](web/integracions-externes.html) (accessible en local a `http://127.0.0.1:8008/integracions-externes.html`), document tècnic a [`sdd/06-integracions-externes.md`](sdd/06-integracions-externes.md).
 - **Paleta de Colors Corporativa (Estètica Notarial Lluminosa):**

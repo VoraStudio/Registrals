@@ -1,8 +1,10 @@
-# Original source files (not part of the published site)
-original/
-
-# Local documentation (not part of the repo)
-docs/
+# Documentació tècnica (MkDocs Material) i guies de disseny — locals, fora del repo
+/docs/
+/original/
+/site/
+/mkdocs.yml
+/web/guia-destils.html
+/web/integracions-externes.html
 
 ###> symfony/framework-bundle ###
 /.env.local
