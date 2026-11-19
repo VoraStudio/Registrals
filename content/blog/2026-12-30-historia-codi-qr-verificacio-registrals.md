@@ -48,3 +48,4 @@ A Registrals utilitzem el codi QR com a pont directe entre el món físic i la v
 * **Accés ràpid a l'aplicació web (PWA):** Un QR dedicat facilita la instal·lació directa de l'app al dispositiu mòbil.
 
 En definitiva, un invent pensat fa més de trenta anys per seguir peces d'automòbil avui permet que qualsevol asseguradora, pèrit o comprador apunti amb la càmera a un certificat de Registrals i comprovi a l'instant la validesa del segellat i l'estat del bé.
+

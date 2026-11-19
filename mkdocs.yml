@@ -1,0 +1,101 @@
+# ------------------------------------------------------------------
+# Registrals — Documentació Tècnica (mkdocs + Material)
+# Manual tècnic del desenvolupador. S'organitza en blocs:
+#   Bloc 1 — Nucli: arquitectura, rutes, seguretat (publicat)
+#   Bloc 2 — Model de dades i controladors (en redacció)
+#   Bloc 3 — Vistes, integracions externes i operacions (en redacció)
+# ------------------------------------------------------------------
+
+site_name: Registrals — Documentació Tècnica
+site_description: Manual tècnic per entendre el codi, l'arquitectura i els components de la plataforma Registrals (Symfony 7.4).
+site_author: Vora Data & Studio
+copyright: "© 2026 Vora Data & Studio — Registrals"
+
+docs_dir: docs
+
+# --- Tema: Material amb paleta corporativa (Ink / Gold / Cream) ---
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: "#1D2F4B"        # Ink (blau marí corporatiu)
+      accent: "#CAA36C"         # Gold (accent de segellat)
+      toggle:
+        icon: material/brightness-5
+        name: Canvia al mode fosc
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: "#1D2F4B"
+      accent: "#CAA36C"
+      toggle:
+        icon: material/brightness-4
+        name: Canvia al mode clar
+  font:
+    text: Raleway
+    header: Marcellus
+    code: Roboto Mono
+  icon:
+    repo: material/code-braces
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.indexes
+    - navigation.footer
+    - content.code.copy
+    - content.code.annotate
+    - search.highlight
+    - search.suggest
+    - announce.dismiss
+
+# --- Extensions Markdown ---
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+      title: Index
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:mermaid2.fence_mermaid_custom
+
+# --- Plugins ---
+plugins:
+  - search:
+      lang:
+        - ca
+        - es
+  - mermaid2
+
+# --- Navegació (es completa bloc a bloc) ---
+nav:
+  - Inici: index.md
+  - Inici ràpid: inici-rapid.md
+  - Arquitectura:
+    - Visió general: arquitectura/visio-general.md
+    - Kernel i configuració: arquitectura/kernel-i-configuracio.md
+    - Cues i asíncronicitat: arquitectura/cues-asincronicitat.md
+  - Rutes:
+    - Pàgines públiques i autenticació: rutes/visio-i-autenticacio.md
+    - Àrea privada (/app): rutes/area-privada.md
+    - Backoffice (/admin): rutes/admin.md
+    - Traspàs, herència i verificació pública: rutes/herencia-i-traspas-public.md
+    - Webhooks i API: rutes/webhooks-i-api.md
+  - Seguretat:
+    - Tallafoc (firewall): seguretat/firewall.md
+    - Rols i control d'accés: seguretat/rols-i-access-control.md
+    - Voters: seguretat/voters.md
+    - Legal Gate i auditoria: seguretat/legal-gate-i-auditoria.md

@@ -50,3 +50,4 @@ La combinació **eIDAS + Polygon** resol dos problemes diferents que es compleme
 ## 4. Verificació oberta i transparent
 
 A cada Certificat Digital emès amb ancoratge complet, l'usuari disposa del `txHash` i del resum SHA-256 del seu bé. Això converteix la prova de tinença en un actiu verificable de forma autònoma: la confiança ja no depèn només de la paraula d'una empresa privada, sinó de l'aritmètica criptogràfica i d'un consens públic distribuït.
+

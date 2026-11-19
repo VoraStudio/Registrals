@@ -1,0 +1,1648 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Manual tècnic per entendre el codi, l'arquitectura i els components de la plataforma Registrals (Symfony 7.4).">
+      
+      
+        <meta name="author" content="Vora Data & Studio">
+      
+      
+      
+        <link rel="prev" href="../visio-general/">
+      
+      
+        <link rel="next" href="../cues-asincronicitat/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.22">
+    
+    
+      
+        <title>Kernel i configuració - Registrals — Documentació Tècnica</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.84d31ad4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Raleway";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="#1D2F4B" data-md-color-accent="#CAA36C">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#kernel-i-configuracio" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Registrals — Documentació Tècnica" class="md-header__button md-logo" aria-label="Registrals — Documentació Tècnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Registrals — Documentació Tècnica
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Kernel i configuració
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="#1D2F4B" data-md-color-accent="#CAA36C"  aria-label="Canvia al mode fosc"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Canvia al mode fosc" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-2.69L23.31 12 20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="#1D2F4B" data-md-color-accent="#CAA36C"  aria-label="Canvia al mode clar"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Canvia al mode clar" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Registrals — Documentació Tècnica" class="md-nav__button md-logo" aria-label="Registrals — Documentació Tècnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Registrals — Documentació Tècnica
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Inici
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../inici-rapid/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Inici ràpid
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Arquitectura
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Arquitectura
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../visio-general/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Visió general
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Kernel i configuració
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Kernel i configuració
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="Index">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Index
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#el-kernel" class="md-nav__link">
+    <span class="md-ellipsis">
+      El kernel
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bundles-configbundlesphp" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bundles (config/bundles.php)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#estructura-del-fitxer-de-configuracio" class="md-nav__link">
+    <span class="md-ellipsis">
+      Estructura del fitxer de configuració
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contenedor-de-serveis-configservicesyaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contenedor de serveis (config/services.yaml)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#variables-dentorn-12-factor" class="md-nav__link">
+    <span class="md-ellipsis">
+      Variables d'entorn (12-Factor)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#doble-connexio-doctrine-configpackagesdoctrineyaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      Doble connexió Doctrine (config/packages/doctrine.yaml)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#asset-pipeline-assetmapper-tailwind" class="md-nav__link">
+    <span class="md-ellipsis">
+      Asset pipeline (AssetMapper + Tailwind)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#entorns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Entorns
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#custodia-darxius-flysystem" class="md-nav__link">
+    <span class="md-ellipsis">
+      Custòdia d'arxius (Flysystem)
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cues-asincronicitat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Cues i asíncronicitat
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Rutes
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Rutes
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../rutes/visio-i-autenticacio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Pàgines públiques i autenticació
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../rutes/area-privada/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Àrea privada (/app)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../rutes/admin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Backoffice (/admin)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../rutes/herencia-i-traspas-public/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Traspàs, herència i verificació pública
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../rutes/webhooks-i-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Webhooks i API
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Seguretat
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Seguretat
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../seguretat/firewall/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tallafoc (firewall)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../seguretat/rols-i-access-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Rols i control d'accés
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../seguretat/voters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Voters
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../seguretat/legal-gate-i-auditoria/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Legal Gate i auditoria
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="Index">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Index
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#el-kernel" class="md-nav__link">
+    <span class="md-ellipsis">
+      El kernel
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bundles-configbundlesphp" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bundles (config/bundles.php)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#estructura-del-fitxer-de-configuracio" class="md-nav__link">
+    <span class="md-ellipsis">
+      Estructura del fitxer de configuració
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contenedor-de-serveis-configservicesyaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contenedor de serveis (config/services.yaml)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#variables-dentorn-12-factor" class="md-nav__link">
+    <span class="md-ellipsis">
+      Variables d'entorn (12-Factor)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#doble-connexio-doctrine-configpackagesdoctrineyaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      Doble connexió Doctrine (config/packages/doctrine.yaml)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#asset-pipeline-assetmapper-tailwind" class="md-nav__link">
+    <span class="md-ellipsis">
+      Asset pipeline (AssetMapper + Tailwind)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#entorns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Entorns
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#custodia-darxius-flysystem" class="md-nav__link">
+    <span class="md-ellipsis">
+      Custòdia d'arxius (Flysystem)
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="kernel-i-configuracio">Kernel i configuració<a class="headerlink" href="#kernel-i-configuracio" title="Permanent link">&para;</a></h1>
+<p>Aquest document descriu el nucli Symfony de l'aplicació: el kernel, els bundles, l'estructura de configuració, el contenedor de serveis, les variables d'entorn (12-Factor), les connexions Doctrine i els entorns.</p>
+<p><strong>Com regenerar aquesta pàgina:</strong> les dades es poden contrastar en qualsevol moment amb <code>bin/console debug:router</code> (rutes), <code>bin/console debug:firewall</code> (firewall), <code>bin/console debug:config doctrine/messenger/framework</code> (paràmetres) i la lectura de <code>config/</code> i <code>src/</code>.</p>
+<h2 id="el-kernel">El kernel<a class="headerlink" href="#el-kernel" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Classe del kernel: <a href="../../src/Kernel.php"><code>App\Kernel</code></a> (generat amb el maker, sense modificacions: carrega <code>config/bundles.php</code>, <code>config/packages/</code> i <code>config/services.yaml</code>).</li>
+<li>Punt d'entrada web: <a href="../../web/index.php"><code>web/index.php</code></a> — utilitza <strong>Symfony Runtime</strong> (<code>require vendor/autoload_runtime.php</code>) que selecciona automàticament el kernel segons el directori de treball.</li>
+<li><strong>Directori web públic: <code>web/</code></strong> (no <code>public/</code>). Està declarat a <code>composer.json</code> (<code>"public-dir": "web"</code>). Conseqüències:</li>
+<li>El script de test <code>bin/phpunit</code> i el <code>server:run</code> de Symfony apunten a <code>web/index.php</code>.</li>
+<li>Els assets compilats (AssetMapper/Tailwind) s'escrivien a <code>web/assets_build/</code>.</li>
+<li><code>public/</code> conté només el <code>holding.html</code> (pàgina de manteniment estàtica).</li>
+<li>Comandes de CLI: <code>bin/console</code> (mateix runtime, context CLI).</li>
+</ul>
+<h2 id="bundles-configbundlesphp">Bundles (config/bundles.php)<a class="headerlink" href="#bundles-configbundlesphp" title="Permanent link">&para;</a></h2>
+<p>18 bundles registrats:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Bundle</th>
+<th style="text-align: left;">Entorns</th>
+<th style="text-align: left;">Funció a Registrals</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>FrameworkBundle</code></td>
+<td style="text-align: left;">tots</td>
+<td style="text-align: left;">Nucli: sessions, cache, router, templating, asset-mapper, messenger, workflows, mailer.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>DoctrineBundle</code> + <code>DoctrineMigrationsBundle</code></td>
+<td style="text-align: left;">tots</td>
+<td style="text-align: left;">ORM + migracions versionades (2 connexions: <code>default</code> i <code>audit</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>SecurityBundle</code></td>
+<td style="text-align: left;">tots</td>
+<td style="text-align: left;">Tallafoc <code>main</code>, providers, voters, remember-me (vegeu <a href="../../seguretat/firewall/">Tallafoc</a>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>TwigBundle</code> + <code>TwigExtraBundle</code></td>
+<td style="text-align: left;">tots</td>
+<td style="text-align: left;">Plantilles (102 fitxers) + extensió de dates/urls.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>MonologBundle</code></td>
+<td style="text-align: left;">tots</td>
+<td style="text-align: left;">Logs per entorn (dev/test: <code>var/log/*</code> + handler d'errors; prod: <code>json</code> + <code>when</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>DebugBundle</code></td>
+<td style="text-align: left;"><code>dev</code></td>
+<td style="text-align: left;">Debug bar i dump.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>WebProfilerBundle</code></td>
+<td style="text-align: left;"><code>dev</code>, <code>test</code></td>
+<td style="text-align: left;">Web profiler (guarat per <code>ProfilerAccessGuardSubscriber</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>MakerBundle</code></td>
+<td style="text-align: left;"><code>dev</code></td>
+<td style="text-align: left;">Generació de codi (<code>make:entity</code>, etc.).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>StimulusBundle</code> + <code>TurboBundle</code></td>
+<td style="text-align: left;">tots</td>
+<td style="text-align: left;">SymfonyUX: Turbo (mexes de formularis, frames) i Stimulus (controllers JS a <code>assets/</code> i <code>assets/</code> → <code>web/assets_build</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>SymfonycastsTailwindBundle</code></td>
+<td style="text-align: left;">tots</td>
+<td style="text-align: left;">Comanda <code>assets:tailwind</code> (dev: watch, prod: build minificat).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>FlysystemBundle</code></td>
+<td style="text-align: left;">tots</td>
+<td style="text-align: left;">Custòdia privada de documents (vegeu <a href="#custodia-darxius-flysystem">Custòdia d'arxius</a>).</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>No s'usen bundles externs de pagament, blockchain, signatura ni IA: totes les integracions són <strong>adaptadors propis</strong> (vegeu <a href="../visio-general/#ports-i-adaptadors-arquitectura-hexagonal">Visió general → Ports i adaptadors</a>).</p>
+</blockquote>
+<h2 id="estructura-del-fitxer-de-configuracio">Estructura del fitxer de configuració<a class="headerlink" href="#estructura-del-fitxer-de-configuracio" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>config/
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── bundles.php            # 18 bundles per entorn
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>├── routes.yaml            # routes de bundles (_profiler, _wdt, asset-mapper)
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>└── packages/
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    ├── framework.yaml     # secret, sessions; test: mock_file sessions
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    ├── security.yaml      # firewalls, rol hierarchy, access_control
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    ├── doctrine.yaml      # 2 connexions + 2 entity managers
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    ├── messenger.yaml     # 5 transports + routing de 3 missatgers
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    ├── workflow.yaml      # màquina d&#39;estats item_lifecycle
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    ├── flysystem.yaml     # storage item_document.storage
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    ├── mailer.yaml        # DSN + envelope sender
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    ├── asset_mapper.yaml  # paths + missing_import_mode
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    ├── routing.yaml       # default_uri; prod: strict_requirements
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    └── twig.yaml          # file_name_pattern; test: strict_variables
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>services.yaml              # paràmetres + registre App\ + bindings explicits
+</code></pre></div>
+<h2 id="contenedor-de-serveis-configservicesyaml">Contenedor de serveis (config/services.yaml)<a class="headerlink" href="#contenedor-de-serveis-configservicesyaml" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>_defaults</code>: <strong>autowire</strong> i <strong>autoconfigure</strong> actius → qualsevol classe de <code>src/</code> és un servei (id = nom complet de classe) sense configuració explícita.</li>
+<li><code>App\:</code> → <code>resource: '../src/'</code>: importa totes les classes del projecte.</li>
+<li><strong>Paràmetres</strong> declarats (no canvien entre màquines):</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Paràmetre</th>
+<th style="text-align: left;">Valor</th>
+<th style="text-align: left;">Ús</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>env(AI_ASSISTANCE_ENABLED)</code></td>
+<td style="text-align: left;"><code>true</code></td>
+<td style="text-align: left;">Feature toggle de l'assistència IA (Qwen VL local).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>env(MAILER_FROM_ADDRESS)</code></td>
+<td style="text-align: left;"><code>info@registrals.com</code></td>
+<td style="text-align: left;">Remitent dels correus transaccionals.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>env(MAILER_FROM_NAME)</code></td>
+<td style="text-align: left;"><code>Registrals</code></td>
+<td style="text-align: left;">Nom del remitent.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>app.ai_assistance_enabled</code></td>
+<td style="text-align: left;"><code>bool(AI_ASSISTANCE_ENABLED)</code></td>
+<td style="text-align: left;">Paràmetres tipats per a injecció fàcil.</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Bindings globals</strong> (<code>bind:</code>): <code>string $mailerFromAddress</code> i <code>string $mailerFromName</code> s'injecten automàticament en qualsevol constructor que tingui aquests paràmetres.</li>
+<li><strong>Configuracions explícites</strong> (l'únic apartat que tronsa l'autowiring):</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Servei</th>
+<th style="text-align: left;">Argumentació</th>
+<th style="text-align: left;">Per què</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>App\Service\Security\EmailOtpService</code></td>
+<td style="text-align: left;"><code>$appSecret</code> = <code>%kernel.secret%</code></td>
+<td style="text-align: left;">Signatura HMAC dels còdigs OTP d'1 dígit.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>App\EventSubscriber\ProfilerAccessGuardSubscriber</code></td>
+<td style="text-align: left;"><code>$profiler</code> = <code>@?profiler</code> (opcional)</td>
+<td style="text-align: left;">Guàrdia d'accés al profiler; en entorns sense profiler, null.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>App\EventSubscriber\VisitTelemetrySubscriber</code></td>
+<td style="text-align: left;"><code>$appSecret</code>, <code>$environment</code></td>
+<td style="text-align: left;">Signatura i marcatge de la telemetria de visites.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>App\Service\OAuth\GoogleOAuthService</code></td>
+<td style="text-align: left;"><code>$clientId</code>, <code>$clientSecret</code></td>
+<td style="text-align: left;">Credencials OAuth2 de Google.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Ports → adaptadors</td>
+<td style="text-align: left;">Aliasing d'interfície (vegeu a sota)</td>
+<td style="text-align: left;">Arquitectura hexagonal.</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Alias d'interfície (ports)</strong> — el domini depèn de l'interfície; el contenedor resol l'adaptador:</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Interfície (port)</th>
+<th style="text-align: left;">Resol a (adaptador)</th>
+<th style="text-align: left;">Arguments (env)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>BlockchainAnchorInterface</code></td>
+<td style="text-align: left;"><code>PolygonAnchorClient</code></td>
+<td style="text-align: left;"><code>BLOCKCHAIN_RPC_URL</code>, <code>BLOCKCHAIN_CONTRACT_ADDRESS</code>, <code>BLOCKCHAIN_HOT_WALLET_PRIVATE_KEY</code> (default buid), <code>BLOCKCHAIN_NETWORK</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>SignaturitTimestampInterface</code></td>
+<td style="text-align: left;"><code>SignaturitClient</code></td>
+<td style="text-align: left;"><code>SIGNATURIT_API_TOKEN</code> (default buit → mode sandbox), <code>SIGNATURIT_BASE_URL</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>IdentityVerificationGatewayInterface</code></td>
+<td style="text-align: left;"><code>NamirialOnboardingClient</code></td>
+<td style="text-align: left;"><code>NAMIRIAL_ONBOARDING_BASE_URL</code>, <code>NAMIRIAL_ONBOARDING_API_KEY</code> (default buit), <code>NAMIRIAL_ONBOARDING_REQUEST_TYPE_ID</code> (default buit), <code>NAMIRIAL_ONBOARDING_WEBHOOK_SECRET</code> (default buit)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PaymentGatewayInterface</code></td>
+<td style="text-align: left;"><code>StripeGatewayClient</code></td>
+<td style="text-align: left;"><code>STRIPE_SECRET_KEY</code> (default mock), <code>STRIPE_WEBHOOK_SECRET</code> (default mock), <code>STRIPE_PRICE_PLUS</code> (default), <code>STRIPE_PRICE_UNLIMITED</code> (default)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PdfRendererService</code></td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;"><code>CHROMIUM_BINARY_PATH</code> (default buit → cerca en PATH)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>L'adaptador IA (<code>SglangVisionClient</code>) s'autowireja sense arguments explícits: llegir <code>SGLANG_*</code> directament de l'entorn mitjançant la seva fàbrica.</p>
+</blockquote>
+<h2 id="variables-dentorn-12-factor">Variables d'entorn (12-Factor)<a class="headerlink" href="#variables-dentorn-12-factor" title="Permanent link">&para;</a></h2>
+<p>Totes les variables es defineixen a <a href="../../.env"><code>.env</code></a> (valors per defecte de DEV; els secrets reals mai no s'han de commitar). 34 variables actives, agrupades per domini:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Domini</th>
+<th style="text-align: left;">Variable</th>
+<th style="text-align: left;">Valor <code>.env</code> (DEV)</th>
+<th style="text-align: left;">On s'usa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Nucli</td>
+<td style="text-align: left;"><code>APP_ENV</code></td>
+<td style="text-align: left;"><code>dev</code></td>
+<td style="text-align: left;"><code>Kernel</code> (dev/test/prod).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nucli</td>
+<td style="text-align: left;"><code>APP_SECRET</code></td>
+<td style="text-align: left;"><em>(buit → cal omplir-lo)</em></td>
+<td style="text-align: left;">Signatura de sessions/galetes/OTP.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nucli</td>
+<td style="text-align: left;"><code>APP_SHARE_DIR</code></td>
+<td style="text-align: left;"><code>var/share</code></td>
+<td style="text-align: left;">Directori compartit PWA (icons, manifest).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Routing</td>
+<td style="text-align: left;"><code>DEFAULT_URI</code></td>
+<td style="text-align: left;"><code>http://localhost</code></td>
+<td style="text-align: left;">Generació d'URLs en context CLI.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Doctrine</td>
+<td style="text-align: left;"><code>DATABASE_URL</code></td>
+<td style="text-align: left;"><code>mysql://app:!ChangeMe!@127.0.0.1:3306/registrals?serverVersion=8.4.0&amp;charset=utf8mb4</code></td>
+<td style="text-align: left;">Connexió <code>default</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Doctrine</td>
+<td style="text-align: left;"><code>AUDIT_DATABASE_URL</code></td>
+<td style="text-align: left;"><code>mysql://app:!ChangeMe!@127.0.0.1:3306/registrals_audit?serverVersion=8.4.0&amp;charset=utf8mb4</code></td>
+<td style="text-align: left;">Connexió <code>audit</code> (auditoria forense).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Messenger</td>
+<td style="text-align: left;"><code>MESSENGER_TRANSPORT_DSN</code></td>
+<td style="text-align: left;"><code>doctrine://default?auto_setup=0</code></td>
+<td style="text-align: left;">Transport <code>async</code> (cua <code>default</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Mailer</td>
+<td style="text-align: left;"><code>MAILER_DSN</code></td>
+<td style="text-align: left;"><code>null://null</code></td>
+<td style="text-align: left;">Correu (DEV: Mailpit <code>smtp://127.0.0.1:1025</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Mailer</td>
+<td style="text-align: left;"><code>MAILER_FROM_ADDRESS</code></td>
+<td style="text-align: left;"><code>info@registrals.com</code></td>
+<td style="text-align: left;">Envelope sender.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Mailer</td>
+<td style="text-align: left;"><code>MAILER_FROM_NAME</code></td>
+<td style="text-align: left;"><code>Registrals</code></td>
+<td style="text-align: left;">Envelope sender.</td>
+</tr>
+<tr>
+<td style="text-align: left;">OAuth2</td>
+<td style="text-align: left;"><code>OAUTH_GOOGLE_CLIENT_ID</code> / <code>OAUTH_GOOGLE_CLIENT_SECRET</code></td>
+<td style="text-align: left;"><em>(buits → cal omplir-los)</em></td>
+<td style="text-align: left;">Google OAuth (<code>GoogleOAuthService</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;">IA local</td>
+<td style="text-align: left;"><code>SGLANG_API_BASE_URL</code></td>
+<td style="text-align: left;"><code>http://127.0.0.1:30000/v1</code></td>
+<td style="text-align: left;">Node SGLang privat (format OpenAI).</td>
+</tr>
+<tr>
+<td style="text-align: left;">IA local</td>
+<td style="text-align: left;"><code>SGLANG_MODEL_NAME</code></td>
+<td style="text-align: left;"><code>Qwen/Qwen2.5-VL-7B-Instruct</code></td>
+<td style="text-align: left;">Model de visió.</td>
+</tr>
+<tr>
+<td style="text-align: left;">IA local</td>
+<td style="text-align: left;"><code>SGLANG_TIMEOUT_SECONDS</code></td>
+<td style="text-align: left;"><code>30</code></td>
+<td style="text-align: left;">Timeout de consulta.</td>
+</tr>
+<tr>
+<td style="text-align: left;">IA local</td>
+<td style="text-align: left;"><code>SGLANG_API_KEY</code></td>
+<td style="text-align: left;"><em>(buit)</em></td>
+<td style="text-align: left;">Token (si el node n'exigeix).</td>
+</tr>
+<tr>
+<td style="text-align: left;">IA local</td>
+<td style="text-align: left;"><code>AI_ASSISTANCE_ENABLED</code></td>
+<td style="text-align: left;"><code>true</code></td>
+<td style="text-align: left;">Feature toggle global de l'IA.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Blockchain</td>
+<td style="text-align: left;"><code>BLOCKCHAIN_RPC_URL</code></td>
+<td style="text-align: left;"><code>https://polygon-rpc.com</code></td>
+<td style="text-align: left;">Node JSON-RPC Polygon PoS.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Blockchain</td>
+<td style="text-align: left;"><code>BLOCKCHAIN_CONTRACT_ADDRESS</code></td>
+<td style="text-align: left;"><code>0x0000…0000</code> (placeholder)</td>
+<td style="text-align: left;">Smart contract (Fase II: Hot Wallet).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Blockchain</td>
+<td style="text-align: left;"><code>BLOCKCHAIN_HOT_WALLET_PRIVATE_KEY</code></td>
+<td style="text-align: left;"><em>(buit)</em></td>
+<td style="text-align: left;">Clau Hot Wallet (Fase II).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Blockchain</td>
+<td style="text-align: left;"><code>BLOCKCHAIN_NETWORK</code></td>
+<td style="text-align: left;"><code>polygon-pos</code></td>
+<td style="text-align: left;">Xaia/rede d'ancoratge.</td>
+</tr>
+<tr>
+<td style="text-align: left;">PDF</td>
+<td style="text-align: left;"><code>CHROMIUM_BINARY_PATH</code></td>
+<td style="text-align: left;"><em>(buit)</em></td>
+<td style="text-align: left;">Binari Chromium per a <code>PdfRendererService</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Signaturit</td>
+<td style="text-align: left;"><code>SIGNATURIT_API_TOKEN</code></td>
+<td style="text-align: left;"><em>(buit → mode sandbox)</em></td>
+<td style="text-align: left;">Token TSP eIDAS (RFC 3161).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Signaturit</td>
+<td style="text-align: left;"><code>SIGNATURIT_BASE_URL</code></td>
+<td style="text-align: left;"><code>https://api.signaturit.com/v3</code></td>
+<td style="text-align: left;">API v3 de Signaturit.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Namirial</td>
+<td style="text-align: left;"><code>NAMIRIAL_ONBOARDING_BASE_URL</code></td>
+<td style="text-align: left;"><code>https://test-eu-ie1-api.namirialonboarding.com/api/v2</code></td>
+<td style="text-align: left;">API OnBoarding v2 (test).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Namirial</td>
+<td style="text-align: left;"><code>NAMIRIAL_ONBOARDING_API_KEY</code></td>
+<td style="text-align: left;"><em>(buit)</em></td>
+<td style="text-align: left;">API key eIDV.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Namirial</td>
+<td style="text-align: left;"><code>NAMIRIAL_ONBOARDING_REQUEST_TYPE_ID</code></td>
+<td style="text-align: left;"><em>(buit)</em></td>
+<td style="text-align: left;">Request type de verificació.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Namirial</td>
+<td style="text-align: left;"><code>NAMIRIAL_ONBOARDING_WEBHOOK_SECRET</code></td>
+<td style="text-align: left;"><em>(buit)</em></td>
+<td style="text-align: left;">Secret del webhook <code>/webhook/namirial/onboarding</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Stripe</td>
+<td style="text-align: left;"><code>STRIPE_PUBLIC_KEY</code></td>
+<td style="text-align: left;"><code>pk_test_registrals_mock</code></td>
+<td style="text-align: left;">Clau pública (front; mode mock).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Stripe</td>
+<td style="text-align: left;"><code>STRIPE_SECRET_KEY</code></td>
+<td style="text-align: left;"><code>sk_test_registrals_mock</code></td>
+<td style="text-align: left;">Clau secret (backend; mode mock).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Stripe</td>
+<td style="text-align: left;"><code>STRIPE_WEBHOOK_SECRET</code></td>
+<td style="text-align: left;"><code>whsec_registrals_mock</code></td>
+<td style="text-align: left;">Validació de firma del webhook.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Stripe</td>
+<td style="text-align: left;"><code>STRIPE_PRICE_PLUS</code></td>
+<td style="text-align: left;"><code>price_plus_annual</code></td>
+<td style="text-align: left;">Preu anual del Pla Plus.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Stripe</td>
+<td style="text-align: left;"><code>STRIPE_PRICE_UNLIMITED</code></td>
+<td style="text-align: left;"><code>price_unlimited_annual</code></td>
+<td style="text-align: left;">Preu anual del Pla Unlimited.</td>
+</tr>
+<tr>
+<td style="text-align: left;">GeoIP</td>
+<td style="text-align: left;"><code>MAXMIND_LICENSE_KEY</code></td>
+<td style="text-align: left;"><em>(buit)</em></td>
+<td style="text-align: left;">Llicència GeoLite2-Country (<code>app:geoip:update</code>).</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Regla 12-Factor:</strong> cap secret de producció no ha d'aparèixer a <code>.env</code> ni a cap fitxer commitat. A producció, les variables es proporcionen pel servidor/contenidor (ex. <code>docker run -e DATABASE_URL=…</code>).</p>
+</blockquote>
+<h2 id="doble-connexio-doctrine-configpackagesdoctrineyaml">Doble connexió Doctrine (config/packages/doctrine.yaml)<a class="headerlink" href="#doble-connexio-doctrine-configpackagesdoctrineyaml" title="Permanent link">&para;</a></h2>
+<p>L'aplicació fa servir <strong>dues bases de dades MySQL</strong> (mateix servidor, dos esquemes):</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Connexió</th>
+<th style="text-align: left;">BDD (DEV)</th>
+<th style="text-align: left;">Entity manager</th>
+<th style="text-align: left;">Mapeig</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>default</code> (per defecte)</td>
+<td style="text-align: left;"><code>registrals</code></td>
+<td style="text-align: left;"><code>default</code></td>
+<td style="text-align: left;"><code>App\Entity</code> (18 entitats)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>audit</code></td>
+<td style="text-align: left;"><code>registrals_audit</code></td>
+<td style="text-align: left;"><code>audit</code></td>
+<td style="text-align: left;"><code>App\Audit\Entity</code> (1 entitat: <code>UserActivityLog</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>Configuracions rellevants:</p>
+<ul>
+<li><code>enable_lazy_ghost_objects: true</code> → <strong>ghost objects</strong> per a relacions lazy (rendiment; vegeu <a href="../visio-general/">Visió general</a>).</li>
+<li><code>naming_strategy: underscore_number_aware</code> → convenció snake_case a les taules.</li>
+<li><code>profiling_collect_backtrace</code> = <code>kernel.debug</code> (només dev).</li>
+<li><code>use_savepoints: true</code> → transaccions anuïllables (savepoints) en ambdues connexions.</li>
+<li><strong>Entorn <code>test</code></strong>: <code>dbname_suffix: '_test%env(default::TEST_TOKEN)%'</code> (ParaTest).</li>
+<li><strong>Entorn <code>prod</code></strong>: proxy auto-generació desactivada + cache de consulta/resultat a pools Symfony (<code>doctrine.result_cache_pool</code>, <code>doctrine.system_cache_pool</code> → <code>cache.app</code> / <code>cache.system</code>).</li>
+</ul>
+<h2 id="asset-pipeline-assetmapper-tailwind">Asset pipeline (AssetMapper + Tailwind)<a class="headerlink" href="#asset-pipeline-assetmapper-tailwind" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>config/packages/asset_mapper.yaml</code>:</li>
+<li><code>paths: [assets/]</code> → tots els fitxers de <code>assets/</code> són gestionats.</li>
+<li><code>missing_import_mode: strict</code> (dev) / <code>warn</code> (prod): en dev, un import no resolt trencarà el build; en prod, només avisa.</li>
+<li><code>config/packages/twig.yaml</code>: <code>file_name_pattern: '*.twig'</code>; a <code>test</code>, <code>strict_variables: true</code>.</li>
+<li>Tailwind CSS es compila amb <code>bin/console assets:tailwind:build</code> (prod) o <code>assets:tailwind:watch</code> (dev); en desenvolupament l'AssetMapper serveix els assets en viu amb hot-reload (no cal carpeta <code>assets_build/</code> fins a la primera build de producció).</li>
+</ul>
+<h2 id="entorns">Entorns<a class="headerlink" href="#entorns" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Aspecte</th>
+<th style="text-align: left;"><code>dev</code></th>
+<th style="text-align: left;"><code>test</code></th>
+<th style="text-align: left;"><code>prod</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>APP_ENV</code> / <code>APP_DEBUG</code></td>
+<td style="text-align: left;"><code>dev</code> / <code>1</code></td>
+<td style="text-align: left;"><code>test</code> / <code>0</code></td>
+<td style="text-align: left;"><code>prod</code> / <code>0</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Bundles extra</td>
+<td style="text-align: left;">Debug, Maker, WebProfiler</td>
+<td style="text-align: left;">WebProfiler</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr>
+<td style="text-align: left;">Sessions</td>
+<td style="text-align: left;">Nativa</td>
+<td style="text-align: left;"><code>session.storage.factory.mock_file</code></td>
+<td style="text-align: left;">Nativa</td>
+</tr>
+<tr>
+<td style="text-align: left;">Password hasher cost</td>
+<td style="text-align: left;"><code>auto</code> (cost 12)</td>
+<td style="text-align: left;">cost 4, time 3, memory 10</td>
+<td style="text-align: left;"><code>auto</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Twig</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;"><code>strict_variables: true</code></td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr>
+<td style="text-align: left;">Doctrine</td>
+<td style="text-align: left;">backtraces</td>
+<td style="text-align: left;">suffix <code>_test</code></td>
+<td style="text-align: left;">cache pools, proxy pre-compilat</td>
+</tr>
+<tr>
+<td style="text-align: left;">AssetMapper</td>
+<td style="text-align: left;"><code>strict</code></td>
+<td style="text-align: left;"><code>strict</code></td>
+<td style="text-align: left;"><code>warn</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Router</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;"><code>strict_requirements: null</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Correu</td>
+<td style="text-align: left;"><code>null://null</code> (o Mailpit)</td>
+<td style="text-align: left;"><code>null://null</code></td>
+<td style="text-align: left;">SMTP certificat (SPF/DKIM/DMARC)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="custodia-darxius-flysystem">Custòdia d'arxius (Flysystem)<a class="headerlink" href="#custodia-darxius-flysystem" title="Permanent link">&para;</a></h2>
+<p><code>config/packages/flysystem.yaml</code> defineix un únic storage:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nt">flysystem</span><span class="p">:</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="nt">storages</span><span class="p">:</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">        </span><span class="nt">item_document.storage</span><span class="p">:</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">            </span><span class="nt">adapter</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;local&#39;</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">            </span><span class="nt">options</span><span class="p">:</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">                </span><span class="nt">directory</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;%kernel.project_dir%/var/data/registrals_storage&#39;</span>
+</code></pre></div>
+<ul>
+<li><strong>Fora de l'arrel web</strong> (<code>var/</code>): impossible servir-lo per URL directa.</li>
+<li>L'únic camí de lliurament és el controlador <a href="../../rutes/area-privada/#documents-i-media-mediacontroller-1-ruta"><code>MediaController</code></a> (guàrdia <code>ItemVoter</code> + <code>StreamedResponse</code>).</li>
+<li>Les claus de storage segueixen el patró <code>{uuid-item}/{uuid-document}.{ext}</code> (gestió a <code>src/Service/Storage/</code>).</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../visio-general/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Visió general">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Visió general
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../cues-asincronicitat/" class="md-footer__link md-footer__link--next" aria-label="Next: Cues i asíncronicitat">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Cues i asíncronicitat
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      © 2026 Vora Data & Studio — Registrals
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.sections", "navigation.top", "navigation.indexes", "navigation.footer", "content.code.copy", "content.code.annotate", "search.highlight", "search.suggest", "announce.dismiss"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+    
+  </body>
+</html>

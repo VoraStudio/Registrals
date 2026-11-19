@@ -1,0 +1,1229 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Manual tècnic per entendre el codi, l'arquitectura i els components de la plataforma Registrals (Symfony 7.4).">
+      
+      
+        <meta name="author" content="Vora Data & Studio">
+      
+      
+      
+        <link rel="prev" href="../admin/">
+      
+      
+        <link rel="next" href="../webhooks-i-api/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.22">
+    
+    
+      
+        <title>Traspàs, herència i verificació pública - Registrals — Documentació Tècnica</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.84d31ad4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Raleway";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="#1D2F4B" data-md-color-accent="#CAA36C">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#rutes-traspas-herencia-i-verificacio-publica" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Registrals — Documentació Tècnica" class="md-header__button md-logo" aria-label="Registrals — Documentació Tècnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Registrals — Documentació Tècnica
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Traspàs, herència i verificació pública
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="#1D2F4B" data-md-color-accent="#CAA36C"  aria-label="Canvia al mode fosc"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Canvia al mode fosc" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-2.69L23.31 12 20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="#1D2F4B" data-md-color-accent="#CAA36C"  aria-label="Canvia al mode clar"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Canvia al mode clar" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Registrals — Documentació Tècnica" class="md-nav__button md-logo" aria-label="Registrals — Documentació Tècnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Registrals — Documentació Tècnica
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Inici
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../inici-rapid/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Inici ràpid
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Arquitectura
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Arquitectura
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../arquitectura/visio-general/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Visió general
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../arquitectura/kernel-i-configuracio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Kernel i configuració
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../arquitectura/cues-asincronicitat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Cues i asíncronicitat
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Rutes
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Rutes
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../visio-i-autenticacio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Pàgines públiques i autenticació
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../area-privada/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Àrea privada (/app)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../admin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Backoffice (/admin)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Traspàs, herència i verificació pública
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Traspàs, herència i verificació pública
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="Index">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Index
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#traspas-c2c-public-transfercontroller-4-rutes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Traspàs C2C públic (TransferController) — 4 rutes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#expedient-successorori-public-legacyclaimcontroller-7-rutes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Expedient successorori públic (LegacyClaimController) — 7 rutes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#invitacio-de-llegat-legacyinvitationcontroller-5-rutes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Invitació de llegat (LegacyInvitationController) — 5 rutes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verificacio-de-certificat-publica-verifycertificatecontroller-1-ruta" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verificació de certificat pública (VerifyCertificateController) — 1 ruta
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models-de-token-i-otp" class="md-nav__link">
+    <span class="md-ellipsis">
+      Models de token i OTP
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../webhooks-i-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Webhooks i API
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Seguretat
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Seguretat
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../seguretat/firewall/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tallafoc (firewall)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../seguretat/rols-i-access-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Rols i control d'accés
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../seguretat/voters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Voters
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../seguretat/legal-gate-i-auditoria/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Legal Gate i auditoria
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="Index">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Index
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#traspas-c2c-public-transfercontroller-4-rutes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Traspàs C2C públic (TransferController) — 4 rutes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#expedient-successorori-public-legacyclaimcontroller-7-rutes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Expedient successorori públic (LegacyClaimController) — 7 rutes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#invitacio-de-llegat-legacyinvitationcontroller-5-rutes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Invitació de llegat (LegacyInvitationController) — 5 rutes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verificacio-de-certificat-publica-verifycertificatecontroller-1-ruta" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verificació de certificat pública (VerifyCertificateController) — 1 ruta
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models-de-token-i-otp" class="md-nav__link">
+    <span class="md-ellipsis">
+      Models de token i OTP
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="rutes-traspas-herencia-i-verificacio-publica">Rutes: traspàs, herència i verificació pública<a class="headerlink" href="#rutes-traspas-herencia-i-verificacio-publica" title="Permanent link">&para;</a></h1>
+<p>Mapa de les rutes <strong>públiques amb token</strong> que donen accés a operacions sensibles sense sessió: traspàs C2C (recepció), expedients successororis (reclamació amb OTP), invitacions de llegat i verificació de certificats. Totes són <code>PUBLIC_ACCESS</code> al tallafoc; la seguretat rau en el <strong>token efímer</strong>, l'<strong>OTP de 6 dígits</strong> i la validació d'estat a la base de dades.</p>
+<blockquote>
+<p><strong>Font:</strong> <code>bin/console debug:router</code> (nucli del 17/11/2026). 17 rutes en aquest fitxer.</p>
+</blockquote>
+<h2 id="traspas-c2c-public-transfercontroller-4-rutes">Traspàs C2C públic (<code>TransferController</code>) — 4 rutes<a class="headerlink" href="#traspas-c2c-public-transfercontroller-4-rutes" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Ruta</th>
+<th style="text-align: left;">Path</th>
+<th style="text-align: left;">Mètode</th>
+<th style="text-align: left;">Descripció</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>app_transfer_claim</code></td>
+<td style="text-align: left;"><code>/transfer/{token}</code></td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;">Vistall del bé traspassat (identitat, valor, fotografies). El token és efímer i emès per l'emissor del traspàs.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>app_transfer_accept</code></td>
+<td style="text-align: left;"><code>/transfer/{token}/accept</code></td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;">Accepta el traspàs (exigeix identificació del receptor: sessió o OTP). Transferix la propietat i allibera el slot de l'emissor.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>app_transfer_reject</code></td>
+<td style="text-align: left;"><code>/transfer/{token}/reject</code></td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;">Rebutja el traspàs (torna a <code>active</code> per a l'emissor).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>app_transfer_thumbnail</code></td>
+<td style="text-align: left;"><code>/transfer/{token}/thumbnail</code></td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;">Miniatura del bé (llesta per incrustar al correu d'avís).</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Cost:</strong> al Pla Free, el traspàs C2C té un cost de 2,00 € per operació (0 traspassos inclosos); al Pla Plus, els primers N són inclosos (parametritzable al Backoffice). La comissió es cobreix mitjançant Stripe (ruta <code>app_payment_transfer_checkout</code> a <a href="../area-privada/#pagaments-paymentcontroller-8-rutes">Àrea privada</a>).</p>
+<p><strong>Regla anti round-robin:</strong> traspassar un bé allibera un slot actiu a l'emissor, però <strong>mai</strong> retorna l'alta consumida; i al Free el cost per operació fa inviable econòmicament qualsevol intent de carrusel circular entre comptes gratuïts (vegeu <code>AGENTS.md</code> → Regla Anti Round-Robin).</p>
+</blockquote>
+<h2 id="expedient-successorori-public-legacyclaimcontroller-7-rutes">Expedient successorori públic (<code>LegacyClaimController</code>) — 7 rutes<a class="headerlink" href="#expedient-successorori-public-legacyclaimcontroller-7-rutes" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Ruta</th>
+<th style="text-align: left;">Path</th>
+<th style="text-align: left;">Mètode</th>
+<th style="text-align: left;">Descripció</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>app_legacy_claim_entry</code></td>
+<td style="text-align: left;"><code>/herencia/reclamar/{token}</code></td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;">Porta d'entrada a la reclamació (identifica l'expedient, mostra els passos).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>app_legacy_claim_upload</code></td>
+<td style="text-align: left;"><code>/herencia/reclamar/{token}/pujar-documents</code></td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;">Puja documents de l'expedient (acta, certificat de defunció, etc.).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>app_legacy_claim_send_otp</code></td>
+<td style="text-align: left;"><code>/herencia/reclamar/{token}/enviar-otp</code></td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;">Sol·licita el codi OTP de 6 dígits (enviat al correu del titular).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>app_legacy_claim_verify_otp</code></td>
+<td style="text-align: left;"><code>/herencia/reclamar/{token}/verificar-otp</code></td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;">Verifica l'OTP i desbloqueja el flux.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>app_legacy_claim_checkout</code></td>
+<td style="text-align: left;"><code>/herencia/reclamar/{token}/pagar</code></td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;">Inicia el pagament de la taxa d'obertura (Stripe Checkout).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>app_legacy_claim_payment_return</code></td>
+<td style="text-align: left;"><code>/herencia/reclamar/{token}/retorn</code></td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;">Retorn del pagament (estat de la sessió Stripe).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>app_legacy_claim_reset</code></td>
+<td style="text-align: left;"><code>/herencia/reclamar/{token}/reiniciar</code></td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;">Reinicia el flux de l'expedient (esborra documents i estat previ).</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>El flux complet (public + privat) és a <a href="../../sdd/09-herencia-digital.md">sdd/09-herencia-digital</a>. El costat privat de l'expedient (portal del llegatari autenticat) és a <a href="../area-privada/#herencia-digital-expedient-successorori-legacybeneficiaryclaimcontroller-5-rutes">Àrea privada → Herència Digital</a>.</p>
+</blockquote>
+<h2 id="invitacio-de-llegat-legacyinvitationcontroller-5-rutes">Invitació de llegat (<code>LegacyInvitationController</code>) — 5 rutes<a class="headerlink" href="#invitacio-de-llegat-legacyinvitationcontroller-5-rutes" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Ruta</th>
+<th style="text-align: left;">Path</th>
+<th style="text-align: left;">Mètode</th>
+<th style="text-align: left;">Descripció</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>app_legacy_invitation_show</code></td>
+<td style="text-align: left;"><code>/llegat/acceptar/{token}</code></td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;">Pantalla de la invitació de designació (llegatari designat).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>app_legacy_invitation_login</code></td>
+<td style="text-align: left;"><code>/llegat/acceptar/{token}/entrar</code></td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;">Redirigeix al login (si el llegatari ja té compte).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>app_legacy_invitation_signup</code></td>
+<td style="text-align: left;"><code>/llegat/acceptar/{token}/registrar</code></td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;">Registre del llegatari (si no té compte).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>app_legacy_invitation_accept</code></td>
+<td style="text-align: left;"><code>/llegat/acceptar/{token}/confirmar</code></td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;">Confirma l'acceptació del consentiment de llegat.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>app_legacy_invitation_decline</code></td>
+<td style="text-align: left;"><code>/llegat/acceptar/{token}/refusar</code></td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;">Rebutja la designació.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Després de la confirmació, el titular pot gestionar la designació (reenviar, revocar, renunciar) des de <a href="../area-privada/#herencia-digital-gestio-legacyprofilecontroller-6-rutes">Àrea privada → Herència Digital — Gestió</a>.</p>
+</blockquote>
+<h2 id="verificacio-de-certificat-publica-verifycertificatecontroller-1-ruta">Verificació de certificat pública (<code>VerifyCertificateController</code>) — 1 ruta<a class="headerlink" href="#verificacio-de-certificat-publica-verifycertificatecontroller-1-ruta" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Ruta</th>
+<th style="text-align: left;">Path</th>
+<th style="text-align: left;">Mètode</th>
+<th style="text-align: left;">Descripció</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>app_verify_certificate</code></td>
+<td style="text-align: left;"><code>/verify/{uuid}</code></td>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;">Pàgina pública de verificació d'un certificat digital: mostra l'estat (vàlid, revocat, supersedit, esborrany), l'empremta SHA-256, l'ancoratge a Polygon i la marca de temps eIDAS. <strong>No</strong> requereix sessió.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Aquesta és la pàgina que enllaça el PDF del certificat (QR / CUI). El registre d'una verificació es conserva a l'auditoria (<code>CERTIFICATE_VERIFIED</code>) per a traçabilitat forense. Vegeu <a href="../../seguretat/legal-gate-i-auditoria/#auditoria-forense">Legal Gate i auditoria</a>.</p>
+</blockquote>
+<h2 id="models-de-token-i-otp">Models de token i OTP<a class="headerlink" href="#models-de-token-i-otp" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Tipus</th>
+<th style="text-align: left;">Generació</th>
+<th style="text-align: left;">Validesa</th>
+<th style="text-align: left;">Ús</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Token de traspàs</strong></td>
+<td style="text-align: left;">UUID v7 aleatori al iniciar el traspàs</td>
+<td style="text-align: left;">Fins a l'acceptació/rebuig/caducitat (72 h)</td>
+<td style="text-align: left;">Identifica el traspàs públic.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Token de llegat</strong></td>
+<td style="text-align: left;">UUID v7 aleatori al designar</td>
+<td style="text-align: left;">Fins a acceptar/rebutjar/revocar</td>
+<td style="text-align: left;">Identifica la invitació de llegat.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Token d'expedient</strong></td>
+<td style="text-align: left;">UUID v7 aleatori a l'obrir l'expedient</td>
+<td style="text-align: left;">Fins a tancar l'expedient</td>
+<td style="text-align: left;">Identifica la reclamació successòria.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>OTP de 6 dígits</strong></td>
+<td style="text-align: left;"><code>EmailOtpService</code> (HMAC amb <code>kernel.secret</code>)</td>
+<td style="text-align: left;">TTL curt + intent limitat + cooldown</td>
+<td style="text-align: left;">Autentica el titular en el flux de reclamació.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Els tokens són <strong>aleatoris</strong> (UUID v7: no es pot deduir l'usuari ni el bé) i queden associats a l'operació amb estat, data d'emissió i caducitat. L'OTP es conserva amb hash i expiració (vegeu <code>EmailOtpService</code>). Vegeu <a href="../../seguretat/firewall/#reptes-de-seguretat-otp">Tallafoc → Reptes de seguretat</a> per al mecanisme intern.</p>
+</blockquote>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../admin/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Backoffice (/admin)">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Backoffice (/admin)
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../webhooks-i-api/" class="md-footer__link md-footer__link--next" aria-label="Next: Webhooks i API">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Webhooks i API
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      © 2026 Vora Data & Studio — Registrals
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.sections", "navigation.top", "navigation.indexes", "navigation.footer", "content.code.copy", "content.code.annotate", "search.highlight", "search.suggest", "announce.dismiss"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+    
+  </body>
+</html>

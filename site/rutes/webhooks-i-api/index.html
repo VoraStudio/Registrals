@@ -1,0 +1,1136 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Manual tècnic per entendre el codi, l'arquitectura i els components de la plataforma Registrals (Symfony 7.4).">
+      
+      
+        <meta name="author" content="Vora Data & Studio">
+      
+      
+      
+        <link rel="prev" href="../herencia-i-traspas-public/">
+      
+      
+        <link rel="next" href="../../seguretat/firewall/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.22">
+    
+    
+      
+        <title>Webhooks i API - Registrals — Documentació Tècnica</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.84d31ad4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Raleway";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="#1D2F4B" data-md-color-accent="#CAA36C">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#rutes-webhooks-i-api" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Registrals — Documentació Tècnica" class="md-header__button md-logo" aria-label="Registrals — Documentació Tècnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Registrals — Documentació Tècnica
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Webhooks i API
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="#1D2F4B" data-md-color-accent="#CAA36C"  aria-label="Canvia al mode fosc"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Canvia al mode fosc" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-2.69L23.31 12 20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="#1D2F4B" data-md-color-accent="#CAA36C"  aria-label="Canvia al mode clar"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Canvia al mode clar" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Registrals — Documentació Tècnica" class="md-nav__button md-logo" aria-label="Registrals — Documentació Tècnica" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Registrals — Documentació Tècnica
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Inici
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../inici-rapid/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Inici ràpid
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Arquitectura
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Arquitectura
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../arquitectura/visio-general/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Visió general
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../arquitectura/kernel-i-configuracio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Kernel i configuració
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../arquitectura/cues-asincronicitat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Cues i asíncronicitat
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Rutes
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Rutes
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../visio-i-autenticacio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Pàgines públiques i autenticació
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../area-privada/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Àrea privada (/app)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../admin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Backoffice (/admin)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../herencia-i-traspas-public/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Traspàs, herència i verificació pública
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Webhooks i API
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Webhooks i API
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="Index">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Index
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#webhook-de-stripe-webhookstripewebhookcontroller" class="md-nav__link">
+    <span class="md-ellipsis">
+      Webhook de Stripe (Webhook\StripeWebhookController)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#webhook-de-namirial-onboarding-webhooknamirialwebhookcontroller" class="md-nav__link">
+    <span class="md-ellipsis">
+      Webhook de Namirial OnBoarding (Webhook\NamirialWebhookController)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-interna-de-seguiment-featuretrackercontroller" class="md-nav__link">
+    <span class="md-ellipsis">
+      API interna de seguiment (FeatureTrackerController)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-de-traduccio-del-blog-blogcontrollertranslate" class="md-nav__link">
+    <span class="md-ellipsis">
+      API de traducció del blog (BlogController::translate)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#regles-transversals" class="md-nav__link">
+    <span class="md-ellipsis">
+      Regles transversals
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Seguretat
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Seguretat
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../seguretat/firewall/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tallafoc (firewall)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../seguretat/rols-i-access-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Rols i control d'accés
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../seguretat/voters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Voters
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../seguretat/legal-gate-i-auditoria/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Legal Gate i auditoria
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="Index">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Index
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#webhook-de-stripe-webhookstripewebhookcontroller" class="md-nav__link">
+    <span class="md-ellipsis">
+      Webhook de Stripe (Webhook\StripeWebhookController)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#webhook-de-namirial-onboarding-webhooknamirialwebhookcontroller" class="md-nav__link">
+    <span class="md-ellipsis">
+      Webhook de Namirial OnBoarding (Webhook\NamirialWebhookController)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-interna-de-seguiment-featuretrackercontroller" class="md-nav__link">
+    <span class="md-ellipsis">
+      API interna de seguiment (FeatureTrackerController)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-de-traduccio-del-blog-blogcontrollertranslate" class="md-nav__link">
+    <span class="md-ellipsis">
+      API de traducció del blog (BlogController::translate)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#regles-transversals" class="md-nav__link">
+    <span class="md-ellipsis">
+      Regles transversals
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="rutes-webhooks-i-api">Rutes: webhooks i API<a class="headerlink" href="#rutes-webhooks-i-api" title="Permanent link">&para;</a></h1>
+<p>Mapa dels endpoints de <strong>webhooks</strong> (notificacions push de proveïdors externs) i de la petita <strong>API interna</strong> (JSON sense plantilla). Totes les rutes són <code>PUBLIC_ACCESS</code> al tallafoc: la seva seguretat rau en la <strong>validació de firma</strong> (Stripe / Namirial) i en el fet que no exposen cap operació d'escriptura sensible.</p>
+<blockquote>
+<p><strong>Font:</strong> <code>bin/console debug:router</code> (nucli del 17/11/2026). 4 rutes en aquest fitxer.</p>
+</blockquote>
+<h2 id="webhook-de-stripe-webhookstripewebhookcontroller">Webhook de Stripe (<code>Webhook\StripeWebhookController</code>)<a class="headerlink" href="#webhook-de-stripe-webhookstripewebhookcontroller" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Ruta</th>
+<th style="text-align: left;">Path</th>
+<th style="text-align: left;">Mètode</th>
+<th style="text-align: left;">Descripció</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>app_webhook_stripe</code></td>
+<td style="text-align: left;"><code>/webhook/stripe</code></td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;">Rep les notificacions de Stripe (<code>checkout.session.completed</code>, <code>invoice.paid</code>, <code>customer.subscription.updated/deleted</code>, <code>payment_intent.payment_failed</code>…).</td>
+</tr>
+</tbody>
+</table>
+<p>Comportament:</p>
+<ol>
+<li><strong>Validació de firma:</strong> el controlador comprova el capçal <code>Stripe-Signature</code> contra <code>STRIPE_WEBHOOK_SECRET</code> (timestamp + hash del payload + signatura, amb tolerància de reenviament). Si la firma no és vàlida, respon amb <code>400</code>.</li>
+<li><strong>Idempotència:</strong> cada event es processa només un cop (deduplicació per <code>event.id</code>); si l'event ja s'ha processat, es torna <code>200</code> sense efectes.</li>
+<li><strong>Doble capa de seguretat:</strong> el webhook és la <strong>font de veritat</strong> per a l'activació de la subscripció; el flux de pagament del front (ruta <code>app_payment_success</code>) només <em>mostra</em> l'estat i <strong>mai</strong> activa el pla per si sol. La comanda <a href="../../inici-rapid/#8-comandes-de-manteniment-i-operacio"><code>app:stripe:sync-sessions</code></a> reconcilia les transaccions pendents consultant directament l'API de Stripe (contingent per a webhooks perduts).</li>
+<li><strong>Auditoria:</strong> cada event processat registreja <code>PAYMENT_COMPLETED</code>, <code>SUBSCRIPTION_STARTED</code>, <code>SUBSCRIPTION_CANCELLED</code> o <code>PAYMENT_FAILED</code> a <code>registrals_audit</code>.</li>
+</ol>
+<blockquote>
+<p>El monogràfic complet de la integració (billing, checkout, webhooks, idempotència i customer portal) és a <a href="../../sdd/06a-stripe.md">sdd/06a-stripe</a>.</p>
+</blockquote>
+<h2 id="webhook-de-namirial-onboarding-webhooknamirialwebhookcontroller">Webhook de Namirial OnBoarding (<code>Webhook\NamirialWebhookController</code>)<a class="headerlink" href="#webhook-de-namirial-onboarding-webhooknamirialwebhookcontroller" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Ruta</th>
+<th style="text-align: left;">Path</th>
+<th style="text-align: left;">Mètode</th>
+<th style="text-align: left;">Descripció</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>app_webhook_namirial_onboarding</code></td>
+<td style="text-align: left;"><code>/webhook/namirial/onboarding</code></td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;">Rep el veredicte de la verificació d'identitat (eIDV) de Namirial OnBoarding API v2.</td>
+</tr>
+</tbody>
+</table>
+<p>Comportament:</p>
+<ol>
+<li><strong>Validació de firma:</strong> el controlador comprova el secret de webhook (<code>NAMIRIAL_ONBOARDING_WEBHOOK_SECRET</code>) contra el capçal de signatura del proveïdor. Si el secret no està configurat o la firma no és vàlida, respon amb <code>400</code>.</li>
+<li><strong>Actualització d'estat:</strong> actualitza el <code>KycSession</code> associat (<code>approved</code> / <code>rejected</code> / <code>pending</code>) i el camp <code>kycStatus</code> de l'usuari.</li>
+<li><strong>Auditoria:</strong> registreja <code>KYC_APPROVED</code> o <code>KYC_REJECTED</code> a <code>registrals_audit</code>.</li>
+</ol>
+<blockquote>
+<p>El monogràfic de la integració eIDV és a <a href="../../sdd/06b-signaturit.md">sdd/06b-signaturit</a> (Namirial OnBoarding) i la verificació la fa el controlador <a href="../area-privada/#verificacio-didentitat-kyc-kyccontroller-3-rutes"><code>KycController</code></a> (init / callback / sync).</p>
+</blockquote>
+<h2 id="api-interna-de-seguiment-featuretrackercontroller">API interna de seguiment (<code>FeatureTrackerController</code>)<a class="headerlink" href="#api-interna-de-seguiment-featuretrackercontroller" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Ruta</th>
+<th style="text-align: left;">Path</th>
+<th style="text-align: left;">Mètode</th>
+<th style="text-align: left;">Descripció</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>api_track_feature_interest</code></td>
+<td style="text-align: left;"><code>/api/track/feature-interest</code></td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;">Registra l'interès de l'usuari en una funcionalitat (telemetria d'ús).</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Payload esperat:</strong> <code>{ "feature": "&lt;feature_key&gt;", "userId": "&lt;uuid|null&gt;" }</code>.</li>
+<li><strong>Resposta:</strong> <code>204 No Content</code> (sense cos).</li>
+<li><strong>Ús:</strong> el front crida aquesta ruta quan l'usuari fa clic en un CTA de funcionalitat (ex. "Vull aquesta funció"); s'emmagatzema a la taula <code>feature_interest</code> per a la prioritització del roadmap.</li>
+<li><strong>Privadesa:</strong> no s'envien dades personals identificatives; només el feature i (opcionalment) l'ID de sessió.</li>
+</ul>
+<h2 id="api-de-traduccio-del-blog-blogcontrollertranslate">API de traducció del blog (<code>BlogController::translate</code>)<a class="headerlink" href="#api-de-traduccio-del-blog-blogcontrollertranslate" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Ruta</th>
+<th style="text-align: left;">Path</th>
+<th style="text-align: left;">Mètode</th>
+<th style="text-align: left;">Descripció</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>app_blog_translate</code></td>
+<td style="text-align: left;"><code>/api/blog/translate</code></td>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;">Tradueix prèviament un article del blog a ES/EN (memòria cau per hash SHA-256).</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Payload esperat:</strong> <code>{ "slug": "&lt;article_slug&gt;", "lang": "es|en" }</code>.</li>
+<li><strong>Resposta:</strong> <code>200</code> amb <code>{ "translated": "&lt;markdown traduir&gt;" }</code> o <code>204</code> si ja està a la memòria cau.</li>
+<li><strong>Memòria cau:</strong> el hash SHA-256 del contingut original + idioma fa de clau; si canvia l'article, es tradueix de nou. La comanda <a href="../../inici-rapid/#8-comandes-de-manteniment-i-operacio"><code>app:blog:pretranslate</code></a> precarrega la memòria cau per a tots els articles publicats.</li>
+</ul>
+<h2 id="regles-transversals">Regles transversals<a class="headerlink" href="#regles-transversals" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>CsRF exempt:</strong> els webhooks <strong>no</strong> inclouen token CSRF (no són peticions d'usuari); la seva seguretat rau en la firma. Assegura't de no afegir CSRF a aquests endpoints (no ho fa el tallafoc per defecte).</li>
+<li><strong>Idempotència obligatòria:</strong> qualsevol webhook ha de ser idempotent (l'event es pot rebre més d'una vegada).</li>
+<li><strong>Resposta ràpida:</strong> el controlador ha de respondre <code>2xx</code> ràpidament; el processament pesat es delega a un servei o a una cua (Messenger) per no bloquejar el proveïdor.</li>
+<li><strong>Monitorització:</strong> els webhooks perduts es poden detectar amb la comanda <code>app:stripe:sync-sessions</code> (Stripe) o amb la sincronització manual de Namirial (ruta <code>app_kyc_sync</code>).</li>
+<li><strong>Aïllament:</strong> aquests endpoints <strong>no</strong> han d'estar darrere de cap autenticació d'usuari; són fonts de veritat de proveïdors externs.</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../herencia-i-traspas-public/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Traspàs, herència i verificació pública">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Traspàs, herència i verificació pública
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../seguretat/firewall/" class="md-footer__link md-footer__link--next" aria-label="Next: Tallafoc (firewall)">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Tallafoc (firewall)
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      © 2026 Vora Data & Studio — Registrals
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.sections", "navigation.top", "navigation.indexes", "navigation.footer", "content.code.copy", "content.code.annotate", "search.highlight", "search.suggest", "announce.dismiss"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+    
+  </body>
+</html>
