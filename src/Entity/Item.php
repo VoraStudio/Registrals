@@ -538,7 +538,14 @@ class Item
 
     public function getLatestBlockchainReceipt(): ?BlockchainReceipt
     {
-        return $this->blockchainReceipts->first() ?: null;
+        $latest = null;
+        foreach ($this->blockchainReceipts as $receipt) {
+            if ($latest === null || $receipt->getAnchoredAt() >= $latest->getAnchoredAt()) {
+                $latest = $receipt;
+            }
+        }
+
+        return $latest;
     }
 
     public function isBlockchainAnchored(): bool
