@@ -3,7 +3,7 @@
 {% block title %}Proveïdors & Serveis — Administració Registrals{% endblock %}
 
 {% block admin_content %}
-<div class="space-y-6">
+<div class="space-y-5">
 
   {# Fil d'Ariadna #}
   <nav class="flex items-center gap-2 text-xs font-semibold font-raleway text-ink/65 flex-wrap">
@@ -14,175 +14,245 @@
     <span class="text-ink font-bold">Proveïdors & Serveis</span>
   </nav>
 
-  {# Capçalera #}
+  {# Capçalera amb Acció Primària #}
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div>
       <h1 class="font-marcellus text-2xl sm:text-3xl text-ink tracking-tight font-medium">Proveïdors & Noms de Servei</h1>
       <p class="font-raleway text-xs sm:text-sm text-ink/70 mt-1">
-        Parametrització del nom públic visible a certificats i interfícies amb traçabilitat històrica per dates (complementari a <code>.env.local</code>).
+        Gestió del nom públic visible a certificats i interfícies amb traçabilitat per dates (complementari a <code>.env.local</code>).
       </p>
     </div>
+    <button type="button" onclick="openSpCreateModal()"
+            class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-ink hover:bg-ink/90 text-white text-xs font-bold shadow-xs transition-colors cursor-pointer shrink-0">
+      <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+      <span>Nou Canvi de Proveïdor</span>
+    </button>
   </div>
 
-  {# 5 Targetes Vigents + Resum .env #}
-  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
-    {% for cat in categories %}
-      {% set active = activeByCategory[cat.value] ?? null %}
-      <div class="bg-white rounded-2xl border border-steel/20 p-4 shadow-xs flex flex-col justify-between">
-        <div>
-          <div class="flex items-center justify-between gap-2 mb-2">
-            <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-gold">{{ cat.value }}</span>
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-mono bg-emerald-50 text-emerald-700 border border-emerald-200">Vigent</span>
-          </div>
-          <h3 class="font-raleway text-xs font-bold text-ink/70">{{ cat.label }}</h3>
-          <p class="font-marcellus text-base text-ink mt-1 leading-snug">
-            {{ active ? active.publicName : cat.defaultPublicName }}
-          </p>
-        </div>
-        <div class="mt-3 pt-2.5 border-t border-steel/10 space-y-1 text-[10px] font-mono text-steel">
-          <div>Codi: <span class="text-ink font-semibold">{{ active ? active.providerCode : cat.defaultProviderCode }}</span></div>
-          <div>.env: <span class="text-ink">{{ envSummary[cat.value] ?? '—' }}</span></div>
-          {% if active %}
-            <div>Des de: <span class="text-ink">{{ active.validFrom|date('d/m/Y') }}</span></div>
-          {% endif %}
-        </div>
+  {# Taula CRUD Única a Tota Amplada #}
+  <div class="bg-white rounded-2xl border border-steel/20 shadow-xs overflow-hidden">
+    <div class="px-5 py-3.5 border-b border-steel/15 bg-cream-50/40 flex flex-wrap items-center justify-between gap-3">
+      <div class="inline-flex items-center gap-1 p-1 rounded-full bg-cream/50 border border-gold/30 text-xs font-raleway">
+        <button type="button" data-sp-filter="all" class="sp-filter-btn px-3 py-1 rounded-full font-bold bg-ink text-white cursor-pointer">Tots ({{ history|length }})</button>
+        <button type="button" data-sp-filter="active" class="sp-filter-btn px-3 py-1 rounded-full font-semibold text-ink/75 hover:text-ink cursor-pointer">Vigents</button>
+        <button type="button" data-sp-filter="historic" class="sp-filter-btn px-3 py-1 rounded-full font-semibold text-ink/75 hover:text-ink cursor-pointer">Històric</button>
       </div>
-    {% endfor %}
-  </div>
-
-  {# Grid 12 cols: Nou Proveïdor (4 cols) + Històric per Dates (8 cols) #}
-  <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
-
-    {# Formulari Nou Canvi de Proveïdor / Nom #}
-    <div class="xl:col-span-4 bg-white rounded-2xl border border-steel/20 p-5 shadow-xs">
-      <h2 class="font-marcellus text-lg text-ink mb-1">Registrar Canvi / Nou Proveïdor</h2>
-      <p class="text-xs text-ink/65 font-raleway mb-4">
-        Crea una nova vigència sense esborrar l'històric dels certificats emesos en dates anteriors.
-      </p>
-
-      <form method="post" action="{{ path('app_admin_service_providers_create') }}" class="space-y-3.5 text-xs font-raleway">
-        <input type="hidden" name="_token" value="{{ csrf_token('service_provider_create') }}">
-
-        <div>
-          <label class="block font-bold text-ink mb-1">Categoria de Servei</label>
-          <select name="category" required class="w-full rounded-xl border border-steel/30 bg-cream-50/40 px-3 py-2 text-xs text-ink">
-            {% for cat in categories %}
-              <option value="{{ cat.value }}">{{ cat.label }}</option>
-            {% endfor %}
-          </select>
-        </div>
-
-        <div>
-          <label class="block font-bold text-ink mb-1">Nom Públic (visible a UI i PDF)</label>
-          <input type="text" name="public_name" required placeholder="Ex: Assistència de Lectura Sobirana"
-                 class="w-full rounded-xl border border-steel/30 bg-white px-3 py-2 text-xs text-ink">
-        </div>
-
-        <div>
-          <label class="block font-bold text-ink mb-1">Codi Tècnic Intern</label>
-          <input type="text" name="provider_code" required placeholder="Ex: sglang, stripe, namirial, polygon-pos"
-                 class="w-full rounded-xl border border-steel/30 bg-white px-3 py-2 text-xs font-mono text-ink">
-        </div>
-
-        <div class="grid grid-cols-2 gap-2.5">
-          <div>
-            <label class="block font-bold text-ink mb-1">Vigent des de</label>
-            <input type="datetime-local" name="valid_from" value="{{ 'now'|date('Y-m-d\\TH:i') }}"
-                   class="w-full rounded-xl border border-steel/30 bg-white px-2.5 py-2 text-[11px] font-mono text-ink">
-          </div>
-          <div>
-            <label class="block font-bold text-ink mb-1">Vigent fins a (opc.)</label>
-            <input type="datetime-local" name="valid_to"
-                   class="w-full rounded-xl border border-steel/30 bg-white px-2.5 py-2 text-[11px] font-mono text-ink">
-          </div>
-        </div>
-
-        <div>
-          <label class="block font-bold text-ink mb-1">Notes d'auditoria</label>
-          <textarea name="notes" rows="2" placeholder="Motiu del canvi o referència contractual..."
-                    class="w-full rounded-xl border border-steel/30 bg-white px-3 py-2 text-xs text-ink"></textarea>
-        </div>
-
-        <label class="flex items-center gap-2 text-xs text-ink/80 cursor-pointer">
-          <input type="checkbox" name="close_previous" value="1" checked class="rounded border-steel/40 text-ink">
-          <span>Tancar automàticament la vigència anterior d'aquesta categoria</span>
-        </label>
-
-        <button type="submit" class="w-full py-2.5 px-4 rounded-xl bg-ink hover:bg-ink/90 text-white font-bold text-xs transition-colors cursor-pointer">
-          Desar Proveïdor & Vigència
-        </button>
-      </form>
+      <span class="text-[11px] font-mono text-steel">Resolució automàtica per data d'emissió/ancoratge</span>
     </div>
 
-    {# Taula Històrica de Vigències #}
-    <div class="xl:col-span-8 bg-white rounded-2xl border border-steel/20 p-5 shadow-xs overflow-hidden">
-      <div class="flex items-center justify-between mb-4">
-        <div>
-          <h2 class="font-marcellus text-lg text-ink">Històric de Proveïdors per Dates</h2>
-          <p class="text-xs text-ink/65 font-raleway">Resolució cronològica per a certificats, PDFs i auditories.</p>
-        </div>
-        <span class="px-2.5 py-1 rounded-lg bg-cream/60 border border-gold/30 text-[11px] font-mono text-ink font-semibold">
-          {{ history|length }} registres
-        </span>
-      </div>
-
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse text-xs">
-          <thead>
-            <tr class="border-b border-steel/20 text-[10px] font-mono uppercase tracking-wider text-steel">
-              <th class="py-2.5 px-3">Categoria</th>
-              <th class="py-2.5 px-3">Nom Públic</th>
-              <th class="py-2.5 px-3">Codi</th>
-              <th class="py-2.5 px-3">Vigència</th>
-              <th class="py-2.5 px-3 text-right">Acció</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-steel/10 font-raleway">
-            {% for row in history %}
-              <tr class="hover:bg-cream-50/40">
-                <td class="py-2.5 px-3 whitespace-nowrap">
-                  <span class="px-2 py-0.5 rounded bg-cream/60 border border-gold/30 text-[10px] font-mono font-bold text-ink">
-                    {{ row.category.value }}
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse text-xs">
+        <thead>
+          <tr class="border-b border-steel/20 bg-cream-50/60 text-[10px] font-mono uppercase tracking-wider text-steel">
+            <th class="py-3 px-4">Servei</th>
+            <th class="py-3 px-4">Nom Públic (UI / PDF)</th>
+            <th class="py-3 px-4">Codi & Entorn (.env)</th>
+            <th class="py-3 px-4">Vigència</th>
+            <th class="py-3 px-4 text-center">Estat</th>
+            <th class="py-3 px-4 text-right">Accions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-steel/10 font-raleway">
+          {% for row in history %}
+            {% set isRowActive = row.isActiveAt() %}
+            <tr class="sp-row hover:bg-cream-50/40 transition-colors" data-status="{{ isRowActive ? 'active' : 'historic' }}">
+              <td class="py-3 px-4 whitespace-nowrap">
+                <span class="px-2 py-0.5 rounded bg-cream/70 border border-gold/30 text-[10px] font-mono font-bold text-ink uppercase">
+                  {{ row.category.value }}
+                </span>
+                <div class="text-[11px] text-steel mt-1">{{ row.category.label }}</div>
+              </td>
+              <td class="py-3 px-4">
+                <div class="font-bold text-ink text-sm">{{ row.publicName }}</div>
+                {% if row.notes %}
+                  <div class="text-[11px] text-ink/65 mt-0.5">{{ row.notes }}</div>
+                {% endif %}
+              </td>
+              <td class="py-3 px-4 font-mono text-[11px]">
+                <div class="text-ink font-semibold">{{ row.providerCode }}</div>
+                <div class="text-steel mt-0.5">{{ envSummary[row.category.value] ?? '—' }}</div>
+              </td>
+              <td class="py-3 px-4 font-mono text-[11px] whitespace-nowrap">
+                <div class="text-ink">Des de: {{ row.validFrom|date('d/m/Y H:i') }}</div>
+                <div class="text-steel mt-0.5">
+                  {{ row.validTo ? 'Fins a: ' ~ row.validTo|date('d/m/Y H:i') : 'Sense data de fi' }}
+                </div>
+              </td>
+              <td class="py-3 px-4 text-center whitespace-nowrap">
+                {% if isRowActive %}
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-mono font-bold">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Vigent
                   </span>
-                </td>
-                <td class="py-2.5 px-3 font-semibold text-ink">
-                  {{ row.publicName }}
-                  {% if row.notes %}
-                    <div class="text-[11px] font-normal text-ink/60 truncate max-w-xs" title="{{ row.notes }}">{{ row.notes }}</div>
-                  {% endif %}
-                </td>
-                <td class="py-2.5 px-3 font-mono text-[11px] text-steel">{{ row.providerCode }}</td>
-                <td class="py-2.5 px-3 font-mono text-[11px] whitespace-nowrap">
-                  <div>{{ row.validFrom|date('d/m/Y H:i') }}</div>
-                  <div class="text-[10px] {{ row.validTo ? 'text-steel' : 'text-emerald-700 font-bold' }}">
-                    {{ row.validTo ? '→ ' ~ row.validTo|date('d/m/Y H:i') : '● Vigent actualment' }}
-                  </div>
-                </td>
-                <td class="py-2.5 px-3 text-right whitespace-nowrap">
-                  <details class="inline-block text-left">
-                    <summary class="cursor-pointer px-2.5 py-1 rounded-lg border border-steel/25 text-[11px] font-semibold text-ink hover:bg-cream/50 list-none">
-                      Editar
-                    </summary>
-                    <form method="post" action="{{ path('app_admin_service_providers_edit', { id: row.id }) }}"
-                          class="mt-2 p-3 rounded-xl bg-cream-50 border border-gold/30 space-y-2 w-64 text-left shadow-sm">
-                      <input type="hidden" name="_token" value="{{ csrf_token('service_provider_edit_' ~ row.id) }}">
-                      <input type="text" name="public_name" value="{{ row.publicName }}" required class="w-full rounded-lg border border-steel/30 px-2 py-1 text-xs">
-                      <input type="text" name="provider_code" value="{{ row.providerCode }}" required class="w-full rounded-lg border border-steel/30 px-2 py-1 text-xs font-mono">
-                      <input type="datetime-local" name="valid_from" value="{{ row.validFrom|date('Y-m-d\\TH:i') }}" class="w-full rounded-lg border border-steel/30 px-2 py-1 text-[11px] font-mono">
-                      <input type="datetime-local" name="valid_to" value="{{ row.validTo ? row.validTo|date('Y-m-d\\TH:i') : '' }}" class="w-full rounded-lg border border-steel/30 px-2 py-1 text-[11px] font-mono">
-                      <input type="text" name="notes" value="{{ row.notes ?? '' }}" placeholder="Notes..." class="w-full rounded-lg border border-steel/30 px-2 py-1 text-xs">
-                      <button type="submit" class="w-full py-1.5 rounded-lg bg-ink text-white text-xs font-bold cursor-pointer">Desar</button>
-                    </form>
-                  </details>
-                </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
+                {% else %}
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200 text-[10px] font-mono font-bold">
+                    <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Històric
+                  </span>
+                {% endif %}
+              </td>
+              <td class="py-3 px-4 text-right whitespace-nowrap">
+                <button type="button"
+                        onclick="openSpEditModal(this)"
+                        data-action="{{ path('app_admin_service_providers_edit', { id: row.id }) }}"
+                        data-token="{{ csrf_token('service_provider_edit_' ~ row.id) }}"
+                        data-category="{{ row.category.value }}"
+                        data-category-label="{{ row.category.label }}"
+                        data-public-name="{{ row.publicName }}"
+                        data-provider-code="{{ row.providerCode }}"
+                        data-valid-from="{{ row.validFrom|date('Y-m-d\\TH:i') }}"
+                        data-valid-to="{{ row.validTo ? row.validTo|date('Y-m-d\\TH:i') : '' }}"
+                        data-notes="{{ row.notes ?? '' }}"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-steel/25 bg-cream-50 hover:bg-cream text-ink text-xs font-semibold transition-colors cursor-pointer">
+                  <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                  <span>Editar</span>
+                </button>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-
   </div>
 </div>
-{% endblock %}
 
+{# Modal Dual CRUD (Crear / Editar) #}
+<div id="sp-modal" class="hidden fixed inset-0 z-50 bg-ink/75 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 transition-all duration-200" role="dialog" aria-modal="true">
+  <div class="bg-white rounded-t-3xl sm:rounded-2xl border-t sm:border border-gold/40 shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden flex flex-col">
+    <div class="sm:hidden w-10 h-1 bg-steel/30 rounded-full mx-auto mt-2 -mb-1 shrink-0"></div>
+    <div class="px-5 py-4 border-b border-steel/15 flex items-center justify-between bg-cream-50/60">
+      <div>
+        <h3 id="sp-modal-title" class="font-marcellus text-lg text-ink">Nou Canvi de Proveïdor</h3>
+        <p id="sp-modal-subtitle" class="text-xs text-steel font-raleway mt-0.5">Defineix el nom visible i el període de vigència.</p>
+      </div>
+      <button type="button" onclick="closeSpModal()" class="w-8 h-8 rounded-lg hover:bg-steel/10 flex items-center justify-center text-ink/70 cursor-pointer">✕</button>
+    </div>
+
+    <form id="sp-modal-form" method="post" action="{{ path('app_admin_service_providers_create') }}" class="p-5 space-y-3.5 text-xs font-raleway overflow-y-auto">
+      <input type="hidden" name="_token" id="sp-form-token" value="{{ csrf_token('service_provider_create') }}">
+
+      <div id="sp-category-select-wrap">
+        <label class="block font-bold text-ink mb-1">Categoria de Servei</label>
+        <select name="category" id="sp-form-category" class="w-full rounded-xl border border-steel/30 bg-cream-50/40 px-3 py-2 text-xs text-ink">
+          {% for cat in categories %}
+            <option value="{{ cat.value }}">{{ cat.label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div id="sp-category-readonly-wrap" class="hidden">
+        <label class="block font-bold text-ink mb-1">Categoria de Servei</label>
+        <input type="text" id="sp-form-category-readonly" readonly class="w-full rounded-xl border border-steel/20 bg-slate-50 px-3 py-2 text-xs text-steel font-semibold">
+      </div>
+
+      <div>
+        <label class="block font-bold text-ink mb-1">Nom Públic (visible a UI i PDF)</label>
+        <input type="text" name="public_name" id="sp-form-public-name" required placeholder="Ex: Assistència de Lectura Sobirana"
+               class="w-full rounded-xl border border-steel/30 bg-white px-3 py-2 text-xs text-ink">
+      </div>
+
+      <div>
+        <label class="block font-bold text-ink mb-1">Codi Tècnic Intern</label>
+        <input type="text" name="provider_code" id="sp-form-provider-code" required placeholder="Ex: sglang, stripe, namirial, polygon-pos"
+               class="w-full rounded-xl border border-steel/30 bg-white px-3 py-2 text-xs font-mono text-ink">
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block font-bold text-ink mb-1">Vigent des de</label>
+          <input type="datetime-local" name="valid_from" id="sp-form-valid-from" value="{{ 'now'|date('Y-m-d\\TH:i') }}"
+                 class="w-full rounded-xl border border-steel/30 bg-white px-2.5 py-2 text-[11px] font-mono text-ink">
+        </div>
+        <div>
+          <label class="block font-bold text-ink mb-1">Vigent fins a (opc.)</label>
+          <input type="datetime-local" name="valid_to" id="sp-form-valid-to"
+                 class="w-full rounded-xl border border-steel/30 bg-white px-2.5 py-2 text-[11px] font-mono text-ink">
+        </div>
+      </div>
+
+      <div>
+        <label class="block font-bold text-ink mb-1">Notes d'auditoria</label>
+        <textarea name="notes" id="sp-form-notes" rows="2" placeholder="Motiu del canvi o referència contractual..."
+                  class="w-full rounded-xl border border-steel/30 bg-white px-3 py-2 text-xs text-ink"></textarea>
+      </div>
+
+      <label id="sp-close-prev-wrap" class="flex items-center gap-2 text-xs text-ink/80 cursor-pointer pt-1">
+        <input type="checkbox" name="close_previous" value="1" checked class="rounded border-steel/40 text-ink">
+        <span>Tancar automàticament la vigència anterior d'aquesta categoria</span>
+      </label>
+
+      <div class="pt-3 border-t border-steel/15 flex items-center justify-end gap-2.5">
+        <button type="button" onclick="closeSpModal()" class="px-4 py-2 rounded-xl border border-steel/25 text-xs font-semibold text-ink hover:bg-cream/40 cursor-pointer">
+          Cancel·lar
+        </button>
+        <button type="submit" class="px-5 py-2 rounded-xl bg-ink hover:bg-ink/90 text-white text-xs font-bold shadow-xs cursor-pointer">
+          Desar Canvis
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  const spModal = document.getElementById('sp-modal');
+  const spForm = document.getElementById('sp-modal-form');
+  const createAction = '{{ path('app_admin_service_providers_create') }}';
+  const createToken = '{{ csrf_token('service_provider_create') }}';
+
+  function openSpCreateModal() {
+    document.getElementById('sp-modal-title').textContent = 'Nou Canvi de Proveïdor';
+    document.getElementById('sp-modal-subtitle').textContent = 'Registra un nou proveïdor o nom públic mantenint l\'històric.';
+    spForm.action = createAction;
+    document.getElementById('sp-form-token').value = createToken;
+    document.getElementById('sp-category-select-wrap').classList.remove('hidden');
+    document.getElementById('sp-category-readonly-wrap').classList.add('hidden');
+    document.getElementById('sp-close-prev-wrap').classList.remove('hidden');
+    document.getElementById('sp-form-public-name').value = '';
+    document.getElementById('sp-form-provider-code').value = '';
+    document.getElementById('sp-form-valid-from').value = '{{ 'now'|date('Y-m-d\\TH:i') }}';
+    document.getElementById('sp-form-valid-to').value = '';
+    document.getElementById('sp-form-notes').value = '';
+    spModal.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+  }
+
+  function openSpEditModal(btn) {
+    document.getElementById('sp-modal-title').textContent = 'Editar Registre de Proveïdor';
+    document.getElementById('sp-modal-subtitle').textContent = btn.dataset.categoryLabel;
+    spForm.action = btn.dataset.action;
+    document.getElementById('sp-form-token').value = btn.dataset.token;
+    document.getElementById('sp-category-select-wrap').classList.add('hidden');
+    document.getElementById('sp-category-readonly-wrap').classList.remove('hidden');
+    document.getElementById('sp-form-category-readonly').value = btn.dataset.categoryLabel + ' (' + btn.dataset.category + ')';
+    document.getElementById('sp-close-prev-wrap').classList.add('hidden');
+    document.getElementById('sp-form-public-name').value = btn.dataset.publicName;
+    document.getElementById('sp-form-provider-code').value = btn.dataset.providerCode;
+    document.getElementById('sp-form-valid-from').value = btn.dataset.validFrom;
+    document.getElementById('sp-form-valid-to').value = btn.dataset.validTo;
+    document.getElementById('sp-form-notes').value = btn.dataset.notes;
+    spModal.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+  }
+
+  function closeSpModal() {
+    spModal.classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+  }
+
+  spModal.addEventListener('click', (e) => { if (e.target === spModal) closeSpModal(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !spModal.classList.contains('hidden')) closeSpModal(); });
+
+  document.querySelectorAll('.sp-filter-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const f = btn.dataset.spFilter;
+      document.querySelectorAll('.sp-filter-btn').forEach((b) => {
+        b.classList.remove('bg-ink', 'text-white', 'font-bold');
+        b.classList.add('text-ink/75', 'font-semibold');
+      });
+      btn.classList.add('bg-ink', 'text-white', 'font-bold');
+      btn.classList.remove('text-ink/75', 'font-semibold');
+      document.querySelectorAll('.sp-row').forEach((row) => {
+        row.classList.toggle('hidden', f !== 'all' && row.dataset.status !== f);
+      });
+    });
+  });
+</script>
+{% endblock %}
