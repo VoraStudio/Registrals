@@ -8,7 +8,7 @@
 {% block body %}
 {# Capçalera Oficial Pública #}
 <header class="bg-white border-b border-steel/20 sticky top-0 z-40 shadow-xs">
-  <div class="max-w-4xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
+  <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
     <a href="{{ path('app_home') }}" class="flex items-center gap-2.5 group">
       <img src="{{ asset('img/logos/Isotip/1-transparent.svg') }}" alt="Registrals" class="w-8 h-8 group-hover:scale-105 transition-transform" />
       <span class="font-marcellus text-xl text-ink tracking-wide">REGISTRALS</span>
@@ -22,7 +22,7 @@
   </div>
 </header>
 
-<main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
+<main class="flex-1 max-w-[1440px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6">
   {# 1. BANNER D'ALERTA DE SOSTRACCIÓ / ROBATORI (SI S'APLICA) #}
   {% if isStolen %}
     <div class="mb-8 rounded-2xl bg-red-900 text-white p-6 sm:p-8 shadow-2xl border-2 border-red-500 relative overflow-hidden">
@@ -110,212 +110,220 @@
       </div>
     {% endif %}
 
-    {# 3. IDENTIFICACIÓ PÚBLICA DEL BÉ O DE L'INVENTARI DE LLEGAT #}
-    <div class="p-6 sm:p-8 space-y-6">
-      <div>
-        <h3 class="text-xs font-bold uppercase tracking-widest text-steel mb-3 flex items-center gap-2">
-          <span>{{ isLegacyInventory|default(false) ? 'Identificació de l\'Inventari de Llegat (Pseudonimitzat RGPD)' : 'Identificació del Bé Registrat' }}</span>
-          <div class="flex-1 h-px bg-steel/15"></div>
-        </h3>
+    {# 3 & 4. COS 16:9 EN 2 COLUMNES PARAL·LELES (ESQUERRA: IDENTIFICACIÓ | DRETA: DOBLE CAPA + SHA-256) #}
+    <div class="p-5 sm:p-6 space-y-5">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-        {% if isLegacyInventory|default(false) %}
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="p-4 rounded-2xl bg-cream-50 border border-steel/15">
-              <span class="block text-xs text-steel uppercase font-semibold">Titular Registrat (Pseudonimitzat)</span>
-              <span class="font-mono text-sm text-ink font-bold mt-1 block">{{ maskedOwnerName }}</span>
+        {# Columna Esquerra (5 cols): Identificació del Bé o Llegat #}
+        <div class="lg:col-span-5">
+          <h3 class="text-xs font-bold uppercase tracking-widest text-steel mb-3 flex items-center gap-2">
+            <span>{{ isLegacyInventory|default(false) ? 'Identificació de l\'Inventari de Llegat (Pseudonimitzat RGPD)' : 'Identificació del Bé Registrat' }}</span>
+            <div class="flex-1 h-px bg-steel/15"></div>
+          </h3>
+
+          {% if isLegacyInventory|default(false) %}
+            <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-3">
+              <div class="p-3.5 rounded-2xl bg-cream-50 border border-steel/15">
+                <span class="block text-[11px] text-steel uppercase font-semibold">Titular Registrat (Pseudonimitzat)</span>
+                <span class="font-mono text-sm text-ink font-bold mt-1 block">{{ maskedOwnerName }}</span>
+              </div>
+
+              <div class="p-3.5 rounded-2xl bg-cream-50 border border-steel/15">
+                <span class="block text-[11px] text-steel uppercase font-semibold">Persona de Confiança Designada</span>
+                <span class="font-mono text-sm text-ink font-bold mt-1 block">{{ maskedContactName|default('P****** C******') }}</span>
+              </div>
+
+              <div class="p-3.5 rounded-2xl bg-cream-50 border border-steel/15">
+                <span class="block text-[11px] text-steel uppercase font-semibold">Béns Custodiats a la Fotografia</span>
+                <span class="font-marcellus text-xl text-ink font-bold mt-0.5 block">{{ legacySnapshotCount|default(0) }} {{ (legacySnapshotCount|default(0)) == 1 ? 'bé actiu' : 'béns actius' }}</span>
+              </div>
             </div>
+            <p class="text-[11px] text-steel mt-3 leading-relaxed">
+              Per privadesa per disseny (Art. 14 i Art. 5 RGPD), la verificació pública d'un certificat global de llegat confirma exclusivament la vigència del document sense divulgar el detall ni el valor dels béns inclosos.
+            </p>
+          {% else %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div class="p-3.5 rounded-2xl bg-cream-50 border border-steel/15">
+                <span class="block text-[11px] text-steel uppercase font-semibold">Codi Únic (CUI)</span>
+                <span class="font-marcellus text-lg text-ink font-bold tracking-wider mt-0.5 block">
+                  {{ item.cui }}
+                </span>
+              </div>
 
-            <div class="p-4 rounded-2xl bg-cream-50 border border-steel/15">
-              <span class="block text-xs text-steel uppercase font-semibold">Persona de Confiança Designada</span>
-              <span class="font-mono text-sm text-ink font-bold mt-1 block">{{ maskedContactName|default('P****** C******') }}</span>
-            </div>
+              <div class="p-3.5 rounded-2xl bg-cream-50 border border-steel/15">
+                <span class="block text-[11px] text-steel uppercase font-semibold">Denominació del Bé</span>
+                <span class="font-raleway text-sm text-ink font-bold mt-0.5 block leading-snug">
+                  {{ item.name }}
+                </span>
+              </div>
 
-            <div class="p-4 rounded-2xl bg-cream-50 border border-steel/15">
-              <span class="block text-xs text-steel uppercase font-semibold">Béns Custodiats a la Fotografia</span>
-              <span class="font-marcellus text-xl text-ink font-bold mt-0.5 block">{{ legacySnapshotCount|default(0) }} {{ (legacySnapshotCount|default(0)) == 1 ? 'bé actiu' : 'béns actius' }}</span>
-            </div>
-          </div>
-          <p class="text-[11px] text-steel mt-3 leading-relaxed">
-            Per privadesa per disseny (Art. 14 i Art. 5 RGPD), la verificació pública d'un certificat global de llegat confirma exclusivament la vigència del document sense divulgar el detall ni el valor dels béns inclosos.
-          </p>
-        {% else %}
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div class="p-4 rounded-2xl bg-cream-50 border border-steel/15">
-            <span class="block text-xs text-steel uppercase font-semibold">Codi Únic d'Identificació (CUI)</span>
-            <span class="font-marcellus text-xl text-ink font-bold tracking-wider mt-1 block">
-              {{ item.cui }}
-            </span>
-          </div>
+              <div class="p-3.5 rounded-2xl bg-cream-50 border border-steel/15">
+                <span class="block text-[11px] text-steel uppercase font-semibold">Categoria Registrada</span>
+                <span class="font-raleway text-xs text-ink font-semibold mt-0.5 block">
+                  {{ item.category.name|default('Bé moble general') }}
+                </span>
+              </div>
 
-          <div class="p-4 rounded-2xl bg-cream-50 border border-steel/15">
-            <span class="block text-xs text-steel uppercase font-semibold">Denominació del Bé</span>
-            <span class="font-raleway text-lg text-ink font-bold mt-1 block">
-              {{ item.name }}
-            </span>
-          </div>
+              <div class="p-3.5 rounded-2xl bg-cream-50 border border-steel/15">
+                <span class="block text-[11px] text-steel uppercase font-semibold">Marca & Model</span>
+                <span class="font-raleway text-xs text-ink font-semibold mt-0.5 block">
+                  {{ item.brand|default('—') }} {% if item.model %}· {{ item.model }}{% endif %}
+                </span>
+              </div>
 
-          <div class="p-4 rounded-2xl bg-cream-50 border border-steel/15">
-            <span class="block text-xs text-steel uppercase font-semibold">Categoria Registrada</span>
-            <span class="font-raleway text-sm text-ink font-semibold mt-1 block">
-              {{ item.category.name|default('Bé moble general') }}
-            </span>
-          </div>
+              {% if item.serialNumber %}
+                <div class="p-3.5 rounded-2xl bg-cream-50 border border-steel/15">
+                  <span class="block text-[11px] text-steel uppercase font-semibold">Núm. de Sèrie / Bastidor</span>
+                  <code class="font-mono text-xs text-ink font-bold mt-0.5 block">
+                    {{ item.serialNumber }}
+                  </code>
+                </div>
+              {% endif %}
 
-          <div class="p-4 rounded-2xl bg-cream-50 border border-steel/15">
-            <span class="block text-xs text-steel uppercase font-semibold">Marca & Model</span>
-            <span class="font-raleway text-sm text-ink font-semibold mt-1 block">
-              {{ item.brand|default('—') }} {% if item.model %}· {{ item.model }}{% endif %}
-            </span>
-          </div>
-
-          {% if item.serialNumber %}
-            <div class="p-4 rounded-2xl bg-cream-50 border border-steel/15">
-              <span class="block text-xs text-steel uppercase font-semibold">Núm. de Sèrie / Bastidor</span>
-              <code class="font-mono text-sm text-ink font-bold mt-1 block">
-                {{ item.serialNumber }}
-              </code>
+              <div class="p-3.5 rounded-2xl bg-cream-50 border border-steel/15 {{ not item.serialNumber ? 'sm:col-span-2' : '' }}">
+                <span class="block text-[11px] text-steel uppercase font-semibold">Titular (Pseudonimitzat RGPD)</span>
+                <span class="font-mono text-xs text-ink font-bold mt-0.5 block">
+                  {{ maskedOwnerName }}
+                </span>
+              </div>
             </div>
           {% endif %}
-
-          <div class="p-4 rounded-2xl bg-cream-50 border border-steel/15">
-            <span class="block text-xs text-steel uppercase font-semibold">Titular Registrat (Pseudonimitzat RGPD)</span>
-            <span class="font-mono text-sm text-ink font-bold mt-1 block">
-              {{ maskedOwnerName }}
-            </span>
-          </div>
         </div>
-        {% endif %}
-      </div>
 
-      {# 4. DOBLE CAPA DE VERIFICACIÓ (eIDAS & BLOCKCHAIN) #}
-      <div>
-        <h3 class="text-xs font-bold uppercase tracking-widest text-steel mb-3 flex items-center gap-2">
-          <span>Doble Capa de Certificació Forense</span>
-          <div class="flex-1 h-px bg-steel/15"></div>
-        </h3>
+        {# Columna Dreta (7 cols): Doble Capa Forense + Hashes SHA-256 #}
+        <div class="lg:col-span-7 space-y-4">
+          <div>
+            <h3 class="text-xs font-bold uppercase tracking-widest text-steel mb-3 flex items-center gap-2">
+              <span>Doble Capa de Certificació Forense</span>
+              <div class="flex-1 h-px bg-steel/15"></div>
+            </h3>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {# Capa 1: Segellat de Temps eIDAS #}
-          <div class="p-5 rounded-2xl border border-steel/20 bg-cream-50/70 flex flex-col justify-between">
-            <div>
-              {% set tspName = service_provider_name('tsp', certificate.createdAt) %}
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-bold uppercase tracking-wider text-ink flex items-center gap-1.5">
-                  <span class="w-2 h-2 rounded-full bg-gold"></span>
-                  Capa 1 · Segellat eIDAS ({{ tspName }})
-                </span>
-                <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-white border border-steel/20 text-steel">
-                  TSP Qualificat
-                </span>
-              </div>
-              <p class="text-xs text-steel leading-relaxed mb-3">
-                Certificació de data certa i no-repudi jurídic sota el Reglament Europeu (UE) núm. 910/2014 (eIDAS) via {{ tspName }}.
-              </p>
-            </div>
-            <div class="space-y-1.5 text-xs font-mono bg-white p-3 rounded-xl border border-steel/15">
-              <div class="flex justify-between items-center text-steel">
-                <span>Modalitat:</span>
-                <span class="text-ink font-bold">{{ certificate.mode.label }}</span>
-              </div>
-              {% if certificate.eidasSignaturitId %}
-                <div class="flex justify-between items-center text-steel">
-                  <span>Token eIDAS:</span>
-                  <span class="text-ink truncate max-w-[160px]">{{ certificate.eidasSignaturitId }}</span>
-                </div>
-                <div class="flex justify-between items-center text-steel">
-                  <span>Data Segellat:</span>
-                  <span class="text-ink">{{ certificate.eidasTimestamp ? certificate.eidasTimestamp|date('d/m/Y H:i:s') : 'Validat' }}</span>
-                </div>
-              {% else %}
-                <div class="text-steel italic text-[11px]">
-                  Segellat no aplicat (Mode Esborrany Informatiu).
-                </div>
-              {% endif %}
-            </div>
-          </div>
-
-          {# Capa 2: Ancoratge Criptogràfic Polygon PoS #}
-          <div class="p-5 rounded-2xl border border-steel/20 bg-cream-50/70 flex flex-col justify-between">
-            <div>
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-bold uppercase tracking-wider text-ink flex items-center gap-1.5">
-                  <span class="w-2 h-2 rounded-full bg-ink"></span>
-                  Capa 2 · Polygon Layer 2
-                </span>
-                <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-white border border-steel/20 text-steel">
-                  Immutabilitat
-                </span>
-              </div>
-              <p class="text-xs text-steel leading-relaxed mb-3">
-                Ancoratge determinista de la prova d'existència a la cadena pública de Polygon PoS amb identificador immutable.
-              </p>
-            </div>
-            <div class="space-y-1.5 text-xs font-mono bg-white p-3 rounded-xl border border-steel/15">
-              <div class="flex justify-between items-center text-steel">
-                <span>Xarxa:</span>
-                <span class="text-ink font-bold">{{ service_provider_name('blockchain', latestBlockchainReceipt ? latestBlockchainReceipt.anchoredAt : certificate.createdAt) }}</span>
-              </div>
-              {% if latestBlockchainReceipt %}
-                {% set firstReceipt = item is defined and item ? item.firstBlockchainReceipt : null %}
-                {% if firstReceipt and firstReceipt.id != latestBlockchainReceipt.id %}
-                  <div class="flex justify-between items-center text-steel">
-                    <span>Primer registre:</span>
-                    <a href="{{ firstReceipt.explorerUrl }}" target="_blank" rel="noopener noreferrer" class="text-ink hover:text-gold hover:underline font-bold">
-                      {{ firstReceipt.anchoredAt|date('d/m/Y') }} · #{{ firstReceipt.blockNumber }} ↗
-                    </a>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              {# Capa 1: Segellat de Temps eIDAS #}
+              <div class="p-4 rounded-2xl border border-steel/20 bg-cream-50/70 flex flex-col justify-between">
+                <div>
+                  {% set tspName = service_provider_name('tsp', certificate.createdAt) %}
+                  <div class="flex items-start justify-between gap-2 mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-ink flex items-center gap-1.5 leading-snug">
+                      <span class="w-2 h-2 rounded-full bg-gold shrink-0"></span>
+                      <span>Capa 1 · eIDAS</span>
+                    </span>
+                    <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-white border border-steel/20 text-steel whitespace-nowrap shrink-0">
+                      TSP Qualificat
+                    </span>
                   </div>
-                {% endif %}
-                <div class="flex justify-between items-center text-steel">
-                  <span>{{ firstReceipt and firstReceipt.id != latestBlockchainReceipt.id ? 'Darrer ancoratge:' : 'Bloc L2:' }}</span>
-                  <span class="text-ink font-bold">#{{ latestBlockchainReceipt.blockNumber|default('En cua') }}</span>
+                  <p class="text-xs text-steel leading-relaxed mb-3">
+                    Certificació de data certa sota Reglament (UE) 910/2014 via <strong class="text-ink">{{ tspName }}</strong>.
+                  </p>
                 </div>
-                <div class="flex justify-between items-center text-steel">
-                  <span>Explorador:</span>
-                  <a href="{{ latestBlockchainReceipt.explorerUrl }}" target="_blank" rel="noopener noreferrer" class="text-gold hover:underline font-bold">
-                    Veure Polygonscan ↗
-                  </a>
+                <div class="space-y-1.5 text-xs font-mono bg-white p-3 rounded-xl border border-steel/15">
+                  <div class="flex justify-between items-center text-steel">
+                    <span>Modalitat:</span>
+                    <span class="text-ink font-bold">{{ certificate.mode.label }}</span>
+                  </div>
+                  {% if certificate.eidasSignaturitId %}
+                    <div class="flex justify-between items-center text-steel">
+                      <span>Token eIDAS:</span>
+                      <span class="text-ink truncate max-w-[140px]">{{ certificate.eidasSignaturitId }}</span>
+                    </div>
+                    <div class="flex justify-between items-center text-steel">
+                      <span>Data Segellat:</span>
+                      <span class="text-ink">{{ certificate.eidasTimestamp ? certificate.eidasTimestamp|date('d/m/Y H:i:s') : 'Validat' }}</span>
+                    </div>
+                  {% else %}
+                    <div class="text-steel italic text-[11px]">
+                      Segellat no aplicat (Mode Esborrany Informatiu).
+                    </div>
+                  {% endif %}
                 </div>
-              {% else %}
-                <div class="text-steel italic text-[11px]">
-                  {{ isLegacyInventory|default(false) ? 'Cada bé actiu conserva el seu ancoratge individual a Polygon L2.' : 'Ancoratge pendent de sincronització a la xarxa.' }}
+              </div>
+
+              {# Capa 2: Ancoratge Criptogràfic Polygon PoS #}
+              <div class="p-4 rounded-2xl border border-steel/20 bg-cream-50/70 flex flex-col justify-between">
+                <div>
+                  <div class="flex items-start justify-between gap-2 mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-ink flex items-center gap-1.5 leading-snug">
+                      <span class="w-2 h-2 rounded-full bg-ink shrink-0"></span>
+                      <span>Capa 2 · Polygon L2</span>
+                    </span>
+                    <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-white border border-steel/20 text-steel whitespace-nowrap shrink-0">
+                      Immutabilitat
+                    </span>
+                  </div>
+                  <p class="text-xs text-steel leading-relaxed mb-3">
+                    Ancoratge determinista de la prova d'existència a la cadena pública amb identificador immutable.
+                  </p>
                 </div>
-              {% endif %}
+                <div class="space-y-1.5 text-xs font-mono bg-white p-3 rounded-xl border border-steel/15">
+                  <div class="flex justify-between items-center text-steel">
+                    <span>Xarxa:</span>
+                    <span class="text-ink font-bold">{{ service_provider_name('blockchain', latestBlockchainReceipt ? latestBlockchainReceipt.anchoredAt : certificate.createdAt) }}</span>
+                  </div>
+                  {% if latestBlockchainReceipt %}
+                    {% set firstReceipt = item is defined and item ? item.firstBlockchainReceipt : null %}
+                    {% if firstReceipt and firstReceipt.id != latestBlockchainReceipt.id %}
+                      <div class="flex justify-between items-center text-steel">
+                        <span>Primer registre:</span>
+                        <a href="{{ firstReceipt.explorerUrl }}" target="_blank" rel="noopener noreferrer" class="text-ink hover:text-gold hover:underline font-bold">
+                          {{ firstReceipt.anchoredAt|date('d/m/Y') }} · #{{ firstReceipt.blockNumber }} ↗
+                        </a>
+                      </div>
+                    {% endif %}
+                    <div class="flex justify-between items-center text-steel">
+                      <span>{{ firstReceipt and firstReceipt.id != latestBlockchainReceipt.id ? 'Darrer ancoratge:' : 'Bloc L2:' }}</span>
+                      <span class="text-ink font-bold">#{{ latestBlockchainReceipt.blockNumber|default('En cua') }}</span>
+                    </div>
+                    <div class="flex justify-between items-center text-steel">
+                      <span>Explorador:</span>
+                      <a href="{{ latestBlockchainReceipt.explorerUrl }}" target="_blank" rel="noopener noreferrer" class="text-gold hover:underline font-bold">
+                        Veure Polygonscan ↗
+                      </a>
+                    </div>
+                  {% else %}
+                    <div class="text-steel italic text-[11px]">
+                      {{ isLegacyInventory|default(false) ? 'Cada bé actiu conserva el seu ancoratge individual a Polygon L2.' : 'Ancoratge pendent de sincronització a la xarxa.' }}
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {# 5. HASHES CRIPTOGRÀFICS FORENSES #}
+          <div class="p-4 rounded-2xl bg-cream-50 border border-steel/15 space-y-2">
+            <span class="block text-xs font-bold uppercase tracking-wider text-steel">
+              Comprovació d'Integritat SHA-256
+            </span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px] font-mono">
+              <div>
+                <span class="text-steel block">Hash Documental PDF:</span>
+                <code class="text-ink font-bold break-all select-all">{{ certificate.pdfSha256 }}</code>
+              </div>
+              <div>
+                <span class="text-steel block">{{ isLegacyInventory|default(false) ? 'Empremta Global de l\'Inventari:' : 'Fingerprint Bé en Emissió:' }}</span>
+                <code class="text-ink font-bold break-all select-all">{{ certificate.itemFingerprintAtIssue }}</code>
+              </div>
             </div>
           </div>
         </div>
+
       </div>
 
-      {# 5. HASHES CRIPTOGRÀFICS FORENSES #}
-      <div class="p-4 rounded-2xl bg-cream-50 border border-steel/15 space-y-2">
-        <span class="block text-xs font-bold uppercase tracking-wider text-steel">
-          Comprovació d'Integritat SHA-256
-        </span>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] font-mono">
-          <div>
-            <span class="text-steel block">Hash Documental PDF:</span>
-            <code class="text-ink font-bold break-all select-all">{{ certificate.pdfSha256 }}</code>
-          </div>
-          <div>
-            <span class="text-steel block">{{ isLegacyInventory|default(false) ? 'Empremta Global de l\'Inventari:' : 'Fingerprint Bé en Emissió:' }}</span>
-            <code class="text-ink font-bold break-all select-all">{{ certificate.itemFingerprintAtIssue }}</code>
-          </div>
-        </div>
-      </div>
-
-      {# 6. AVÍS DE PRIVADESES I PROTECCIÓ DE DADES (ART. 5 RGPD) #}
-      <div class="guide-note rounded-xl p-4 text-xs text-ink/80 leading-relaxed border-l-[3.5px] border-gold bg-gold/10">
+      {# 6. AVÍS DE PRIVADESA I PROTECCIÓ DE DADES (ART. 5 RGPD) #}
+      <div class="guide-note rounded-xl p-3.5 text-xs text-ink/80 leading-relaxed border-l-[3.5px] border-gold bg-gold/10">
         <strong>Privadesa per Disseny (Art. 5.1.c RGPD):</strong> Per motius de seguretat jurídica i prevenció de fraus, les dades d'identificació personal del titular es mostren pseudonimitzades per protegir la seva intimitat. El document complet original roman en custòdia privada i només pot ser expedit o transferit pel seu legítim titular sota signatura digital eIDAS.
       </div>
     </div>
   </div>
 
   {# Enllaç de retorn o denúncia #}
-  <div class="mt-8 text-center text-xs text-steel space-y-2">
+  {% set peritsEmail = contact_email('perits') %}
+  <div class="mt-6 text-center text-xs text-steel space-y-1.5">
     <p>
       Plataforma de Certificació Digital Registrals · Certificació Legal i Criptogràfica de Propietat
     </p>
     <p>
-      Per a consultes de verificació corporativa per a entitats asseguradores o pericials: <a href="mailto:perits@registrals.cat" class="text-ink underline hover:text-gold">perits@registrals.cat</a>
+      Per a consultes de verificació corporativa per a entitats asseguradores o pericials: <a href="mailto:{{ peritsEmail }}" class="text-ink underline hover:text-gold">{{ peritsEmail }}</a>
     </p>
   </div>
 </main>

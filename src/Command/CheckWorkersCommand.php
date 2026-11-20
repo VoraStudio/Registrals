@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use App\Service\System\ContactEmailRegistry;
 use App\Service\System\WorkerHealthService;
 use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -28,6 +29,7 @@ final class CheckWorkersCommand extends Command
         private readonly WorkerHealthService $workerHealthService,
         private readonly MailerInterface $mailer,
         private readonly CacheItemPoolInterface $cache,
+        private readonly ContactEmailRegistry $contactEmailRegistry,
         private readonly string $mailerFromAddress = 'info@registrals.com',
         private readonly string $mailerFromName = 'Registrals'
     ) {
@@ -37,7 +39,7 @@ final class CheckWorkersCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addOption('to', null, InputOption::VALUE_REQUIRED, 'Adreça de correu destinatària de les alertes', 'carles@voradata.cat')
+            ->addOption('to', null, InputOption::VALUE_REQUIRED, 'Adreça de correu destinatària de les alertes')
             ->addOption('cooldown', null, InputOption::VALUE_REQUIRED, 'Minuts mínims entre correus d\'alerta repetits', '60')
             ->addOption('force', null, InputOption::VALUE_NONE, 'Ignora el cooldown i envia el correu encara que ja s\'hagi enviat fa poc');
     }
@@ -56,7 +58,8 @@ final class CheckWorkersCommand extends Command
             return Command::SUCCESS;
         }
 
-        $to = (string) $input->getOption('to');
+        $toOpt = $input->getOption('to');
+        $to = is_string($toOpt) && trim($toOpt) !== '' ? trim($toOpt) : $this->contactEmailRegistry->get('alertes');
         $cooldownMinutes = max(1, (int) $input->getOption('cooldown'));
         $force = (bool) $input->getOption('force');
 
@@ -107,3 +110,4 @@ final class CheckWorkersCommand extends Command
         return Command::FAILURE;
     }
 }
+

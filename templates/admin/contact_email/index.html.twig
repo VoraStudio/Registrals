@@ -1,0 +1,61 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Correus de Contacte — Administració Registrals{% endblock %}
+
+{% block admin_content %}
+<div class="space-y-6">
+
+  {# Fil d'Ariadna #}
+  <nav class="flex items-center gap-2 text-xs font-semibold font-raleway text-ink/65 flex-wrap">
+    <a href="{{ path('app_admin_dashboard') }}" class="hover:text-gold transition-colors">Inici</a>
+    <span>/</span>
+    <span class="text-ink/50">Parametrització</span>
+    <span>/</span>
+    <span class="text-ink font-bold">Correus de Contacte</span>
+  </nav>
+
+  {# Capçalera #}
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="font-marcellus text-2xl sm:text-3xl text-ink tracking-tight font-medium">Gestió Centralitzada de Correus</h1>
+      <p class="font-raleway text-xs sm:text-sm text-ink/70 mt-1">
+        Adreces visibles a la landing, peu de pàgina, documents legals, pàgina de verificació i alertes tècniques.
+      </p>
+    </div>
+    <div class="px-3.5 py-2 rounded-xl bg-white border border-steel/20 text-xs font-mono text-steel shrink-0">
+      Sortida SMTP (.env): <strong class="text-ink">{{ mailerFromAddress }}</strong>
+    </div>
+  </div>
+
+  <form method="post" action="{{ path('app_admin_contact_emails') }}" class="bg-white rounded-2xl border border-steel/20 shadow-xs overflow-hidden">
+    <input type="hidden" name="_token" value="{{ csrf_token('admin_contact_emails') }}">
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 p-6">
+      {% for channel, def in definitions %}
+        <div class="p-4 rounded-xl border border-steel/15 bg-cream-50/40 space-y-1.5">
+          <div class="flex items-center justify-between gap-2">
+            <label for="email-{{ channel }}" class="font-raleway text-xs font-bold text-ink">{{ def.label }}</label>
+            <code class="text-[10px] font-mono px-2 py-0.5 rounded bg-cream/70 border border-gold/30 text-ink">{{ channel }}</code>
+          </div>
+          <p class="text-[11px] text-steel font-raleway leading-snug">{{ def.description }}</p>
+          <input type="email"
+                 id="email-{{ channel }}"
+                 name="emails[{{ channel }}]"
+                 value="{{ emails[channel] ?? def.default }}"
+                 required
+                 class="w-full mt-1 rounded-xl border border-steel/30 bg-white px-3 py-2 text-xs font-mono text-ink focus:border-gold focus:outline-none">
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="px-6 py-4 bg-cream-50/60 border-t border-steel/15 flex items-center justify-between gap-4">
+      <span class="text-xs text-steel font-raleway">Els canvis s'apliquen immediatament sense reiniciar el servidor.</span>
+      <button type="submit" class="px-5 py-2.5 rounded-xl bg-ink hover:bg-ink/90 text-white text-xs font-bold shadow-xs transition-colors cursor-pointer">
+        Desar Adreces de Correu
+      </button>
+    </div>
+  </form>
+
+</div>
+{% endblock %}
+

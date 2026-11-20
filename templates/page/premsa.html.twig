@@ -46,13 +46,13 @@
             Per a peticions d'entrevistes, dades d'adopció tecnològica de béns mobles, assessorament en dret probatori eIDAS o declaracions oficials del nostre equip tècnic.
           </p>
           <div class="pt-2 text-xs font-mono text-cream/90 flex flex-wrap items-center gap-x-4 gap-y-1">
-            <span><strong>Email:</strong> <a href="mailto:premsa@registrals.com" class="text-gold font-bold hover:underline">premsa@registrals.com</a></span>
+            <span><strong>Email:</strong> <a href="mailto:{{ contact_email('premsa') }}" class="text-gold font-bold hover:underline">{{ contact_email('premsa') }}</a></span>
             <span class="text-gold/40">&middot;</span>
             <span><strong>Responsable:</strong> Albert (Departament de Premsa & Comunicació)</span>
           </div>
         </div>
 
-        <a href="mailto:premsa@registrals.com?subject=Petició%20de%20Premsa%20—%20Registrals" class="px-6 py-3 rounded-xl bg-gold text-ink font-raleway font-bold text-xs uppercase tracking-wider shadow-md hover:bg-gold/90 transition-all shrink-0 relative z-10 flex items-center gap-2">
+        <a href="mailto:{{ contact_email('premsa') }}?subject=Petició%20de%20Premsa%20—%20Registrals" class="px-6 py-3 rounded-xl bg-gold text-ink font-raleway font-bold text-xs uppercase tracking-wider shadow-md hover:bg-gold/90 transition-all shrink-0 relative z-10 flex items-center gap-2">
           <span>Contactar amb Premsa</span>
           <span>→</span>
         </a>
@@ -228,7 +228,7 @@
           </p>
 
           <div class="pt-4 border-t border-gold/20 flex flex-wrap items-center justify-between gap-4 text-xs font-mono text-cream/70">
-            <span>Contacte per a notes completes: <a href="mailto:premsa@registrals.com" class="text-gold underline">premsa@registrals.com</a></span>
+            <span>Contacte per a notes completes: <a href="mailto:{{ contact_email('premsa') }}" class="text-gold underline">{{ contact_email('premsa') }}</a></span>
             <span class="text-gold">Ref: NP-2026-01</span>
           </div>
         </article>
