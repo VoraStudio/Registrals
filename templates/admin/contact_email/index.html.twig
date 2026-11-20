@@ -44,6 +44,14 @@
                  value="{{ emails[channel] ?? def.default }}"
                  required
                  class="w-full mt-1 rounded-xl border border-steel/30 bg-white px-3 py-2 text-xs font-mono text-ink focus:border-gold focus:outline-none">
+          {% if def.places is defined and def.places|length > 0 %}
+            <div class="pt-1.5 flex flex-wrap items-center gap-1">
+              <span class="text-[10px] font-semibold text-ink/60 mr-0.5">On surt:</span>
+              {% for place in def.places %}
+                <span class="px-1.5 py-0.5 rounded bg-white border border-steel/15 text-[10px] font-raleway text-steel">{{ place }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
         </div>
       {% endfor %}
     </div>
