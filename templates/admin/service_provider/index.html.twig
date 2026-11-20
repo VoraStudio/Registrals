@@ -33,8 +33,8 @@
   <div class="bg-white rounded-2xl border border-steel/20 shadow-xs overflow-hidden">
     <div class="px-5 py-3.5 border-b border-steel/15 bg-cream-50/40 flex flex-wrap items-center justify-between gap-3">
       <div class="inline-flex items-center gap-1 p-1 rounded-full bg-cream/50 border border-gold/30 text-xs font-raleway">
-        <button type="button" data-sp-filter="all" class="sp-filter-btn px-3 py-1 rounded-full font-bold bg-ink text-white cursor-pointer">Tots ({{ history|length }})</button>
-        <button type="button" data-sp-filter="active" class="sp-filter-btn px-3 py-1 rounded-full font-semibold text-ink/75 hover:text-ink cursor-pointer">Vigents</button>
+        <button type="button" data-sp-filter="active" class="sp-filter-btn px-3 py-1 rounded-full font-bold bg-ink text-white cursor-pointer">Vigents</button>
+        <button type="button" data-sp-filter="all" class="sp-filter-btn px-3 py-1 rounded-full font-semibold text-ink/75 hover:text-ink cursor-pointer">Tots ({{ history|length }})</button>
         <button type="button" data-sp-filter="historic" class="sp-filter-btn px-3 py-1 rounded-full font-semibold text-ink/75 hover:text-ink cursor-pointer">Històric</button>
       </div>
       <span class="text-[11px] font-mono text-steel">Resolució automàtica per data d'emissió/ancoratge</span>
@@ -55,7 +55,7 @@
         <tbody class="divide-y divide-steel/10 font-raleway">
           {% for row in history %}
             {% set isRowActive = row.isActiveAt() %}
-            <tr class="sp-row hover:bg-cream-50/40 transition-colors" data-status="{{ isRowActive ? 'active' : 'historic' }}">
+            <tr class="sp-row hover:bg-cream-50/40 transition-colors {{ not isRowActive ? 'hidden' : '' }}" data-status="{{ isRowActive ? 'active' : 'historic' }}">
               <td class="py-3 px-4 whitespace-nowrap">
                 <span class="px-2 py-0.5 rounded bg-cream/70 border border-gold/30 text-[10px] font-mono font-bold text-ink uppercase">
                   {{ row.category.value }}
