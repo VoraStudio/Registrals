@@ -494,6 +494,10 @@
       <span class="hash-value" style="color: #1D2F4B; font-weight: bold;">
         {% if latestReceipt %}
           POLYGON POS &middot; BLOC #{{ latestReceipt.blockNumber }} &middot; TX: {{ latestReceipt.shortTxHash }}
+          {% set firstReceipt = item.firstBlockchainReceipt %}
+          {% if firstReceipt and firstReceipt.id != latestReceipt.id %}
+            <br><span style="font-weight: normal; color: #6A86A2;">Primer registre ({{ firstReceipt.anchoredAt|date('d/m/Y') }}): BLOC #{{ firstReceipt.blockNumber }} &middot; TX: {{ firstReceipt.shortTxHash }}</span>
+          {% endif %}
         {% else %}
           ANCORATGE PROGRAMAT A POLYGON LAYER 2
         {% endif %}

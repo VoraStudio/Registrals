@@ -346,7 +346,8 @@ class ItemController extends AbstractController
         MediaIntegrityValidator $integrityValidator,
         EntityManagerInterface $entityManager,
         UserActivityLogger $activityLogger,
-        ?ItemFingerprintCalculator $fingerprintCalculator = null
+        ?ItemFingerprintCalculator $fingerprintCalculator = null,
+        ?MessageBusInterface $messageBus = null
     ): Response {
         $item = $itemRepository->findOneByCui($cui);
 
@@ -441,6 +442,7 @@ class ItemController extends AbstractController
             ]
         );
         $entityManager->flush();
+        $this->dispatchUpdateAnchor($messageBus, $item);
 
         $activityLogger->log(
             user: $user,
@@ -489,7 +491,8 @@ class ItemController extends AbstractController
         ItemRepository $itemRepository,
         EntityManagerInterface $entityManager,
         UserActivityLogger $activityLogger,
-        ?ItemFingerprintCalculator $fingerprintCalculator = null
+        ?ItemFingerprintCalculator $fingerprintCalculator = null,
+        ?MessageBusInterface $messageBus = null
     ): Response {
         $item = $itemRepository->findOneByCui($cui);
 
@@ -557,6 +560,7 @@ class ItemController extends AbstractController
             ]
         );
         $entityManager->flush();
+        $this->dispatchUpdateAnchor($messageBus, $item);
         $activityLogger->log(
             user: $user,
             action: UserActivityAction::ITEM_UPDATED,
@@ -595,7 +599,8 @@ class ItemController extends AbstractController
         SecureDocumentStorageService $storageService,
         EntityManagerInterface $entityManager,
         UserActivityLogger $activityLogger,
-        ?ItemFingerprintCalculator $fingerprintCalculator = null
+        ?ItemFingerprintCalculator $fingerprintCalculator = null,
+        ?MessageBusInterface $messageBus = null
     ): Response {
         $item = $itemRepository->findOneByCui($cui);
 
@@ -675,6 +680,7 @@ class ItemController extends AbstractController
             ]
         );
         $entityManager->flush();
+        $this->dispatchUpdateAnchor($messageBus, $item);
         $activityLogger->log(
             user: $user,
             action: UserActivityAction::ITEM_UPDATED,
@@ -714,7 +720,8 @@ class ItemController extends AbstractController
         MediaIntegrityValidator $integrityValidator,
         EntityManagerInterface $entityManager,
         UserActivityLogger $activityLogger,
-        ?ItemFingerprintCalculator $fingerprintCalculator = null
+        ?ItemFingerprintCalculator $fingerprintCalculator = null,
+        ?MessageBusInterface $messageBus = null
     ): Response {
         $item = $itemRepository->findOneByCui($cui);
 
@@ -811,6 +818,7 @@ class ItemController extends AbstractController
             ]
         );
         $entityManager->flush();
+        $this->dispatchUpdateAnchor($messageBus, $item);
         $activityLogger->log(
             user: $user,
             action: UserActivityAction::ITEM_UPDATED,
@@ -1312,6 +1320,21 @@ class ItemController extends AbstractController
         $item->addHistoryLog($historyLog);
 
         return $supersededCount;
+    }
+
+    /**
+     * Despatxa un ancoratge asíncron d'actualització (ITEM_UPDATE) a Polygon L2.
+     */
+    private function dispatchUpdateAnchor(?MessageBusInterface $messageBus, Item $item): void
+    {
+        if ($messageBus === null || $item->getId() === null) {
+            return;
+        }
+
+        try {
+            $messageBus->dispatch(new AnchorBlockchainMessage($item->getId(), BlockchainActionType::ITEM_UPDATE));
+        } catch (\Throwable) {
+        }
     }
 }
 

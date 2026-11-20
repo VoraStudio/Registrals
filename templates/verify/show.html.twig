@@ -255,8 +255,17 @@
                 <span class="text-ink font-bold">Polygon PoS (POL)</span>
               </div>
               {% if latestBlockchainReceipt %}
+                {% set firstReceipt = item is defined and item ? item.firstBlockchainReceipt : null %}
+                {% if firstReceipt and firstReceipt.id != latestBlockchainReceipt.id %}
+                  <div class="flex justify-between items-center text-steel">
+                    <span>Primer registre:</span>
+                    <a href="{{ firstReceipt.explorerUrl }}" target="_blank" rel="noopener noreferrer" class="text-ink hover:text-gold hover:underline font-bold">
+                      {{ firstReceipt.anchoredAt|date('d/m/Y') }} · #{{ firstReceipt.blockNumber }} ↗
+                    </a>
+                  </div>
+                {% endif %}
                 <div class="flex justify-between items-center text-steel">
-                  <span>Bloc L2:</span>
+                  <span>{{ firstReceipt and firstReceipt.id != latestBlockchainReceipt.id ? 'Darrer ancoratge:' : 'Bloc L2:' }}</span>
                   <span class="text-ink font-bold">#{{ latestBlockchainReceipt.blockNumber|default('En cua') }}</span>
                 </div>
                 <div class="flex justify-between items-center text-steel">
