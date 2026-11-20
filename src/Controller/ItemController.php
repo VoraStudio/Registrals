@@ -23,6 +23,7 @@ use App\Service\Item\CuiGeneratorService;
 use App\Service\Item\ItemLifecycleService;
 use App\Service\Storage\SecureDocumentStorageService;
 use App\Service\Validation\MediaIntegrityValidator;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Infrastructure\Adapter\Ai\AiVisionAnalyzerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
