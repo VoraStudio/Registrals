@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
+use App\Infrastructure\Adapter\Ai\SglangVisionClient;
 use App\Repository\ItemDocumentRepository;
 use App\Repository\ItemRepository;
 use App\Repository\PlanRepository;
@@ -31,7 +32,7 @@ class AdminDashboardController extends AbstractController
         PlanRepository $planRepository,
         SystemSettingRepository $settingRepository,
         ManagerRegistry $doctrine,
-        HttpClientInterface $httpClient,
+        SglangVisionClient $sglangClient,
         GeoLocationService $geoLocationService
     ): Response {
         // 1. Mètriques de Negoci & Activitat
@@ -62,13 +63,8 @@ class AdminDashboardController extends AbstractController
         }
 
         $aiGlobalEnabled = $settingRepository->getBool('ai_global_enabled', true);
-        $sglangOk = false;
-        try {
-            $res = $httpClient->request('GET', 'http://127.0.0.1:30000/v1/models', ['timeout' => 1.0]);
-            $sglangOk = $res->getStatusCode() === 200;
-        } catch (\Throwable) {
-            $sglangOk = false;
-        }
+        $sglangHealth = $sglangClient->checkHealth(1.0);
+        $sglangOk = $sglangHealth['online'];
 
         // 3. Conversions & Ràtios d'Upgrade de Plans
         $freeUsers = $usersByPlan['free'] ?? 0;

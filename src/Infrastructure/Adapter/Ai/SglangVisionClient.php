@@ -28,6 +28,44 @@ class SglangVisionClient implements AiVisionAnalyzerInterface
     ) {
     }
 
+    /**
+     * Comprova la disponibilitat del node SGLang configurat (SGLANG_API_BASE_URL + SGLANG_API_KEY).
+     *
+     * @return array{online: bool, endpoint: string, model: string, latencyMs: ?float}
+     */
+    public function checkHealth(float $timeoutSeconds = 1.5): array
+    {
+        $endpoint = rtrim($this->sglangBaseUrl, '/');
+        $headers = [];
+        if ($this->apiKey !== null && $this->apiKey !== '') {
+            $headers['Authorization'] = 'Bearer ' . $this->apiKey;
+        }
+
+        try {
+            $start = microtime(true);
+            $res = $this->httpClient->request('GET', $endpoint . '/models', [
+                'headers' => $headers,
+                'timeout' => $timeoutSeconds,
+            ]);
+            if ($res->getStatusCode() === 200) {
+                return [
+                    'online' => true,
+                    'endpoint' => $endpoint,
+                    'model' => $this->modelName,
+                    'latencyMs' => round((microtime(true) - $start) * 1000),
+                ];
+            }
+        } catch (\Throwable) {
+        }
+
+        return [
+            'online' => false,
+            'endpoint' => $endpoint,
+            'model' => $this->modelName,
+            'latencyMs' => null,
+        ];
+    }
+
     public function analyzeMedia(string $fileContent, string $mimeType, string $promptType = 'photo'): AiVisionExtractionDto
     {
         $systemPrompt = $this->getSystemPrompt($promptType);

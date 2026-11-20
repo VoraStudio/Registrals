@@ -145,7 +145,7 @@
       <dl class="space-y-3 text-xs font-raleway">
         <div class="flex items-center justify-between">
           <dt class="text-ink/70">Endpoint del Node:</dt>
-          <dd class="font-mono text-ink">http://127.0.0.1:30000/v1</dd>
+          <dd class="font-mono text-ink">{{ sglangEndpoint|default('http://127.0.0.1:30000/v1') }}</dd>
         </div>
         <div class="flex items-center justify-between">
           <dt class="text-ink/70">Latència de resposta:</dt>

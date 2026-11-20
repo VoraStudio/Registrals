@@ -6,6 +6,7 @@ namespace App\Controller\Admin;
 
 use App\Audit\Enum\UserActivityAction;
 use App\Audit\Repository\UserActivityLogRepository;
+use App\Infrastructure\Adapter\Ai\SglangVisionClient;
 use App\Repository\SystemSettingRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -30,7 +31,7 @@ class AdminSystemController extends AbstractController
     public function services(
         ManagerRegistry $doctrine,
         SystemSettingRepository $settingRepository,
-        HttpClientInterface $httpClient,
+        SglangVisionClient $sglangClient,
         ?GeoLocationService $geoLocationService = null
     ): Response {
         $geoLocationService ??= new GeoLocationService();
@@ -54,20 +55,11 @@ class AdminSystemController extends AbstractController
             $auditDbError = $e->getMessage();
         }
 
-        // 3. Comprovació Node SGLang Local (Qwen-VL)
+        // 3. Comprovació Node SGLang (SGLANG_API_BASE_URL)
         $aiGlobalEnabled = $settingRepository->getBool('ai_global_enabled', true);
-        $sglangStatus = false;
-        $sglangLatency = null;
-        try {
-            $start = microtime(true);
-            $res = $httpClient->request('GET', 'http://127.0.0.1:30000/v1/models', ['timeout' => 1.5]);
-            if ($res->getStatusCode() === 200) {
-                $sglangStatus = true;
-                $sglangLatency = round((microtime(true) - $start) * 1000);
-            }
-        } catch (\Throwable) {
-            $sglangStatus = false;
-        }
+        $sglangHealth = $sglangClient->checkHealth(1.5);
+        $sglangStatus = $sglangHealth['online'];
+        $sglangLatency = $sglangHealth['latencyMs'];
 
         // 4. Emmagatzematge Flysystem privat
         $storageDir = $this->getParameter('kernel.project_dir') . '/var/storage';
@@ -86,6 +78,8 @@ class AdminSystemController extends AbstractController
             'auditDbError' => $auditDbError,
             'sglangStatus' => $sglangStatus,
             'sglangLatency' => $sglangLatency,
+            'sglangEndpoint' => $sglangHealth['endpoint'],
+            'sglangModel' => $sglangHealth['model'],
             'aiGlobalEnabled' => $aiGlobalEnabled,
             'diskFree' => $diskFree ?: 0,
             'diskTotal' => $diskTotal ?: 1,
