@@ -22,14 +22,14 @@ class AdminServiceProviderController extends AbstractController
 {
     #[Route('', name: 'app_admin_service_providers', methods: ['GET'])]
     public function index(
-        ServiceProviderConfigRepository $repository,
-        #[Autowire('%env(default::SGLANG_MODEL_NAME)%')] string $sglangModel = '',
-        #[Autowire('%env(default::BLOCKCHAIN_NETWORK)%')] string $blockchainNetwork = '',
-        #[Autowire('%env(default::BLOCKCHAIN_HOT_WALLET_PRIVATE_KEY)%')] string $blockchainKey = '',
-        #[Autowire('%env(default::STRIPE_SECRET_KEY)%')] string $stripeKey = '',
-        #[Autowire('%env(default::NAMIRIAL_ONBOARDING_BASE_URL)%')] string $namirialUrl = '',
-        #[Autowire('%env(default::SIGNATURIT_API_TOKEN)%')] string $signaturitToken = '',
+        ServiceProviderConfigRepository $repository
     ): Response {
+        $sglangModel = (string) ($_ENV['SGLANG_MODEL_NAME'] ?? $_SERVER['SGLANG_MODEL_NAME'] ?? '');
+        $blockchainNetwork = (string) ($_ENV['BLOCKCHAIN_NETWORK'] ?? $_SERVER['BLOCKCHAIN_NETWORK'] ?? '');
+        $blockchainKey = (string) ($_ENV['BLOCKCHAIN_HOT_WALLET_PRIVATE_KEY'] ?? $_SERVER['BLOCKCHAIN_HOT_WALLET_PRIVATE_KEY'] ?? '');
+        $stripeKey = (string) ($_ENV['STRIPE_SECRET_KEY'] ?? $_SERVER['STRIPE_SECRET_KEY'] ?? '');
+        $namirialUrl = (string) ($_ENV['NAMIRIAL_ONBOARDING_BASE_URL'] ?? $_SERVER['NAMIRIAL_ONBOARDING_BASE_URL'] ?? '');
+        $signaturitToken = (string) ($_ENV['SIGNATURIT_API_TOKEN'] ?? $_SERVER['SIGNATURIT_API_TOKEN'] ?? '');
         $now = new DateTimeImmutable();
         $activeByCategory = [];
         foreach (ServiceProviderCategory::cases() as $cat) {
