@@ -20,6 +20,7 @@ enum UserActivityAction: string
     case ITEM_CREATED = 'item_created';
     case ITEM_UPDATED = 'item_updated';
     case ITEM_DELETED = 'item_deleted';
+    case BLOCKCHAIN_ANCHORED = 'blockchain_anchored';
     case STATUS_CHANGED = 'status_changed';
     case CERTIFICATE_ISSUED = 'certificate_issued';
     case CERTIFICATE_VERIFIED = 'certificate_verified';
@@ -63,6 +64,7 @@ enum UserActivityAction: string
             self::ITEM_CREATED => 'Creació de bé',
             self::ITEM_UPDATED => 'Modificació de bé',
             self::ITEM_DELETED => 'Eliminació de bé',
+            self::BLOCKCHAIN_ANCHORED => 'Ancoratge Polygon L2',
             self::STATUS_CHANGED => 'Canvi d\'estat del compte',
             self::CERTIFICATE_ISSUED => 'Emissió de certificat',
             self::CERTIFICATE_VERIFIED => 'Verificació de certificat',
@@ -112,6 +114,7 @@ enum UserActivityAction: string
             self::ITEM_CREATED => 'bg-cyan-50 text-cyan-800 border-cyan-300',
             self::ITEM_UPDATED => 'bg-blue-50 text-blue-800 border-blue-300',
             self::ITEM_DELETED => 'bg-rose-50 text-rose-800 border-rose-300',
+            self::BLOCKCHAIN_ANCHORED => 'bg-emerald-50 text-emerald-800 border-emerald-300',
             self::STATUS_CHANGED => 'bg-amber-50 text-amber-900 border-amber-400',
             self::CERTIFICATE_ISSUED => 'bg-gold/20 text-ink border-gold/40',
             self::CERTIFICATE_VERIFIED => 'bg-emerald-50 text-emerald-800 border-emerald-300',
@@ -153,7 +156,8 @@ enum UserActivityAction: string
 
             self::ITEM_CREATED,
             self::ITEM_UPDATED,
-            self::ITEM_DELETED => 'Patrimoni & Béns',
+            self::ITEM_DELETED,
+            self::BLOCKCHAIN_ANCHORED => 'Patrimoni & Béns',
 
             self::CERTIFICATE_ISSUED,
             self::CERTIFICATE_VERIFIED => 'Certificats Digitals',
@@ -211,6 +215,7 @@ enum UserActivityAction: string
                 self::ITEM_CREATED,
                 self::ITEM_UPDATED,
                 self::ITEM_DELETED,
+                self::BLOCKCHAIN_ANCHORED,
             ],
             'Certificats Digitals' => [
                 self::CERTIFICATE_ISSUED,

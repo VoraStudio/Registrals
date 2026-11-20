@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\MessageHandler;
 
+use App\Audit\Enum\UserActivityAction;
+use App\Audit\Service\UserActivityLogger;
 use App\Entity\BlockchainReceipt;
 use App\Infrastructure\Adapter\Blockchain\BlockchainAnchorInterface;
 use App\Message\AnchorBlockchainMessage;
@@ -25,7 +27,8 @@ final readonly class AnchorBlockchainMessageHandler
         private ItemFingerprintCalculator $fingerprintCalculator,
         private BlockchainAnchorInterface $anchorClient,
         private EntityManagerInterface $entityManager,
-        private LoggerInterface $logger
+        private LoggerInterface $logger,
+        private ?UserActivityLogger $activityLogger = null
     ) {
     }
 
@@ -78,6 +81,25 @@ final readonly class AnchorBlockchainMessageHandler
                 'block_number' => $receipt->getBlockNumber(),
                 'network' => $receipt->getNetwork(),
             ]);
+
+            $this->activityLogger?->log(
+                user: $item->getOwner(),
+                action: UserActivityAction::BLOCKCHAIN_ANCHORED,
+                description: sprintf(
+                    'Ancoratge a Polygon L2 completat (%s) per al bé %s — Bloc #%d',
+                    $message->actionType->label(),
+                    $item->getCui(),
+                    $receipt->getBlockNumber()
+                ),
+                details: [
+                    'cui' => $item->getCui(),
+                    'action_type' => $message->actionType->value,
+                    'network' => $receipt->getNetwork(),
+                    'block_number' => $receipt->getBlockNumber(),
+                    'tx_hash' => $receipt->getTxHash(),
+                    'anchored_hash' => $receipt->getAnchoredHash(),
+                ]
+            );
         } catch (Throwable $e) {
             $this->logger->error('Error en processar la notarització a Blockchain: ' . $e->getMessage(), [
                 'item_id' => $message->itemId,
