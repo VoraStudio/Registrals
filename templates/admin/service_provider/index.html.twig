@@ -1,0 +1,188 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Proveïdors & Serveis — Administració Registrals{% endblock %}
+
+{% block admin_content %}
+<div class="space-y-6">
+
+  {# Fil d'Ariadna #}
+  <nav class="flex items-center gap-2 text-xs font-semibold font-raleway text-ink/65 flex-wrap">
+    <a href="{{ path('app_admin_dashboard') }}" class="hover:text-gold transition-colors">Inici</a>
+    <span>/</span>
+    <span class="text-ink/50">Parametrització</span>
+    <span>/</span>
+    <span class="text-ink font-bold">Proveïdors & Serveis</span>
+  </nav>
+
+  {# Capçalera #}
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="font-marcellus text-2xl sm:text-3xl text-ink tracking-tight font-medium">Proveïdors & Noms de Servei</h1>
+      <p class="font-raleway text-xs sm:text-sm text-ink/70 mt-1">
+        Parametrització del nom públic visible a certificats i interfícies amb traçabilitat històrica per dates (complementari a <code>.env.local</code>).
+      </p>
+    </div>
+  </div>
+
+  {# 5 Targetes Vigents + Resum .env #}
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
+    {% for cat in categories %}
+      {% set active = activeByCategory[cat.value] ?? null %}
+      <div class="bg-white rounded-2xl border border-steel/20 p-4 shadow-xs flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-gold">{{ cat.value }}</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-mono bg-emerald-50 text-emerald-700 border border-emerald-200">Vigent</span>
+          </div>
+          <h3 class="font-raleway text-xs font-bold text-ink/70">{{ cat.label }}</h3>
+          <p class="font-marcellus text-base text-ink mt-1 leading-snug">
+            {{ active ? active.publicName : cat.defaultPublicName }}
+          </p>
+        </div>
+        <div class="mt-3 pt-2.5 border-t border-steel/10 space-y-1 text-[10px] font-mono text-steel">
+          <div>Codi: <span class="text-ink font-semibold">{{ active ? active.providerCode : cat.defaultProviderCode }}</span></div>
+          <div>.env: <span class="text-ink">{{ envSummary[cat.value] ?? '—' }}</span></div>
+          {% if active %}
+            <div>Des de: <span class="text-ink">{{ active.validFrom|date('d/m/Y') }}</span></div>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  {# Grid 12 cols: Nou Proveïdor (4 cols) + Històric per Dates (8 cols) #}
+  <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+
+    {# Formulari Nou Canvi de Proveïdor / Nom #}
+    <div class="xl:col-span-4 bg-white rounded-2xl border border-steel/20 p-5 shadow-xs">
+      <h2 class="font-marcellus text-lg text-ink mb-1">Registrar Canvi / Nou Proveïdor</h2>
+      <p class="text-xs text-ink/65 font-raleway mb-4">
+        Crea una nova vigència sense esborrar l'històric dels certificats emesos en dates anteriors.
+      </p>
+
+      <form method="post" action="{{ path('app_admin_service_providers_create') }}" class="space-y-3.5 text-xs font-raleway">
+        <input type="hidden" name="_token" value="{{ csrf_token('service_provider_create') }}">
+
+        <div>
+          <label class="block font-bold text-ink mb-1">Categoria de Servei</label>
+          <select name="category" required class="w-full rounded-xl border border-steel/30 bg-cream-50/40 px-3 py-2 text-xs text-ink">
+            {% for cat in categories %}
+              <option value="{{ cat.value }}">{{ cat.label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-bold text-ink mb-1">Nom Públic (visible a UI i PDF)</label>
+          <input type="text" name="public_name" required placeholder="Ex: Assistència de Lectura Sobirana"
+                 class="w-full rounded-xl border border-steel/30 bg-white px-3 py-2 text-xs text-ink">
+        </div>
+
+        <div>
+          <label class="block font-bold text-ink mb-1">Codi Tècnic Intern</label>
+          <input type="text" name="provider_code" required placeholder="Ex: sglang, stripe, namirial, polygon-pos"
+                 class="w-full rounded-xl border border-steel/30 bg-white px-3 py-2 text-xs font-mono text-ink">
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block font-bold text-ink mb-1">Vigent des de</label>
+            <input type="datetime-local" name="valid_from" value="{{ 'now'|date('Y-m-d\\TH:i') }}"
+                   class="w-full rounded-xl border border-steel/30 bg-white px-2.5 py-2 text-[11px] font-mono text-ink">
+          </div>
+          <div>
+            <label class="block font-bold text-ink mb-1">Vigent fins a (opc.)</label>
+            <input type="datetime-local" name="valid_to"
+                   class="w-full rounded-xl border border-steel/30 bg-white px-2.5 py-2 text-[11px] font-mono text-ink">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-ink mb-1">Notes d'auditoria</label>
+          <textarea name="notes" rows="2" placeholder="Motiu del canvi o referència contractual..."
+                    class="w-full rounded-xl border border-steel/30 bg-white px-3 py-2 text-xs text-ink"></textarea>
+        </div>
+
+        <label class="flex items-center gap-2 text-xs text-ink/80 cursor-pointer">
+          <input type="checkbox" name="close_previous" value="1" checked class="rounded border-steel/40 text-ink">
+          <span>Tancar automàticament la vigència anterior d'aquesta categoria</span>
+        </label>
+
+        <button type="submit" class="w-full py-2.5 px-4 rounded-xl bg-ink hover:bg-ink/90 text-white font-bold text-xs transition-colors cursor-pointer">
+          Desar Proveïdor & Vigència
+        </button>
+      </form>
+    </div>
+
+    {# Taula Històrica de Vigències #}
+    <div class="xl:col-span-8 bg-white rounded-2xl border border-steel/20 p-5 shadow-xs overflow-hidden">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="font-marcellus text-lg text-ink">Històric de Proveïdors per Dates</h2>
+          <p class="text-xs text-ink/65 font-raleway">Resolució cronològica per a certificats, PDFs i auditories.</p>
+        </div>
+        <span class="px-2.5 py-1 rounded-lg bg-cream/60 border border-gold/30 text-[11px] font-mono text-ink font-semibold">
+          {{ history|length }} registres
+        </span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="border-b border-steel/20 text-[10px] font-mono uppercase tracking-wider text-steel">
+              <th class="py-2.5 px-3">Categoria</th>
+              <th class="py-2.5 px-3">Nom Públic</th>
+              <th class="py-2.5 px-3">Codi</th>
+              <th class="py-2.5 px-3">Vigència</th>
+              <th class="py-2.5 px-3 text-right">Acció</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-steel/10 font-raleway">
+            {% for row in history %}
+              <tr class="hover:bg-cream-50/40">
+                <td class="py-2.5 px-3 whitespace-nowrap">
+                  <span class="px-2 py-0.5 rounded bg-cream/60 border border-gold/30 text-[10px] font-mono font-bold text-ink">
+                    {{ row.category.value }}
+                  </span>
+                </td>
+                <td class="py-2.5 px-3 font-semibold text-ink">
+                  {{ row.publicName }}
+                  {% if row.notes %}
+                    <div class="text-[11px] font-normal text-ink/60 truncate max-w-xs" title="{{ row.notes }}">{{ row.notes }}</div>
+                  {% endif %}
+                </td>
+                <td class="py-2.5 px-3 font-mono text-[11px] text-steel">{{ row.providerCode }}</td>
+                <td class="py-2.5 px-3 font-mono text-[11px] whitespace-nowrap">
+                  <div>{{ row.validFrom|date('d/m/Y H:i') }}</div>
+                  <div class="text-[10px] {{ row.validTo ? 'text-steel' : 'text-emerald-700 font-bold' }}">
+                    {{ row.validTo ? '→ ' ~ row.validTo|date('d/m/Y H:i') : '● Vigent actualment' }}
+                  </div>
+                </td>
+                <td class="py-2.5 px-3 text-right whitespace-nowrap">
+                  <details class="inline-block text-left">
+                    <summary class="cursor-pointer px-2.5 py-1 rounded-lg border border-steel/25 text-[11px] font-semibold text-ink hover:bg-cream/50 list-none">
+                      Editar
+                    </summary>
+                    <form method="post" action="{{ path('app_admin_service_providers_edit', { id: row.id }) }}"
+                          class="mt-2 p-3 rounded-xl bg-cream-50 border border-gold/30 space-y-2 w-64 text-left shadow-sm">
+                      <input type="hidden" name="_token" value="{{ csrf_token('service_provider_edit_' ~ row.id) }}">
+                      <input type="text" name="public_name" value="{{ row.publicName }}" required class="w-full rounded-lg border border-steel/30 px-2 py-1 text-xs">
+                      <input type="text" name="provider_code" value="{{ row.providerCode }}" required class="w-full rounded-lg border border-steel/30 px-2 py-1 text-xs font-mono">
+                      <input type="datetime-local" name="valid_from" value="{{ row.validFrom|date('Y-m-d\\TH:i') }}" class="w-full rounded-lg border border-steel/30 px-2 py-1 text-[11px] font-mono">
+                      <input type="datetime-local" name="valid_to" value="{{ row.validTo ? row.validTo|date('Y-m-d\\TH:i') : '' }}" class="w-full rounded-lg border border-steel/30 px-2 py-1 text-[11px] font-mono">
+                      <input type="text" name="notes" value="{{ row.notes ?? '' }}" placeholder="Notes..." class="w-full rounded-lg border border-steel/30 px-2 py-1 text-xs">
+                      <button type="submit" class="w-full py-1.5 rounded-lg bg-ink text-white text-xs font-bold cursor-pointer">Desar</button>
+                    </form>
+                  </details>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+

@@ -198,17 +198,18 @@
           {# Capa 1: Segellat de Temps eIDAS #}
           <div class="p-5 rounded-2xl border border-steel/20 bg-cream-50/70 flex flex-col justify-between">
             <div>
+              {% set tspName = service_provider_name('tsp', certificate.createdAt) %}
               <div class="flex items-center justify-between mb-2">
                 <span class="text-xs font-bold uppercase tracking-wider text-ink flex items-center gap-1.5">
                   <span class="w-2 h-2 rounded-full bg-gold"></span>
-                  Capa 1 · Segellat eIDAS (Namirial / Signaturit)
+                  Capa 1 · Segellat eIDAS ({{ tspName }})
                 </span>
                 <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-white border border-steel/20 text-steel">
                   TSP Qualificat
                 </span>
               </div>
               <p class="text-xs text-steel leading-relaxed mb-3">
-                Certificació de data certa i no-repudi jurídic sota el Reglament Europeu (UE) núm. 910/2014 (eIDAS) via Signaturit (Grup Namirial).
+                Certificació de data certa i no-repudi jurídic sota el Reglament Europeu (UE) núm. 910/2014 (eIDAS) via {{ tspName }}.
               </p>
             </div>
             <div class="space-y-1.5 text-xs font-mono bg-white p-3 rounded-xl border border-steel/15">
@@ -252,7 +253,7 @@
             <div class="space-y-1.5 text-xs font-mono bg-white p-3 rounded-xl border border-steel/15">
               <div class="flex justify-between items-center text-steel">
                 <span>Xarxa:</span>
-                <span class="text-ink font-bold">Polygon PoS (POL)</span>
+                <span class="text-ink font-bold">{{ service_provider_name('blockchain', latestBlockchainReceipt ? latestBlockchainReceipt.anchoredAt : certificate.createdAt) }}</span>
               </div>
               {% if latestBlockchainReceipt %}
                 {% set firstReceipt = item is defined and item ? item.firstBlockchainReceipt : null %}

@@ -509,7 +509,7 @@
         {% if isDraft %}
           SENSE SEGELL QUALIFICAT eIDAS (MODE ESBORRANY)
         {% else %}
-          QUALIFIED TRUST SERVICE PROVIDER (NAMIRIAL / SIGNATURIT &middot; eIDAS REGULATION EU 910/2014)
+          {{ service_provider_name('tsp', certificate.createdAt)|upper }} &middot; eIDAS REGULATION EU 910/2014
         {% endif %}
       </span>
     </div>
