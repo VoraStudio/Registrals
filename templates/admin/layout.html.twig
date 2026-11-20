@@ -145,10 +145,15 @@
               VIGILÀNCIA & SISTEMA
             </div>
             <div class="space-y-1">
+              {% set _wh = admin_worker_health() %}
               <a href="{{ path('app_admin_services') }}" 
-                 class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold transition-all {{ app.current_route == 'app_admin_services' ? 'bg-gold text-ink shadow-xs font-bold' : 'text-white/80 hover:text-white hover:bg-white/10' }}">
-                <svg class="w-4 h-4 {{ app.current_route == 'app_admin_services' ? 'text-ink' : 'text-gold' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/></svg>
-                <span>Salut dels Serveis</span>
+                 class="flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl font-semibold transition-all {{ app.current_route == 'app_admin_services' ? 'bg-gold text-ink shadow-xs font-bold' : 'text-white/80 hover:text-white hover:bg-white/10' }}">
+                <span class="flex items-center gap-3">
+                  <svg class="w-4 h-4 {{ app.current_route == 'app_admin_services' ? 'text-ink' : 'text-gold' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/></svg>
+                  <span>Salut dels Serveis</span>
+                </span>
+                <span class="w-2 h-2 rounded-full shrink-0 {{ _wh.status == 'critical' ? 'bg-rose-400 animate-pulse' : 'bg-emerald-400' }}"
+                      title="{{ _wh.status == 'critical' ? 'Workers: cua encallada o fallits pendents' : 'Workers i cues OK' }}"></span>
               </a>
 
               <a href="{{ path('app_admin_audit_logs') }}" 
