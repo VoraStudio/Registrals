@@ -30,7 +30,7 @@
             {% for ad in campaigns %}
               <article class="rr-slide w-full shrink-0" data-duration="{{ ad.durationSeconds }}">
                 {% if ad.mediaType == 'video' %}
-                  <video src="{{ asset(ad.mediaPath) }}" muted loop autoplay playsinline class="w-full max-h-[78vh] object-contain mx-auto block bg-ink"></video>
+                  <video src="{{ asset(ad.mediaPath) }}" muted {{ campaigns|length == 1 ? 'loop autoplay' : '' }} playsinline preload="auto" class="w-full max-h-[78vh] object-contain mx-auto block bg-ink"></video>
                 {% else %}
                   <img src="{{ asset(ad.mediaPath) }}" alt="{{ ad.title }}" class="w-full max-h-[78vh] object-contain mx-auto block bg-ink">
                 {% endif %}
@@ -82,6 +82,20 @@
     let elapsed = 0;
     let lastTick = performance.now();
 
+    function syncSlideMedia() {
+      slides.forEach((slide, i) => {
+        const video = slide.querySelector('video');
+        if (!video) return;
+        if (i === current) {
+          video.currentTime = 0;
+          if (!paused) video.play().catch(() => {});
+        } else {
+          video.pause();
+          video.currentTime = 0;
+        }
+      });
+    }
+
     function goTo(index) {
       current = (index + slides.length) % slides.length;
       track.style.transform = `translateX(-${current * 100}%)`;
@@ -94,29 +108,53 @@
       });
       elapsed = 0;
       if (progress) progress.style.width = '0%';
+      syncSlideMedia();
     }
+
+    slides.forEach((slide, i) => {
+      const video = slide.querySelector('video');
+      if (video) {
+        video.addEventListener('ended', () => {
+          if (i === current) goTo(current + 1);
+        });
+      }
+    });
 
     document.getElementById('rr-prev')?.addEventListener('click', () => goTo(current - 1));
     document.getElementById('rr-next')?.addEventListener('click', () => goTo(current + 1));
     dots.forEach((d) => d.addEventListener('click', () => goTo(Number(d.dataset.rrDot))));
 
-    stage?.addEventListener('mouseenter', () => { paused = true; });
-    stage?.addEventListener('mouseleave', () => { paused = false; lastTick = performance.now(); });
+    stage?.addEventListener('mouseenter', () => {
+      paused = true;
+      slides[current]?.querySelector('video')?.pause();
+    });
+    stage?.addEventListener('mouseleave', () => {
+      paused = false;
+      lastTick = performance.now();
+      slides[current]?.querySelector('video')?.play().catch(() => {});
+    });
 
     function tick(now) {
       const dt = now - lastTick;
       lastTick = now;
       if (!paused) {
-        const durationMs = Math.max(2000, Number(slides[current].dataset.duration || 8) * 1000);
-        elapsed += dt;
-        if (progress) progress.style.width = `${Math.min(100, (elapsed / durationMs) * 100)}%`;
-        if (elapsed >= durationMs) {
-          goTo(current + 1);
+        const activeSlide = slides[current];
+        const video = activeSlide?.querySelector('video');
+        if (video && Number.isFinite(video.duration) && video.duration > 0) {
+          if (progress) progress.style.width = `${Math.min(100, (video.currentTime / video.duration) * 100)}%`;
+        } else if (!video) {
+          const durationMs = Math.max(2000, Number(activeSlide.dataset.duration || 8) * 1000);
+          elapsed += dt;
+          if (progress) progress.style.width = `${Math.min(100, (elapsed / durationMs) * 100)}%`;
+          if (elapsed >= durationMs) {
+            goTo(current + 1);
+          }
         }
       }
       requestAnimationFrame(tick);
     }
 
+    syncSlideMedia();
     requestAnimationFrame(tick);
   })();
 </script>
