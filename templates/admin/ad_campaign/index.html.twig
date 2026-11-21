@@ -101,6 +101,9 @@
                           data-duration="{{ ad.durationSeconds }}"
                           data-order="{{ ad.sortOrder }}"
                           data-active="{{ ad.active ? '1' : '0' }}"
+                          data-media-ca="{{ asset(ad.mediaPath) }}"
+                          data-media-es="{{ ad.mediaPathEs ? asset(ad.mediaPathEs) : '' }}"
+                          data-media-en="{{ ad.mediaPathEn ? asset(ad.mediaPathEn) : '' }}"
                           class="px-2.5 py-1.5 rounded-lg border border-steel/25 bg-cream-50 hover:bg-cream text-ink text-xs font-semibold cursor-pointer">
                     Editar
                   </button>
@@ -149,18 +152,27 @@
 
       <div class="space-y-2.5 p-3 rounded-xl border border-steel/15 bg-cream-50/40">
         <div>
-          <label class="block font-bold text-ink mb-1">Creativitat CAT <span class="text-gold">(per defecte)</span></label>
+          <div class="flex items-center justify-between gap-2 mb-1">
+            <label class="font-bold text-ink">Creativitat CAT <span class="text-gold">(per defecte)</span></label>
+            <span id="ad-status-ca" class="text-[10px] font-mono"></span>
+          </div>
           <input type="file" name="media" id="ad-form-media" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm"
                  class="w-full rounded-xl border border-steel/30 bg-white px-3 py-1.5 text-xs text-ink">
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           <div>
-            <label class="block font-bold text-ink mb-1">Creativitat ES <span class="font-normal text-steel">(opc.)</span></label>
+            <div class="flex items-center justify-between gap-1 mb-1">
+              <label class="font-bold text-ink">Creativitat ES <span class="font-normal text-steel">(opc.)</span></label>
+              <span id="ad-status-es" class="text-[10px] font-mono"></span>
+            </div>
             <input type="file" name="media_es" id="ad-form-media-es" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm"
                    class="w-full rounded-xl border border-steel/30 bg-white px-2.5 py-1.5 text-[11px] text-ink">
           </div>
           <div>
-            <label class="block font-bold text-ink mb-1">Creativitat EN <span class="font-normal text-steel">(opc.)</span></label>
+            <div class="flex items-center justify-between gap-1 mb-1">
+              <label class="font-bold text-ink">Creativitat EN <span class="font-normal text-steel">(opc.)</span></label>
+              <span id="ad-status-en" class="text-[10px] font-mono"></span>
+            </div>
             <input type="file" name="media_en" id="ad-form-media-en" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm"
                    class="w-full rounded-xl border border-steel/30 bg-white px-2.5 py-1.5 text-[11px] text-ink">
           </div>
@@ -227,6 +239,18 @@
   const adForm = document.getElementById('ad-modal-form');
   const adDelModal = document.getElementById('ad-delete-modal');
 
+  function renderMediaBadge(elId, url, emptyText) {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    if (url) {
+      el.innerHTML = `<a href="${url}" target="_blank" rel="noopener" class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold hover:underline">● Pujat ↗</a>`;
+    } else if (emptyText) {
+      el.innerHTML = `<span class="text-steel">${emptyText}</span>`;
+    } else {
+      el.innerHTML = '';
+    }
+  }
+
   function openAdCreateModal() {
     document.getElementById('ad-modal-title').textContent = 'Nova Campanya Publicitària';
     adForm.action = '{{ path('app_admin_ads_create') }}';
@@ -237,6 +261,9 @@
     document.getElementById('ad-form-media').value = '';
     document.getElementById('ad-form-media-es').value = '';
     document.getElementById('ad-form-media-en').value = '';
+    renderMediaBadge('ad-status-ca', '', '');
+    renderMediaBadge('ad-status-es', '', '');
+    renderMediaBadge('ad-status-en', '', '');
     document.getElementById('ad-media-hint').classList.add('hidden');
     document.getElementById('ad-form-starts').value = '{{ 'now'|date('Y-m-d\\TH:i') }}';
     document.getElementById('ad-form-ends').value = '';
@@ -257,6 +284,9 @@
     document.getElementById('ad-form-media').value = '';
     document.getElementById('ad-form-media-es').value = '';
     document.getElementById('ad-form-media-en').value = '';
+    renderMediaBadge('ad-status-ca', btn.dataset.mediaCa, '');
+    renderMediaBadge('ad-status-es', btn.dataset.mediaEs, 'Usa CAT');
+    renderMediaBadge('ad-status-en', btn.dataset.mediaEn, 'Usa CAT');
     document.getElementById('ad-media-hint').classList.remove('hidden');
     document.getElementById('ad-form-starts').value = btn.dataset.startsAt;
     document.getElementById('ad-form-ends').value = btn.dataset.endsAt;
