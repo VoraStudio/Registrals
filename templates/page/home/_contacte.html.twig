@@ -134,16 +134,21 @@
           <p class="hidden text-sm text-red-700 peer-user-invalid:block">Escriu el teu missatge.</p>
         </div>
         <div data-reveal="field" class="flex flex-col gap-1.5 sm:col-span-2">
-          <div class="relative flex flex-wrap items-start gap-x-3 gap-y-1">
-            <input
-              id="contact-privacy"
-              type="checkbox"
-              name="privacy"
-              required
-              aria-describedby="contact-privacy-error"
-              class="peer mt-1 size-5 shrink-0 accent-ink user-invalid:outline-2 user-invalid:outline-red-700"
-            />
-            <label for="contact-privacy" class="text-sm text-ink/90">
+          <div class="relative flex flex-wrap items-center gap-x-3 gap-y-1">
+            <span class="relative inline-flex items-center justify-center shrink-0">
+              <input
+                id="contact-privacy"
+                type="checkbox"
+                name="privacy"
+                required
+                aria-describedby="contact-privacy-error"
+                class="peer size-5 appearance-none rounded-md border border-ink/30 bg-cream/30 transition-all cursor-pointer hover:border-ink/60 checked:border-ink checked:bg-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold user-invalid:border-red-700"
+              />
+              <svg class="pointer-events-none absolute size-3.5 text-gold opacity-0 scale-75 transition-all duration-150 peer-checked:opacity-100 peer-checked:scale-100" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </span>
+            <label for="contact-privacy" class="text-sm text-ink/90 cursor-pointer select-none">
               He llegit i accepto la
               <a href="{{ path('app_legal') }}#privacitat" class="font-semibold underline decoration-gold decoration-2 underline-offset-4 hover:text-steel"
                 >política de privacitat</a

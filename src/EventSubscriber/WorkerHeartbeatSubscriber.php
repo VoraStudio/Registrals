@@ -41,3 +41,4 @@ final class WorkerHeartbeatSubscriber implements EventSubscriberInterface
         }
     }
 }
+

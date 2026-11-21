@@ -146,3 +146,4 @@ final class WorkerHealthService
         return 'worker_heartbeat_' . preg_replace('/[^a-zA-Z0-9_]/', '_', $transportName);
     }
 }
+

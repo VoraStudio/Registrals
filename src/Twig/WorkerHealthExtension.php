@@ -30,3 +30,4 @@ final class WorkerHealthExtension extends AbstractExtension
         return $this->workerHealthService->getHealthReport();
     }
 }
+
