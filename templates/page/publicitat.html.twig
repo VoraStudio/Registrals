@@ -11,79 +11,47 @@
   {% include 'partials/_public_subpage_header.html.twig' %}
 
   <main class="w-full flex-1">
-    <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-8">
-      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-ink/10 pb-6">
-        <div>
-          <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-ink text-gold text-[11px] font-mono uppercase tracking-wider mb-3">
-            <span class="w-1.5 h-1.5 rounded-full bg-gold animate-pulse"></span>
-            Aparador Institucional
-          </span>
-          <h1 class="font-marcellus text-3xl sm:text-5xl text-ink tracking-tight">Campanyes &amp; Presentacions</h1>
-          <p class="text-sm sm:text-base text-ink/75 mt-2 max-w-2xl">
-            Creativitats i càpsules actives de Registrals en rotació contínua.
-          </p>
-        </div>
-
-        {% if campaigns|length > 1 %}
-          <div class="flex items-center gap-2 shrink-0">
-            <button type="button" id="rr-prev" aria-label="Anterior"
-                    class="w-10 h-10 rounded-full border border-ink/20 bg-white hover:bg-ink hover:text-gold text-ink flex items-center justify-center transition-colors cursor-pointer shadow-xs">
-              ‹
-            </button>
-            <span id="rr-counter" class="px-3 py-1.5 rounded-full bg-white border border-ink/15 text-xs font-mono font-bold text-ink">
-              1 / {{ campaigns|length }}
-            </span>
-            <button type="button" id="rr-next" aria-label="Següent"
-                    class="w-10 h-10 rounded-full border border-ink/20 bg-white hover:bg-ink hover:text-gold text-ink flex items-center justify-center transition-colors cursor-pointer shadow-xs">
-              ›
-            </button>
-          </div>
-        {% endif %}
-      </div>
-
+    <section class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-4">
       {% if campaigns is empty %}
         <div class="rounded-3xl border border-gold/30 bg-white p-10 text-center shadow-sm">
           <p class="font-marcellus text-2xl text-ink">No hi ha cap campanya activa en aquest moment</p>
           <p class="text-sm text-steel mt-2">Torna aviat per descobrir les noves presentacions de Registrals.</p>
         </div>
       {% else %}
-        <div id="rr-stage" class="relative rounded-3xl overflow-hidden bg-ink border border-gold/30 shadow-2xl">
+        <div id="rr-stage" class="relative rounded-3xl overflow-hidden bg-ink border border-gold/30 shadow-2xl group">
           {# Barra de progrés superior #}
-          <div class="h-1 bg-white/10 w-full">
-            <div id="rr-progress" class="h-full bg-gold transition-none" style="width: 0%;"></div>
-          </div>
+          {% if campaigns|length > 1 %}
+            <div class="h-1 bg-white/10 w-full relative z-20">
+              <div id="rr-progress" class="h-full bg-gold transition-none" style="width: 0%;"></div>
+            </div>
+          {% endif %}
 
-          <div id="rr-track" class="flex transition-transform duration-500 ease-out">
+          <div id="rr-track" class="flex transition-transform duration-500 ease-out items-center">
             {% for ad in campaigns %}
-              <article class="rr-slide w-full shrink-0 grid grid-cols-1 lg:grid-cols-12 items-stretch" data-duration="{{ ad.durationSeconds }}">
-                <div class="lg:col-span-8 bg-black/40 aspect-video flex items-center justify-center overflow-hidden">
-                  {% if ad.mediaType == 'video' %}
-                    <video src="{{ asset(ad.mediaPath) }}" muted loop autoplay playsinline class="w-full h-full object-contain"></video>
-                  {% else %}
-                    <img src="{{ asset(ad.mediaPath) }}" alt="{{ ad.title }}" class="w-full h-full object-contain">
-                  {% endif %}
-                </div>
-                <div class="lg:col-span-4 p-6 sm:p-8 flex flex-col justify-between bg-ink text-cream border-t lg:border-t-0 lg:border-l border-gold/20">
-                  <div class="space-y-4">
-                    <div class="flex items-center justify-between text-[11px] font-mono text-gold/80">
-                      <span>CAMPANYA #{{ loop.index }}</span>
-                      <span>{{ ad.durationSeconds }}s</span>
-                    </div>
-                    <h2 class="font-marcellus text-2xl sm:text-3xl text-whitef leading-snug">{{ ad.title }}</h2>
-                    <p class="text-sm text-cream/80 leading-relaxed whitespace-pre-line">{{ ad.description }}</p>
-                  </div>
-                  <div class="pt-6 mt-6 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-cream/60">
-                    <span>Des de {{ ad.startsAt|date('d/m/Y') }}</span>
-                    <a href="{{ path('app_home') }}" class="text-gold hover:underline font-bold">Descobrir Registrals →</a>
-                  </div>
-                </div>
+              <article class="rr-slide w-full shrink-0" data-duration="{{ ad.durationSeconds }}">
+                {% if ad.mediaType == 'video' %}
+                  <video src="{{ asset(ad.mediaPath) }}" muted loop autoplay playsinline class="w-full max-h-[78vh] object-contain mx-auto block bg-ink"></video>
+                {% else %}
+                  <img src="{{ asset(ad.mediaPath) }}" alt="{{ ad.title }}" class="w-full max-h-[78vh] object-contain mx-auto block bg-ink">
+                {% endif %}
               </article>
             {% endfor %}
           </div>
+
+          {% if campaigns|length > 1 %}
+            <button type="button" id="rr-prev" aria-label="Anterior"
+                    class="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-ink/75 hover:bg-ink text-gold border border-gold/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-lg">
+              ‹
+            </button>
+            <button type="button" id="rr-next" aria-label="Següent"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-ink/75 hover:bg-ink text-gold border border-gold/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-lg">
+              ›
+            </button>
+          {% endif %}
         </div>
 
         {% if campaigns|length > 1 %}
-          <div class="flex items-center justify-center gap-2 pt-2">
+          <div class="flex items-center justify-center gap-2 pt-1">
             {% for ad in campaigns %}
               <button type="button" data-rr-dot="{{ loop.index0 }}" aria-label="Anar a la campanya {{ loop.index }}"
                       class="rr-dot h-2.5 rounded-full transition-all cursor-pointer {{ loop.first ? 'w-8 bg-ink' : 'w-2.5 bg-ink/25 hover:bg-ink/50' }}"></button>
@@ -154,3 +122,4 @@
 </script>
 {% endif %}
 {% endblock %}
+
