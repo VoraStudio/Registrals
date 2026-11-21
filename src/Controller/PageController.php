@@ -15,7 +15,8 @@ final class PageController extends AbstractController
     public function home(
         \Symfony\Component\HttpFoundation\Request $request,
         \App\Service\PlatformStatsService $statsService,
-        \App\Repository\PlanRepository $planRepository
+        \App\Repository\PlanRepository $planRepository,
+        \App\Repository\FaqItemRepository $faqRepository
     ): Response {
         // 1. Si ja té sessió activa, entra directament al dashboard
         if ($this->getUser()) {
@@ -30,14 +31,25 @@ final class PageController extends AbstractController
         // 3. Tots els plans (incloent Properament/inactius) parametritzats des de backoffice
         $plans = $this->getPlansByCode($planRepository);
 
-        // 4. Preguntes freqüents des de JSON extern (preparat per a i18n)
-        $faqs = $this->loadFaqs('ca');
+        // 4. Preguntes freqüents des de base de dades (fallback a JSON si és buida)
+        $dbFaqs = $faqRepository->findActiveOrdered();
+        $faqs = $dbFaqs !== []
+            ? array_map(static fn ($f): array => ['question' => $f->getQuestion(), 'answer' => $f->getAnswer()], $dbFaqs)
+            : $this->loadFaqs('ca');
 
         // 5. Visitant nou o sessió desconeguda: mostra la Landing Page corporativa amb mètriques reals
         return $this->render('page/home.html.twig', [
             'stats' => $statsService->getHomeStats(),
             'plans' => $plans,
             'faqs' => $faqs,
+        ]);
+    }
+
+    #[Route('/publicitat', name: 'app_publicitat', methods: ['GET', 'HEAD'])]
+    public function publicitat(\App\Repository\AdCampaignRepository $adRepository): Response
+    {
+        return $this->render('page/publicitat.html.twig', [
+            'campaigns' => $adRepository->findCurrentlyActive(),
         ]);
     }
 

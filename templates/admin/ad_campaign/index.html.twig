@@ -1,0 +1,286 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Campanyes Publicitàries — Administració Registrals{% endblock %}
+
+{% block admin_content %}
+<div class="space-y-5">
+
+  <nav class="flex items-center gap-2 text-xs font-semibold font-raleway text-ink/65 flex-wrap">
+    <a href="{{ path('app_admin_dashboard') }}" class="hover:text-gold transition-colors">Inici</a>
+    <span>/</span>
+    <span class="text-ink/50">Landing &amp; Publicitat</span>
+    <span>/</span>
+    <span class="text-ink font-bold">Campanyes Publicitàries</span>
+  </nav>
+
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="font-marcellus text-2xl sm:text-3xl text-ink tracking-tight font-medium">Campanyes Publicitàries</h1>
+      <p class="font-raleway text-xs sm:text-sm text-ink/70 mt-1">
+        Gestió del carrusel Round Robin visible a <a href="{{ path('app_publicitat') }}" target="_blank" class="underline decoration-gold font-semibold text-ink">/publicitat ↗</a>.
+      </p>
+    </div>
+    <button type="button" onclick="openAdCreateModal()"
+            class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-ink hover:bg-ink/90 text-white text-xs font-bold shadow-xs transition-colors cursor-pointer shrink-0">
+      <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+      <span>Nova Campanya</span>
+    </button>
+  </div>
+
+  <div class="bg-white rounded-2xl border border-steel/20 shadow-xs overflow-hidden">
+    <div class="px-5 py-3.5 border-b border-steel/15 bg-cream-50/40 flex flex-wrap items-center justify-between gap-3">
+      <div class="inline-flex items-center gap-1 p-1 rounded-full bg-cream/50 border border-gold/30 text-xs font-raleway">
+        <button type="button" data-ad-filter="all" class="ad-filter-btn px-3 py-1 rounded-full font-bold bg-ink text-white cursor-pointer">Totes ({{ campaigns|length }})</button>
+        <button type="button" data-ad-filter="visible" class="ad-filter-btn px-3 py-1 rounded-full font-semibold text-ink/75 hover:text-ink cursor-pointer">Vigents ara</button>
+        <button type="button" data-ad-filter="inactive" class="ad-filter-btn px-3 py-1 rounded-full font-semibold text-ink/75 hover:text-ink cursor-pointer">Inactives / Fora de data</button>
+      </div>
+      <span class="text-[11px] font-mono text-steel">Ordre ascendent · Rotació circular</span>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse text-xs">
+        <thead>
+          <tr class="border-b border-steel/20 bg-cream-50/60 text-[10px] font-mono uppercase tracking-wider text-steel">
+            <th class="py-3 px-4">Creativitat</th>
+            <th class="py-3 px-4">Títol &amp; Descripció</th>
+            <th class="py-3 px-4">Vigència</th>
+            <th class="py-3 px-4 text-center">Temps / Ordre</th>
+            <th class="py-3 px-4 text-center">Estat</th>
+            <th class="py-3 px-4 text-right">Accions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-steel/10 font-raleway">
+          {% for ad in campaigns %}
+            {% set isVisible = ad.currentlyVisible %}
+            <tr class="ad-row hover:bg-cream-50/40 transition-colors" data-status="{{ isVisible ? 'visible' : 'inactive' }}">
+              <td class="py-3 px-4 w-32">
+                <div class="w-28 h-16 rounded-lg overflow-hidden border border-steel/20 bg-ink/5 flex items-center justify-center">
+                  {% if ad.mediaType == 'video' %}
+                    <video src="{{ asset(ad.mediaPath) }}" muted loop autoplay playsinline class="w-full h-full object-cover"></video>
+                  {% else %}
+                    <img src="{{ asset(ad.mediaPath) }}" alt="{{ ad.title }}" class="w-full h-full object-cover">
+                  {% endif %}
+                </div>
+              </td>
+              <td class="py-3 px-4">
+                <div class="font-bold text-ink text-sm">{{ ad.title }}</div>
+                <div class="text-[11px] text-ink/65 mt-0.5 line-clamp-2 max-w-md">{{ ad.description }}</div>
+              </td>
+              <td class="py-3 px-4 font-mono text-[11px] whitespace-nowrap">
+                <div class="text-ink">Inici: {{ ad.startsAt|date('d/m/Y H:i') }}</div>
+                <div class="text-steel mt-0.5">{{ ad.endsAt ? 'Final: ' ~ ad.endsAt|date('d/m/Y H:i') : 'Sense data final' }}</div>
+              </td>
+              <td class="py-3 px-4 text-center font-mono text-[11px] whitespace-nowrap">
+                <span class="px-2 py-0.5 rounded bg-cream/70 border border-gold/30 text-ink font-bold">{{ ad.durationSeconds }}s</span>
+                <span class="text-steel ml-1">#{{ ad.sortOrder }}</span>
+              </td>
+              <td class="py-3 px-4 text-center whitespace-nowrap">
+                <form method="post" action="{{ path('app_admin_ads_toggle', { id: ad.id }) }}" class="inline">
+                  <input type="hidden" name="_token" value="{{ csrf_token('admin_ad_toggle_' ~ ad.id) }}">
+                  <button type="submit" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold border cursor-pointer transition-colors {{ isVisible ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100' : (ad.active ? 'bg-amber-50 text-amber-800 border-amber-200' : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200') }}">
+                    <span class="w-1.5 h-1.5 rounded-full {{ isVisible ? 'bg-emerald-500' : (ad.active ? 'bg-amber-500' : 'bg-slate-400') }}"></span>
+                    {{ isVisible ? 'Vigent' : (ad.active ? 'Programada' : 'Inactiva') }}
+                  </button>
+                </form>
+              </td>
+              <td class="py-3 px-4 text-right whitespace-nowrap">
+                <div class="inline-flex items-center gap-1.5">
+                  <button type="button"
+                          onclick="openAdEditModal(this)"
+                          data-action="{{ path('app_admin_ads_edit', { id: ad.id }) }}"
+                          data-token="{{ csrf_token('admin_ad_edit_' ~ ad.id) }}"
+                          data-title="{{ ad.title }}"
+                          data-description="{{ ad.description }}"
+                          data-starts-at="{{ ad.startsAt|date('Y-m-d\\TH:i') }}"
+                          data-ends-at="{{ ad.endsAt ? ad.endsAt|date('Y-m-d\\TH:i') : '' }}"
+                          data-duration="{{ ad.durationSeconds }}"
+                          data-order="{{ ad.sortOrder }}"
+                          data-active="{{ ad.active ? '1' : '0' }}"
+                          class="px-2.5 py-1.5 rounded-lg border border-steel/25 bg-cream-50 hover:bg-cream text-ink text-xs font-semibold cursor-pointer">
+                    Editar
+                  </button>
+                  <button type="button"
+                          onclick="openAdDeleteModal('{{ path('app_admin_ads_delete', { id: ad.id }) }}', '{{ csrf_token('admin_ad_delete_' ~ ad.id) }}', '{{ ad.title|e('js') }}')"
+                          class="px-2.5 py-1.5 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold cursor-pointer">
+                    Eliminar
+                  </button>
+                </div>
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="6" class="py-8 px-4 text-center text-steel font-raleway">
+                Encara no hi ha cap campanya publicitària. Clica <strong>+ Nova Campanya</strong> per pujar la primera creativitat.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{# Modal Dual Crear / Editar Campanya #}
+<div id="ad-modal" class="hidden fixed inset-0 z-50 bg-ink/75 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4" role="dialog" aria-modal="true">
+  <div class="bg-white rounded-t-3xl sm:rounded-2xl border-t sm:border border-gold/40 shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden flex flex-col">
+    <div class="sm:hidden w-10 h-1 bg-steel/30 rounded-full mx-auto mt-2 -mb-1 shrink-0"></div>
+    <div class="px-5 py-4 border-b border-steel/15 flex items-center justify-between bg-cream-50/60">
+      <h3 id="ad-modal-title" class="font-marcellus text-lg text-ink">Nova Campanya Publicitària</h3>
+      <button type="button" onclick="closeAdModal()" class="w-8 h-8 rounded-lg hover:bg-steel/10 flex items-center justify-center text-ink/70 cursor-pointer">✕</button>
+    </div>
+
+    <form id="ad-modal-form" method="post" enctype="multipart/form-data" action="{{ path('app_admin_ads_create') }}" class="p-5 space-y-3.5 text-xs font-raleway overflow-y-auto">
+      <input type="hidden" name="_token" id="ad-form-token" value="{{ csrf_token('admin_ad_create') }}">
+
+      <div>
+        <label class="block font-bold text-ink mb-1">Títol</label>
+        <input type="text" name="title" id="ad-form-title" required maxlength="160" class="w-full rounded-xl border border-steel/30 px-3 py-2 text-xs text-ink">
+      </div>
+
+      <div>
+        <label class="block font-bold text-ink mb-1">Descripció</label>
+        <textarea name="description" id="ad-form-description" rows="3" required class="w-full rounded-xl border border-steel/30 px-3 py-2 text-xs text-ink"></textarea>
+      </div>
+
+      <div>
+        <label class="block font-bold text-ink mb-1">Imatge, GIF animat o Vídeo (JPG, PNG, WebP, GIF, MP4, WebM)</label>
+        <input type="file" name="media" id="ad-form-media" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm"
+               class="w-full rounded-xl border border-steel/30 bg-cream-50/40 px-3 py-2 text-xs text-ink">
+        <p id="ad-media-hint" class="hidden text-[11px] text-steel mt-1">Deixa-ho buit per mantenir el fitxer actual.</p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block font-bold text-ink mb-1">Data inici</label>
+          <input type="datetime-local" name="starts_at" id="ad-form-starts" value="{{ 'now'|date('Y-m-d\\TH:i') }}" class="w-full rounded-xl border border-steel/30 px-2.5 py-2 text-[11px] font-mono text-ink">
+        </div>
+        <div>
+          <label class="block font-bold text-ink mb-1">Data final (opcional)</label>
+          <input type="datetime-local" name="ends_at" id="ad-form-ends" class="w-full rounded-xl border border-steel/30 px-2.5 py-2 text-[11px] font-mono text-ink">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block font-bold text-ink mb-1">Segons per slide</label>
+          <input type="number" name="duration_seconds" id="ad-form-duration" min="2" max="120" value="8" class="w-full rounded-xl border border-steel/30 px-3 py-2 text-xs font-mono text-ink">
+        </div>
+        <div>
+          <label class="block font-bold text-ink mb-1">Ordre</label>
+          <input type="number" name="sort_order" id="ad-form-order" value="0" class="w-full rounded-xl border border-steel/30 px-3 py-2 text-xs font-mono text-ink">
+        </div>
+      </div>
+
+      <label class="flex items-center gap-2 text-xs text-ink/85 cursor-pointer pt-1">
+        <input type="checkbox" name="is_active" id="ad-form-active" value="1" checked class="rounded border-steel/40 text-ink">
+        <span>Campanya activa (visible dins el període de dates)</span>
+      </label>
+
+      <div class="pt-3 border-t border-steel/15 flex items-center justify-end gap-2.5">
+        <button type="button" onclick="closeAdModal()" class="px-4 py-2 rounded-xl border border-steel/25 text-xs font-semibold text-ink cursor-pointer">Cancel·lar</button>
+        <button type="submit" class="px-5 py-2 rounded-xl bg-ink hover:bg-ink/90 text-white text-xs font-bold cursor-pointer">Desar Campanya</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{# Modal Confirmació Eliminació #}
+<div id="ad-delete-modal" class="hidden fixed inset-0 z-50 bg-ink/75 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4" role="dialog" aria-modal="true">
+  <div class="bg-white rounded-t-3xl sm:rounded-2xl border-t sm:border border-gold/40 shadow-2xl max-w-md w-full overflow-hidden">
+    <div class="sm:hidden w-10 h-1 bg-steel/30 rounded-full mx-auto mt-2 -mb-1"></div>
+    <div class="px-5 py-4 border-b border-steel/15 flex items-center justify-between">
+      <h3 class="font-marcellus text-lg text-ink">Eliminar Campanya</h3>
+      <button type="button" onclick="closeAdDeleteModal()" class="w-8 h-8 rounded-lg hover:bg-steel/10 text-ink/70 cursor-pointer">✕</button>
+    </div>
+    <div class="p-5 text-xs font-raleway text-ink/80 leading-relaxed">
+      Segur que vols eliminar <strong id="ad-delete-title" class="text-ink"></strong>? S'esborrarà també el fitxer pujat.
+    </div>
+    <form id="ad-delete-form" method="post" class="px-5 py-3.5 bg-cream-50/50 border-t border-steel/15 flex items-center justify-end gap-2.5">
+      <input type="hidden" name="_token" id="ad-delete-token">
+      <button type="button" onclick="closeAdDeleteModal()" class="px-4 py-2 rounded-xl border border-steel/25 text-xs font-semibold text-ink cursor-pointer">Cancel·lar</button>
+      <button type="submit" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold cursor-pointer">Eliminar</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  const adModal = document.getElementById('ad-modal');
+  const adForm = document.getElementById('ad-modal-form');
+  const adDelModal = document.getElementById('ad-delete-modal');
+
+  function openAdCreateModal() {
+    document.getElementById('ad-modal-title').textContent = 'Nova Campanya Publicitària';
+    adForm.action = '{{ path('app_admin_ads_create') }}';
+    document.getElementById('ad-form-token').value = '{{ csrf_token('admin_ad_create') }}';
+    document.getElementById('ad-form-title').value = '';
+    document.getElementById('ad-form-description').value = '';
+    document.getElementById('ad-form-media').required = true;
+    document.getElementById('ad-form-media').value = '';
+    document.getElementById('ad-media-hint').classList.add('hidden');
+    document.getElementById('ad-form-starts').value = '{{ 'now'|date('Y-m-d\\TH:i') }}';
+    document.getElementById('ad-form-ends').value = '';
+    document.getElementById('ad-form-duration').value = '8';
+    document.getElementById('ad-form-order').value = '0';
+    document.getElementById('ad-form-active').checked = true;
+    adModal.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+  }
+
+  function openAdEditModal(btn) {
+    document.getElementById('ad-modal-title').textContent = 'Editar Campanya Publicitària';
+    adForm.action = btn.dataset.action;
+    document.getElementById('ad-form-token').value = btn.dataset.token;
+    document.getElementById('ad-form-title').value = btn.dataset.title;
+    document.getElementById('ad-form-description').value = btn.dataset.description;
+    document.getElementById('ad-form-media').required = false;
+    document.getElementById('ad-form-media').value = '';
+    document.getElementById('ad-media-hint').classList.remove('hidden');
+    document.getElementById('ad-form-starts').value = btn.dataset.startsAt;
+    document.getElementById('ad-form-ends').value = btn.dataset.endsAt;
+    document.getElementById('ad-form-duration').value = btn.dataset.duration;
+    document.getElementById('ad-form-order').value = btn.dataset.order;
+    document.getElementById('ad-form-active').checked = btn.dataset.active === '1';
+    adModal.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+  }
+
+  function closeAdModal() {
+    adModal.classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+  }
+
+  function openAdDeleteModal(action, token, title) {
+    document.getElementById('ad-delete-form').action = action;
+    document.getElementById('ad-delete-token').value = token;
+    document.getElementById('ad-delete-title').textContent = title;
+    adDelModal.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+  }
+
+  function closeAdDeleteModal() {
+    adDelModal.classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+  }
+
+  adModal.addEventListener('click', (e) => { if (e.target === adModal) closeAdModal(); });
+  adDelModal.addEventListener('click', (e) => { if (e.target === adDelModal) closeAdDeleteModal(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { closeAdModal(); closeAdDeleteModal(); }
+  });
+
+  document.querySelectorAll('.ad-filter-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const f = btn.dataset.adFilter;
+      document.querySelectorAll('.ad-filter-btn').forEach((b) => {
+        b.classList.remove('bg-ink', 'text-white', 'font-bold');
+        b.classList.add('text-ink/75', 'font-semibold');
+      });
+      btn.classList.add('bg-ink', 'text-white', 'font-bold');
+      btn.classList.remove('text-ink/75', 'font-semibold');
+      document.querySelectorAll('.ad-row').forEach((row) => {
+        row.classList.toggle('hidden', f !== 'all' && row.dataset.status !== f);
+      });
+    });
+  });
+</script>
+{% endblock %}

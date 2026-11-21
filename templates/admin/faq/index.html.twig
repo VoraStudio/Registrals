@@ -1,0 +1,224 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Preguntes Freqüents (FAQ) — Administració Registrals{% endblock %}
+
+{% block admin_content %}
+<div class="space-y-5">
+
+  <nav class="flex items-center gap-2 text-xs font-semibold font-raleway text-ink/65 flex-wrap">
+    <a href="{{ path('app_admin_dashboard') }}" class="hover:text-gold transition-colors">Inici</a>
+    <span>/</span>
+    <span class="text-ink/50">Landing &amp; Publicitat</span>
+    <span>/</span>
+    <span class="text-ink font-bold">Preguntes Freqüents (FAQ)</span>
+  </nav>
+
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="font-marcellus text-2xl sm:text-3xl text-ink tracking-tight font-medium">Preguntes Freqüents (FAQ)</h1>
+      <p class="font-raleway text-xs sm:text-sm text-ink/70 mt-1">
+        Gestió de les entrades de la secció FAQ de la Landing Page (suporta llistes amb <code>• </code>).
+      </p>
+    </div>
+    <button type="button" onclick="openFaqCreateModal()"
+            class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-ink hover:bg-ink/90 text-white text-xs font-bold shadow-xs transition-colors cursor-pointer shrink-0">
+      <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+      <span>Nova Pregunta</span>
+    </button>
+  </div>
+
+  <div class="bg-white rounded-2xl border border-steel/20 shadow-xs overflow-hidden">
+    <div class="px-5 py-3.5 border-b border-steel/15 bg-cream-50/40 flex flex-wrap items-center justify-between gap-3">
+      <div class="inline-flex items-center gap-1 p-1 rounded-full bg-cream/50 border border-gold/30 text-xs font-raleway">
+        <button type="button" data-faq-filter="all" class="faq-filter-btn px-3 py-1 rounded-full font-bold bg-ink text-white cursor-pointer">Totes ({{ faqs|length }})</button>
+        <button type="button" data-faq-filter="active" class="faq-filter-btn px-3 py-1 rounded-full font-semibold text-ink/75 hover:text-ink cursor-pointer">Actives</button>
+        <button type="button" data-faq-filter="inactive" class="faq-filter-btn px-3 py-1 rounded-full font-semibold text-ink/75 hover:text-ink cursor-pointer">Inactives</button>
+      </div>
+      <span class="text-[11px] font-mono text-steel">Ordenat per camp Ordre</span>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse text-xs">
+        <thead>
+          <tr class="border-b border-steel/20 bg-cream-50/60 text-[10px] font-mono uppercase tracking-wider text-steel">
+            <th class="py-3 px-4 w-16 text-center">Ordre</th>
+            <th class="py-3 px-4">Pregunta &amp; Resposta</th>
+            <th class="py-3 px-4 text-center">Estat</th>
+            <th class="py-3 px-4 text-right">Accions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-steel/10 font-raleway">
+          {% for faq in faqs %}
+            <tr class="faq-row hover:bg-cream-50/40 transition-colors" data-status="{{ faq.active ? 'active' : 'inactive' }}">
+              <td class="py-3 px-4 text-center font-mono font-bold text-steel">#{{ faq.sortOrder }}</td>
+              <td class="py-3 px-4">
+                <div class="font-bold text-ink text-sm">{{ faq.question }}</div>
+                <div class="text-[11px] text-ink/65 mt-1 line-clamp-2 max-w-3xl whitespace-pre-line">{{ faq.answer }}</div>
+              </td>
+              <td class="py-3 px-4 text-center whitespace-nowrap">
+                <form method="post" action="{{ path('app_admin_faqs_toggle', { id: faq.id }) }}" class="inline">
+                  <input type="hidden" name="_token" value="{{ csrf_token('admin_faq_toggle_' ~ faq.id) }}">
+                  <button type="submit" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold border cursor-pointer transition-colors {{ faq.active ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100' : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200' }}">
+                    <span class="w-1.5 h-1.5 rounded-full {{ faq.active ? 'bg-emerald-500' : 'bg-slate-400' }}"></span>
+                    {{ faq.active ? 'Activa' : 'Inactiva' }}
+                  </button>
+                </form>
+              </td>
+              <td class="py-3 px-4 text-right whitespace-nowrap">
+                <div class="inline-flex items-center gap-1.5">
+                  <button type="button"
+                          onclick="openFaqEditModal(this)"
+                          data-action="{{ path('app_admin_faqs_edit', { id: faq.id }) }}"
+                          data-token="{{ csrf_token('admin_faq_edit_' ~ faq.id) }}"
+                          data-question="{{ faq.question }}"
+                          data-answer="{{ faq.answer }}"
+                          data-order="{{ faq.sortOrder }}"
+                          data-active="{{ faq.active ? '1' : '0' }}"
+                          class="px-2.5 py-1.5 rounded-lg border border-steel/25 bg-cream-50 hover:bg-cream text-ink text-xs font-semibold cursor-pointer">
+                    Editar
+                  </button>
+                  <button type="button"
+                          onclick="openFaqDeleteModal('{{ path('app_admin_faqs_delete', { id: faq.id }) }}', '{{ csrf_token('admin_faq_delete_' ~ faq.id) }}', '{{ faq.question|e('js') }}')"
+                          class="px-2.5 py-1.5 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold cursor-pointer">
+                    Eliminar
+                  </button>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{# Modal Dual Crear / Editar FAQ #}
+<div id="faq-modal" class="hidden fixed inset-0 z-50 bg-ink/75 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4" role="dialog" aria-modal="true">
+  <div class="bg-white rounded-t-3xl sm:rounded-2xl border-t sm:border border-gold/40 shadow-2xl max-w-xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+    <div class="sm:hidden w-10 h-1 bg-steel/30 rounded-full mx-auto mt-2 -mb-1 shrink-0"></div>
+    <div class="px-5 py-4 border-b border-steel/15 flex items-center justify-between bg-cream-50/60">
+      <h3 id="faq-modal-title" class="font-marcellus text-lg text-ink">Nova Pregunta Freqüent</h3>
+      <button type="button" onclick="closeFaqModal()" class="w-8 h-8 rounded-lg hover:bg-steel/10 flex items-center justify-center text-ink/70 cursor-pointer">✕</button>
+    </div>
+
+    <form id="faq-modal-form" method="post" action="{{ path('app_admin_faqs_create') }}" class="p-5 space-y-3.5 text-xs font-raleway overflow-y-auto">
+      <input type="hidden" name="_token" id="faq-form-token" value="{{ csrf_token('admin_faq_create') }}">
+
+      <div>
+        <label class="block font-bold text-ink mb-1">Pregunta</label>
+        <input type="text" name="question" id="faq-form-question" required maxlength="255" class="w-full rounded-xl border border-steel/30 px-3 py-2 text-xs text-ink">
+      </div>
+
+      <div>
+        <label class="block font-bold text-ink mb-1">Resposta</label>
+        <textarea name="answer" id="faq-form-answer" rows="7" required class="w-full rounded-xl border border-steel/30 px-3 py-2 text-xs text-ink leading-relaxed"></textarea>
+        <p class="text-[11px] text-steel mt-1">Pots separar paràgrafs amb una línia en blanc i fer llistes començant cada punt amb <code>• </code>.</p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 items-center">
+        <div>
+          <label class="block font-bold text-ink mb-1">Ordre</label>
+          <input type="number" name="sort_order" id="faq-form-order" value="0" class="w-full rounded-xl border border-steel/30 px-3 py-2 text-xs font-mono text-ink">
+        </div>
+        <label class="flex items-center gap-2 text-xs text-ink/85 cursor-pointer pt-5">
+          <input type="checkbox" name="is_active" id="faq-form-active" value="1" checked class="rounded border-steel/40 text-ink">
+          <span>Activa a la Landing</span>
+        </label>
+      </div>
+
+      <div class="pt-3 border-t border-steel/15 flex items-center justify-end gap-2.5">
+        <button type="button" onclick="closeFaqModal()" class="px-4 py-2 rounded-xl border border-steel/25 text-xs font-semibold text-ink cursor-pointer">Cancel·lar</button>
+        <button type="submit" class="px-5 py-2 rounded-xl bg-ink hover:bg-ink/90 text-white text-xs font-bold cursor-pointer">Desar FAQ</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{# Modal Confirmació Eliminació #}
+<div id="faq-delete-modal" class="hidden fixed inset-0 z-50 bg-ink/75 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4" role="dialog" aria-modal="true">
+  <div class="bg-white rounded-t-3xl sm:rounded-2xl border-t sm:border border-gold/40 shadow-2xl max-w-md w-full overflow-hidden">
+    <div class="sm:hidden w-10 h-1 bg-steel/30 rounded-full mx-auto mt-2 -mb-1"></div>
+    <div class="px-5 py-4 border-b border-steel/15 flex items-center justify-between">
+      <h3 class="font-marcellus text-lg text-ink">Eliminar Pregunta</h3>
+      <button type="button" onclick="closeFaqDeleteModal()" class="w-8 h-8 rounded-lg hover:bg-steel/10 text-ink/70 cursor-pointer">✕</button>
+    </div>
+    <div class="p-5 text-xs font-raleway text-ink/80 leading-relaxed">
+      Segur que vols eliminar <strong id="faq-delete-title" class="text-ink"></strong>?
+    </div>
+    <form id="faq-delete-form" method="post" class="px-5 py-3.5 bg-cream-50/50 border-t border-steel/15 flex items-center justify-end gap-2.5">
+      <input type="hidden" name="_token" id="faq-delete-token">
+      <button type="button" onclick="closeFaqDeleteModal()" class="px-4 py-2 rounded-xl border border-steel/25 text-xs font-semibold text-ink cursor-pointer">Cancel·lar</button>
+      <button type="submit" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold cursor-pointer">Eliminar</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  const faqModal = document.getElementById('faq-modal');
+  const faqForm = document.getElementById('faq-modal-form');
+  const faqDelModal = document.getElementById('faq-delete-modal');
+
+  function openFaqCreateModal() {
+    document.getElementById('faq-modal-title').textContent = 'Nova Pregunta Freqüent';
+    faqForm.action = '{{ path('app_admin_faqs_create') }}';
+    document.getElementById('faq-form-token').value = '{{ csrf_token('admin_faq_create') }}';
+    document.getElementById('faq-form-question').value = '';
+    document.getElementById('faq-form-answer').value = '';
+    document.getElementById('faq-form-order').value = '10';
+    document.getElementById('faq-form-active').checked = true;
+    faqModal.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+  }
+
+  function openFaqEditModal(btn) {
+    document.getElementById('faq-modal-title').textContent = 'Editar Pregunta Freqüent';
+    faqForm.action = btn.dataset.action;
+    document.getElementById('faq-form-token').value = btn.dataset.token;
+    document.getElementById('faq-form-question').value = btn.dataset.question;
+    document.getElementById('faq-form-answer').value = btn.dataset.answer;
+    document.getElementById('faq-form-order').value = btn.dataset.order;
+    document.getElementById('faq-form-active').checked = btn.dataset.active === '1';
+    faqModal.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+  }
+
+  function closeFaqModal() {
+    faqModal.classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+  }
+
+  function openFaqDeleteModal(action, token, title) {
+    document.getElementById('faq-delete-form').action = action;
+    document.getElementById('faq-delete-token').value = token;
+    document.getElementById('faq-delete-title').textContent = title;
+    faqDelModal.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+  }
+
+  function closeFaqDeleteModal() {
+    faqDelModal.classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+  }
+
+  faqModal.addEventListener('click', (e) => { if (e.target === faqModal) closeFaqModal(); });
+  faqDelModal.addEventListener('click', (e) => { if (e.target === faqDelModal) closeFaqDeleteModal(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { closeFaqModal(); closeFaqDeleteModal(); }
+  });
+
+  document.querySelectorAll('.faq-filter-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const f = btn.dataset.faqFilter;
+      document.querySelectorAll('.faq-filter-btn').forEach((b) => {
+        b.classList.remove('bg-ink', 'text-white', 'font-bold');
+        b.classList.add('text-ink/75', 'font-semibold');
+      });
+      btn.classList.add('bg-ink', 'text-white', 'font-bold');
+      btn.classList.remove('text-ink/75', 'font-semibold');
+      document.querySelectorAll('.faq-row').forEach((row) => {
+        row.classList.toggle('hidden', f !== 'all' && row.dataset.status !== f);
+      });
+    });
+  });
+</script>
+{% endblock %}
