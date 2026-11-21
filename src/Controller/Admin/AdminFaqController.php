@@ -8,6 +8,7 @@ use App\Entity\FaqItem;
 use App\Repository\FaqItemRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -137,4 +138,43 @@ class AdminFaqController extends AbstractController
 
         return $this->redirectToRoute('app_admin_faqs');
     }
+
+    #[Route('/reorder', name: 'app_admin_faqs_reorder', methods: ['POST'])]
+    public function reorder(
+        Request $request,
+        FaqItemRepository $repository,
+        EntityManagerInterface $entityManager
+    ): JsonResponse {
+        $payload = json_decode((string) $request->getContent(), true);
+        $token = is_array($payload) ? (string) ($payload['_token'] ?? '') : '';
+        if (!$this->isCsrfTokenValid('admin_faq_reorder', $token)) {
+            return new JsonResponse(['ok' => false, 'error' => 'Token invàlid'], 403);
+        }
+
+        $ids = is_array($payload['ids'] ?? null) ? $payload['ids'] : [];
+        if ($ids === []) {
+            return new JsonResponse(['ok' => false, 'error' => 'Llista buida'], 400);
+        }
+
+        $byId = [];
+        foreach ($repository->findAll() as $faq) {
+            if ($faq->getId() !== null) {
+                $byId[$faq->getId()] = $faq;
+            }
+        }
+
+        $order = 10;
+        foreach ($ids as $rawId) {
+            $id = (int) $rawId;
+            if (isset($byId[$id])) {
+                $byId[$id]->setSortOrder($order);
+                $order += 10;
+            }
+        }
+
+        $entityManager->flush();
+
+        return new JsonResponse(['ok' => true]);
+    }
 }
+
