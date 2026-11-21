@@ -22,9 +22,9 @@
     <div class="relative mt-12 md:ml-36">
       <div
         id="faq-scroll-container"
-        class="max-h-[30rem] overflow-y-auto md:overflow-hidden pr-2 md:pr-0 [scrollbar-color:rgba(202,163,108,0.55)_transparent] [scrollbar-width:thin]"
+        class="max-h-[34rem] overflow-y-auto scroll-smooth pr-2 [scrollbar-color:rgba(202,163,108,0.55)_transparent] [scrollbar-width:thin]"
       >
-        <div id="faq-scroll-track" class="space-y-3.5 will-change-transform">
+        <div id="faq-scroll-track" class="space-y-3.5">
         {% for faq in faqs|default([]) %}
           <details data-reveal="card" name="faq" class="group rounded-2xl border border-cream/10 bg-steel/40 px-6 py-4">
             <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-bold text-cream">

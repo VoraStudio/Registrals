@@ -338,44 +338,23 @@ const sectionReveals = {
       // Icona de fons: només opacity (el transform el porta el CSS), alhora que el títol
       tl.from("#s8 [data-reveal=icon]", { opacity: 0, duration: 4, ease: "power2.out" }, "title");
 
-      // Pin + scrub GSAP a escriptori: mentre baixes amb el ratolí, les preguntes fan scroll dins la caixa
+      // Scroll intern suau dins la caixa de FAQs (sense pin de pàgina per evitar salts)
       const faqContainer = document.getElementById("faq-scroll-container");
-      const faqTrack = document.getElementById("faq-scroll-track");
       const faqFade = document.getElementById("faq-scroll-fade");
       const faqHint = document.getElementById("faq-scroll-hint");
 
-      if (faqContainer && faqTrack) {
-        const localMm = gsap.matchMedia();
-        localMm.add("(min-width: 768px)", () => {
-          const getDistance = () => Math.max(0, faqTrack.scrollHeight - faqContainer.clientHeight);
-          if (getDistance() <= 0) return;
-
-          const scrollTween = gsap.to(faqTrack, {
-            y: () => -getDistance(),
-            ease: "none",
-            scrollTrigger: {
-              trigger: "#s8",
-              start: "top top",
-              end: () => "+=" + getDistance(),
-              pin: true,
-              scrub: 0.6,
-              invalidateOnRefresh: true,
-              onUpdate: (self) => {
-                const atEnd = self.progress > 0.94;
-                if (faqFade) faqFade.style.opacity = atEnd ? "0" : "1";
-                if (faqHint) faqHint.style.opacity = atEnd ? "0.35" : "1";
-              },
-            },
-          });
-
-          const onToggle = () => requestAnimationFrame(() => ScrollTrigger.refresh());
-          faqTrack.querySelectorAll("details").forEach((d) => d.addEventListener("toggle", onToggle));
-
-          return () => {
-            scrollTween.kill();
-            faqTrack.querySelectorAll("details").forEach((d) => d.removeEventListener("toggle", onToggle));
-          };
-        });
+      if (faqContainer) {
+        const updateFaqScrollState = () => {
+          const remaining = faqContainer.scrollHeight - faqContainer.scrollTop - faqContainer.clientHeight;
+          const atEnd = remaining <= 16;
+          if (faqFade) faqFade.style.opacity = atEnd ? "0" : "1";
+          if (faqHint) faqHint.style.opacity = atEnd ? "0.35" : "1";
+        };
+        faqContainer.addEventListener("scroll", updateFaqScrollState, { passive: true });
+        faqContainer.querySelectorAll("details").forEach((d) =>
+          d.addEventListener("toggle", () => requestAnimationFrame(updateFaqScrollState))
+        );
+        updateFaqScrollState();
       }
     },
   },
