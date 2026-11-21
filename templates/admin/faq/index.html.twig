@@ -49,10 +49,10 @@
         </thead>
         <tbody id="faq-tbody" class="divide-y divide-steel/10 font-raleway">
           {% for faq in faqs %}
-            <tr class="faq-row hover:bg-cream-50/40 transition-colors" draggable="true" data-id="{{ faq.id }}" data-status="{{ faq.active ? 'active' : 'inactive' }}">
+            <tr class="faq-row cursor-move hover:bg-cream-50/40 transition-colors" draggable="true" data-id="{{ faq.id }}" data-status="{{ faq.active ? 'active' : 'inactive' }}">
               <td class="py-3 px-4 text-center font-mono font-bold text-steel whitespace-nowrap">
                 <div class="inline-flex items-center gap-2">
-                  <span class="faq-drag-handle cursor-grab active:cursor-grabbing text-steel/60 hover:text-ink px-1 py-0.5 rounded" title="Arrossega per reordenar">⋮⋮</span>
+                  <span class="faq-drag-handle cursor-move text-steel/60 hover:text-ink px-1 py-0.5 rounded" title="Arrossega per reordenar">⋮⋮</span>
                   <span class="faq-order-badge">#{{ faq.sortOrder }}</span>
                 </div>
               </td>
