@@ -84,6 +84,17 @@ class AdminAdCampaignController extends AbstractController
             sortOrder: $sortOrder
         );
 
+        foreach (['media_es' => ['setMediaPathEs', 'setMediaTypeEs'], 'media_en' => ['setMediaPathEn', 'setMediaTypeEn']] as $field => [$pathSetter, $typeSetter]) {
+            $locFile = $request->files->get($field);
+            if ($locFile instanceof UploadedFile) {
+                $locUpload = $this->storeUploadedMedia($locFile);
+                if ($locUpload !== null) {
+                    $campaign->$pathSetter($locUpload['path']);
+                    $campaign->$typeSetter($locUpload['type']);
+                }
+            }
+        }
+
         $entityManager->persist($campaign);
         $entityManager->flush();
 
@@ -141,6 +152,26 @@ class AdminAdCampaignController extends AbstractController
             $campaign->setMediaType($upload['type']);
         }
 
+        foreach ([
+            'media_es' => ['getMediaPathEs', 'setMediaPathEs', 'setMediaTypeEs'],
+            'media_en' => ['getMediaPathEn', 'setMediaPathEn', 'setMediaTypeEn'],
+        ] as $field => [$pathGetter, $pathSetter, $typeSetter]) {
+            $locFile = $request->files->get($field);
+            if ($locFile instanceof UploadedFile) {
+                $locUpload = $this->storeUploadedMedia($locFile);
+                if ($locUpload === null) {
+                    $this->addFlash('error', 'Format de fitxer no admès (' . $field . ').');
+                    return $this->redirectToRoute('app_admin_ads');
+                }
+                $old = $campaign->$pathGetter();
+                if ($old !== null) {
+                    $this->deleteMediaFile($old);
+                }
+                $campaign->$pathSetter($locUpload['path']);
+                $campaign->$typeSetter($locUpload['type']);
+            }
+        }
+
         $campaign->setTitle($title);
         $campaign->setDescription($description);
         $campaign->setDurationSeconds(max(2, min(120, (int) $request->request->get('duration_seconds', 8))));
@@ -195,6 +226,12 @@ class AdminAdCampaignController extends AbstractController
         $campaign = $repository->find($id);
         if ($campaign) {
             $this->deleteMediaFile($campaign->getMediaPath());
+            if ($campaign->getMediaPathEs()) {
+                $this->deleteMediaFile($campaign->getMediaPathEs());
+            }
+            if ($campaign->getMediaPathEn()) {
+                $this->deleteMediaFile($campaign->getMediaPathEn());
+            }
             $entityManager->remove($campaign);
             $entityManager->flush();
             $this->addFlash('success', 'Campanya eliminada.');
@@ -243,3 +280,4 @@ class AdminAdCampaignController extends AbstractController
         }
     }
 }
+

@@ -65,6 +65,11 @@
               <td class="py-3 px-4">
                 <div class="font-bold text-ink text-sm">{{ ad.title }}</div>
                 <div class="text-[11px] text-ink/65 mt-0.5 line-clamp-2 max-w-md">{{ ad.description }}</div>
+                <div class="mt-1.5 flex items-center gap-1 text-[10px] font-mono">
+                  <span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold">CAT</span>
+                  <span class="px-1.5 py-0.5 rounded border font-bold {{ ad.mediaPathEs ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-500 border-slate-200' }}">ES</span>
+                  <span class="px-1.5 py-0.5 rounded border font-bold {{ ad.mediaPathEn ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-500 border-slate-200' }}">EN</span>
+                </div>
               </td>
               <td class="py-3 px-4 font-mono text-[11px] whitespace-nowrap">
                 <div class="text-ink">Inici: {{ ad.startsAt|date('d/m/Y H:i') }}</div>
@@ -142,11 +147,25 @@
         <textarea name="description" id="ad-form-description" rows="3" required class="w-full rounded-xl border border-steel/30 px-3 py-2 text-xs text-ink"></textarea>
       </div>
 
-      <div>
-        <label class="block font-bold text-ink mb-1">Imatge, GIF animat o Vídeo (JPG, PNG, WebP, GIF, MP4, WebM)</label>
-        <input type="file" name="media" id="ad-form-media" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm"
-               class="w-full rounded-xl border border-steel/30 bg-cream-50/40 px-3 py-2 text-xs text-ink">
-        <p id="ad-media-hint" class="hidden text-[11px] text-steel mt-1">Deixa-ho buit per mantenir el fitxer actual.</p>
+      <div class="space-y-2.5 p-3 rounded-xl border border-steel/15 bg-cream-50/40">
+        <div>
+          <label class="block font-bold text-ink mb-1">Creativitat CAT <span class="text-gold">(per defecte)</span></label>
+          <input type="file" name="media" id="ad-form-media" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm"
+                 class="w-full rounded-xl border border-steel/30 bg-white px-3 py-1.5 text-xs text-ink">
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div>
+            <label class="block font-bold text-ink mb-1">Creativitat ES <span class="font-normal text-steel">(opc.)</span></label>
+            <input type="file" name="media_es" id="ad-form-media-es" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm"
+                   class="w-full rounded-xl border border-steel/30 bg-white px-2.5 py-1.5 text-[11px] text-ink">
+          </div>
+          <div>
+            <label class="block font-bold text-ink mb-1">Creativitat EN <span class="font-normal text-steel">(opc.)</span></label>
+            <input type="file" name="media_en" id="ad-form-media-en" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm"
+                   class="w-full rounded-xl border border-steel/30 bg-white px-2.5 py-1.5 text-[11px] text-ink">
+          </div>
+        </div>
+        <p id="ad-media-hint" class="hidden text-[11px] text-steel">Deixa els camps buits per mantenir els fitxers actuals (si falta ES o EN, es mostrarà CAT).</p>
       </div>
 
       <div class="grid grid-cols-2 gap-3">
@@ -216,6 +235,8 @@
     document.getElementById('ad-form-description').value = '';
     document.getElementById('ad-form-media').required = true;
     document.getElementById('ad-form-media').value = '';
+    document.getElementById('ad-form-media-es').value = '';
+    document.getElementById('ad-form-media-en').value = '';
     document.getElementById('ad-media-hint').classList.add('hidden');
     document.getElementById('ad-form-starts').value = '{{ 'now'|date('Y-m-d\\TH:i') }}';
     document.getElementById('ad-form-ends').value = '';
@@ -234,6 +255,8 @@
     document.getElementById('ad-form-description').value = btn.dataset.description;
     document.getElementById('ad-form-media').required = false;
     document.getElementById('ad-form-media').value = '';
+    document.getElementById('ad-form-media-es').value = '';
+    document.getElementById('ad-form-media-en').value = '';
     document.getElementById('ad-media-hint').classList.remove('hidden');
     document.getElementById('ad-form-starts').value = btn.dataset.startsAt;
     document.getElementById('ad-form-ends').value = btn.dataset.endsAt;
@@ -284,3 +307,4 @@
   });
 </script>
 {% endblock %}
+

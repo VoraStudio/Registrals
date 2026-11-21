@@ -27,12 +27,14 @@
           {% endif %}
 
           <div id="rr-track" class="flex transition-transform duration-500 ease-out items-center">
+            {% set currentLocale = app.request.query.get('lang', app.request.locale|default('ca')) %}
             {% for ad in campaigns %}
+              {% set media = ad.mediaForLocale(currentLocale) %}
               <article class="rr-slide w-full shrink-0" data-duration="{{ ad.durationSeconds }}">
-                {% if ad.mediaType == 'video' %}
-                  <video src="{{ asset(ad.mediaPath) }}" muted {{ campaigns|length == 1 ? 'loop autoplay' : '' }} playsinline preload="auto" class="w-full max-h-[78vh] object-contain mx-auto block bg-ink"></video>
+                {% if media.type == 'video' %}
+                  <video src="{{ asset(media.path) }}" muted {{ campaigns|length == 1 ? 'loop autoplay' : '' }} playsinline preload="auto" class="w-full max-h-[78vh] object-contain mx-auto block bg-ink"></video>
                 {% else %}
-                  <img src="{{ asset(ad.mediaPath) }}" alt="{{ ad.title }}" class="w-full max-h-[78vh] object-contain mx-auto block bg-ink">
+                  <img src="{{ asset(media.path) }}" alt="{{ ad.title }}" class="w-full max-h-[78vh] object-contain mx-auto block bg-ink">
                 {% endif %}
               </article>
             {% endfor %}

@@ -30,6 +30,18 @@ class AdCampaign
     #[ORM\Column(name: 'media_type', type: 'string', length: 20, options: ['default' => 'image'])]
     private string $mediaType = 'image';
 
+    #[ORM\Column(name: 'media_path_es', type: 'string', length: 255, nullable: true)]
+    private ?string $mediaPathEs = null;
+
+    #[ORM\Column(name: 'media_type_es', type: 'string', length: 20, nullable: true)]
+    private ?string $mediaTypeEs = null;
+
+    #[ORM\Column(name: 'media_path_en', type: 'string', length: 255, nullable: true)]
+    private ?string $mediaPathEn = null;
+
+    #[ORM\Column(name: 'media_type_en', type: 'string', length: 20, nullable: true)]
+    private ?string $mediaTypeEn = null;
+
     #[ORM\Column(name: 'duration_seconds', type: 'integer', options: ['default' => 8])]
     private int $durationSeconds = 8;
 
@@ -124,6 +136,72 @@ class AdCampaign
         return $this;
     }
 
+    public function getMediaPathEs(): ?string
+    {
+        return $this->mediaPathEs;
+    }
+
+    public function setMediaPathEs(?string $mediaPathEs): static
+    {
+        $this->mediaPathEs = $mediaPathEs;
+
+        return $this;
+    }
+
+    public function getMediaTypeEs(): ?string
+    {
+        return $this->mediaTypeEs;
+    }
+
+    public function setMediaTypeEs(?string $mediaTypeEs): static
+    {
+        $this->mediaTypeEs = $mediaTypeEs;
+
+        return $this;
+    }
+
+    public function getMediaPathEn(): ?string
+    {
+        return $this->mediaPathEn;
+    }
+
+    public function setMediaPathEn(?string $mediaPathEn): static
+    {
+        $this->mediaPathEn = $mediaPathEn;
+
+        return $this;
+    }
+
+    public function getMediaTypeEn(): ?string
+    {
+        return $this->mediaTypeEn;
+    }
+
+    public function setMediaTypeEn(?string $mediaTypeEn): static
+    {
+        $this->mediaTypeEn = $mediaTypeEn;
+
+        return $this;
+    }
+
+    /**
+     * Retorna la creativitat per a l'idioma demanat, amb fallback automàtic a CAT.
+     *
+     * @return array{path: string, type: string}
+     */
+    public function getMediaForLocale(?string $locale = 'ca'): array
+    {
+        $lang = strtolower(substr((string) $locale, 0, 2));
+        if ($lang === 'es' && $this->mediaPathEs !== null && $this->mediaPathEs !== '') {
+            return ['path' => $this->mediaPathEs, 'type' => $this->mediaTypeEs ?? 'image'];
+        }
+        if ($lang === 'en' && $this->mediaPathEn !== null && $this->mediaPathEn !== '') {
+            return ['path' => $this->mediaPathEn, 'type' => $this->mediaTypeEn ?? 'image'];
+        }
+
+        return ['path' => $this->mediaPath, 'type' => $this->mediaType];
+    }
+
     public function getDurationSeconds(): int
     {
         return $this->durationSeconds;
@@ -199,3 +277,4 @@ class AdCampaign
         return $this->startsAt <= $at && ($this->endsAt === null || $this->endsAt >= $at);
     }
 }
+
