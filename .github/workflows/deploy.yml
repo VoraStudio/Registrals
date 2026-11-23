@@ -1,48 +1,39 @@
-name: Deploy to GitHub Pages
+name: Deploy to Production
 
 on:
   push:
-    branches: [main]
+    branches: [ main, f-symfony ]
   workflow_dispatch:
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: true
 
 jobs:
   deploy:
+    name: Deploy Application via SSH
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Stage site files
-        run: |
-          mkdir _site
-          rsync -a \
-            --exclude '.git' --exclude '.github' --exclude '.atl' \
-            --exclude 'docs' --exclude '_site' \
-            ./ _site/
-          # GitHub Pages serves index.html; fall back to index.v2.html
-          if [ ! -f _site/index.html ] && [ -f _site/index.v2.html ]; then
-            cp _site/index.v2.html _site/index.html
-          fi
-          # The v2 source is not published; index.html is the served copy
-          rm -f _site/index.v2.html
-          touch _site/.nojekyll
-
-      - uses: actions/configure-pages@v5
-
-      - uses: actions/upload-pages-artifact@v3
+      - name: Executing remote SSH commands
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          path: _site
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script_stop: true
+          script: |
+            set -e
+            echo "Iniciant desplegament a producció (Registrals)..."
+            cd /opt/registrals/app
+            git fetch origin
+            git reset --hard origin/${{ github.ref_name }}
 
-      - id: deployment
-        uses: actions/deploy-pages@v4
+            COMPOSE_FILE="/opt/registrals/app/docker/prod/docker-compose.yml"
+            docker compose -f "$COMPOSE_FILE" exec -T php composer install --no-dev --optimize-autoloader --no-interaction
+            docker compose -f "$COMPOSE_FILE" exec -T php chmod +x /var/www/registrals/bin/console
+            docker compose -f "$COMPOSE_FILE" exec -T php php bin/console doctrine:migrations:migrate --no-interaction
+            docker compose -f "$COMPOSE_FILE" exec -T php php bin/console tailwind:build --minify
+            docker compose -f "$COMPOSE_FILE" exec -T php php bin/console asset-map:compile
+            docker compose -f "$COMPOSE_FILE" exec -T php php bin/console cache:clear --env=prod
+            docker compose -f "$COMPOSE_FILE" exec -T php php bin/console cache:warmup --env=prod
+            docker compose -f "$COMPOSE_FILE" exec -T php chown -R www-data:www-data /var/www/registrals/var /var/www/registrals/web/assets /var/www/registrals/web/uploads
+            docker compose -f "$COMPOSE_FILE" exec -T php chmod -R 775 /var/www/registrals/var /var/www/registrals/web/assets /var/www/registrals/web/uploads
+            docker compose -f "$COMPOSE_FILE" restart worker
+            echo "Desplegament completat amb èxit!"

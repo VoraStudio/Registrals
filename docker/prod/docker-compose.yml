@@ -1,0 +1,74 @@
+services:
+  database:
+    image: mysql:8.4
+    container_name: registrals_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: registrals
+      MYSQL_USER: registrals_user
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-ChangeMeStrongPass2026!}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-ChangeMeRootPass2026!}
+    volumes:
+      - /opt/registrals/db_data:/var/lib/mysql
+      - ./mysql-init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - registrals_net
+
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: registrals_php
+    restart: unless-stopped
+    volumes:
+      - /opt/registrals/app:/var/www/registrals
+    environment:
+      APP_ENV: prod
+      CHROMIUM_BINARY_PATH: /usr/bin/chromium-browser
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - registrals_net
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: registrals_worker
+    restart: unless-stopped
+    command: php bin/console messenger:consume async_chain async_ai --time-limit=3600 --memory-limit=256M
+    volumes:
+      - /opt/registrals/app:/var/www/registrals
+    environment:
+      APP_ENV: prod
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - registrals_net
+
+  nginx:
+    image: nginx:alpine
+    container_name: registrals_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /opt/registrals/app:/var/www/registrals
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - php
+    networks:
+      - registrals_net
+
+networks:
+  registrals_net:
+    driver: bridge
