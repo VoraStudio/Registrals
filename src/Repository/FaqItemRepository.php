@@ -44,3 +44,4 @@ class FaqItemRepository extends ServiceEntityRepository
             ->getResult();
     }
 }
+

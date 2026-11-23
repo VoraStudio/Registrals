@@ -24,3 +24,4 @@ final class Version20261121121000 extends AbstractMigration
         $this->addSql('ALTER TABLE ad_campaigns DROP media_path_es, DROP media_type_es, DROP media_path_en, DROP media_type_en');
     }
 }
+

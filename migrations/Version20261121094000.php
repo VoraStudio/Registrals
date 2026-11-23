@@ -57,3 +57,4 @@ final class Version20261121094000 extends AbstractMigration
         $this->addSql('DROP TABLE faq_items');
     }
 }
+

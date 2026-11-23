@@ -52,3 +52,4 @@ class AdCampaignRepository extends ServiceEntityRepository
             ->getResult();
     }
 }
+

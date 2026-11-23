@@ -104,3 +104,4 @@ class FaqItem
         return $this->createdAt;
     }
 }
+
