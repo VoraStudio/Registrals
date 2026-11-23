@@ -14,6 +14,7 @@ use App\Service\Security\AuthChallengeStorage;
 use App\Service\Security\EmailOtpService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -29,10 +30,16 @@ class RegistrationController extends AbstractController
         PlanRepository $planRepository,
         EmailOtpService $emailOtpService,
         AuthChallengeStorage $challengeStorage,
+        #[Autowire('%env(bool:REGISTRATION_ENABLED)%')] bool $registrationEnabled = true,
         ?UserActivityLogger $activityLogger = null
     ): Response {
         if ($this->getUser()) {
             return $this->redirectToRoute('app_dashboard');
+        }
+
+        if (!$registrationEnabled) {
+            $this->addFlash('warning', 'El registre de nous comptes està temporalment tancat. Accés reservat a usuaris autoritzats.');
+            return $this->redirectToRoute('app_login');
         }
 
         if ($request->isMethod('POST')) {

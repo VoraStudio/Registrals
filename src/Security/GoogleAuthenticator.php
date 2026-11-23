@@ -10,12 +10,14 @@ use App\Repository\UserRepository;
 use App\Service\OAuth\GoogleOAuthService;
 use Doctrine\ORM\EntityManagerInterface;
 use League\OAuth2\Client\Provider\GoogleUser;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\RememberMeBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
@@ -30,7 +32,9 @@ class GoogleAuthenticator extends AbstractAuthenticator implements Authenticatio
         private readonly EntityManagerInterface $entityManager,
         private readonly UserRepository $userRepository,
         private readonly PlanRepository $planRepository,
-        private readonly UrlGeneratorInterface $urlGenerator
+        private readonly UrlGeneratorInterface $urlGenerator,
+        #[Autowire('%env(bool:REGISTRATION_ENABLED)%')]
+        private readonly bool $registrationEnabled = true
     ) {
     }
 
@@ -91,6 +95,10 @@ class GoogleAuthenticator extends AbstractAuthenticator implements Authenticatio
                         $this->entityManager->flush();
                     }
                     return $existingUser;
+                }
+
+                if (!$this->registrationEnabled) {
+                    throw new CustomUserMessageAuthenticationException('El registre de nous comptes està temporalment tancat. Només hi poden accedir usuaris autoritzats.');
                 }
 
                 $freePlan = $this->planRepository->findDefaultFreePlan();
